@@ -1,0 +1,10 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    {% if redirect_script %}
+        {{ redirect_script | safe }}
+    {% endif %}
+    <div id="error">
+        <span>{{ txt }}{% if redirect_script %}自動移動します{% endif %}</span>
+    </div>
+{% endblock %}

@@ -1,0 +1,350 @@
+{% extends "base_tmp.html" %}
+
+    {% block head %}
+        {% include "jscript_tmp.html" %}
+    {% endblock %}
+
+
+{% block content %}
+
+    <div class="my_page_topmenu">
+        [ <a href="{{ Conf.top_url }}">TOPへ</a> ]
+        [ <a href="./html/manual.html" target="_blank">ぷれいまにゅある</a> ]
+        [ <a href="./html/haigou_list.html" target="_blank">配合表</a> ]
+        [ <a href="./html/haigou_list2.html" target="_blank">配合表2</a> ]
+        [ <a href="{{ Conf.homepage }}">{{ Conf.home_title }}</a> ]
+    </div>
+
+    {% if Conf.event_boost %}
+    <div class="event_txt">!!現在ブースト期間中!!</div>
+    {% endif %}
+
+    <div class="my_page_title">{{ user["name"] }}さんのパーティー</div>
+    <div class="my_page_box">
+        <div class="my_page_user_st1">所持金<br>{{ user_v["money"] }}G</div>
+        <div class="my_page_user_st1">所持鍵<br>{{ user_v["key"] }}階</div>
+        <div class="my_page_user_st1 {{isekai}}">
+            異世界探索度<br>{{user.get("isekai_key",0)-1}}/{{user.get("isekai_limit",0)}}/{{Conf.isekai_max_limit}}</div>
+        <div class="my_page_user_st1">メダル<br>{{user_v["medal"]}}個</div>
+        <div class="my_page_user_st1 my_page_zukan">
+            <a href="./login.py?mode=zukan&name={{in_name}}&type=スライム系">[魔物図鑑]</a>
+            <br>{{user["getm"]}}
+        </div>
+    </div>
+
+    <form method="post" class="form">
+        <div class="my_page_pt">
+            {% for i, pt in party_with_index %}
+            <div class="my_page_chara_{{ i }}">
+                <div class="my_page_st_1">
+                    <select name="c_no{{ i }}">
+                        <option value="{{ i }}" hidden>{{ i }}</option>
+                        {% for n in option_list %}
+                        <option value="{{ n }}">{{ n }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="my_page_st_2"><img src="{{ Conf.imgpath }}/{{ pt["name"] }}.gif">{{ pt["name"] }}<br>-{{
+                    pt["sex"] }}-<br>{{ pt["sei"] }}</div>
+                <div class="my_page_charabox">
+                    <div class="my_page_st_3">
+                        <div class="my_page_st_title">LV<span>/最大LV</span></div>
+                        <div class="my_page_st_val">{{pt["lv"]}}<span>/{{pt["mlv"]}}</span></div>
+                    </div>
+                    <div class="my_page_st_4">
+                        <div class="my_page_st_title">HP<span>/最大HP</span></div>
+                        <div class="my_page_st_val">{{pt["hp"]}}<span>/{{pt["mhp"]}}</span></div>
+                    </div>
+                    <div class="my_page_st_4">
+                        <div class="my_page_st_title">MP<span>/最大MP</span></div>
+                        <div class="my_page_st_val">{{pt["mp"]}}<span>/{{pt["mmp"]}}</span></div>
+                    </div>
+                    <div class="my_page_st_4">
+                        <div class="my_page_st_title">経験値<span>/次のLvまで</span></div>
+                        <div class="my_page_st_val">{{pt["exp"]}}<span>/{{pt["n_exp"]}}</span></div>
+                    </div>
+                    <div class="my_page_st_3">
+                        <div class="my_page_st_title">配合</div>
+                        <div class="my_page_st_val">{{pt["hai"]}}回</div>
+                    </div>
+                    <div class="my_page_st_4">
+                        <div class="my_page_st_title">攻撃力</div>
+                        <div class="my_page_st_val">{{pt["atk"]}}</div>
+                    </div>
+                    <div class="my_page_st_4">
+                        <div class="my_page_st_title">守備力</div>
+                        <div class="my_page_st_val">{{pt["def"]}}</div>
+                    </div>
+                    <div class="my_page_st_4">
+                        <div class="my_page_st_title">素早さ</div>
+                        <div class="my_page_st_val">{{pt["agi"]}}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if my_page_flg %}
+        <div class="my_page_title">
+            <button>並び替えOK</button>
+            <input type="hidden" name="mode" value="change">
+            <input type="hidden" name="token" value="{{token}}">
+            No.1からNo.3迄のモンスターが戦闘を行います
+        </div>
+        {% endif %}
+    </form>
+
+    {% if my_page_flg %}
+
+    <!-- 鍵の一覧 -->
+    <div class="my_page_keylist"><a href="javascript:bo('u2','u3')" class="menu">▼取得系統の鍵一覧▼</a>
+        <div id="u2">
+            {%- for item in room_key_display -%}
+            <div class="my_page_list_item">{{ item.name if item.has_key else "-"}}の鍵</div>
+            {%- endfor -%}
+        </div>
+    </div>
+
+    <!-- 技の一覧 -->
+    <div class="my_page_keylist"><a href="javascript:bo('u3','u2')" class="menu">▼取得特技一覧▼</a>
+        <div id="u3">
+            {%- for item in waza_display -%}
+            <div class="my_page_list_item">{{ item.name }}</div>
+            {%- endfor -%}
+        </div>
+    </div>
+
+    <form method="post" class="form">
+        <INPUT class="input" size="40" type="text" name="message" value="{{user['mes']}}">
+        <input type="hidden" name="mode" value="comment">
+        <input type="hidden" name="token" value="{{token}}">
+        <button>コメント変更</button>
+    </form>
+    <br>
+    <object id="bbs" data="./bbs.py" type="text/html"></object>
+    <div id="b_count_txt" hidden>{{next_t}}</div>
+    <form id="b_count"><INPUT size="30" type="text"></INPUT></form>
+
+    <div class="my_page_menu_box">
+        <div class="my_page_menu1">戦 闘</div>
+        <div class="my_page_menu2">KEYやモンスターが入手出来ます。<br>KEYは一番深い階層を選択した時にしか出現しません。</div>
+        <div class="my_page_menu3">【最 深 階】</div>
+        <div class="my_page_menu4">
+            <form method="post" class="form battle_go">
+                <select name="in_room">
+                    <option value="通常">通常の部屋
+                        {% for room in room_key_display %}
+                    <option value="{{ room.name }}">{{ room.name }}の部屋</option>
+                    {% endfor %}
+                </select>
+                の地下
+                <input type="number" min="1" max="{{user['key']}}" name="in_floor" value="{{user['key']}}" size="7"></input>
+                Fに
+                <button disabled>戦闘に行く！</button>
+                <input type="hidden" name="mode" value="battle_type">
+                <input type="hidden" name="token" value="{{token}}">
+            </form>
+        </div>
+
+        <div class="my_page_menu3">【前対戦階】</div>
+        <div class="my_page_menu4">
+            <form method="post" class="form battle_go">
+                <select name="in_room">
+                    <option value="通常" room>通常の部屋
+                        {% for room in room_key_display %}
+                    <option value="{{ room.name }}" {% if room.selected %}SELECTED{% endif %}>{{ room.name }}の部屋</option>
+                    {% endfor %}
+                </select>
+                の地下
+                <input type="number" min="1" max="{{user['key']}}" name="in_floor" value="{{last_floor}}" size="7"></input>
+                Fに
+                <button disabled>戦闘に行く！</button>
+                <input type="hidden" name="mode" value="battle_type">
+                <input type="hidden" name="token" value="{{token}}">
+            </form>
+        </div>
+
+        <div class="my_page_menu3 {{isekai}}">異世界:最深階</div>
+        <div class="my_page_menu4 {{isekai}}">
+            <form method="post" class="form battle_go">
+                異世界の地下
+                <input type="number" min="1" max="{{isekai_next}}" name="in_isekai" value="{{isekai_next}}"
+                    size="7"></input>
+                Fに
+                <button disabled>探索に行く！</button>
+                <input type="hidden" name="mode" value="battle_type2">
+                <input type="hidden" name="in_room" value="特殊">
+                <input type="hidden" name="token" value="{{token}}">
+            </form>
+        </div>
+        <div class="my_page_menu3 {{isekai}}">異世界:前探索階</div>
+        <div class="my_page_menu4 {{isekai}}">
+            <form method="post" class="form battle_go">
+                異世界の地下
+                <input type="number" min="1" max="{{isekai_next}}" name="in_isekai" value="{{last_floor_isekai}}"
+                    size="7"></input>
+                Fに
+                <button disabled>探索に行く！</button>
+                <input type="hidden" name="mode" value="battle_type2">
+                <input type="hidden" name="in_room" value="特殊">
+                <input type="hidden" name="token" value="{{token}}">
+            </form>
+        </div>
+
+        <div class="my_page_menu1">施設色々</div>
+        <div class="my_page_menu2"><span id="link_msg">説明がここに。</span></div>
+        <div class="my_page_menu3">【お店へ】<br>
+            {% if omiai_status == "baby" %}
+            <img src="{{ Conf.imgpath }}/omiai_baby.png">
+            {% elif omiai_status == "request" %}
+            <img src="{{ Conf.imgpath }}/omiai_irai.png">
+            {% endif %}
+        </div>
+        <div class="my_page_menu4">
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='モンスターに本を読ませて性格を変更させる事が出来ます。'">
+                    <button>本屋に入室</button>
+                    <input type="hidden" name="mode" value="books">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='ｺﾞｰﾙﾄﾞを支払ってHP･MPを完全に回復させます。'">
+                    <button>宿 屋({{yadoya_cost_v}}G)</button>
+                    <input type="hidden" name="mode" value="yadoya">
+                    <input type="hidden" name="yadodai" value="{{yadoya_cost}}">
+                    <input type="hidden" name="money" value="{{user['money']}}">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='ｺﾞｰﾙﾄﾞを支払って死亡したモンスターを復活させます。'">
+                    <button>教 会({{kyoukai_cost_v}}G)</button>
+                    <input type="hidden" name="mode" value="kyoukai">
+                    <input type="hidden" name="kyoukaidai" value="{{kyoukai_cost}}">
+                    <input type="hidden" name="money" value="{{user['money']}}">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='メダルやGを使いモンスター等を交換できます。'">
+                    <button>交換所</button>
+                    <input type="hidden" name="mode" value="medal_shop">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='モンスターを預けることが出来ます'">
+                    <button {{park_get}}>モンスターパーク</button>
+                    <input type="hidden" name="mode" value="park">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='モンスターを購入できます'">
+                    <button>VIP交換所1</button>
+                    <input type="hidden" name="mode" value="v_shop">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='アイテム等を購入できます'">
+                    <button>VIP交換所2</button>
+                    <input type="hidden" name="mode" value="v_shop2">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='他のユーザーとお見合いができます'">
+                    <button>お見合い所</button>
+                    <input type="hidden" name="mode" value="omiai_room">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+
+            <form method="post" class="form">
+                <span onmouseover="link_msg.innerHTML='ユーザー名を変更できます'">
+                    <button>ユーザー名変更所</button>
+                    <input type="hidden" name="mode" value="name_change">
+                    <input type="hidden" name="token" value="{{token}}">
+                </span>
+            </form>
+        </div>
+
+        <div class="my_page_menu1">配　合</div>
+        <div class="my_page_menu2">配合料金は配合させる2匹のモンスターの<br>【（レベル＋レベル）×10G】です。</div>
+        <div class="my_page_menu3">【配合可能のみ表示】</div>
+        <div class="my_page_menu4">
+            <form name=form1 method="post" class="form">
+                <select name=haigou1 onClick="change_img1()">
+                    <option value=0 hidden>選 択-ベース-</option>
+                    {% for haigou in haigou_options %}
+                    <option value={{haigou.index}}>{{haigou.index}}:{{haigou.name}} {{haigou.sex}} LV-{{haigou.lv}}
+                        配合{{haigou.hai}}回</option>
+                    {% endfor %}
+                </select>
+                <select name=haigou2 onClick="change_img2()">
+                    <option value=0 hidden>選 択-材 料- </option>
+                    {% for haigou in haigou_options %}
+                    <option value={{haigou.index}}>{{haigou.index}}:{{haigou.name}} {{haigou.sex}} LV-{{haigou.lv}}
+                        配合{{haigou.hai}}回</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <IMG name="img1" SRC="{{Conf.imgpath}}/0.gif">
+                <IMG name="img2" SRC="{{Conf.imgpath}}/0.gif">
+                <br>
+                <button>配合する</button>
+                <input type="hidden" name="mode" value="haigou_check">
+                <input type="hidden" name="token" value="{{token}}">
+            </form>
+        </div>
+
+        <div class="my_page_menu1">陰陽変換所</div>
+        <div class="my_page_menu2">変換料金はモンスターの【配合回数×100G】です。</div>
+        <div class="my_page_menu3">【変換可能のみ表示】</div>
+        <div class="my_page_menu4">
+            <form method="post" class="form">
+                <select name=no>
+                    <option value="0" hidden>選 択</option>
+                    {% for tenakan in tenkan_options %}
+                    <option value={{tenakan.index}}>{{tenakan.index}}:{{tenakan.name}} {{tenakan.sex}} {{tenakan.cost}}G
+                    </option>
+                    {% endfor %}
+                </select>
+                <button>陰陽変換する</button><br>
+                <input type="hidden" name="mode" value="seitenkan">
+                <input type="hidden" name="token" value="{{token}}">
+            </form>
+        </div>
+
+        <div class="my_page_menu1">設定変更</div>
+        <div class="my_page_menu2">大きすぎる数値表記を調整します。</div>
+        <div class="my_page_menu3"></div>
+        <div class="my_page_menu4">
+            <form method="post" class="form">
+                <select name=no>
+                    <option value=0>選 択</option>
+                    <option value=0>調整なし</option>
+                    <option value=1>区切り文字だけ</option>
+                    <option value=2>k,M,G単位表記</option>
+                    <option value=3>万,億,兆単位表記</option>
+                </select>
+                <input type="submit" value="設定する"><br>
+                <input type="hidden" name="mode" value="number_unit">
+                <input type="hidden" name="token" value="{{token}}">
+            </FORM>
+        </div>
+
+    </div>
+    {% endif %}
+
+    {% include "my_page_button_tmp.html" %}
+{% endblock %}

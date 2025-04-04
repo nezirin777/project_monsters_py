@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>一行掲示板</title>
+    <script>
+        let autoRefresh; // グローバル変数としてタイマーを管理
+
+        // 自動更新の開始関数
+        function startAutoRefresh() {
+            if (!autoRefresh) { // 既存のタイマーがない場合のみ開始
+                autoRefresh = setInterval(refreshLog, 30000); // 30秒更新
+            }
+        }
+
+        // 自動更新の停止関数
+        function stopAutoRefresh() {
+            if (autoRefresh) {
+                clearInterval(autoRefresh);
+                autoRefresh = null; // タイマーをクリア
+            }
+        }
+
+        // 入力欄にフォーカスがあるとき自動更新を停止
+        document.getElementById("message").addEventListener("focus", () => {
+            stopAutoRefresh(); // 入力中は停止
+        });
+
+        // フォーカスが外れたら自動更新を再開
+        document.getElementById("message").addEventListener("blur", () => {
+            startAutoRefresh(); // 入力終了で再開
+        });
+
+        function refreshLog() {
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            fetch('{{ cgi_name }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'mode=refresh&csrf_token=' + encodeURIComponent(csrfToken)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('log-area').innerHTML = data.log;
+                    document.querySelector('input[name="csrf_token"]').value = data.csrf_token;
+                }
+            })
+            .catch(error => console.error('Refresh Error:', error));
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            formData.append('ajax', 'true');
+            fetch('{{ cgi_name }}', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById('log-area').innerHTML = data.log;
+                        document.querySelector('input[name="csrf_token"]').value = data.csrf_token;
+                        form.reset();
+                    }
+                })
+                .catch(error => console.error('Submit Error:', error));
+        }
+
+        // ページ読み込み時に自動更新を開始
+        startAutoRefresh();
+    </script>
+</head>
+<body bgcolor="#e6e6fa">
+    <form method="post" action="{{ cgi_name }}" onsubmit="submitForm(event)">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input placeholder="発言" name="bbs_txt" size="40">
+        <button type="submit">送信</button>
+        <button type="button" onclick="refreshLog()">更新</button>
+        <br>
+        {% for color in colors %}
+            <input type="radio" name="color" value="{{ color }}" {% if color == selected_color %}checked{% endif %}>
+            <font color="{{ color }}">●</font>
+        {% endfor %}
+    </form>
+    <div id="log-area">{{ log | safe }}</div>
+</body>
+</html>

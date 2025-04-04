@@ -1,0 +1,340 @@
+@mixin flex ($a-items:center) {
+	display: flex;
+	justify-content: center;
+	align-items : $a-items;
+}
+
+@mixin margin ($top:0px,$bottom:0px) {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: $top;
+	margin-bottom: $bottom;
+}
+
+@mixin font_color_size ($color:black,$size:100%) {
+	color: $color ;
+	font-size: $size;
+	font-weight: bold;
+}
+
+@mixin border ($color:black,$size:1px) {
+	box-sizing: border-box;
+	border: solid $size $color;
+}
+
+/**haigou_list.html**/
+
+.haigou_title {
+	@include font_color_size(red,120%);
+	text-align: center;
+}
+
+.haigou_txt {
+	text-align: center;
+}
+
+.haigou_menu {
+	@include margin;
+	@include border();
+	width: 800px;
+}
+
+.haigou_list_link {
+	background-color: #00CC00;
+	text-align: center;
+}
+
+.haigou_box {
+	@include flex(auto);
+	max-height: 80px;
+}
+
+@for $i from 1 through 5 {
+	.menu_title_#{$i} {
+		@include flex;
+		@include border();
+		width: 25%;
+		background-color: yellow;
+	}
+}
+
+.menu_title_1 {
+	width: 5%;
+}
+
+.menu_title_2 {
+	@include font_color_size(red,100%);
+}
+
+.menu_title_5 {
+	width: 20%;
+}
+
+@for $i from 1 through 5 {
+	.haigou_menu_#{$i} {
+		@include flex;
+		@include border();
+		min-height: 35px;
+	}
+}
+
+.haigou_menu_1 {
+	width: 5%;
+	background-color: #999999;
+}
+
+.haigou_menu_2 {
+	width: 25%;
+	background-color: white;
+}
+
+.haigou_menu_3 ,.haigou_menu_4 {
+	@include flex(auto);
+	border: none;
+	flex-direction: column ;
+	width: 25%;
+	background-color: #0099ff;
+}
+
+.haigou_menu_3B ,.haigou_menu_4B {
+	@include flex();
+	@include border();
+	width: 100%;
+	height: 100%;
+}
+
+.haigou_menu_5 {
+	width: 20%;
+	background-color: white;
+}
+
+.haigou_menu_34 {
+	width: 50%;
+	background-color: #0099ff;
+}
+
+.haigou_menu_34box {
+	@include flex();
+}
+
+#haigou_rightmenu {
+	font-size: 110%;
+	background-color:rgba(255,255,255,0.6);
+	position: fixed ;
+	top: 25%;
+	padding: 10px 10px 10px 10px;
+	border-radius: 15px;	/* 丸みを持たせる */
+	line-height: 200%;		 /* 行の高さ */
+	right: 0%;
+}
+
+/**kaizou.html**/
+body {
+	background-color: #DEB887;
+}
+
+.h1 {
+	@include font_color_size(black,120%);
+}
+
+.table {
+	@include flex;
+	flex-wrap: wrap;
+	width: 300px;
+}
+
+.table_title {
+	@include flex;
+	@include border();
+	@include font_color_size(white,100%);
+	background-color: blue;
+	width: 25%;
+}
+
+.table_cell {
+	@include flex;
+	@include border();
+	@include font_color_size(black,100%);
+	background-color: white;
+	width: 25%;
+}
+
+.table_m {
+	@include margin();
+	width: 1200px;
+}
+
+.table_m_box {
+	@include flex(auto);
+	flex-wrap: wrap;
+	@include border(blue);
+}
+
+.table_m_box1 {
+	@include flex(auto);
+	flex-wrap: wrap;
+	width: 75%;
+}
+
+.table_m_title ,.table_m_title3 {
+	@include flex;
+	@include border();
+	@include font_color_size(white,100%);
+	background-color: blue;
+}
+
+.table_m_title {
+	width: 25%;
+}
+
+.table_m_title3 {
+	width: 100%;
+}
+
+@for $i from 0 through 3 {
+	.table_m_cell_#{$i}{
+		@include flex();
+		flex-wrap: wrap;
+		@include border();
+		@include font_color_size(black,100%);
+		background-color: white;
+		width: 25%;
+	}
+}
+
+.table_m_cell_0 {
+	min-height: 80px;
+	img {
+		max-height: 150px;
+	}
+	div {
+		width: 100%;
+		text-align: center;
+	}
+}
+
+.table_m_cell_1 {
+	width: 15%;
+}
+
+.table_m_cell_2 {
+	flex-grow: 2;
+	min-height: 80px;
+	span {
+		color: red;
+	}
+}
+
+.table_m_cell_3 {
+	width: 100%;
+}
+
+.kinsoku {
+	@include font_color_size(white,60%);
+}
+
+/************************************/
+/* フッター */
+/************************************/
+
+#footer {
+	text-align: right;
+}
+
+#f_box {
+	display: inline-flex;
+	flex-direction: column;
+	text-align: left;
+	font-weight: bold;
+}
+
+#f_t {
+	color:red;
+}
+
+#f_box span {
+	display: inline-flex;
+	width: 120px;
+}
+
+
+/************************************/
+/* マニュアル */
+/************************************/
+
+#manual_body {
+	background-color: #99ffff;
+}
+
+.manual_frame {
+	@include margin;
+	background-color: #f9e3b7;
+	width :800px;
+}
+
+.manual_inframe {
+	margin: 10px;
+	width :800px;
+}
+
+.manual_title {
+	text-align: center;
+}
+
+.manual_h {
+	display: inline-block;
+	background-color: #666666;
+	color: #ffffff;
+	width : 80%;
+	font-size: 120%;
+}
+
+.manual_table {
+	th ,td {  border: solid 1px; }
+	background-color: #cdefff;
+	border-collapse:  collapse;
+	border: solid 1px;
+	width: 200px;
+}
+
+.manual_table2 {
+	th ,td {  border: solid 1px; }
+	background-color: #cdefff;
+	border-collapse:  collapse;
+	border: solid 1px;
+	width: 100%;
+}
+
+.manual_big_red {
+	color: red;
+	font-size: 130%;
+}
+
+.manual_big_blue {
+	color: blue;
+	font-size: 130%;
+}
+
+.manual_big_black {
+	color: black;
+	font-size: 120%;
+	font-weight   : bold;
+}
+
+.manual_red {
+	color: red;
+	font-weight   : bold;
+}
+.manual_bule {
+	color: blue;
+	font-weight   : bold;
+}
+
+.manual_syousai {
+	background-color: #ccccff;
+	width : 80%;
+}
+
+.manual_form {
+	text-align: center;
+}
