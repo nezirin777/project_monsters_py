@@ -16,8 +16,6 @@ import json
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from jinja2 import Environment, FileSystemLoader
-
 import sub_def
 import register
 import conf
@@ -30,10 +28,6 @@ progress_file = os.path.join(datadir, "progress.json")
 
 sys.stdout.reconfigure(encoding="utf-8")
 # 自動でutf-8にエンコードされて出力される
-
-
-# Jinja2テンプレート環境を設定
-env = Environment(loader=FileSystemLoader("templates"), cache_size=100)
 
 
 # ==============#
