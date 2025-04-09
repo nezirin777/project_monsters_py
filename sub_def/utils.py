@@ -22,6 +22,11 @@ logging.basicConfig(
 
 env = Environment(loader=FileSystemLoader("templates"))
 
+TEMPLATES = {
+    "error": env.get_template("error_tmp.html"),
+    "result": env.get_template("result_tmp.html"),
+}
+
 
 # ========#
 # エラー  #
@@ -59,7 +64,6 @@ def error(txt, jump="", log_level=logging.ERROR):
     content = {
         "txt": txt,
         "redirect_script": redirect_script,
-        "Conf": Conf,
     }
 
     print_html("error_tmp.html", content)
@@ -70,7 +74,6 @@ def error(txt, jump="", log_level=logging.ERROR):
 # ==========#
 def result(txt="", html="", token="", kanri=False):
     content = {
-        "Conf": Conf,
         "txt": txt,
         "html": html,
         "token": token,
@@ -85,9 +88,10 @@ def result(txt="", html="", token="", kanri=False):
 # ==========#
 def print_html(tmp_name="", content={}, exit=True):
     template = env.get_template(tmp_name)
+    full_content = {"Conf": Conf, **content}  # Confをデフォルトで追加
 
     print("Content-Type: text/html; charset=utf-8\r\n\r\n")
-    print(template.render(content))
+    print(TEMPLATES[tmp_name].render(full_content))
 
     if exit:
         sys.exit()
@@ -104,10 +108,7 @@ def slim_number(item):
         if unit_type == 1:
             return f"{value:,}"
 
-        units = {
-            2: ["", "K", "M", "G", "T", "P"],  # K/M/G
-            3: ["", "万", "億", "兆", "京"],  # 万/億/兆
-        }
+        units = {2: ["", "K", "M", "G", "T", "P"], 3: ["", "万", "億", "兆", "京"]}
 
         threshold = 1000 if unit_type == 2 else 10000
         if unit_type not in units:
@@ -120,17 +121,16 @@ def slim_number(item):
             value /= threshold
         return str(value)
 
-    def process(value, unit_type):
-        if isinstance(value, (int, float)):
-            return num_slice(value, unit_type)
-        if isinstance(value, dict):
-            return {k: process(v, unit_type) for k, v in value.items()}
-        if isinstance(value, list):
-            return [process(v, unit_type) for v in value]
-        return value if not str(value).isdecimal() else num_slice(int(value), unit_type)
-
     # ユーザーのクッキーから単位タイプを取得
     cookie = get_cookie()
     unit_type = cookie.get("unit_type", 0)
-    # ユニットタイプが0（変換しない）の場合はそのまま返す
-    return item if unit_type == 0 else process(item, unit_type)
+
+    if unit_type == 0:
+        return item
+    if isinstance(item, (int, float)):
+        return num_slice(item, unit_type)
+    if isinstance(item, dict):
+        return dict((k, slim_number(v)) for k, v in item.items())
+    if isinstance(item, list):
+        return list(map(slim_number, item))
+    return item if not str(item).isdecimal() else num_slice(int(item), unit_type)
