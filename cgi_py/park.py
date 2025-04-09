@@ -71,7 +71,7 @@ def park(FORM):
     )
 
     sub_def.header()
-    sub_def.jscript(party, "", "")
+    sub_def.jscript(party, "")
     print(html_output)
     sub_def.my_page_button(token)
 

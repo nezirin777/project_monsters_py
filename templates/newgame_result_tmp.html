@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_tmp.html" %}
 
 {% block content %}
     <div class="new_ok">{{ k_txt }}</div>
@@ -9,7 +9,7 @@
         <div class="new_1"><div>鍵入手</div>{{ key_floor }}</div>
     </div>
     <div class="new_mons">
-        <img src="{{ Conf['imgpath'] }}/{{ monster.name }}.gif">
+        <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif">
         <div>
             <div>名前：{{ monster.name }}</div>
             <div>性別：-{{ monster.sex }}-</div>
@@ -29,7 +29,7 @@
     {% if kanri %}
         {% include "kanri_page_button_tmp.html.html" %}
     {% else %}
-        <form action="{{ top_url }}" method="post">
+        <form action="{{ Conf.top_url }}" method="post">
             <button>T O Pへ</button>
         </form>
     {% endif %}

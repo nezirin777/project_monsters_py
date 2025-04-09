@@ -5,6 +5,19 @@
     <LINK REL="stylesheet" HREF="./css_js/style.min.css" TYPE="text/css">
     <script src="./css_js/jquery.min.js"></script>
     <script src="./css_js/main.js"></script>
+    <script src="./css_js/CountDown.js"></script>
+
+    {% if script and script.Conf and script.Conf.imgpath is defined and script.party %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            main(
+                "{{ script.Conf.imgpath | e }}/",
+                "{{ script.party | e }}",
+                "{{ script.m_name | default('')| e }}"
+            );
+        });
+    </script>
+    {% endif %}
 
     {% block head %}{% endblock %}
 

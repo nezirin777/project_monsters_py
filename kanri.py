@@ -13,7 +13,9 @@ import pickle
 import pandas as pd
 import glob
 import json
+import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from jinja2 import Environment, FileSystemLoader
 
 import sub_def
@@ -69,7 +71,7 @@ def admin_check():
 # リザルト #
 # ==========#
 def result(txt=""):
-    sub_def.print_html("kanri_result_tmp.html", txt)
+    sub_def.result(txt, kanri=True, token=FORM["token"])
 
 
 # ==============#
@@ -208,8 +210,8 @@ def data_del():
     with open(datadir + "/bbslog.log", mode="w", encoding="utf-8_sig") as f:
         f.write("")
 
-    sub_def.make_user_list()
-    sub_def.make_omiai_list()
+    sub_def.open_user_list()
+    sub_def.open_omiai_list()
 
 
 # ===========#
@@ -219,15 +221,140 @@ def RESTART():
     if FORM.get("Reset_ck") != "on":
         sub_def.error("確認チェックがONになっていません。", "kanri")
 
+    new_userlist = {}
+    byeday = (
+        datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
+    ).strftime("%Y-%m-%d")
+
+    monset = [
+        "スライム",
+        "ドラゴンキッズ",
+        "ベロゴン",
+        "ピッキー",
+        "マッドプラント",
+        "キリキリバッタ",
+        "ピクシー",
+        "ゴースト",
+        "トーテムキラー",
+    ]
+
+    default_key = {
+        k: {"no": v["no"], "get": 0} for k, v in sub_def.open_key_dat().items()
+    }
+
+    Tokugi_dat = sub_def.open_tokugi_dat()
+    default_waza = {
+        name: {"no": v["no"], "type": v["type"], "get": 0}
+        for name, v in Tokugi_dat.items()
+    }
+    default_waza["通常攻撃"]["get"] = 1
+    default_zukan = {
+        k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
+        for k, v in sub_def.open_monster_dat().items()
+    }
+
     u_list = sub_def.open_user_list()
-    user = [{"user_name": name, "crypted": v["pass"]} for name, v in u_list.items()]
+    users = [{"user_name": name, "crypted": v["pass"]} for name, v in u_list.items()]
 
-    data_del()
+    def process_user(u):
+        try:
+            m_name = random.choice(monset)
 
-    for u in user:
-        register.make_user_data(in_name=u["user_name"], crypted=u["crypted"])
+            new_userlist[u["user_name"]] = {
+                "pass": u["crypted"],
+                "host": "",
+                "bye": byeday,
+                "key": 1,
+                "m1_name": m_name,
+                "m1_hai": 0,
+                "m1_lv": 5,
+                "m2_name": "",
+                "m2_hai": "",
+                "m2_lv": "",
+                "m3_name": "",
+                "m3_hai": "",
+                "m3_lv": "",
+                "money": 50,
+                "mes": "未登録",
+                "getm": 0,
+            }
 
+            # ユーザーデータ
+            sub_def.save_user(
+                {
+                    "name": u["user_name"],
+                    "pass": u["crypted"],
+                    "key": 1,
+                    "money": 100,
+                    "medal": 0,
+                    "isekai_limit": 0,
+                    "isekai_key": 1,
+                    "mes": "未登録",
+                    "getm": "0／0匹(0％)",
+                },
+                u["user_name"],
+            )
+
+            # パーティーデータ
+            sub_def.save_party(
+                [
+                    {
+                        "no": 1,
+                        "name": m_name,
+                        "lv": 1,
+                        "mlv": 10,
+                        "hai": 0,
+                        "hp": 5,
+                        "mhp": 5,
+                        "mp": 5,
+                        "mmp": 5,
+                        "atk": 5,
+                        "def": 5,
+                        "agi": 5,
+                        "exp": 0,
+                        "n_exp": 10,
+                        "sei": "ふつう",
+                        "sex": random.choice(Conf["sex"]),
+                    }
+                ],
+                u["user_name"],
+            )
+
+            # 追加データの初期化
+            sub_def.save_room_key(default_key, u["user_name"])
+            sub_def.save_waza(default_waza, u["user_name"])
+            sub_def.save_zukan(default_zukan, u["user_name"])
+            sub_def.save_vips({"パーク": 0}, u["user_name"])
+            sub_def.save_park([], u["user_name"])
+
+        except Exception as e:
+            sub_def.error(f"ユーザー {u['user_name']} の処理中にエラー: {e}")
+            sys.stdout.flush()
+            return False
+
+    total_users = len(u_list)  # 全体のユーザー数
+    # 初期化
+    progress = {"total": total_users, "completed": 0, "status": "running"}
+    with open(progress_file, mode="w", encoding="utf-8") as ff:
+        json.dump(progress, ff)
+
+    completed = 0
+    # スレッドプールを使用して並列実行
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(process_user, u): u for u in users}
+        for future in as_completed(futures):
+            future.result()  # 例外があればここで捕捉
+            completed += 1
+            if completed % 10 == 0 or completed == total_users:
+                progress["completed"] = completed
+                with open(progress_file, mode="w", encoding="utf-8") as ff:
+                    json.dump(progress, ff)
+
+    sub_def.save_user_list(new_userlist)
+    sub_def.save_omiai_list({})
     result("ゲームを初期化、リスタートしました。")
+
+    delete_progress_file()
 
 
 # =======#
@@ -334,7 +461,7 @@ def MON_PRESENT():
         "token": FORM["token"],
     }
 
-    sub_def.print_html("kanri_mon_pre_tmp.html", context)
+    sub_def.print_html("kanri_mon_present_tmp.html", context)
 
 
 # ====================#
@@ -420,7 +547,9 @@ def PRESENT():
                 try:
                     future.result()  # エラーがあればここでキャッチされる
                 except Exception as exc:
-                    print(f"ユーザー {name} の処理中にエラーが発生しました: {exc}")
+                    sub_def.error(
+                        f"ユーザー {name} の処理中にエラーが発生しました: {exc}"
+                    )
 
                 completed += 1
                 if completed % batch_size == 0 or completed == total_users:
@@ -471,25 +600,7 @@ def pickle_to():
 # ================#
 # save_edit      #
 # ================#
-def make_table_row(data, i, no_edit):
-    """データの1行分のHTMLを生成."""
-    td = "".join(
-        (
-            f"""
-            <td>{val}</td>
-            <input type="hidden" name="{i},{key}" value="{val}">
-        """
-            if key in no_edit
-            else f"""
-            <td><input type="text" name="{i},{key}" value="{val}" size=10></td>
-        """
-        )
-        for key, val in data.items()
-    )
-    return f"<tr>{td}</tr>"
-
-
-def make_table(save_data):
+def make_table(save_data, txt):
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
     no_edit = ("no", "user_name", "pass", "type", "m_type", "host", "rank", "getm")
@@ -502,24 +613,20 @@ def make_table(save_data):
     else:
         rows = save_data if isinstance(save_data, list) else [save_data]
 
-    th = "".join([f"<th>{key}</th>" for key in rows[0].keys()])
-    tr = "".join([make_table_row(row, i, no_edit) for i, row in enumerate(rows)])
+    headers = list(rows[0].keys())
 
-    table = f"""
-        <form method="post">
-            <table border="1" class="kanri_save_edit_table">
-                <tr>{th}</tr>
-                {tr}
-                <tr>{th}</tr>
-            </table>
-            <input type="hidden" name="mode" value="save_edit_save">
-            <input type="hidden" name="target_name" value="{target_name}">
-            <input type="hidden" name="target_data" value="{target_data}">
-            <input type="hidden" name="token" value="{FORM["token"]}">
-            <button>更新</button>
-        </form>
-    """
-    return table
+    context = {
+        "Conf": Conf,
+        "txt": txt,
+        "headers": headers,
+        "rows": rows,
+        "no_edit": no_edit,
+        "target_name": target_name,
+        "target_data": target_data,
+        "token": FORM["token"],
+    }
+
+    sub_def.print_html("kanri_saveedit_table_tmp.html", context)
 
 
 def save_editer():
@@ -578,24 +685,10 @@ def save_editer():
             save_data = sub_def.open_vips(target_name)
             txt = "その他データ"
 
-    table = f"""
-        <div class="kanri_save_edit_caution">
-            データの整合性等のチェックはありません。<br>
-            正常に動作しなくなる可能性がありますので<br>
-            内容を把握したうえで変更してください。<br>
-        </div>
-        <div class="kanri_save_edit_title">{txt}</div>
-    """
-
     if type(save_data) == list:
-
-        table += make_table(save_data)
+        make_table(save_data, txt)
     else:
-        table += make_table([save_data])
-
-    sub_def.header()
-    print(table)
-    kanri_back()
+        make_table([save_data], txt)
 
 
 def save_edit_select():
@@ -604,49 +697,34 @@ def save_edit_select():
     if not (target_name):
         sub_def.error("対象が選択されていません。", "kanri")
 
-    html = f"""
-        <div class="kanri_save_edit_title">
-            <form method="post">
-                対象ユーザー:{target_name}<br>
-                <select name="target_data">
-                    <option value="" hidden>対象データを選択</option>
-                    <option value="user_data">ユーザーデータ</option>
-                    <option value="party_data">パーティデータ</option>
-                    <option value="room_key_data">所持部屋の鍵データ</option>
-                    <option value="waza_data">取得特技データ</option>
-                    <option value="zukan_data">図鑑データ</option>
-                    <option value="park_data">モンスターパークデータ</option>
-                    <option value="vips_data">vipsデータ</option>
-                </select>
-                <button>データ決定</button>
-                <input type="hidden" name="mode" value="save_editer">
-                <input type="hidden" name="target_name" value="{target_name}">
-                <input type="hidden" name="token" value="{FORM["token"]}">
-            </form>
-        </div>
-    """
+    context = {"Conf": Conf, "target_name": target_name, "token": FORM["token"]}
 
     if target_name == "user_list":
         save_editer()
     elif target_name == "omiai_list":
         save_editer()
     else:
-        sub_def.header()
-        print(html)
-        kanri_back()
+        sub_def.print_html("kanri_saveedit_select_tmp.html", context)
 
 
 def save_data(open_func, save_func, form):
     """共通のデータ保存処理."""
-    save_data = open_func()
-    save_data = {
-        form[f"{i},user_name"]: {
-            v: form.get(f"{i},{v}", "")
-            for v in save_data[form[f"{i},user_name"]].keys()
-        }
-        for i in range(len(save_data))
-    }
-    save_func(save_data)
+    original_data = open_func()  # 元のデータを取得
+    updated_data = {}
+
+    for i in range(len(original_data)):
+        user_name = str(form.get(f"{i},user_name"))
+        if user_name and user_name in original_data:  # ユーザー名が存在するか確認
+            updated_data[user_name] = {
+                v: form.get(f"{i},{v}", original_data[user_name].get(v, ""))
+                for v in original_data[user_name].keys()
+            }
+        else:
+            sub_def.error(
+                f"警告: インデックス {i} のユーザー名 '{user_name}' が original_data に存在しません。"
+            )
+
+    save_func(updated_data)
 
 
 def save_specific_data(target_name, open_func, save_func, form):
@@ -893,6 +971,7 @@ def token_check():
             sub_def.error(f"トークンが一致しないです？", "kanri")
             # pass
     else:
+        # pass
         sub_def.error(
             "トークンが送信されてないです？<br>繰り返し表示される場合は管理人へ連絡を。",
             "kanri",
@@ -951,5 +1030,4 @@ if __name__ == "__main__":
     else:
         sub_def.error(f"無効なモード [{FORM['mode']}] です。", "top")
 
-    sub_def.header()
-    print("あっれれ～？おっかしぃぞぉ～by管理モード")
+    sub_def.error("あっれれ～？おっかしぃぞぉ～by管理モード")

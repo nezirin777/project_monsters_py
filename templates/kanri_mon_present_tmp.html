@@ -1,5 +1,26 @@
 {% extends "base_tmp.html" %}
 
+{% block head %}
+    <!-- select2 CSS -->
+    <link href="./css_js/select2.min.css" rel="stylesheet" />
+    <!-- select2 JS -->
+    <script src="./css_js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2-user').select2({
+                placeholder: "対象を選択...", // プレースホルダー
+                allowClear: true,                   // 選択をクリアする「×」ボタンを表示
+                minimumResultsForSearch: 0          // 検索ボックスを常に表示（デフォルトは10以上で表示）
+            });
+        });
+    </script>
+    <style>
+        .select2-results__options {
+            max-height: 400px !important; /* 表示する高さを増やす */
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 
         <div class="kanri_title">モンスター配布</div>
@@ -8,7 +29,7 @@
                 対象ユーザーは<span>{{ target_name }}</span>です
                 <form action="{{ Conf.kanri_url }}" method="post">
                     配布モンスター<br>
-                    <select name="Mons_name">
+                    <select name="Mons_name" class="select2-user">
                         <option value="" hidden>選択してください</option>
                         {{ txt }}
                     </select>

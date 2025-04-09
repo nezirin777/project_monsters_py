@@ -131,9 +131,9 @@ def get_session() -> Dict[str, str | int]:
                 key, value = vale
                 session[key] = int(value) if value.isdecimal() else value
             else:
-                error(f"セッションの処理中にエラーが発生しました: {pair}", "top")
+                error(f"セッションの処理中にエラーが発生しましたA: {pair}", "top")
     except Exception as e:
-        error(f"セッションの処理中にエラーが発生しました: {e}", "top")
+        error(f"セッションの処理中にエラーが発生しましたB: {e}", "top")
     return session
 
 

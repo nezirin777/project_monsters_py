@@ -6,7 +6,20 @@
     <LINK REL="stylesheet" HREF="./css_js/style.min.css" TYPE="text/css">
     <script src="./css_js/jquery.min.js"></script>
     <script src="./css_js/main.js"></script>
+    <!-- select2 CSS -->
+    <link href="./css_js/select2.min.css" rel="stylesheet" />
+    <!-- select2 JS -->
+    <script src="./css_js/select2.min.js"></script>
+
     <script>
+        $(document).ready(function () {
+            $('.select2-user').select2({
+                placeholder: "対象を選択...", // プレースホルダー
+                allowClear: true,                   // 選択をクリアする「×」ボタンを表示
+                minimumResultsForSearch: 0          // 検索ボックスを常に表示（デフォルトは10以上で表示）
+            });
+        });
+
         function showProgressPopup() {
             const progressPopup = document.getElementById('progressPopup');
             progressPopup.style.display = 'flex'; // ポップアップを表示
@@ -73,6 +86,9 @@
 
     </script>
     <style>
+        .select2-results__options {
+            max-height: 400px !important; /* 表示する高さを増やす */
+        }
 
         /* ポップアップ全体のスタイル */
         #progressPopup {
@@ -190,8 +206,8 @@
 
         <div class="kanri_menu">
             モンスター配布
-            <form method="post">
-                <select name="target_name">
+            <form method="post" onsubmit="fetchProgress(); return true;">
+                <select name="target_name" class="select2-user">
                     <option value="" hidden>対象の人を選択</option>
                     {{ user_list() }}
                 </select>
@@ -204,10 +220,10 @@
         <div class="kanri_menu">
             お金やメダルを贈る
             <form method="post"  onsubmit="fetchProgress(); return true;">
-                <select name="target_name">
+                <select name="target_name"  class="select2-user">
                     <option value="" hidden>対象の人を選択</option>
                     <option value="全員">全員</option>
-                    <option value="">------</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
                     {{ user_list() }}
                 </select>
                 <br>
@@ -223,11 +239,11 @@
         <div class="kanri_menu">
             セーブデータ編集
             <form method="post">
-                <select name="target_name">
+                <select name="target_name" class="select2-user">
                     <option value="" hidden>対象を選択</option>
                     <option value="user_list">user_list</option>
                     <option value="omiai_list">omiai_list</option>
-                    <option value="">--↓各ユーザー↓--</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
                     {{ user_list() }}
                 </select>
                 <button>決定</button>
@@ -239,13 +255,13 @@
         <div class="kanri_menu">
             pickleセーブデータ→csv出力
             <form method="post" onsubmit="fetchProgress(); return true;">
-                <select name="target_name">
+                <select name="target_name" class="select2-user">
                     <option value="" hidden>対象を選択</option>
                     <option value="user_list">user_list</option>
                     <option value="omiai_list">omiai_list</option>
-                    <option value="">---------</option>
+                    <option value="separator">---------</option>
                     <option value="全員">全員</option>
-                    <option value="">---------</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
                     {{ user_list() }}
                 </select>
                 <button>決定</button>
@@ -257,13 +273,13 @@
         <div class="kanri_menu">
             csv→pickle変換
             <form method="post" onsubmit="fetchProgress(); return true;">
-                <select name="target_name">
+                <select name="target_name" class="select2-user">
                     <option value="" hidden>対象を選択</option>
                     <option value="user_list">user_list</option>
                     <option value="omiai_list">omiai_list</option>
-                    <option value="">---------</option>
+                    <option value="separator">---------</option>
                     <option value="全員">全員</option>
-                    <option value="">---------</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
                     {{ user_list() }}
                 </select>
                 <button>決定</button>
@@ -283,7 +299,7 @@
 
         <div class="kanri_menu">
             再スタート
-            <form method="post">
+            <form method="post" onsubmit="fetchProgress(); return true;">
                 確認<input type="checkbox" name="Reset_ck" value="on">
                 <button>RESTART</button>
                 <input type="hidden" name="mode" value="RESTART">
@@ -304,7 +320,7 @@
         <div class="kanri_menu">
             ルール違反者と思われる人の削除を行います
             <form method="post">
-                <select name="target_name">
+                <select name="target_name" class="select2-user">
                     <option value="" hidden>対象の人を選択</option>
                     {{ user_list() }}
                 </select>
@@ -319,7 +335,7 @@
         <div class="kanri_menu">
             パスワードの変更 <br>
             <form method="post">
-                <select name=target_name>
+                <select name=target_name class="select2-user">
                     <option value="" hidden>対象の人を選択</option>
                     {{ user_list() }}
                 </select>

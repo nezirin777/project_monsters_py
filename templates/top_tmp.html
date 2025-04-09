@@ -63,64 +63,76 @@
 
     <div><object id="news" type="text/html" data="./html/news.html">エラー</object></div>
 
-    <div class="rank_t">{{ rank_text }}</div>
 
-    {% macro ptxt(buttons) %}
-        <div style="text-align:center">
-            {% for button in buttons %}
-            <form method="post" style="display:inline-block">
-                <button>{{ button.label }}</button>
-                <input type="hidden" name="menu" value="{{ button.value }}">
-            </form>
-            {% endfor %}
-        </div>
-    {% endmacro %}
-
-    {{ ptxt([
-        {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
-        {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
-    ]) }}
-
-    <div class="rank_m">
-        <div class=r_1>Rank</div>
-        <div class=r_2>User</div>
-        <div class=r_3>手持ち</div>
-    </div>
-
-    {% for user in users %}
-        <div class="rank">
-            <div class="r_1 r_u1">{{ user.rank }}</div>
-            <div class="r_ubox">
-                <div class="r_2 r_u2">
-                    <div>
-                        ユーザー名:
-                        <a href="{{ Conf.cgi_url }}?mode=my_page2&name={{ user.user_name }}" target="_blank">{{ user.user_name
-                            }}</a><br>
-                        最深部: 地下<span>{{ user.key }}</span>階<br>
-                        所持金: {{ user.money }}G<br>
-                        図鑑: {{ user.getm }}<br>
-                        データ保存期間: あと<span>{{ user.delday }}</span>日
-                    </div>
-                </div>
-                <div class="r_3 r_u3">
-                    {% for monster in user.monsters %}
-                    <div class="r_m">
-                        <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" /><br>
-                        {{ monster.name }}<br>
-                        Lv<span>{{ monster.lv }}</span><br>
-                        配合<span>{{ monster.hai }}</span>回
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="r_u4">コメント</div>
-                <div class="r_u5">{{ user.mes }}</div>
+    {% if users %}
+        {% macro ptxt(buttons) %}
+            <div style="text-align:center">
+                {% for button in buttons %}
+                <form method="post" style="display:inline-block">
+                    <button>{{ button.label }}</button>
+                    <input type="hidden" name="menu" value="{{ button.value }}">
+                </form>
+                {% endfor %}
             </div>
-        </div>
-    {% endfor %}
+        {% endmacro %}
 
-    {{ ptxt([
-        {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
-        {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
-    ]) }}
+        <div class="rank_t">{{ rank_text }}</div>
+
+        {% if u_count > 30 %}
+            {{ ptxt([
+                {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
+                {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
+            ]) }}
+        {% endif %}
+
+        <div class="rank_m">
+            <div class=r_1>Rank</div>
+            <div class=r_2>User</div>
+            <div class=r_3>手持ち</div>
+        </div>
+
+        {% for user in users %}
+            <div class="rank">
+                <div class="r_1 r_u1">{{ user.rank }}</div>
+                <div class="r_ubox">
+                    <div class="r_2 r_u2">
+                        <div>
+                            ユーザー名:
+                            <a href="{{ Conf.cgi_url }}?mode=my_page2&name={{ user.user_name }}" target="_blank">{{ user.user_name
+                                }}</a><br>
+                            最深部: 地下<span>{{ user.key }}</span>階<br>
+                            所持金: {{ user.money }}G<br>
+                            図鑑: {{ user.getm }}<br>
+                            データ保存期間: あと<span>{{ user.delday }}</span>日
+                        </div>
+                    </div>
+                    <div class="r_3 r_u3">
+                        {% for monster in user.monsters %}
+                        <div class="r_m">
+                            <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" /><br>
+                            {{ monster.name }}<br>
+                            Lv<span>{{ monster.lv }}</span><br>
+                            配合<span>{{ monster.hai }}</span>回
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="r_u4">コメント</div>
+                    <div class="r_u5">{{ user.mes }}</div>
+                </div>
+            </div>
+        {% endfor %}
+
+        {% if u_count > 30 %}
+            {{ ptxt([
+                {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
+                {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
+            ]) }}
+        {% endif %}
+
+    {% else %}
+        <div class="rank_t">現在登録者はいません。</div>
+    {% endif %}
+
+
 
 {% endblock %}

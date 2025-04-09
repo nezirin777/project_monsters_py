@@ -54,6 +54,6 @@ def m_get(FORM):
         """
 
         sub_def.header()
-        sub_def.jscript(party, get_name, "")
+        sub_def.jscript(party, get_name)
         print(html)
         sub_def.footer()

@@ -139,13 +139,14 @@ def my_page(FORM):
     yadoya_cost_v = sub_def.slim_number(yadoya_cost)
     kyoukai_cost_v = sub_def.slim_number(kyoukai_cost)
 
-    scripts = sub_def.jscript(party, "", 1)
-
     # 必要な変数を辞書にまとめてテンプレートへ渡す
     content = {
         "my_page_flg": 1,
+        "script": {
+            "Conf": Conf,
+            "party": "/" + "/".join(pt["name"] for pt in party),
+        },
         "Conf": Conf,
-        "scripts": scripts,
         "in_name": in_name,
         "token": token,
         "next_t": next_t,

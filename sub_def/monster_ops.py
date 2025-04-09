@@ -26,7 +26,7 @@ def _cached_open_seikaku_dat() -> dict:
 
 
 @lru_cache(maxsize=1)
-def _cached_open_monster_boss_dat() -> Dict:
+def _cached_open_monster_boss_dat() -> dict:
     return open_monster_boss_dat()
 
 

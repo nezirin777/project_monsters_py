@@ -210,7 +210,7 @@ def sinki(FORM, kanri_name="", kanri_pass="", kanri=False):
         {"in_name": in_name, "in_pass": in_pass, "last_floor": 1, "last_room": ""}
     )
 
-    if Conf["iplog"] == 1 and kanri == 0:  # 管理モードの強制登録では重複判定スルー
+    if Conf["iplog"] == 1 and kanri == False:  # 管理モードの強制登録では重複判定スルー
         host = sub_def.get_host()
         for u in u_list.values():
             if host == u["host"]:
@@ -229,13 +229,13 @@ def sinki(FORM, kanri_name="", kanri_pass="", kanri=False):
 
     # テンプレートに渡すデータ
     context = {
-        k_txt: k_txt,
-        in_name: in_name,
-        in_pass: in_pass,
+        "k_txt": k_txt,
+        "in_name": in_name,
+        "in_pass": in_pass,
         "money": 50,
         "key_floor": "地下1階",
         "monster": party[0],
-        "top_url": Conf["top_url"],
+        "Conf": Conf,
         "kanri": kanri,
     }
     sub_def.print_html("newgame_result_tmp.html", context)

@@ -1,4 +1,10 @@
 function countdownTimer() {
+    // b_count要素を取得
+    const bCount = document.getElementById('b_count');
+
+    // b_countが存在しない場合は早期リターン
+    if (!bCount) return;
+
     // 現在の時刻を取得（秒単位）
     const now = Math.floor(Date.now() / 1000);
 
@@ -8,8 +14,6 @@ function countdownTimer() {
     // 残り時間を計算
     const diff = end - now;
 
-    // HTML要素を一度だけ取得
-    const bCount = document.getElementById('b_count');
     const battleSubmit = $(".battle_go :submit");
 
     if (diff <= 0) {

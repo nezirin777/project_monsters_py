@@ -112,7 +112,7 @@ def initialize_pickle(file_name: str, initial_data=None):
     initial_data = initial_data or {}
     lock.lock()
     try:
-        file_path = os.path.join(Conf["datadir"], file_name)
+        file_path = os.path.join(Conf["savedir"], file_name)
         with open(file_path, mode="wb") as f:
             pickle.dump(initial_data, f)
     except Exception as e:

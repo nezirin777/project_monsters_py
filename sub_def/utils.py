@@ -6,16 +6,15 @@ import json
 from jinja2 import Environment, FileSystemLoader
 
 import conf
-import exLock
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stdin.reconfigure(encoding="utf-8")
-lock = exLock.exLock("./lock_fol")
+
 Conf = conf.Conf
 
 # ログ設定（UTF-8で保存）
 logging.basicConfig(
-    filename=os.path.join(Conf["savedir"], "app.log"),
+    filename="app.log",
     level=logging.ERROR,
     format="%(asctime)s - %(levelname)s - %(message)s",
     encoding="utf-8",
@@ -32,7 +31,7 @@ def error(txt, jump="", log_level=logging.ERROR):
 
     token = secrets.token_hex(16)
     session = get_session() if jump != "top" else {}
-    session |= {"token": token, "error": 1}
+    session |= {"token": token}
     set_session(session)
 
     url_map = {
@@ -40,19 +39,20 @@ def error(txt, jump="", log_level=logging.ERROR):
         "kanri": (Conf["kanri_url"], {"mode": "KANRI", "token": token}),
         "": (Conf["cgi_url"], {"mode": "my_page", "token": token}),
     }
+
     url, par = url_map.get(jump, url_map[""])
 
     logging.log(log_level, f"Error: {txt}, Jump: {jump}")
 
     redirect_script = (
         f"""
-        <SCRIPT language="JavaScript">
+        <script>
             window.addEventListener('DOMContentLoaded', () => {{
                 setTimeout(() => {{post("{url}", {json.dumps(par)}); }}, 1000);
             }});
-        </SCRIPT>
+        </script>
     """
-        if not session.get("error") and jump != 99
+        if jump in url_map
         else ""
     )
 
@@ -67,15 +67,11 @@ def error(txt, jump="", log_level=logging.ERROR):
 # ===========#
 # Javascript #
 # ===========#
-def jscript(party, m_name, count):
+def jscript(party, m_name):
     scripts = []
     if party:
         p = "/" + "/".join(pt["name"] for pt in party)
-        scripts.append(
-            f'<script language="JavaScript">main("{Conf["imgpath"]}/","{p}","{m_name}")</script>'
-        )
-    if count:
-        scripts.append('<script src="./css_js/CountDown.js"></script>')
+        scripts.append(f'<script>main("{Conf["imgpath"]}/","{p}","{m_name}")</script>')
 
     return scripts
 
@@ -95,7 +91,7 @@ def my_page_button(token=""):
 # ==========#
 # リザルト #
 # ==========#
-def result(txt="", html="", token=""):
+def result(txt="", html="", token="", kanri=False):
     template = env.get_template("result_tmp.html")
     h = template.render(
         txt=txt,
@@ -104,6 +100,8 @@ def result(txt="", html="", token=""):
         top_url=Conf["top_url"],
         token=token,
         ver=Conf["ver"],
+        kanri=kanri,
+        Conf=Conf,
     )
 
     print("Content-Type: text/html; charset=utf-8\r\n\r\n")

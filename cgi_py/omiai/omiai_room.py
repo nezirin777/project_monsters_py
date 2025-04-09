@@ -128,6 +128,6 @@ def omiai_room(FORM):
     )
 
     sub_def.header()
-    sub_def.jscript(party, "", "")
+    sub_def.jscript(party, "")
     print(html)
     sub_def.my_page_button(FORM["token"])
