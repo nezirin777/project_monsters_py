@@ -56,57 +56,28 @@ def error(txt, jump="", log_level=logging.ERROR):
         else ""
     )
 
-    template = env.get_template("error_tmp.html")
-    html = template.render(txt=txt, redirect_script=redirect_script, ver=Conf["ver"])
+    content = {
+        "txt": txt,
+        "redirect_script": redirect_script,
+        "Conf": Conf,
+    }
 
-    print("Content-Type: text/html; charset=utf-8\r\n\r\n")
-    print(html)
-    sys.exit()
-
-
-# ===========#
-# Javascript #
-# ===========#
-def jscript(party, m_name):
-    scripts = []
-    if party:
-        p = "/" + "/".join(pt["name"] for pt in party)
-        scripts.append(f'<script>main("{Conf["imgpath"]}/","{p}","{m_name}")</script>')
-
-    return scripts
-
-
-# ============#
-# ログインボタン#
-# ============#
-def my_page_button(token=""):
-    template = env.get_template("my_page_button_tmp.html")
-    html = template.render(
-        cgi_url=Conf["cgi_url"], top_url=Conf["top_url"], token=token, ver=Conf["ver"]
-    )
-    print("Content-Type: text/html; charset=utf-8\r\n\r\n")
-    print(html)
+    print_html("error_tmp.html", content)
 
 
 # ==========#
 # リザルト #
 # ==========#
 def result(txt="", html="", token="", kanri=False):
-    template = env.get_template("result_tmp.html")
-    h = template.render(
-        txt=txt,
-        html=html,
-        cgi_url=Conf["cgi_url"],
-        top_url=Conf["top_url"],
-        token=token,
-        ver=Conf["ver"],
-        kanri=kanri,
-        Conf=Conf,
-    )
+    content = {
+        "Conf": Conf,
+        "txt": txt,
+        "html": html,
+        "token": token,
+        "kanri": kanri,
+    }
 
-    print("Content-Type: text/html; charset=utf-8\r\n\r\n")
-    print(h)
-    sys.exit()
+    print_html("result_tmp.html", content)
 
 
 # ==========#
