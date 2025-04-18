@@ -1,0 +1,65 @@
+
+        <div class="my_page_menu1">配　合</div>
+        <div class="my_page_menu2">配合料金は配合させる2匹のモンスターの<br>【（レベル＋レベル）×10G】です。</div>
+        <div class="my_page_menu3">【配合可能のみ表示】</div>
+        <div class="my_page_menu4">
+            <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="form">
+                <select name="haigou1" onchange="change_img('haigou1', 'img1', true)">
+                    <option value="0" hidden>選 択 -ベース-</option>
+                    {% for haigou in haigou_options %}
+                    <option value="{{ haigou.index }}">{{ haigou.index }}: {{ haigou.name }} {{
+                        haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
+                    {% endfor %}
+                </select>
+                <select name="haigou2" onchange="change_img('haigou2', 'img2', true)">
+                    <option value="0" hidden>選 択 -素材-</option>
+                    {% for haigou in haigou_options %}
+                    <option value="{{ haigou.index }}">{{ haigou.index }}: {{ haigou.name }} {{
+                        haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <img name="img1" src="{{ Conf.imgpath }}/0.gif" alt="ベースモンスター">
+                <img name="img2" src="{{ Conf.imgpath }}/0.gif" alt="素材モンスター">
+                <br>
+                <button type="submit">配合する</button>
+                <input type="hidden" name="mode" value="haigou_check">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="my_page_menu1">陰陽変換所</div>
+        <div class="my_page_menu2">変換料金はモンスターの【配合回数×100G】です。</div>
+        <div class="my_page_menu3">【変換可能のみ表示】</div>
+        <div class="my_page_menu4">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form">
+                <select name=no>
+                    <option value="0" hidden>選 択</option>
+                    {% for tenakan in tenkan_options %}
+                    <option value="{{ tenakan.index }}">{{ tenakan.index }}:{{ tenakan.name }} {{ tenakan.sex }} {{ tenakan.cost }}G
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">陰陽変換する</button><br>
+                <input type="hidden" name="mode" value="seitenkan">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="my_page_menu1">設定変更</div>
+        <div class="my_page_menu2">大きすぎる数値表記を調整します。</div>
+        <div class="my_page_menu3"></div>
+        <div class="my_page_menu4">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form">
+                <select name=no>
+                    <option value="" hidden>選 択</option>
+                    <option value="0">調整なし</option>
+                    <option value="1">区切り文字だけ</option>
+                    <option value="2">k,M,G単位表記</option>
+                    <option value="3">万,億,兆単位表記</option>
+                </select>
+                <button type="submit">設定する</button><br>
+                <input type="hidden" name="mode" value="number_unit">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>

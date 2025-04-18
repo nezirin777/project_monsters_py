@@ -1,0 +1,24 @@
+<!-- templates/bbs_tmp.html -->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>一行掲示板</title>
+</head>
+
+<body>
+    <form method="post" action="{{ Conf.bbs_url }}" onsubmit="submitForm(event)">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input placeholder="発言" name="bbs_txt" size="40">
+        <button type="submit">送信</button>
+        <button type="button" onclick="refreshLog()">更新</button>
+        <br>
+        {% for color in colors %}
+            <input type="radio" name="color" value="{{ color }}" {% if color == selected_color %}checked{% endif %}>
+            <font color="{{ color }}">●</font>
+        {% endfor %}
+    </form>
+    <div id="log-area">{{ log | safe }}</div>
+</body>
+</html>

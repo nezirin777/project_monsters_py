@@ -1,0 +1,36 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    {% if mode == "name_change" %}
+    <div id="result">
+        <span>ユーザー名を変更します<br>使用可能な文字は半角/全角英数字及び日本語です</span>
+    </div>
+    <br>
+    <div class="my_page">
+        <form action="{{ Conf.cgiurl }}" method="post">
+            <span>現在の名前</span>
+            <input type="text" size="14" name="name" value="{{ current_name }}" disabled><br>
+            <span>新しい名前</span>
+            <input type="text" size="14" name="new_name" value=""><br>
+            <input type="hidden" name="mode" value="name_change_check">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit">確認する</button>
+        </form>
+    </div>
+    {% elif mode == "name_check" %}
+    <div id="result">
+        <span>ユーザー名を<span>{{ in_name }}</span>から<br><span>{{ new_name }}</span>へと変更します。<br>よろしいですか？</span>
+    </div>
+    <br>
+    <div>
+        <form action="{{ Conf.cgiurl }}" method="post">
+            <input type="hidden" name="mode" value="name_change_ok">
+            <input type="hidden" name="new_name" value="{{ new_name }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit">変更する</button>
+        </form>
+    </div>
+    {% endif %}
+
+
+{% endblock %}

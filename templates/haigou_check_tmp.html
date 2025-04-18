@@ -1,0 +1,84 @@
+<!-- templates/haigou_check_tmp.html -->
+
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    {% if mode=="omiai_ans" %}
+    <div class="hai_title">お見合いを申し込みますか？</div>
+    {% endif %}
+
+    {% if mode=="omiai_ans" %}
+    <div class="hai_title">お見合いを受けますか？</div>
+    {% endif %}
+
+    {% if mode=="haigou" %}
+    <div class="hai_title">モンスターを配合しますか？</div>
+    {% endif %}
+
+    <div class="hai_box">
+        <div class="hai_box1">
+            <div class="hai_1">自　分</div>
+            <div class="hai_img"><img src="{{ Conf.imgpath }}/{{ nameA }}.gif"></div>
+            <div class="hai_name">{{ nameA }}</div>
+        </div>
+        <div class="hai_box1">
+            <div class="hai_1">相　手</div>
+            <div class="hai_img"><img src="{{ Conf.imgpath }}/{{ nameB }}.gif"></div>
+            <div class="hai_name">{{ nameB }}</div>
+        </div>
+    </div>
+
+    <div class="hai_title">NEW MONSTER</div>
+
+    <div class="hai_box3">
+        <div class="hai_1">予　想</div>
+        <div class="hai_img"><img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif"></div>
+        <div class="hai_name">{{ my_new_mons }}</div>
+    </div>
+
+    {% if mode=="omiai_req" %}
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <button type="submit">申請する</button>
+        <input type="hidden" name="mode" value="omiai_request_ok">
+        <input type="hidden" name="target" value="{{ target }}">
+        <input type="hidden" name="token" value="{ {token }}">
+    </form>
+
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <input type="hidden" name="mode" value="omiai_room">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">キャンセル</button>
+    </form>
+    {% endif %}
+
+    {% if mode=="omiai_ans" %}
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <button type="submit">お見合い OK!</button>
+        <input type="hidden" name="mode" value="omiai_answer_result">
+        <input type="hidden" name="target" value="{{ target }}">
+        <input type="hidden" name="token" value="{{ token }}">
+    </form>
+
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <input type="hidden" name="mode" value="omiai_room">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">キャンセル</button>
+    </form>
+    {% endif %}
+
+    {% if mode=="haigou" %}
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <button type="submit">配合 OK!</button>
+        <input type="hidden" name="mode" value="haigou_hensin">
+        <input type="hidden" name="token" value="{{ token }}">
+    </form>
+
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <input type="hidden" name="mode" value="my_page">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">キャンセル</button>
+    </form>
+    {% endif %}
+
+
+{% endblock %}

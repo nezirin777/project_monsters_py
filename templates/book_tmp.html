@@ -1,0 +1,34 @@
+
+<!-- templates/book_tmp.html -->
+
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div id="books_mbox">
+        {% for monster in monster_data %}
+        <div class="books_mbox1">
+            <div class="books_no">{{ monster.no }}</div>
+            <div class="books_im"><img src="{{ monster.img }}"></div>
+            <div class="books_m">{{ monster.name }}<br>-{{ monster.sex }}-<br>{{ monster.sei }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <div class="books_text3">モンスターを選択して下さい</div>
+        <select name="Mno">
+            {% for option in monster_options %}
+            <option value="{{ option.value }}">{{ option.label }}</option>
+            {% endfor %}
+        </select>
+        <div class="books_text3">本を選択して下さい</div>
+        <select name="Bname">
+            {% for book in books_list %}
+            <option value="{{ book }}">{{ book }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <button type="submit">本を読む</button>
+        <input type="hidden" name="mode" value="book_read">
+        <input type="hidden" name="token" value="{{ token }}">
+    </form>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!-- templates/error_tmp.html -->
+
+
+{% extends "base_tmp.html" %}
+
+{% block head %}
+    {% if jump in ["top", "kanri", ""] %}
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const url = "{{ url }}";
+                const par = JSON.parse('{{ par | tojson }}');
+                setTimeout(() => { post(url, par); }, 1000);
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="error">
+        <span>{{ txt }}{% if jump in ["top", "kanri", ""] %}<br>自動移動します{% endif %}</span>
+    </div>
+
+{% endblock %}

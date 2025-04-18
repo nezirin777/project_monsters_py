@@ -1,0 +1,40 @@
+---
+
+### プロジェクト概要
+- **目的**: Python/Cgiゲームの改良、
+- **機能**: 一行掲示板（BBS）実装(ログ書き込み（テキスト、色選択）、ログ更新（手動＋30秒自動）、CSRFトークンセキュリティ。)
+- **技術**: Python 3.12, Jinja2, CGI, HTML/JavaScript。
+- **環境**: D:\Python\Python312\python.exe。
+
+### ファイル構成
+
+monsters_py/
+├── bbs.py
+├── conf.py
+├── sub_def/
+│   ├── init.py
+│   ├── crypto.py
+│   ├── file_ops.py
+│   └── utils.py
+└── templates/
+    └── bbs_tmp.html
+
+### スクリプト概要
+- **bbs.py**: メイン処理（リクエスト分離、設定クラス、テンプレートキャッシュ）。
+- **sub_def/file_ops.py**: ログ操作関数。
+- **sub_def/__init__.py**: モジュールエクスポート。
+- **templates/bbs_tmp.html**: AJAX＋自動更新付きテンプレート。
+
+### 動作状況
+- **確認済み**: 書き込み、更新、CSRFトークン正常動作。
+- **エラー**: なし。
+
+### 依存関係
+- **モジュール**: jinja2, pathlib。
+- **conf.py キー**: datadir, max_log_lines, message_colors, bbs_name。
+- **sub_def 関数**: generate_csrf_token, verify_csrf_token, get_cookie, error。
+
+### 今後の作業目標
+- sub_defフォルダ内のファイルはもとは1つのsub_def.pyというファイルに書かれていた関数群の1つだった。
+あなたにわかりやすく分割するべきとの提案を受けたのでその作業を行っていきたい。
+---

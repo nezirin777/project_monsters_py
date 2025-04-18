@@ -1,0 +1,16 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div id="result">
+        <span>{{ txt }}</span>
+    </div>
+    {{ html | safe }}
+
+    {% if not kanri %}
+        {% include "my_page_button_tmp.html" %}
+    {% else %}
+        {% include "kanri_page_button_tmp.html" %}
+    {% endif %}
+
+
+{% endblock %}

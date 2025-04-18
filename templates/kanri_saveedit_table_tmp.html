@@ -1,0 +1,48 @@
+
+
+{% extends "base_tmp.html" %}
+
+{% block content %}
+        <div class="kanri_save_edit_caution">
+            データの整合性等のチェックはありません。<br>
+            正常に動作しなくなる可能性がありますので<br>
+            内容を把握したうえで変更してください。<br>
+        </div>
+        <div class="kanri_save_edit_title">{{ txt }}</div>
+
+<form action="{{ Conf.kanri_url }}" method="post">
+    <table border="1" class="kanri_save_edit_table">
+        <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in rows %}
+        <tr>
+            {% set row_index = loop.index0 %}
+            {% for key, value in row.items() %}
+            {% if key in no_edit %}
+            <td>{{ value }}</td>
+            <input type="hidden" name="{{ row_index }},{{ key }}" value="{{ value }}">
+            {% else %}
+            <td><input type="text" name="{{ row_index }},{{ key }}" value="{{ value }}" size=10></td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </table>
+    <input type="hidden" name="mode" value="save_edit_save">
+    <input type="hidden" name="target_name" value="{{ target_name }}">
+    <input type="hidden" name="target_data" value="{{ target_data }}">
+    <input type="hidden" name="token" value="{{ token }}">
+    <button type="submit">更新</button>
+</form>
+
+    {% include "kanri_page_button_tmp.html" %}
+
+{% endblock %}

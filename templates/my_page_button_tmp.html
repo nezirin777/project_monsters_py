@@ -1,0 +1,8 @@
+    <form action="{{ Conf.cgi_url }}" method="post">
+        <input type="hidden" name="mode" value="my_page">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">マイページへ</button>
+    </form>
+    <form action="{{ Conf.top_url }}" method="post">
+        <button type="submit">TOPへ</button>
+    </form>

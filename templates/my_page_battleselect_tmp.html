@@ -1,0 +1,64 @@
+        <div class="my_page_menu1">戦 闘</div>
+        <div class="my_page_menu2">KEYやモンスターが入手出来ます。<br>KEYは一番深い階層を選択した時にしか出現しません。</div>
+        <div class="my_page_menu3">【最 深 階】</div>
+        <div class="my_page_menu4">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+                <select name="in_room">
+                    <option value="通常">通常の部屋
+                    {% for room in room_key_display %}
+                    <option value="{{ room.name }}">{{ room.name }}の部屋</option>
+                    {% endfor %}
+                </select>
+                の地下
+                <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ user.key }}" size="7">
+                Fに
+                <button type="submit" disabled>戦闘に行く！</button>
+                <input type="hidden" name="mode" value="battle_type">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="my_page_menu3">【前対戦階】</div>
+        <div class="my_page_menu4">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+                <select name="in_room">
+                    <option value="通常" room>通常の部屋
+                    {% for room in room_key_display %}
+                    <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
+                    {% endfor %}
+                </select>
+                の地下
+                <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ last_floor }}" size="7">
+                Fに
+                <button type="submit" disabled>戦闘に行く！</button>
+                <input type="hidden" name="mode" value="battle_type">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="my_page_menu3 {{ isekai }}">異世界:最深階</div>
+        <div class="my_page_menu4 {{ isekai }}">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+                異世界の地下
+                <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ isekai_next }}"
+                    size="7">
+                Fに
+                <button type="submit" disabled>探索に行く！</button>
+                <input type="hidden" name="mode" value="battle_type2">
+                <input type="hidden" name="in_room" value="特殊">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+        <div class="my_page_menu3 {{ isekai }}">異世界:前探索階</div>
+        <div class="my_page_menu4 {{ isekai }}">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+                異世界の地下
+                <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ last_floor_isekai }}"
+                    size="7">
+                Fに
+                <button type="submit" disabled>探索に行く！</button>
+                <input type="hidden" name="mode" value="battle_type2">
+                <input type="hidden" name="in_room" value="特殊">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>

@@ -1,0 +1,32 @@
+<!-- templates/battle_encount_tmp.html -->
+
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div class="battle_start">
+        {% if target == "スライム" %}
+        スライムの不思議な城に迷い込んだ！<br>
+        勝利すれば不思議な鍵が貰えます！<br>
+        {% elif target == "わたぼう" %}
+        わたぼうのメダル城に迷い込んだ！<br>
+        勝利すればメダルが貰えます！<br>
+        {% elif target == "vipsg" %}
+        VIPSガールズが現れた！
+        {% elif target == "異世界" %}
+        異界の者たちが現れた！
+        {% else %}
+        モンスターが現れた！
+        {% endif %}
+    </div>
+    <div class="battle_teki_box">
+        {% for teki in tekis %}
+        <div class="battle_teki_box1">
+            <div class="battle_teki_name">
+                <img src="{{ Conf.imgpath }}/{{ teki.name }}.gif"><br>
+                <span>{{ teki.name2 }}<br>-{{ teki.sex }}-</span>
+            </div>
+            <div class="battle_teki_hp"><span>HP/MHP</span><br>{{ teki.hp }}<br>/{{ teki.mhp }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endblock %}

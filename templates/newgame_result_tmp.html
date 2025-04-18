@@ -1,0 +1,37 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div class="new_ok">{{ k_txt }}</div>
+    <div class="new_result">
+        <div class="new_1"><div>ユーザー名</div><span>{{ in_name }}</span></div>
+        <div class="new_1"><div>パスワード</div><span>{{ in_pass }}</span></div>
+        <div class="new_1"><div>所 持 金</div>{{ money }}</div>
+        <div class="new_1"><div>鍵入手</div>{{ key_floor }}</div>
+    </div>
+    <div class="new_mons">
+        <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif">
+        <div>
+            <div>名前：{{ monster.name }}</div>
+            <div>性別：-{{ monster.sex }}-</div>
+            <div>性格：{{ monster.sei }}</div>
+        </div>
+    </div>
+    <div class="new_result">
+        <div class="new_1"><div>配 合 数</div>0回</div>
+        <div class="new_1"><div>LEVEL</div>{{ monster.lv }} / {{ monster.mlv }}</div>
+        <div class="new_1"><div>H P</div>{{ monster.hp }} / {{ monster.mhp }}</div>
+        <div class="new_1"><div>M P</div>{{ monster.mp }} / {{ monster.mmp }}</div>
+        <div class="new_1"><div>攻 撃 力</div>{{ monster.atk }}</div>
+        <div class="new_1"><div>守 備 力</div>{{ monster.def }}</div>
+        <div class="new_1"><div>経 験 値</div>{{ monster.exp }} / {{ monster.n_exp }}</div>
+    </div>
+
+    {% if kanri %}
+        {% include "kanri_page_button_tmp.html.html" %}
+    {% else %}
+        <form action="{{ Conf.top_url }}" method="post">
+            <button type="submit">T O Pへ</button>
+        </form>
+    {% endif %}
+
+{% endblock %}

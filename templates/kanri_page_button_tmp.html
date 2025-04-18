@@ -1,0 +1,9 @@
+    <form action="{{ Conf.kanri_url }}" method="post">
+        <input type="hidden" name="mode" value="KANRI">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">管理メニューへ</button>
+    </form>
+    <form action="{{ Conf.top_url }}" method="post">
+        <input type="hidden" name="mode" value="">
+        <button type="submit">TOPへ</button>
+    </form>

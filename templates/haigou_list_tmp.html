@@ -1,0 +1,84 @@
+<!-- templates/haigou_list_tmp.html -->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>MONSTER'S 配合表</title>
+    <link rel="stylesheet" href="../css_js/html_style.css">
+</head>
+<body>
+    <div class="haigou_title" id="top">
+        MONSTER'S 改 {{ Conf.ver }}<br>
+        配合表・出現階数
+    </div>
+
+    <!-- 右メニュー -->
+    <div id="haigou_rightmenu">
+        [<a href="#top">一番上へ</a>]
+            {% for link in links %}
+                <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
+            {% endfor %}
+        <br>
+        <form action="{{ Conf.top_url }}" method="post">
+            <input type="hidden" name="mode" value="">
+            <button type="submit">TOPへ</button>
+        </form>
+    </div>
+
+    <div class="haigou_menu">
+        {% for m_type, monsters in filtered_M_list.items() %}
+            <table class="haigou_box" id="{{ m_type }}">
+                <thead>
+                    <tr>
+                        <th class="menu_title_1">NO</th>
+                        <th class="menu_title_2">{{ m_type }}</th>
+                        <th class="menu_title_3">ベース</th>
+                        <th class="menu_title_4">材　料</th>
+                        <th class="menu_title_5">出現階数</th>
+                        <th class="menu_title_1">戦闘入手</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, target in monsters.items() %}
+                    <tr>
+                        <td class="haigou_menu_1">{{ target["no"] }}</td>
+                        <td class="haigou_menu_2">{{ name }}</td>
+                        <td class="haigou_menu_3">
+                            {% for x in range(1, 4) %}
+                            {% if target["血統" ~ x] %}
+                            <span class="haigou_menu_3B">{{ target["血統" ~ x] }}</span>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="haigou_menu_4">
+                            {% for x in range(1, 4) %}
+                            {% if target["相手" ~ x] %}
+                            <span class="haigou_menu_4B">{{ target["相手" ~ x] }}</span>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="haigou_menu_5">{{ target["階層A"] }}階～{{ target["階層B"] }}階</td>
+                        <td class="haigou_menu_1">{{ "OK" if target["get"] else "NO" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+    </div>
+
+    <div id="footer">
+        <div id="f_box">
+            <div id="f_t">MONSTER'S 改 {{ Conf.ver }}</div>
+            <div><span>【改造】</span>おくた</div>
+            <div><span>【ドット絵】</span><a href="http://wpdot.blog106.fc2.com/">wp～ドット絵倉庫～</a></div>
+            <div><span>【ドット絵】</span><a href="https://www.pixiv.net/users/26734">chopper氏</a></div>
+            <div><span>【ドット絵】</span><a href="http://deepmoon.sakura.ne.jp/icon/">DMF別館 アイコン素材屋</a></div>
+            <div><span>【ドット絵】</span><a href="https://dfp2013.jimdofree.com/">Dragon Fake Project</a></div>
+            <div><span>【作成・配布】</span><a href="http://park16.wakwak.com/~mikio-palace/">MIKIO-PALACE</a></div>
+            <div>Copyright (C) 2002-2004：MIKIO</div>
+        </div>
+    </div>
+</body>
+
+</html>

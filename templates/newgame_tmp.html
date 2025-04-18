@@ -1,0 +1,18 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div class="new_title">新規ユーザー登録</div>
+    <div class="new_txt">
+        ユーザー名・パスワードを設定してください<br>
+        (20文字以内。ユーザー名はひらがな等もOK<br>パスワードは英数字のみ。)
+    </div>
+    <form action="{{ Conf.reg_url }}" method="post" class="new_form">
+        <div>
+            ユーザー名: <input type="text" size="14" name="name" value=""><br>
+            パスワード: <input type="password" size="14" name="password" value=""><br>
+            <input type="submit" value="　登　録　">
+            <input type="hidden" name="mode" value="sinki">
+            <input type="hidden" name="token" value="{{ token }}">
+        </div>
+    </form>
+{% endblock %}

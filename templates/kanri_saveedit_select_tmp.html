@@ -1,0 +1,27 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+
+        <div class="kanri_save_edit_title">
+            <form action="{{ Conf.kanri_url }}" method="post">
+                対象ユーザー:{{ target_name }}<br>
+                <select name="target_data">
+                    <option value="" hidden>対象データを選択</option>
+                    <option value="user_data">ユーザーデータ</option>
+                    <option value="party_data">パーティデータ</option>
+                    <option value="room_key_data">所持部屋の鍵データ</option>
+                    <option value="waza_data">取得特技データ</option>
+                    <option value="zukan_data">図鑑データ</option>
+                    <option value="park_data">モンスターパークデータ</option>
+                    <option value="vips_data">vipsデータ</option>
+                </select>
+                <button type="submit">データ決定</button>
+                <input type="hidden" name="mode" value="save_editer">
+                <input type="hidden" name="target_name" value="{{ target_name }}">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+    {% include "kanri_page_button_tmp.html" %}
+
+{% endblock %}

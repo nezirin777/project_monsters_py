@@ -1,0 +1,34 @@
+
+{% extends "base_tmp.html" %}
+
+{% block head %}
+    <script src="./css_js/form_check.js"></script>
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="my_page_box">
+        <div class="my_page_user_st1">所持金<br>{{ user_v["money"] }}G</div>
+        <div class="my_page_user_st1">メダル<br>{{ user_v["medal"] }}枚</div>
+    </div>
+
+    <form action="Conf.cgi_url" id="form_check" method="post">
+        {% for category, items in item_lists.items() %}
+        <div class="medal_box">
+            {% for item in items %}
+            <div class="medal_box1">
+                <input type="radio" name="m_name" value="{{ item.name }}">
+                <div class="medal_name">{{ item.name }}</div>
+                <div class="medal_val">{{ item.val1 }}{{ item.price }}{{ item.val2 }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit">交換する</button>
+        <input type="hidden" name="mode" value="{{ mode }}">
+        <input type="hidden" name="token" value="{{ token }}">
+    </form>
+
+
+{% endblock %}

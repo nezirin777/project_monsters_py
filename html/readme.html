@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="ja">
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+<META http-equiv="Content-Style-Type" content="text/css">
+<TITLE>MONSTER'S V1.8</TITLE>
+</HEAD>
+<BODY>
+MONSTER'S V1.8<BR>
+<BR>
+☆　みなさまへ　☆<BR>
+<BR>
+ＤＬして頂きましてありがとうございます。<BR>
+バージョン1.8は今までとデータが異なるので前データを使用する事は出来ません。<BR>
+恐れ入りますが、必ず新規のスタートでプレイするようにお願いします。<BR>
+またバグ等があるかもしれませんのでご報告頂ければ助かります。<BR>
+今回より私だけの作成ではなく、あばかぶさん（サポート）の助けによりかなりプレイしやすく修正された箇所が随所ございます。<BR>
+この場をかりまして、あばかぶさんに感謝申し上げます。ありがとうございました。<BR>
+<BR>
+<BR>
+①　解凍して出来たmonstersフォルダの中に以下のものが含まれているか確認して下さい。
+<pre>
+   |
+   |-- monster.cgi 【755】（perlのパスをサーバに合わせて変更して下さい）
+   |-- newgame.cgi 【755】（perlのパスをサーバに合わせて変更して下さい）
+   |-- kanri.cgi 【755】（perlのパスをサーバに合わせて変更して下さい）
+   |-- cook.cgi 【755】（perlのパスをサーバに合わせて変更して下さい）
+   |-- set.cgi （※これが設定変更用になります）
+   |
+   |-- index.html　(何も書かれてません）
+   |
+   |-- jcode.pl
+   |
+   |-- 【bbsフォルダ】（中身は空）
+   |-- 【wazaフォルダ】（中身は空）
+   |-- 【keysetフォルダ】（中身は空）
+   |-- 【omiaiフォルダ】（中身は空）
+   |-- 【datフォルダ】（中身は8個のcgiファイル)
+   |         |
+   |         |-- book.cgi
+   |         |-- data.cgi
+   |         |-- kokoro.cgi
+   |         |-- monsterdat.cgi
+   |         |-- omiai.cgi
+   |         |-- time2.cgi
+   |         |-- time3.cgi
+   |         |-- turnlog.cgi
+   |
+   |-- 【cgiフォルダ】（中身は36個のcgiスクリプトと1個のフォルダ)
+   |         |
+   |         |-- aite.cgi
+   |         |-- bbs.cgi
+   |         |-- bbs2.cgi
+   |         |-- bbs3.cgi
+   |         |-- bbsdel.cgi
+   |         |-- books.cgi
+   |         |-- change.cgi
+   |         |-- comment.cgi
+   |         |-- delete1.cgi
+   |         |-- delete2.cgi
+   |         |-- fusei1.cgi
+   |         |-- fusei2.cgi
+   |         |-- haigou.cgi
+   |         |-- hensin.cgi
+   |         |-- kakunin.cgi
+   |         |-- kget.cgi
+   |         |-- kyoukai.cgi
+   |         |-- kyoukaiok.cgi
+   |         |-- login.cgi
+   |         |-- mbye.cgi
+   |         |-- medal.cgi
+   |         |-- medalok.cgi
+   |         |-- mget.cgi
+   |         |-- omiai.cgi
+   |         |-- omik.cgi
+   |         |-- omino.cgi
+   |         |-- omisen.cgi
+   |         |-- omiyes.cgi
+   |         |-- readbook.cgi
+   |         |-- seikou1.cgi
+   |         |-- seikou2.cgi
+   |         |-- seitenkan.cgi
+   |         |-- seitenok.cgi
+   |         |-- turn.cgi
+   |         |-- yadook.cgi
+   |         |-- yadoya.cgi
+   |         |
+   |         |-- 【fightフォルダ】（中身は11個のcgiスクリプト)
+   |                    |
+   |                    |-- fight1.cgi
+   |                    |-- fight2.cgi
+   |                    |-- fight3.cgi
+   |                    |-- fight4.cgi
+   |                    |-- fight5.cgi
+   |                    |-- fight6.cgi
+   |                    |-- fight7.cgi
+   |                    |-- fight8.cgi
+   |                    |-- fight9.cgi
+   |                    |-- fight10.cgi
+   |                    |-- fight11.cgi
+   |
+   |-- readme.html（今読んでるこれですね） </pre>
+<BR>
+<BR>
+以上が含まれているもの全てになります。足らない場合は再度ＤＬして下さい。<BR>
+尚画像は別にＤＬしなければなりません。下のアドレスからＤＬしてください。<BR>
+　　　　　　　　　　　　　　　　　　　　　　　　　　↓<BR>
+<A href="http://park16.wakwak.com/~mikio-palace/download/monimg.zip">http://park16.wakwak.com/~mikio-palace/download/monimg.zip</A><BR>
+<BR>
+②　あなたのサーバーのperlのパスに変更してください。変更が必要になるのは<BR>
+<B><U>【monster.cgi】【newgame.cgi】【kanri.cgi】【cook.cgi】</U></B>の4個です。<BR>
+現在の設定は　<B>#!/usr/local/bin/perl </B>になってます。<BR>
+<BR>
+③　設定変更を行うスクリプトは<B><U>【set.cgi】</U></B>です。set.cgiをエディタで開いて下さい。<BR>
+<BR>
+# ************* 変更する所はここから *******************<BR>
+# ファイルのロック(Mkdir = 1,Symlink=2,No = 0)<BR>
+$lockkey = <FONT color="#ff0000">1</FONT>;<BR>
+# ロックファイル名＆パス<BR>
+$lockfile = './monslock';<BR>
+<FONT color="#0000ff">【解説】<BR>
+ファイルのロック方式を設定してください。サーバーによってはSymlinkが使用出来ない所もあります。<BR>
+Mkdirが無難かもしれません。</FONT><BR>
+<BR>
+# データ格納フォルダ（適当な名前を付けてください）<BR>
+$datadir = '<B><FONT color="#ff0000">mons</FONT></B>';<BR>
+<FONT color="#0000ff">【解説】<BR>
+ゲームを開始すると、ここで設定した名前のフォルダが自動で作成され中にカウントデータ・ユーザーデータ<BR>
+個人別のデータが作成されていきます。</FONT><BR>
+<BR>
+# マスターネーム<BR>
+$mastername = '<B><FONT color="#ff0000">you</FONT></B>';<BR>
+# マスターパスワード<BR>
+$masterpassword = '<FONT color="#ff0000"><B>pass</B></FONT>';<BR>
+<FONT color="#0000ff">【解説】<BR>
+管理モードにログインする為に必要なＩＤとパスワードになります。<BR>
+他の人に悪用されないように分かりにくい設定にしておいて下さい。</FONT><BR>
+<BR>
+# ＣＧＩへのパス<BR>
+# http://127.0.0.1/~mikio/monsters/monster.cgiの場合は<BR>
+# http://127.0.0.1/~mikio/monstersにしてください<BR>
+$cgipath = &quot;<FONT color="#ff0000"><B>http://127.0.0.1/~mikio/monsters</B></FONT>&quot;;<BR>
+<FONT color="#0000ff">【解説】<BR>
+monstersフォルダを実際にアップロードしたアドレスにしてください。127.0.0.1/~mikioの部分が<BR>
+変更の対象部分になります。</FONT><BR>
+<BR>
+# 画像へのパス<BR>
+# 実際に画像が入ってるフォルダ名まで<BR>
+$img = &quot;<B><FONT color="#ff0000">http://127.0.0.1/~mikio/monsters/img</FONT></B>&quot;;<BR>
+<FONT color="#0000ff">【解説】<BR>
+画像全てがmonstersフォルダ内のimgフォルダに入ってるとしての説明になります。<BR>
+こちらも変更対象部分は127.0.0.1/~mikioの部分になります。</FONT><BR>
+<BR>
+# 掲示板へのＵＲＬ<BR>
+$bbs = &quot;<B><FONT color="#ff0000">http://bbs</FONT></B>&quot;;<BR>
+<FONT color="#0000ff">【解説】<BR>
+ゲーム用であなたがＢＢＳを用意されてあるならばアドレスを打ち込んで下さい。</FONT><BR>
+<BR>
+# パーミッションを設定<BR>
+$dirmode = 0777;<BR>
+$sankaMAX = <B><FONT color="#ff0000">30</FONT></B>;#(参加総数の設定です)<BR>
+$maxshow = <B><FONT color="#ff0000">30</FONT></B>;#(TOP画面に表示される数です。)<BR>
+<FONT color="#0000ff">【注意】<BR>
+必ず30人以下で設定しておいて下さい。<BR>
+maxshowは低いほど負荷が軽減されます。メダル杯に参加できる16ぐらいにするといいかも？！</FONT><BR>
+<BR>
+<BR>
+# データ保存期間<BR>
+$goodbye = <B><FONT color="#ff0000">10</FONT></B>;<BR>
+<FONT color="#0000ff">【解説】<BR>
+この期間を過ぎたらデータが削除されます。</FONT><BR>
+<BR>
+# 戻り先ＵＲＬ<BR>
+$homepage = &quot;<FONT color="#ff0000">http://home/</FONT>&quot;;<BR>
+# 戻り先表示文字<BR>
+$home_title = '<B><FONT color="#ff0000">HOME</FONT></B>';<BR>
+<BR>
+# 重複チェックをする時は=1 しない時は=0<BR>
+$iplog = <B><FONT color="#ff0000">1</FONT></B>;<BR>
+<FONT color="#0000ff">【解説】<BR>
+ＩＰアドレスのｃｈｅｃｋを行い同じ人がたくさん登録する可能性を小さく出来ます。<BR>
+100％ではないので多重登録される可能性は残ります。</FONT><BR>
+<BR>
+# 初期レベルＵＰ値<BR>
+$nextup = <B><FONT color="#ff0000">10</FONT></B>;<BR>
+# 戦闘可能ラウンド数（5以下）<BR>
+$maxround = <FONT color="#ff0000"><B>4</B></FONT>;<BR>
+# 戦闘後何分間後に戦闘できるか 30 = 30分後<BR>
+$nexpplay = <B><FONT color="#ff0000">30</FONT></B>;<BR>
+# 配合を許可するレベル<BR>
+$haigoulevel = <B><FONT color="#ff0000">10</FONT></B>;<BR>
+# 配合料金（配合回数×$Mmoney）ゴールドになります<BR>
+$Mmoney = <B><FONT color="#ff0000">50</FONT></B>;<BR>
+# 未使用は 0:小型BBS使用 1:<BR>
+$bbsmode =<FONT color="#ff0000"> <B>1</B></FONT>;<BR>
+# 参加者以外の書込みを許可 1 :参加者以外の書込みを拒否 0<BR>
+$bbsok = <B><FONT color="#ff0000">0</FONT></B>;<BR>
+<BR>
+<FONT color="#0000ff">【注意】<BR>
+基本的に変更しないでください。<BR>
+戦闘後何分間後に戦闘できるかについては、短くても15分以上に設定をしてください。<BR>
+サーバーの負荷が大きくなりますし、データ破損や他のサーバー利用者に迷惑が掛かります</FONT><BR>
+<BR>
+############################　設定はここまで　########################<BR>
+<BR>
+以上で変更は終了です。<BR>
+<BR>
+④　アップロードしましょう。<BR>
+ＦＦＦＴＰなどの転送ソフトでmonstersフォルダをアップロードしてください。<BR>
+パーミッションはサーバー事の設定に合わせて実行権を与えたりしてください。<BR>
+<U><B>【monster.cgi】【newgame.cgi】【kanri.cgi】【cook.cgi】</B></U>の4個のcgiが実行権が必要になります。<BR>
+<BR>
+⑤　正常に動作しない時は<BR>
+<B><FONT color="#0000ff">パーミッション</FONT></B>や<B><FONT color="#0000ff">perlのパス</FONT></B>を再度調べてみて下さい。<BR>
+初めてＣＧＩを設置される方はどこかで簡単なＢＢＳ等のスクリプトをＤＬしてチャレンジして上手く<BR>
+設置できてから再度試された方が良いと思います。<BR>
+ＣＧＩの設置は慣れだと思いますので、数多くやってみるのもいいかも知れません。<BR>
+<BR>
+<BR>
+=====================================================<BR>
+       Copyright (C) 2002-2004：MIKIO  MONSTER'S Ver1.8<BR>
+=====================================================</BODY>
+</HTML>

@@ -1,0 +1,9 @@
+# Bin/binディレクトリとその中身を除外する
+#[Bb]in/
+
+backup/
+img/
+save/
+新しいフォルダー/
+.pyc
+conf.py

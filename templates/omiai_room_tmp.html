@@ -1,0 +1,103 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+
+    <div id="result">
+        <span>お見合い所にモンスターを登録することができます<br>Lv{{ Conf.haigoulevel }}以上必要です<br>登録できるのは1体だけです</span>
+    </div>
+
+    {% if not txt2 %}
+    <!-- 登録可能モンスター表示 -->
+    <form name="form1" method="post">
+        <select name="haigou1" onClick="change_img1()">
+            <option value="0" selected>登録するモンスターを選んでください</option>
+            {% for monster in selectable_monsters %}
+            <option value="{{ monster.index }}">
+                0{{ monster.index }}: {{ monster.name }} {{ monster.sex }} LV-{{ monster.lv }} 配合{{ monster.hai }}回
+            </option>
+            {% endfor %}
+        </select>
+        <br>
+        <img name="img1" src="{{ Conf.imgpath }}/0.gif">
+        <br>
+        <input type="text" name="mes" size="30" value="" placeholder="希望相手モンスターを入力">
+        <br>
+        <button type="submit">登録する</button>
+        <input type="hidden" name="mode" value="omiai_touroku">
+        <input type="hidden" name="token" value="{{ token }}">
+        <br>
+    </form>
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <input type="hidden" name="mode" value="my_page">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">マイページへ</button>
+    </form>
+    {% else %}
+    <hr>
+    <div id="result">
+        <span>あなたが登録しているモンスター</span>
+    </div>
+    <div class="omiai_pt">{{ txt2 | safe }}</div>
+    {% endif %}
+
+    {% if txt3 %}
+    <div id="result">
+        <span>あなたとお見合いを望んでる相手</span>
+    </div>
+    <div class="omiai_pt">{{ txt3 | safe }}</div>
+    {% endif %}
+
+    {% if txt4 %}
+    <div id="result">
+        <span>あなたがお見合い依頼している相手</span>
+    </div>
+    <div class="omiai_pt">{{ txt4 | safe }}</div>
+    {% elif cancel %}
+    <div id="result">
+        <span>あなたがお見合い依頼している相手</span>
+    </div>
+    <div class="omiai_mes">{{ cancel }}</div>
+    {% endif %}
+
+    {% if txt5 %}
+    <hr>
+    <div id="result">
+        <span>お見合い所に登録されているモンスター<br>{{ page }}ページ目</span>
+    </div>
+    <div class="park_page">
+        {% for page_button in tex_p %}
+        <form action="{{ Conf.cgiurl }}" method="post">
+            <input type="hidden" name="mode" value="omiai_room">
+            <input type="hidden" name="page" value="{{ page_button.page }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit">{{ page_button.label }}</button>
+        </form>
+        {% endfor %}
+    </div>
+    <div class="omiai_pt">{{ txt5 }}</div>
+    <div class="park_page">
+        {% for page_button in tex_p %}
+        <form action="{{ Conf.cgiurl }}" method="post">
+            <input type="hidden" name="mode" value="omiai_room">
+            <input type="hidden" name="page" value="{{ page_button.page }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit">{{ page_button.label }}</button>
+        </form>
+        {% endfor %}
+    </div>
+    {% else %}
+    <hr>
+    <div id="result">
+        <span>お見合い所に登録されているモンスター<br>他に登録されてるモンスターはいないようです･･･</span>
+    </div>
+    {% endif %}
+
+    {% if txt6 %}
+    <hr>
+    <div id="result">
+        <span>{{ mes }}<br>受け取るには配合回数×5000Gが必要です</span>
+    </div>
+    <div class="omiai_pt">{{ txt6 | safe }}</div>
+    {% endif %}
+
+{% endblock %}

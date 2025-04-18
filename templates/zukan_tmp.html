@@ -1,0 +1,57 @@
+{% extends "base_tmp.html" %}
+
+
+{% block head %}
+    <script src="./css_js/zukan_tooltip.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="zukan_title">
+        <div>
+            <span class="fsize">{{ in_name }}の魔物図鑑</span><br>入手したモンスターは{{ user.getm }}
+        </div>
+    </div>
+
+    <div id="zukan_link">
+        {% set categories = ["スライム系", "ドラゴン系", "けもの系", "とり系", "しょくぶつ系", "むし系", "あくま系", "ゾンビ系", "ぶっしつ系", "みず系", "？？？系",
+        "せいれい系", "らき☆すた", "まどマギ", "シンフォギア", "東方", "アイマス", "ボカロ", "シュタゲ", "とある", "ミルキィ", "ボイロ", "原神", "このすば", "ぼざろ", "ドラクエ"]
+        %}
+        {% for category in categories %}
+        [<a href="{{ Conf.cgi_url }}?mode=zukan&name={{ in_name | urlencode }}&type={{ category | urlencode }}">{{ category }}</a>]
+        {% if loop.index % 10 == 0 %}<br>{% endif %}
+        {% endfor %}
+    </div>
+
+    <div id="zukan_type">{{m_type}}</div>
+
+    <div id="zukan_box">
+        {% for name, li in zukan_list.items() %}
+        <div class="zukan">
+            <div class="zukan_no">{{ li.no }}</div>
+                <div class="zukan_img {{ li.m_type if li['get'] else '' }}" tabindex="0"
+                    {% if li['get'] and M_list[name] %}
+                    data-tooltip="{% for n in range(1, 4) %}{% if M_list[name]['血統' ~ n] %}<p>{{ M_list[name]['血統' ~ n] }} × {{ M_list[name]['相手' ~ n] }}</p>{% endif %}{% endfor %}"
+                    {% endif %}>
+                    <img src="{{ Conf.imgpath }}/{{ name if li['get'] else '？？？' }}.gif">
+                </div>
+            <div class="zukan_name">{{ name if li['get'] else '？？？' }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 共有ツールチップ -->
+    <div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
+
+    {% if not ref %}
+    <form action="Conf.cgi_url" method="get">
+        <input type="hidden" name="mode" value="my_page2">
+        <input type="hidden" name="name" value="{{ in_name }}">
+        <button type="submit">ユーザーページへ</button>
+    </form>
+    <form action="{{ Conf.top_url }}" method="post">
+        <button type="submit">TOPへ</button>
+    </form>
+    {% endif %}
+
+{% endblock %}

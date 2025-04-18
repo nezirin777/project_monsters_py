@@ -1,0 +1,1827 @@
+@charset "UTF-8";
+/*$yellow: #ffd900 ; */
+body {
+  margin: 0;
+  padding: 0;
+  height: 98%;
+  /* 画像を常に天地左右の中央に配置 */
+  background-position: center center;
+  /* 画像をタイル状に繰り返し表示しない */
+  background-repeat: no-repeat;
+  /* コンテンツの高さが画像の高さより大きい時、動かないように固定 */
+  background-attachment: fixed;
+  /* 表示するコンテナの大きさに基づいて、背景画像を調整 */
+  background-size: cover;
+  text-align: center;
+  /* background-image: url(../img/back.jpg); */
+  background-color: #DEB887;
+  /* アイフォン文字はみ出し対策 */
+  -webkit-text-size-adjust: 100%;
+  -moz-appearance: none;
+       appearance: none;
+  -webkit-appearance: none;
+}
+
+A:Link {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+A:Visited {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+A:hover {
+  color: crimson;
+  text-decoration: none;
+}
+
+input:invalid {
+  border: solid 2px red;
+}
+
+button {
+  margin: 4px 1px;
+}
+
+.form {
+  display: inline;
+}
+
+.input {
+  border-radius: 0px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.sky_blue {
+  color: #00CCCC;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.blue {
+  color: #0000CC;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.red {
+  color: #FF0000;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.yellow {
+  color: #f7e371;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+/************************************/
+/* 管理ページ */
+/************************************/
+.kanri_title {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 300px;
+}
+
+.kanri_login {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  background-color: #000000;
+  width: 250px;
+}
+.kanri_login span {
+  display: inline-flex;
+  width: 100px;
+}
+
+.kanri_menu_top {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #1e90ff;
+  width: 600px;
+}
+
+.kanri_menu {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  box-sizing: border-box;
+  border: solid 1px #FF00FF;
+  width: 100%;
+}
+.kanri_menu span {
+  color: #ffbf7f;
+}
+
+.flex {
+  display: inline-flex;
+}
+
+.kanri_save_edit_caution {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 600px;
+}
+
+.kanri_save_edit_title {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #1e90ff;
+  width: 300px;
+}
+
+.kanri_save_edit_table {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #1e90ff;
+  white-space: nowrap;
+}
+.kanri_save_edit_table th {
+  background-color: #3F51B5; /* 背景色指定 */
+  color: #fff; /* 文字色指定 */
+}
+
+/************************************/
+/* TOPページ */
+/************************************/
+/*****
+.mente {
+	@include margin(10px,10px);
+	font-weight: bold;
+	width: 680px;
+	color:$red;
+}
+****/
+.mente {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 300px;
+}
+
+.toptitle, .rank_t {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 1000px;
+}
+.toptitle span, .rank_t span {
+  color: #FF0000;
+  font-size: 80%;
+  font-weight: bold;
+}
+
+.event_txt {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 300px;
+}
+
+.t_menu {
+  font-size: 80%;
+}
+
+.t_txt {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #00CCCC;
+  font-weight: bold;
+  width: 680px;
+}
+.t_txt span {
+  color: #FF0000;
+}
+
+.login {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  background-color: #000000;
+  width: 250px;
+}
+.login span {
+  display: inline-flex;
+  width: 100px;
+}
+
+#login_form input {
+  width: 8em;
+}
+
+#medaltime {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: 350px;
+}
+
+#news {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 650px;
+  height: 160px;
+}
+
+.rank, .rank_m {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-weight: bold;
+  max-width: 950px;
+}
+
+.r_1, .r_2, .r_3, .r_u1, .r_u2, .r_u3, .r_u4, .r_u5 {
+  box-sizing: border-box;
+  border: solid 1px black;
+  color: #FFFFFF;
+}
+
+.r_1 {
+  background-color: #000000;
+  width: 50px;
+}
+
+.r_2 {
+  background-color: #0000CC;
+  width: 250px;
+}
+
+.r_3 {
+  background-color: #0000CC;
+  width: 550px;
+}
+
+.r_ubox {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  flex-wrap: wrap;
+  width: 800px;
+}
+
+.r_u1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #FF00FF;
+}
+
+.r_u2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0000CC;
+  font-size: 90%;
+}
+.r_u2 span {
+  color: #FF0000;
+}
+
+.r_u3 {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  background-color: #FFFFFF;
+}
+.r_u3 img {
+  max-height: 120px;
+}
+
+.r_m {
+  color: #000000;
+  font-size: 90%;
+  font-weight: bold;
+  width: 33%;
+  line-height: 14px;
+}
+.r_m span {
+  color: #FF0000;
+}
+
+.r_u4 {
+  background-color: #0000CC;
+  width: 100px;
+}
+
+.r_u5 {
+  background-color: #FFFFFF;
+  color: #000000;
+  width: 700px;
+}
+
+.rank_pagination {
+  display: inline-block;
+}
+
+/************************************/
+/* 新規作成 */
+/************************************/
+.new_title {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 600px;
+}
+
+.new_txt {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #f7e371;
+  font-size: 140%;
+  font-weight: bold;
+  background-color: #000000;
+  width: 500px;
+}
+
+.new_form {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #000000;
+  font-size: 140%;
+  font-weight: bold;
+  width: 450px;
+}
+
+.new_ok {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #FF0000;
+  font-size: 140%;
+  font-weight: bold;
+}
+
+.new_result {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  flex-wrap: wrap;
+  width: 600px;
+}
+
+.new_1 {
+  box-sizing: border-box;
+  border: solid 1px #000000;
+  flex-grow: 2;
+  background-color: #FFFFFF;
+}
+.new_1 div {
+  background-color: #00CCCC;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+}
+.new_1 span {
+  color: #FF0000;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.new_mons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  box-sizing: border-box;
+  border: solid 1px #000000;
+  width: 600px;
+  background-color: #FFFFFF;
+}
+
+/************************************/
+/* ログインメニュー */
+/************************************/
+.my_page_topmenu {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+  width: 50%;
+}
+
+.my_page_title {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #000000;
+  font-size: 120%;
+  font-weight: bold;
+  background-color: #f0bc68;
+  width: 600px;
+}
+
+.my_page_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  flex-wrap: wrap;
+  width: 600px;
+}
+
+.my_page_user_st1 {
+  box-sizing: border-box;
+  border: solid 1px black;
+  padding: 0px 10px 0 10px;
+  background: linear-gradient(180deg, #00CCCC 0%, #00CCCC 50%, #FFFFFF 50%, #FFFFFF 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.my_page_zukan {
+  display: block;
+}
+
+.my_page_pt {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 1000px;
+}
+
+.my_page_chara_1 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #f7e371;
+  max-height: 180px;
+  width: 100%;
+  height: 180px;
+}
+
+.my_page_chara_2 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #f7e371;
+  max-height: 180px;
+  width: 100%;
+  height: 180px;
+}
+
+.my_page_chara_3 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #f7e371;
+  max-height: 180px;
+  width: 100%;
+  height: 180px;
+}
+
+.my_page_chara_4 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_4 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_4 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_4 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_4 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_4 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_chara_5 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_5 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_5 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_5 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_5 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_5 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_chara_6 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_6 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_6 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_6 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_6 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_6 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_chara_7 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_7 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_7 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_7 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_7 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_7 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_chara_8 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_8 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_8 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_8 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_8 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_8 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_chara_9 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_9 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_9 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_9 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_9 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_9 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_chara_10 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 333px;
+  height: 180px;
+}
+.my_page_chara_10 .my_page_st_1 {
+  width: 15%;
+}
+.my_page_chara_10 .my_page_st_2 {
+  width: 40%;
+}
+.my_page_chara_10 .my_page_charabox {
+  width: 45%;
+}
+.my_page_chara_10 .my_page_st_3 {
+  width: 100%;
+}
+.my_page_chara_10 .my_page_st_4 {
+  display: none;
+}
+
+.my_page_charabox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 80%;
+}
+
+.my_page_st_1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: solid 1px black;
+  flex-direction: column;
+  width: 5%;
+}
+
+.my_page_st_2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: solid 1px black;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  width: 15%;
+  min-height: 100px;
+}
+.my_page_st_2 img {
+  max-height: 120px;
+}
+
+.my_page_st_3, .my_page_st_4 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: solid 1px black;
+  flex-direction: column;
+  width: 25%;
+  height: 50%;
+}
+
+.my_page_st_title {
+  background-color: #00CCCC;
+  width: 100%;
+}
+.my_page_st_title span {
+  color: #FF0000;
+}
+
+.my_page_st_val {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  height: 100%;
+  width: 100%;
+}
+.my_page_st_val span {
+  color: #FF0000;
+}
+
+/* 鍵や特技のテーブル */
+.my_page_keylist {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  box-sizing: border-box;
+  border: solid 1px black;
+  background-color: #00CCCC;
+  width: 660px;
+}
+
+.my_page_list_item {
+  box-sizing: border-box;
+  border: solid 1px black;
+  display: inline-flex;
+  justify-content: center;
+  background-color: #FFFFFF;
+  width: 20%;
+}
+
+#u2, #u3 {
+  display: none;
+}
+
+#b_count {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: 150px;
+  font-size: 80%;
+}
+
+.my_page_menu_box {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  flex-wrap: wrap;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 650px;
+}
+
+.my_page_menu1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FF0000;
+  font-size: 120%;
+  font-weight: bold;
+  background-color: #000000;
+  width: 25%;
+}
+
+.my_page_menu2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  color: #FFFFFF;
+  width: 75%;
+}
+
+.my_page_menu3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: solid 1px black;
+  background-color: #99CCFF;
+  width: 25%;
+}
+
+.my_page_menu4 {
+  box-sizing: border-box;
+  border: solid 1px black;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: #99CCFF;
+  width: 75%;
+}
+
+.battle_go button[disabled] {
+  background-color: gray;
+  color: darkgray;
+  cursor: not-allowed;
+}
+
+img[name=img1] {
+  max-height: 120px;
+}
+
+img[name=img2] {
+  max-height: 120px;
+}
+
+/************************************/
+/* バトル画面 */
+/************************************/
+.battle_start {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 0px;
+  color: #FF0000;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+.battle_teki_box {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  width: 480px;
+}
+
+.battle_teki_box1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  background-color: #FFFFFF;
+  width: 33%;
+}
+
+.battle_teki_name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: solid 1px black;
+  flex-direction: column;
+  flex-grow: 5;
+  width: 100%;
+}
+.battle_teki_name img {
+  max-height: 100px;
+}
+.battle_teki_name span {
+  color: #FF0000;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.battle_teki_hp {
+  box-sizing: border-box;
+  border: solid 1px black;
+  width: 100%;
+}
+.battle_teki_hp span {
+  color: #FF0000;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.battle_pt_box {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 900px;
+}
+
+.battle_pt_box1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 33%;
+}
+
+.battle_pt_box2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.battle_pt_name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-grow: 2;
+  width: 99%;
+  min-height: 100px;
+  background-color: #FFFFFF;
+}
+.battle_pt_name span {
+  color: #00CCCC;
+  font-size: 100%;
+  font-weight: bold;
+}
+.battle_pt_name img {
+  max-height: 120px;
+}
+
+.battle_pt_1, .battle_pt_2, .battle_pt_3, .battle_pt_4 {
+  background-color: #FFFFFF;
+  height: 25px;
+  margin: 1px;
+}
+
+.battle_pt_1 {
+  width: 19%;
+  font-weight: bold;
+}
+
+.battle_pt_2 {
+  width: 79%;
+  font-weight: bold;
+}
+.battle_pt_2 span {
+  color: #FF0000;
+}
+
+.battle_pt_3 {
+  width: 39%;
+  background-color: #f7e371;
+}
+
+.battle_pt_4 {
+  width: 59%;
+}
+
+.battle_log_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  width: 500px;
+  background-color: #000000;
+}
+
+.battle_log_a, .battle_log_b {
+  margin: 5px;
+  width: 43%;
+  font-size: 120%;
+  background-color: #00CCCC;
+}
+.battle_log_a img, .battle_log_b img {
+  max-height: 120px;
+}
+.battle_log_a div, .battle_log_b div {
+  background-color: #FFFFFF;
+  margin: 1px;
+}
+
+.battle_log {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #FFFFFF;
+  font-size: 120%;
+  font-weight: bold;
+  width: 100%;
+}
+
+.battle_R {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #FF0000;
+  font-size: 160%;
+  font-weight: bold;
+  width: 10%;
+}
+.battle_R span {
+  color: #f7e371;
+}
+
+.battle_log_Lvup, .battle_keyget, .battle_monget {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  font-size: 120%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 2px #FF0000;
+  padding: 10px;
+  width: 500px;
+  background-color: #000000;
+}
+
+.mget_text {
+  color: #FF0000;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.battle_roomkey_get {
+  color: #FF0000;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+/************************************/
+/* 魔物図鑑 */
+/************************************/
+#zukan_title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #00CCCC;
+  font-size: 100%;
+  font-weight: bold;
+  width: 600px;
+  height: 100px;
+  background-color: #000000;
+}
+
+#zukan_title .fsize {
+  font-size: 150%;
+}
+
+#zukan_title div {
+  width: 100%;
+  padding: 5px 5px;
+  border-top: 1px gray solid;
+  border-bottom: 1px gray solid;
+}
+
+#zukan_link {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 70%;
+  font-weight: bold;
+  color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 3px #FF00FF;
+  background-color: #660066;
+}
+
+#zukan_type {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: black;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+#zukan_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  width: 1100px;
+}
+
+.zukan {
+  width: 210px;
+  margin: 1px;
+}
+
+.zukan_no, .zukan_name {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+.zukan_img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFFFFF;
+  height: 150px;
+}
+.zukan_img img {
+  max-height: 120px;
+}
+
+@media (pointer: coarse), (hover: none) {
+  .zukan_img[title]:focus::after {
+    content: attr(title);
+    top: 10%;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid;
+    width: -moz-fit-content;
+    width: fit-content;
+    padding: 3px;
+  }
+}
+.tooltip {
+  position: fixed;
+  max-width: 200px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  white-space: normal;
+  font-size: 0.9rem;
+  display: none;
+}
+
+.tooltip p {
+  margin: 0.3rem 0;
+}
+
+@media (max-width: 600px) {
+  .tooltip {
+    max-width: 80%;
+  }
+}
+.スライム系, .ボカロ, .ボイロ, .ドラクエ {
+  background-image: url(../img/back1.png);
+}
+
+.ドラゴン系, .とある {
+  background-image: url(../img/back2.png);
+}
+
+.けもの系 {
+  background-image: url(../img/back3.png);
+}
+
+.とり系, .シュタゲ {
+  background-image: url(../img/back4.png);
+}
+
+.しょくぶつ系, .このすば {
+  background-image: url(../img/back5.png);
+}
+
+.むし系, .ミルキィ {
+  background-image: url(../img/back6.png);
+}
+
+.あくま系, .原神 {
+  background-image: url(../img/back7.png);
+}
+
+.ゾンビ系 {
+  background-image: url(../img/back8.png);
+}
+
+.ぶっしつ系, .シンフォギア, .東方, .アイマス {
+  background-image: url(../img/back9.png);
+}
+
+.みず系 {
+  background-image: url(../img/back12.png);
+}
+
+.？？？系 {
+  background-image: url(../img/back13.png);
+}
+
+.せいれい系, .らき☆すた, .まどマギ {
+  background-image: url(../img/back11.png);
+}
+
+/************************************/
+/* 本屋 */
+/************************************/
+.books_text3 {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: 240px;
+}
+
+#books_mbox {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  box-sizing: border-box;
+  border: solid 1px #0000CC;
+  flex-wrap: wrap;
+  width: 800px;
+}
+
+.books_mbox1 {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  box-sizing: border-box;
+  border: solid 1px #0000CC;
+  flex-wrap: wrap;
+  background-color: #FFFFFF;
+  width: 20%;
+  min-height: 180px;
+}
+
+.books_no {
+  width: 100%;
+  height: 25px;
+  background-color: #f7e371;
+  border-bottom: 2px #0000CC solid;
+}
+
+.books_im, .books_m {
+  width: 100%;
+}
+.books_im img, .books_m img {
+  max-height: 120px;
+}
+
+/************************************/
+/* 配合 */
+/************************************/
+.hai_title {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: 330px;
+  color: #0000CC;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+.hai_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  flex-wrap: wrap;
+  width: 500px;
+}
+
+.hai_box1, .hai_box3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  border: solid 1px black;
+  color: #000000;
+  font-size: 130%;
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: 40%;
+  justify-content: space-between;
+  flex-direction: column;
+  min-height: 180px;
+}
+.hai_box1 img, .hai_box3 img {
+  max-height: 180px;
+}
+
+.hai_1 {
+  width: 100%;
+  border-bottom: 1px #000000 solid;
+}
+
+.hai_name {
+  width: 100%;
+  border-top: 1px #000000 solid;
+}
+
+.hai_box3 {
+  width: 180px;
+  min-height: 120px;
+}
+
+.hai_box3 div {
+  width: 100%;
+}
+
+/* 配合結果 */
+.hen_box0 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  width: 200px;
+}
+.hen_box0 img {
+  max-height: 120px;
+}
+
+.hen_box1, .hen_box3 {
+  box-sizing: border-box;
+  border: solid 1px black;
+  width: 100%;
+}
+
+.hen_box2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  border: solid 1px black;
+  flex-wrap: wrap;
+  width: 500px;
+}
+
+.hen_box3 {
+  width: 25%;
+}
+
+.hen_text1 {
+  background-color: #00CCCC;
+}
+
+.hen_text2 {
+  background-color: #FFFFFF;
+}
+
+.hent_box1 {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 800px;
+}
+
+.hent_box2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hen_text3 {
+  box-sizing: border-box;
+  border: solid 1px black;
+  background-color: #FFFFFF;
+  width: 20%;
+}
+
+/************************************/
+/* メダル交換 */
+/************************************/
+.medal_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+}
+
+.medal_box1 {
+  box-sizing: border-box;
+  border: solid 1px #FFFFFF;
+  color: #000000;
+  font-size: 140%;
+  font-weight: bold;
+  width: 200px;
+  background-color: #000000;
+}
+
+.medal_name {
+  width: 100%;
+  color: #00CCCC;
+}
+
+.medal_val {
+  width: 100%;
+  color: #FFFFFF;
+}
+
+/************************************/
+/* VIPS交換所 メダル交換所と共通*/
+/************************************/
+/************************************/
+/* お見合い ログインの流用 */
+/************************************/
+.omiai_pt {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 1000px;
+}
+
+.omiai_monster_box {
+  display: flex;
+  justify-content: center;
+  align-items: auto;
+  background-color: #FFFFFF;
+  max-height: 180px;
+  width: 100%;
+}
+
+.omiai_st_box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 50%;
+}
+
+.omiai_st_1, .omiai_st_2, .omiai_st_3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: solid 1px black;
+}
+
+.omiai_st_1 {
+  width: 15%;
+}
+
+.omiai_st_2 {
+  width: 20%;
+  min-height: 100px;
+}
+.omiai_st_2 img {
+  max-height: 120px;
+}
+
+.omiai_st_3 {
+  width: 50%;
+  height: 50%;
+}
+
+.omiai_st_title {
+  background-color: #00CCCC;
+  width: 100%;
+}
+.omiai_st_title span {
+  color: #FF0000;
+}
+
+.omiai_st_val {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+.omiai_st_val span {
+  color: #FF0000;
+}
+
+.omiai_mes {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: 500px;
+  font-size: 120%;
+}
+
+/************************************/
+/* モンスターパーク */
+/************************************/
+img[name=img1] {
+  max-height: 120px;
+}
+
+.park_box {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 1100px;
+  overflow-x: scroll;
+}
+
+@media screen and (max-width: 1000px) {
+  .park_box {
+    width: 800px !important;
+    overflow-x: scroll;
+  }
+}
+.park_ste, .park_mob {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #00CCCC;
+  width: 1100px;
+  height: 50px;
+}
+
+.park_mob {
+  background-color: #FFFFFF;
+  height: 180px;
+}
+
+.park_mname, .park_width {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: solid 1px black;
+  flex-direction: column;
+  height: 100%;
+}
+.park_mname img, .park_width img {
+  max-height: 120px;
+}
+
+.park_mname {
+  flex-grow: 2;
+  width: 120px;
+}
+
+.park_width {
+  flex-grow: 1;
+  width: 80px;
+}
+
+.park_page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 500px;
+}
+
+.park_jump_form {
+  padding: 0px 5px 0px 5px;
+}
+
+/************************************/
+/* メダル獲得杯 */
+/************************************/
+.medal_battle_title {
+  color: #0000CC;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+.medal_battle_data {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 0px;
+  color: #FF0000;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.medal_battle_sub {
+  color: #000000;
+  font-size: 110%;
+  font-weight: bold;
+}
+
+.medal_battle_result {
+  color: #000000;
+  font-size: 100%;
+  font-weight: bold;
+}
+
+/************************************/
+/* リザルト/エラー */
+/************************************/
+#result, #error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #000000;
+  font-size: 150%;
+  font-weight: bold;
+  max-width: 600px;
+  min-height: 80px;
+  max-height: 120px;
+  background-color: #000000;
+}
+
+#result > span, #error span {
+  padding: 5px 5px;
+  align-self: center;
+  width: 100%;
+  height: 100%;
+  border-top: 2px gray solid;
+  border-bottom: 2px gray solid;
+}
+
+#result span {
+  color: #00CCCC;
+}
+
+#result span span {
+  color: #FF0000;
+}
+
+#error span {
+  color: #FF0000;
+}
+
+/************************************/
+/* フッター */
+/************************************/
+#footer {
+  text-align: right;
+  position: sticky;
+  top: 100vh;
+  width: 100%;
+}
+
+#f_box {
+  display: inline-flex;
+  flex-direction: column;
+  text-align: left;
+  font-weight: bold;
+}
+
+#f_t {
+  color: #FF0000;
+}
+
+#f_box span {
+  display: inline-flex;
+  width: 120px;
+}
+
+/************************************/
+/* bbsオブジェクト */
+/************************************/
+#bbs {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 650px;
+  height: 200px;
+  overflow: auto;
+  background-color: #e6e6fa;
+  text-align: left;
+  padding: 10px;
+}/*# sourceMappingURL=style.css.map */

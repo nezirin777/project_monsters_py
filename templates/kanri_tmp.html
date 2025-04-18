@@ -1,0 +1,369 @@
+<!-- templates/kanri.html -->
+{% extends "base_tmp.html" %}
+
+{% block head %}
+
+    <!-- select2 CSS -->
+    <link href="./css_js/select2.min.css" rel="stylesheet" />
+    <!-- select2 JS -->
+    <script src="./css_js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.select2-user').select2({
+                placeholder: "対象を選択...", // プレースホルダー
+                allowClear: true,                   // 選択をクリアする「×」ボタンを表示
+                minimumResultsForSearch: 0          // 検索ボックスを常に表示（デフォルトは10以上で表示）
+            });
+        });
+
+        function showProgressPopup() {
+            const progressPopup = document.getElementById('progressPopup');
+            progressPopup.style.display = 'flex'; // ポップアップを表示
+        }
+
+        function hideProgressPopup() {
+            const progressPopup = document.getElementById('progressPopup');
+            progressPopup.style.display = 'none'; // ポップアップを非表示
+        }
+
+        let lastValidCompleted = 0;
+        let lastValidTotal = 1;
+
+        function updateProgressBar(completed, total) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            if (progressBar && progressText) {
+                // データ検証
+                if (!Number.isFinite(completed) || completed < 0) {
+                    console.warn("Invalid completed value:", completed);
+                    completed = lastValidCompleted; // 前回の値を使用
+                } else {
+                    lastValidCompleted = completed; // 正常値なら更新
+                }
+
+                if (!Number.isFinite(total) || total <= 0) {
+                    console.warn("Invalid total value:", total);
+                    total = lastValidTotal; // 前回の値を使用
+                } else {
+                    lastValidTotal = total; // 正常値なら更新
+                }
+
+                const progress = Math.round((completed / total) * 100);
+
+                // プログレスバー更新
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `進捗: ${completed}/${total} (${progress}%)`;
+            }
+        }
+        // サンプル: fetchリクエストで進捗を取得して更新
+        function fetchProgress() {
+            showProgressPopup(); // ポップアップを表示
+
+            const interval = setInterval(() => {
+                fetch('./progress.py') // サーバーから進捗データを取得
+                    .then(response => response.json())
+                    .then(data => {
+                        updateProgressBar(data.completed, data.total);
+
+                        // 進捗が100%に達したらポップアップを閉じる
+                        if (data.completed >= data.total) {
+                            clearInterval(interval);
+                            setTimeout(() => hideProgressPopup(), 1000); // 少し待って非表示
+                        }
+                    })
+                    .catch(error => {
+                        console.error('進捗取得エラー:', error);
+                        clearInterval(interval);
+                        hideProgressPopup(); // エラー時にポップアップを非表示
+                    });
+            }, 1000); // 1秒ごとに進捗を更新
+        }
+
+    </script>
+    <style>
+        .select2-results__options {
+            max-height: 400px !important; /* 表示する高さを増やす */
+        }
+
+        /* ポップアップ全体のスタイル */
+        #progressPopup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 背景を半透明 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            /* 前面に表示 */
+        }
+
+        /* ポップアップ内部のスタイル */
+        #popupContent {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* プログレスバーのスタイル */
+        #progressContainer {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        #progressBar {
+            height: 20px;
+            background-color: #76c7c0;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="kanri_title">管理モード</div>
+    {% if mente_chek %}
+        <div class="kanri_title">メンテナンスモード中</div>
+    {% endif %}
+    {% if Conf.event_boost %}
+        <div class="kanri_title">ブースト発動中!!</div>
+    {% endif %}
+
+
+    {% macro user_list() %}
+        {% for key in users.keys() %}
+            <option value={{key}}>{{key}}</option>
+        {% endfor %}
+    {% endmacro %}
+
+    <!-- プログレスバーのポップアップ -->
+    <div id="progressPopup" style="display: none;">
+        <div id="popupContent">
+            <div id="progressContainer">
+                <div id="progressBar" style="width: 0%;"></div>
+            </div>
+            <div id="progressText">進捗: 0%</div>
+        </div>
+    </div>
+
+    <div class="kanri_menu_top">
+        <div class="kanri_menu">
+            メンテナンスモード
+            <br>
+            <form action="{{ Conf.kanri_url }}" method="post" class="flex">
+                <button type="submit">開始</button>
+                <input type="hidden" name="mode" value="MENTE">
+                <input type="hidden" name="mente" value="start">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+            <form action="{{ Conf.kanri_url }}" method="post" class="flex">
+                <button type="submit">終了</button>
+                <input type="hidden" name="mode" value="MENTE">
+                <input type="hidden" name="mente" value="stop">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            イベントモード
+            <br>
+            <form action="{{ Conf.kanri_url }}" method="post" class="flex">
+                <button type="submit">ブースト開始</button>
+                <input type="hidden" name="mode" value="event_boost">
+                <input type="hidden" name="event_boost" value="start">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+            <form action="{{ Conf.kanri_url }}" method="post" class="flex">
+                <button type="submit">ブースト終了</button>
+                <input type="hidden" name="mode" value="event_boost">
+                <input type="hidden" name="event_boost" value="stop">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            datファイル更新<br>(モンスターデータ等)
+            <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
+                <button type="submit">実行</button>
+                <input type="hidden" name="mode" value="dat_update">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            配合リストHTML生成
+            <form action="{{ Conf.kanri_url }}" method="post">
+                <button type="submit">実行</button>
+                <input type="hidden" name="mode" value="haigou_list_make">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            モンスター配布
+            <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
+                <select name="target_name" class="select2-user">
+                    <option value="" hidden>対象の人を選択</option>
+                    {{ user_list() }}
+                </select>
+                <button type="submit">ユーザー決定</button>
+                <input type="hidden" name="mode" value="MON_PRESENT">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            お金やメダルを贈る
+            <form action="{{ Conf.kanri_url }}" method="post"  onsubmit="fetchProgress(); return true;">
+                <select name="target_name"  class="select2-user">
+                    <option value="" hidden>対象の人を選択</option>
+                    <option value="全員">全員</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
+                    {{ user_list() }}
+                </select>
+                <br>
+                お金 <input class="flex" type=number name="money" size=7 value=0>
+                メダル <input class="flex" type=number name="medal" size=7 value=0>
+                階層鍵 <input class="flex" type=number name="key" size=7 value=0>
+                <button type="submit">決定</button>
+                <input type="hidden" name="mode" value="PRESENT">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            セーブデータ編集
+            <form action="{{ Conf.cgiurl }}" method="post">
+                <select name="target_name" class="select2-user">
+                    <option value="" hidden>対象を選択</option>
+                    <option value="user_list">user_list</option>
+                    <option value="omiai_list">omiai_list</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
+                    {{ user_list() }}
+                </select>
+                <button type="submit">決定</button>
+                <input type="hidden" name="mode" value="save_edit_select">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            pickleセーブデータ→csv出力
+            <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
+                <select name="target_name" class="select2-user">
+                    <option value="" hidden>対象を選択</option>
+                    <option value="user_list">user_list</option>
+                    <option value="omiai_list">omiai_list</option>
+                    <option value="separator">---------</option>
+                    <option value="全員">全員</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
+                    {{ user_list() }}
+                </select>
+                <button type="submit">決定</button>
+                <input type="hidden" name="mode" value="pickle_to">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            csv→pickle変換
+            <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
+                <select name="target_name" class="select2-user">
+                    <option value="" hidden>対象を選択</option>
+                    <option value="user_list">user_list</option>
+                    <option value="omiai_list">omiai_list</option>
+                    <option value="separator">---------</option>
+                    <option value="全員">全員</option>
+                    <option value="separator">--↓各ユーザー↓--</option>
+                    {{ user_list() }}
+                </select>
+                <button type="submit">決定</button>
+                <input type="hidden" name="mode" value="csv_to">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            ユーザー登録データ(user_list.pickle)の再構築
+            <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
+                <button type="submit">復元する</button>
+                <input type="hidden" name="mode" value="FUKUGEN">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            再スタート
+            <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
+                確認<input type="checkbox" name="Reset_ck" value="on">
+                <button type="submit">RESTART</button>
+                <input type="hidden" name="mode" value="RESTART">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            データ一括削除
+            <form action="{{ Conf.cgiurl }}" method="post">
+                確認<input type="checkbox" name="Reset_ck" value="on">
+                <button type="submit">全部削除</button>
+                <input type="hidden" name="mode" value="ALLDEL">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            ルール違反者と思われる人の削除を行います
+            <form action="{{ Conf.cgiurl }}" method="post">
+                <select name="target_name" class="select2-user">
+                    <option value="" hidden>対象の人を選択</option>
+                    {{ user_list() }}
+                </select>
+                <br>
+                確認<input type="checkbox" name="Del_ck" value="on">
+                <button type="submit">管理削除</button>
+                <input type="hidden" name="mode" value="DEL">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            パスワードの変更 <br>
+            <form action="{{ Conf.cgiurl }}" method="post">
+                <select name=target_name class="select2-user">
+                    <option value="" hidden>対象の人を選択</option>
+                    {{ user_list() }}
+                </select>
+                <br>
+                NEWパスワード
+                <input type=text name=newpass><br>
+                <button type="submit">パスワード決定</button>
+                <input type="hidden" name="mode" value="NEWPASS">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+
+        <div class="kanri_menu">
+            重複の対象のためエラーが出る人を新規登録します
+            <form action="{{ Conf.cgiurl }}" method="post">
+                登録ユーザー名<input type=text name=make_name><br>
+                登録パスワード<input type=password name=make_password><br>
+                <button type="submit">管理登録</button>
+                <input type="hidden" name="mode" value="NEW">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

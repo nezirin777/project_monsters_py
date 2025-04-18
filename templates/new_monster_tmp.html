@@ -1,0 +1,66 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+
+    <div class="hai_title">NEW MONSTER!</div>
+
+    <div class="hen_box0">
+        <div class="hen_box1">
+            <div class="hen_text1">モンスター名</div>
+            <div><img src="{{ Conf.imgpath }}/{{ my_data.name }}.gif"></div>
+            <div class="hen_text2">{{ my_data.name }}<br>{{ my_data.sex }}<br>{{ my_data.sei }}</div>
+        </div>
+    </div>
+
+    <div class="hen_box2">
+        <div class="hen_box3">
+            <div class="hen_text1">Level</div>
+            <div class="hen_text2">1 / {{ my_data.mlv }}</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">配合数</div>
+            <div class="hen_text2">{{ my_data.hai }}回</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">H P</div>
+            <div class="hen_text2">{{ my_data.mhp }} / {{ my_data.mhp }}</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">M P</div>
+            <div class="hen_text2">{{ my_data.mmp }} / {{ my_data.mmp }}</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">攻撃力</div>
+            <div class="hen_text2">{{ my_data.atk }}</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">守備力</div>
+            <div class="hen_text2">{{ my_data.def }}</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">素早さ</div>
+            <div class="hen_text2">{{ my_data.agi }}</div>
+        </div>
+
+        <div class="hen_box3">
+            <div class="hen_text1">経験値</div>
+            <div class="hen_text2">0 / {{ Conf.nextup }}</div>
+        </div>
+
+    </div>
+
+    {% if mode=="omiai" %}
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <input type="hidden" name="mode" value="omiai_room">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">お見合い部屋に戻る</button>
+    </form>
+    {% endif %}
+
+{% endblock %}

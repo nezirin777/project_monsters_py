@@ -1,0 +1,58 @@
+<!-- templates/battle_menu_tmp.html -->
+
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div class="battle_start">行動を選択して下さい！</div>
+    <form action="{{ Conf.cgiurl }}" method="post">
+        <div class="battle_pt_box">
+            {% for pt in party %}
+            {% if pt.hp != "0" %}
+            <div class="battle_pt_box1">
+                <div class="battle_pt_name"><img src="{{ Conf.imgpath }}/{{ pt.name }}.gif"><br><span>{{ pt.name }}</span></div>
+                <div class="battle_pt_box2">
+                    <div class="battle_pt_1">レベル</div>
+                    <div class="battle_pt_2"><span>{{ pt.lv }}</span></div>
+                    <div class="battle_pt_1">HP</div>
+                    <div class="battle_pt_2">{{ pt.hp }}/{{ pt.mhp }}</div>
+                    <div class="battle_pt_1">MP</div>
+                    <div class="battle_pt_2">{{ pt.mp }}/{{ pt.mmp }}</div>
+                    <div class="battle_pt_3">行動選択</div>
+                    <select name="hit{{ pt.no }}" class="battle_pt_4">
+                        <option value="攻撃">攻撃</option>
+                        {% if special == 0 %}
+                        <option value="防御">防御する</option>
+                        <option value="回復">回復魔法使用</option>
+                        {% endif %}
+                    </select>
+                    <div class="battle_pt_3">攻撃相手</div>
+                    <select name="target{{ pt.no }}" class="battle_pt_4">
+                        {{ enemy_options }}
+                    </select>
+                    <div class="battle_pt_3">特技</div>
+                    <select name="toku{{ pt.no }}" class="battle_pt_4">
+                        {{ special_skill_options }}
+                    </select>
+                    {% if special == 0 %}
+                    <div class="battle_pt_3">回復魔法相手</div>
+                    <select name="nakama{{ pt.no }}" class="battle_pt_4">
+                        {{ party_member_options }}
+                    </select>
+                    <div class="battle_pt_3">回復魔法</div>
+                    <select name="ktoku{{ pt.no }}" class="battle_pt_4">
+                        <option value="0">使用しない</option>
+                        {{ healing_skill_options }}
+                    </select>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <input type="submit" name="monok" value="決定">
+        <input type="hidden" name="mode" value="battle_fight">
+        <input type="hidden" name="token" value="{{ token }}">
+    </form>
+
+{% endblock %}

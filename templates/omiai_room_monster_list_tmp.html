@@ -1,0 +1,49 @@
+{% extends "base_tmp.html" %}
+
+{% block content %}
+    <div class="omiai_monster_box">
+        <div class="omiai_st_1">
+            <div class="omiai_st_title">ユーザー</div>
+            <div class="omiai_st_val">{{target}}</div>
+            <form action="{{ Conf.cgiurl }}" method="post">
+                <input type="hidden" name="target" value="{{target}}">
+                <input type="hidden" name="mode" value="{{mode}}">
+                <input type="hidden" name="token" value="{{token}}">
+                <button type="submit">{{val}}</button>
+            </form>
+            {% if val2 %}
+            <form action="{{ Conf.cgiurl }}" method="post">
+                <input type="hidden" name="target" value="{{target}}">
+                <input type="hidden" name="mode" value="{{mode2}}">
+                <input type="hidden" name="token" value="{{token}}">
+                <button type="submit">{{val2}}</button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="omiai_st_2"><img
+                src="{{Conf.imgpath}}/{{omiai.name}}.gif"><br>{{omiai.name}}<br>-{{omiai.sex}}-<br>{{omiai.sei}}</div>
+        <div class="omiai_st_box">
+            <div class="omiai_st_3">
+                <div class="omiai_st_title">LV<span>/最大LV</span></div>
+                <div class="omiai_st_val">{{omiai.lv}}<span>/{{omiai.mlv}}</span></div>
+            </div>
+            <div class="omiai_st_3">
+                <div class="omiai_st_title">HP<span>/最大HP</span></div>
+                <div class="omiai_st_val">{{omiai_v.hp}}<span>/{{omiai_v.mhp}}</span></div>
+            </div>
+            <div class="omiai_st_3">
+                <div class="omiai_st_title">配合</div>
+                <div class="omiai_st_val">{{omiai.hai}}回</div>
+            </div>
+            <div class="omiai_st_3">
+                <div class="omiai_st_title">攻撃力</div>
+                <div class="omiai_st_val">{{omiai_v.atk}}</div>
+            </div>
+        </div>
+        <div class="omiai_st_1">
+            <div class="omiai_st_title">希望モンスター</div>
+            <div class="omiai_st_val">{{omiai.mes}}</div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,1297 @@
+$sky-blue: #00CCCC;
+$blue: #0000CC;
+$red: #FF0000;
+/*$yellow: #ffd900 ; */
+$yellow: #f7e371 ;
+$black: #000000;
+$white: #FFFFFF;
+
+@mixin flex ($a-items:center) {
+	display: flex;
+	justify-content: center;
+	align-items : $a-items;
+}
+
+@mixin margin ($top:0px,$bottom:0px) {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: $top;
+	margin-bottom: $bottom;
+}
+
+@mixin text_whiteback ($width:auto) {
+	@include margin(5px,5px);
+	background-color:$white;
+	width: $width;
+}
+
+@mixin text-style ($color: black, $size: 100%, $weight: bold) {
+    color: $color;
+    font-size: $size;
+    font-weight: $weight;
+}
+
+@mixin border ($color:black,$size:1px) {
+	box-sizing: border-box;
+	border: solid $size $color;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	height: 98%;
+
+	/* 画像を常に天地左右の中央に配置 */
+	background-position: center center;
+  /* 画像をタイル状に繰り返し表示しない */
+	background-repeat: no-repeat;
+  /* コンテンツの高さが画像の高さより大きい時、動かないように固定 */
+	background-attachment: fixed;
+  /* 表示するコンテナの大きさに基づいて、背景画像を調整 */
+	background-size: cover;
+	text-align: center;
+	/* background-image: url(../img/back.jpg); */
+	background-color: #DEB887;
+
+	/* アイフォン文字はみ出し対策 */
+	-webkit-text-size-adjust: 100%;
+	appearance: none;
+	-webkit-appearance: none;
+}
+
+
+A:Link {
+	color:$white;
+	text-decoration:none;
+}
+
+A:Visited {
+	color:$white;
+	text-decoration:none;
+}
+
+A:hover {
+	color:crimson;
+	text-decoration:none;
+}
+
+input:invalid {
+	border: solid 2px red;
+}
+
+button {
+    margin: 4px 1px;
+}
+
+.form {
+	display: inline;
+}
+
+.input {
+	border-radius: 0px;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.sky_blue {
+	@include text-style($sky-blue);
+}
+
+.blue {
+	@include text-style($blue);
+}
+
+.red {
+	@include text-style($red);
+}
+
+.yellow {
+	@include text-style($yellow);
+}
+
+/************************************/
+/* 管理ページ */
+/************************************/
+.kanri_title {
+	@include margin(10px,10px);
+	@include text-style($white,140%);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 300px;
+}
+
+.kanri_login {
+	@include margin;
+	@include text-style($white);
+	background-color:$black;
+	width: 250px;
+	span {
+		display: inline-flex;
+		width: 100px;
+	}
+}
+
+.kanri_menu_top {
+	@include margin(10px,10px);
+	@include text-style($white,100%);
+	@include border(#FF00FF,3px);
+	background-color: #1e90ff;
+	width: 600px;
+}
+
+.kanri_menu {
+	@include margin(0px,0px);
+	@include border(#FF00FF,1px);
+	width: 100%;
+	span {
+		color: #ffbf7f;
+	}
+}
+
+.flex {
+	display: inline-flex;
+}
+
+.kanri_save_edit_caution {
+	@include margin(10px,10px);
+	@include text-style($white,140%);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 600px;
+}
+
+.kanri_save_edit_title {
+	@include margin(10px,10px);
+	@include text-style($white,100%);
+	@include border(#FF00FF,3px);
+	background-color: #1e90ff;
+	width: 300px;
+}
+
+.kanri_save_edit_table {
+	border-collapse:  collapse;
+	@include margin(10px,10px);
+	@include text-style($white,100%);
+	@include border(#FF00FF,3px);
+	background-color: #1e90ff;
+	white-space:nowrap;
+	th {
+		background-color:  #3F51B5; /* 背景色指定 */
+		color:  #fff;               /* 文字色指定 */
+	}
+
+}
+
+
+/************************************/
+/* TOPページ */
+/************************************/
+/*****
+.mente {
+	@include margin(10px,10px);
+	font-weight: bold;
+	width: 680px;
+	color:$red;
+}
+****/
+
+.mente {
+	@include margin(10px,10px);
+	@include text-style($white,140%);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 300px;
+}
+
+.toptitle ,.rank_t {
+	@include margin(10px,10px);
+	@include text-style($white,140%);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 1000px;
+	span {
+		@include text-style($red,80%);
+	}
+}
+
+.event_txt {
+	@include margin(10px,10px);
+	@include text-style($white,140%);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 300px;
+}
+
+.t_menu {
+	font-size: 80%;
+}
+
+.t_txt {
+	@include margin(10px,10px);
+	background-color: $sky-blue;
+	font-weight: bold;
+	width: 680px;
+	span {
+		color:$red;
+	}
+}
+
+.login {
+	@include margin;
+	@include text-style($white);
+	background-color:$black;
+	width: 250px;
+	span {
+		display: inline-flex;
+		width: 100px;
+	}
+}
+
+#login_form {
+    input {
+        width: 8em;
+    }
+}
+
+#medaltime {
+	@include text_whiteback(350px);
+}
+
+#news {
+	@include margin;
+	width: 650px;
+	height: 160px;
+}
+
+.rank ,.rank_m{
+	@include flex(auto);
+	@include margin;
+	font-weight: bold;
+	max-width: 950px;
+}
+
+.r_1 ,.r_2,.r_3 ,.r_u1 ,.r_u2,.r_u3 ,.r_u4,.r_u5 {
+	@include border(black);
+	color: $white;
+}
+
+.r_1 {
+	background-color:$black;
+	width: 50px;
+}
+
+.r_2 {
+	background-color:$blue;
+	width: 250px;
+}
+
+.r_3 {
+	background-color:$blue;
+	width: 550px;
+}
+
+.r_ubox {
+	@include flex(auto);
+	flex-wrap: wrap;
+	width: 800px;
+}
+
+.r_u1 {
+	@include flex;
+	background-color:#FF00FF;
+}
+
+.r_u2 {
+	@include flex;
+	background-color:$blue;
+	font-size: 90%;
+	span {
+		color:$red
+	}
+}
+
+.r_u3 {
+	@include flex(flex-end);
+	background-color:$white;
+	img {
+		max-height: 120px;
+	}
+}
+
+.r_m {
+	@include text-style ($black,90%);
+	width: 33%;
+	line-height: 14px;
+	span {
+		color: $red;
+	}
+}
+
+.r_u4 {
+	background-color:$blue;
+	width: 100px;
+}
+
+.r_u5 {
+	background-color:$white;
+	color: $black;
+	width: 700px;
+}
+
+.rank_pagination {
+    display: inline-block;
+}
+
+/************************************/
+/* 新規作成 */
+/************************************/
+.new_title {
+	@include margin(10px,10px);
+	@include text-style($white,140%);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 600px;
+}
+
+.new_txt {
+	@include margin;
+	@include text-style($yellow,140%);
+	background-color: $black;
+	width: 500px;
+}
+
+.new_form {
+	@include margin;
+	@include text-style($black,140%);
+	width: 450px;
+}
+
+.new_ok {
+	@include margin(20px,10px);
+	@include text-style($red,140%);
+
+}
+
+.new_result {
+	@include flex;
+	@include margin;
+	flex-wrap: wrap;
+	width: 600px;
+}
+
+.new_1 {
+	@include border($black);
+	flex-grow: 2;
+	background-color: $white;
+	div {
+		background-color: $sky-blue;
+		@include text-style($white);
+	}
+	span {
+		@include text-style($red);
+	}
+}
+
+.new_mons {
+	@include flex;
+	@include margin;
+	@include border($black);
+	width: 600px;
+	background-color: $white;
+}
+/************************************/
+/* ログインメニュー */
+/************************************/
+.my_page_topmenu {
+	@include margin(0px,10px);
+	@include text-style($white);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+	width: 50%;
+}
+
+.my_page_title {
+	@include margin;
+	@include text-style($black,120%);
+	background-color: #f0bc68;
+	width: 600px;
+}
+
+.my_page_box {
+	@include flex();
+	@include margin;
+	flex-wrap: wrap;
+	width: 600px;
+}
+
+.my_page_user_st1  {
+	@include border();
+	padding: 0px 10px 0 10px;
+	background: linear-gradient(180deg, $sky-blue 0%, $sky-blue 50%, #FFFFFF 50%, #FFFFFF 100%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.my_page_zukan {
+	display: block;
+}
+
+.my_page_pt {
+	@include margin;
+	display: flex;
+	flex-wrap: wrap;
+	width: 1000px;
+}
+
+@for $i from 1 through 3 {
+	.my_page_chara_#{$i} {
+		@include flex(auto);
+		background-color: $yellow;
+		max-height: 180px;
+		width: 100%;
+		height: 180px;
+	}
+}
+
+@for $i from 4 through 10 {
+	.my_page_chara_#{$i} {
+		@include flex(auto);
+		background-color: $white;
+		max-height: 180px;
+		width: 333px;
+		height: 180px;
+
+		.my_page_st_1 {
+			width: 15%;
+		}
+		.my_page_st_2 {
+			width: 40%;
+		}
+		.my_page_charabox {
+			width: 45%;
+		}
+		.my_page_st_3 {
+			width: 100%;
+		}
+		.my_page_st_4 {
+			display: none;
+		}
+	}
+}
+
+.my_page_charabox {
+	@include flex();
+	flex-wrap: wrap;
+	width: 80%;
+}
+
+.my_page_st_1 {
+	@include flex();
+	@include border();
+	flex-direction: column ;
+	width: 5%;
+}
+
+.my_page_st_2 {
+	@include flex();
+	@include border();
+	flex-direction: column ;
+	background-color: $white;
+	width: 15%;
+	min-height: 100px;
+	img {
+		max-height: 120px;
+	}
+}
+
+.my_page_st_3 ,.my_page_st_4 {
+	@include flex();
+	@include border();
+	flex-direction: column ;
+	width: 25%;
+	height: 50%;
+}
+
+.my_page_st_title {
+	background-color: $sky-blue;
+	width: 100%;
+	span {
+		color : $red;
+	}
+}
+
+.my_page_st_val {
+	@include flex;
+	flex-wrap: wrap;
+	height: 100%;
+	width: 100%;
+	span {
+		color : $red;
+	}
+}
+
+/* 鍵や特技のテーブル */
+.my_page_keylist {
+	@include margin;
+	@include border;
+	background-color: $sky-blue;
+	width: 660px;
+}
+
+.my_page_list_item {
+	@include border;
+	display: inline-flex;
+	justify-content: center;
+	background-color: $white;
+	width: 20%;
+}
+
+#u2,#u3 {
+	display:none;
+}
+
+#b_count{
+	@include text_whiteback(150px);
+	font-size: 80%;
+}
+
+.my_page_menu_box {
+	@include flex(auto);
+	flex-wrap: wrap;
+	@include margin(10px,10px);
+	width: 650px;
+}
+
+.my_page_menu1 {
+	@include flex;
+	@include text-style($red,120%);
+	background-color: $black;
+	width: 25%;
+}
+
+.my_page_menu2 {
+	@include flex;
+	background-color: $black;
+	color: $white;
+	width: 75%;
+}
+
+.my_page_menu3 {
+	@include flex() ;
+	@include border;
+	background-color: #99CCFF;
+	width: 25%;
+}
+
+.my_page_menu4 {
+	@include border;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	background-color: #99CCFF;
+	width: 75%;
+}
+
+.battle_go button[disabled] {
+    background-color: gray;
+    color: darkgray;
+    cursor: not-allowed;
+}
+
+img[name="img1"] {
+	max-height: 120px;
+}
+
+img[name="img2"] {
+	max-height: 120px;
+}
+/************************************/
+/* バトル画面 */
+/************************************/
+.battle_start {
+	@include margin(20px);
+	@include text-style($red,150%);
+}
+
+.battle_teki_box {
+	@include margin;
+	@include flex(auto);
+	width: 480px;
+}
+
+.battle_teki_box1 {
+	@include flex;
+	flex-direction: column ;
+	@include margin;
+	background-color: $white;
+	width: 33%;
+}
+
+.battle_teki_name {
+	@include flex;
+	@include border();
+	flex-direction: column ;
+	flex-grow: 5;
+	width: 100%;
+	img {
+		max-height: 100px
+	}
+	span {
+		@include text-style($red);
+	}
+}
+
+.battle_teki_hp {
+	@include border();
+	width: 100%;
+	span {
+		@include text-style($red);
+	}
+}
+
+.battle_pt_box {
+	@include flex(auto);
+	@include margin;
+	width: 900px;
+}
+
+.battle_pt_box1 {
+	@include flex;
+	flex-direction: column ;
+	flex-wrap: wrap;
+	width: 33%;
+}
+
+.battle_pt_box2 {
+	@include flex;
+	flex-wrap: wrap;
+}
+
+.battle_pt_name {
+	@include flex;
+	flex-direction: column ;
+	flex-grow: 2;
+	width: 99%;
+	min-height: 100px;
+	background-color: $white;
+	span {
+		@include text-style($sky-blue);
+	}
+	img {
+		max-height: 120px;
+	}
+}
+
+.battle_pt_1 , .battle_pt_2 , .battle_pt_3 ,.battle_pt_4 {
+	background-color: $white;
+	height: 25px;
+	margin: 1px;
+}
+
+.battle_pt_1 {
+	width: 19%;
+	font-weight: bold;
+}
+
+.battle_pt_2 {
+	width: 79%;
+	font-weight: bold;
+	span {
+		color: $red;
+	}
+}
+
+.battle_pt_3 {
+	width: 39%;
+	background-color: $yellow;
+}
+
+.battle_pt_4 {
+	width: 59%;
+}
+
+.battle_log_box {
+	@include flex;
+	@include margin(20px,20px);
+	flex-wrap: wrap;
+	width: 500px;
+	background-color: $black;
+}
+
+.battle_log_a , .battle_log_b {
+	margin: 5px;
+	width: 43%;
+	font-size:120%;
+	background-color:$sky-blue;
+	img {
+		max-height: 120px;
+	}
+	div {
+		background-color: $white;
+		margin: 1px;
+	}
+}
+
+.battle_log {
+	@include margin;
+	@include text-style($white,120%);
+	width: 100%;
+}
+
+.battle_R {
+	@include margin;
+	@include text-style($red,160%);
+	width: 10%;
+	span {
+		color: $yellow;
+	}
+}
+
+.battle_log_Lvup ,.battle_keyget ,.battle_monget{
+	@include margin(10px,10px);
+	@include text-style($white,120%);
+	@include border($red,2px);
+	padding: 10px;
+	width: 500px;
+	background-color: $black;
+}
+
+.mget_text {
+	@include text-style($red,120%);
+}
+
+.battle_roomkey_get {
+	@include text-style($red,120%);
+}
+/************************************/
+/* 魔物図鑑 */
+/************************************/
+#zukan_title {
+	@include flex;
+	@include margin(10px,10px);
+	@include text-style($sky-blue);
+	width: 600px;
+	height: 100px;
+	background-color: $black;
+}
+
+#zukan_title .fsize {
+	font-size: 150%;
+}
+
+#zukan_title div{
+	width: 100%;
+	padding: 5px 5px;
+	border-top: 1px gray solid;
+	border-bottom: 1px gray solid;
+}
+
+#zukan_link {
+	@include margin(0px,0px);
+	width: 70%;
+	font-weight: bold;
+	@include text-style($white);
+	@include border(#FF00FF,3px);
+	background-color: #660066;
+}
+
+#zukan_type {
+	@include margin(10px,10px);
+	@include text-style(black,150%);
+}
+
+#zukan_box {
+	@include flex;
+	@include margin(10px,10px);
+	flex-wrap: wrap;
+	width: 1100px;
+}
+
+.zukan {
+	width: 210px;
+	margin: 1px;
+}
+
+.zukan_no ,.zukan_name{
+	background-color: $black;
+	color: $white;
+}
+
+.zukan_img{
+	@include flex;
+	background-color: $white;
+	height: 150px;
+	img {
+		max-height: 120px;
+	}
+}
+
+@media (pointer: coarse), (hover: none) {
+
+	.zukan_img[title]:focus::after {
+		content: attr(title);
+		top: 10%;
+		color: #000;
+		background-color: #fff;
+		border: 1px solid;
+		width: fit-content;
+		padding: 3px;
+	}
+}
+
+.tooltip {
+    position: fixed;
+    max-width: 200px;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    white-space: normal;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.tooltip p {
+    margin: 0.3rem 0;
+}
+
+@media (max-width: 600px) {
+    .tooltip {
+        max-width: 80%;
+    }
+}
+
+.スライム系 , .ボカロ , .ボイロ ,.ドラクエ{
+	background-image: url(../img/back1.png);
+}
+.ドラゴン系 , .とある {
+	background-image: url(../img/back2.png);
+}
+.けもの系 {
+	background-image: url(../img/back3.png);
+}
+.とり系 ,.シュタゲ{
+	background-image: url(../img/back4.png);
+}
+.しょくぶつ系 , .このすば{
+	background-image: url(../img/back5.png);
+}
+.むし系 , .ミルキィ {
+	background-image: url(../img/back6.png);
+}
+.あくま系 ,.原神{
+	background-image: url(../img/back7.png);
+}
+.ゾンビ系 {
+	background-image: url(../img/back8.png);
+}
+.ぶっしつ系 , .シンフォギア , .東方 , .アイマス {
+	background-image: url(../img/back9.png);
+}
+.みず系 {
+	background-image: url(../img/back12.png);
+}
+.？？？系 {
+	background-image: url(../img/back13.png);
+}
+.せいれい系 ,.らき☆すた , .まどマギ {
+	background-image: url(../img/back11.png);
+}
+
+/************************************/
+/* 本屋 */
+/************************************/
+.books_text3 {
+	@include text_whiteback(240px);
+}
+
+#books_mbox {
+	@include flex(auto);
+	@include margin;
+	@include border($blue);
+	flex-wrap: wrap;
+	width: 800px;
+}
+
+.books_mbox1 {
+	@include flex(auto);
+	@include border($blue);
+	flex-wrap: wrap;
+	background-color:$white;
+	width: 20%;
+	min-height: 180px;
+}
+
+.books_no {
+	width: 100%;
+	height: 25px;
+	background-color:$yellow;
+	border-bottom: 2px $blue solid;
+}
+
+.books_im ,.books_m{
+	width: 100%;
+	img {
+		max-height: 120px;
+	}
+}
+
+
+/************************************/
+/* 配合 */
+/************************************/
+.hai_title {
+	@include text_whiteback(330px);
+	@include text-style($blue,150%);
+}
+
+.hai_box {
+	@include flex;
+	@include margin;
+	flex-wrap: wrap;
+	width: 500px;
+}
+
+.hai_box1 ,.hai_box3 {
+	@include flex;
+	@include margin(10px,10px);
+	@include border();
+	@include text-style($black,130%);
+	@include text_whiteback(40%);
+	justify-content: space-between;
+	flex-direction: column ;
+	min-height: 180px;
+	img {
+		max-height: 180px;
+	}
+
+}
+
+.hai_1 {
+	width: 100%;
+	border-bottom: 1px $black solid;
+}
+
+.hai_name {
+	width: 100%;
+	border-top: 1px $black solid;
+}
+
+.hai_box3 {
+	width: 180px;
+	min-height: 120px;
+}
+
+.hai_box3 div{
+	width: 100%;
+}
+/* 配合結果 */
+.hen_box0 {
+	@include flex;
+	@include margin(10px,10px);
+	flex-wrap: wrap;
+	width: 200px;
+	img {
+		max-height: 120px;
+	}
+}
+
+.hen_box1 , .hen_box3 {
+	@include border();
+	width: 100%;
+}
+
+.hen_box2 {
+	@include flex;
+	@include margin(10px,10px);
+	@include border();
+	flex-wrap: wrap;
+	width: 500px;
+}
+
+.hen_box3 {
+	width: 25%;
+}
+
+.hen_text1 {
+	background-color: $sky-blue;
+}
+
+.hen_text2 {
+	background-color: $white;
+}
+
+.hent_box1 {
+	@include margin(10px,10px);
+	width: 800px;
+}
+
+.hent_box2 {
+	@include flex;
+	flex-wrap: wrap;
+}
+
+.hen_text3 {
+	@include border();
+	background-color: $white;
+	width: 20%;
+}
+
+/************************************/
+/* メダル交換 */
+/************************************/
+.medal_box {
+	@include flex;
+	@include margin(10px,10px);
+	flex-wrap: wrap;
+	max-width: 1200px;
+}
+
+.medal_box1 {
+	@include border($white);
+	@include text-style($black,140%);
+	width: 200px;
+	background-color: $black;
+}
+
+.medal_name {
+	width: 100%;
+	color: $sky-blue;
+}
+
+.medal_val {
+	width: 100%;
+	color: $white;
+}
+/************************************/
+/* VIPS交換所 メダル交換所と共通*/
+/************************************/
+
+/************************************/
+/* お見合い ログインの流用 */
+/************************************/
+.omiai_pt {
+	@include margin;
+	display: flex;
+	flex-wrap: wrap;
+	width: 1000px;
+}
+
+.omiai_monster_box {
+	@include flex(auto);
+	background-color: $white;
+	max-height: 180px;
+	width: 100%;
+}
+
+.omiai_st_box {
+	@include flex();
+	flex-wrap: wrap;
+	width: 50%;
+}
+
+.omiai_st_1 ,.omiai_st_2 ,.omiai_st_3 {
+	@include flex();
+	flex-direction: column ;
+	@include border();
+}
+
+.omiai_st_1 {
+	width: 15%;
+}
+
+.omiai_st_2 {
+	width: 20%;
+	min-height: 100px;
+	img {
+		max-height: 120px;
+	}
+}
+
+.omiai_st_3 {
+	width: 50%;
+	height: 50%;
+}
+
+.omiai_st_title {
+	background-color: $sky-blue;
+	width: 100%;
+	span {
+		color : $red;
+	}
+}
+
+.omiai_st_val {
+	@include flex;
+	height: 100%;
+	width: 100%;
+	span {
+		color : $red;
+	}
+}
+
+.omiai_mes {
+	@include text_whiteback(500px);
+	font-size: 120%;
+}
+
+/************************************/
+/* モンスターパーク */
+/************************************/
+img[name="img1"] {
+	max-height: 120px;
+}
+
+.park_box {
+	@include margin;
+	width: 1100px;
+	overflow-x: scroll;
+}
+
+@media screen and (max-width: 1000px) {
+	.park_box {
+		width: 800px !important;
+		overflow-x: scroll;
+	}
+}
+
+.park_ste , .park_mob{
+	@include flex;
+	background-color: $sky-blue;
+	width: 1100px;
+	height: 50px;
+}
+
+.park_mob {
+	background-color: $white;
+	height: 180px;
+}
+
+.park_mname , .park_width {
+	@include flex;
+	@include border();
+	flex-direction: column ;
+	height: 100%;
+	img{
+		max-height: 120px;
+	}
+}
+
+.park_mname {
+	flex-grow: 2;
+	width: 120px;
+}
+
+.park_width {
+	flex-grow: 1;
+	width: 80px;
+}
+
+.park_page {
+	@include flex;
+	@include margin;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 500px;
+}
+
+.park_jump_form {
+	padding: 0px 5px 0px 5px;
+}
+
+/************************************/
+/* メダル獲得杯 */
+/************************************/
+.medal_battle_title {
+	@include text-style($blue,150%);
+}
+
+.medal_battle_data {
+	@include margin(10px,0px);
+	@include text-style($red,120%);
+}
+
+.medal_battle_sub {
+	@include text-style($black,110%);
+}
+
+.medal_battle_result {
+	@include text-style($black,100%);
+}
+
+/************************************/
+/* リザルト/エラー */
+/************************************/
+#result ,#error{
+	@include flex;
+	@include margin(10px,10px);
+	@include text-style($black,150%);
+	max-width:600px;
+	min-height: 80px;
+	max-height: 120px;
+	background-color:$black;
+}
+
+#result > span ,#error span{
+	padding: 5px 5px;
+	align-self: center;
+	width: 100%;
+	height: 100%;
+	border-top: 2px gray solid;
+	border-bottom: 2px gray solid;
+}
+
+#result span{
+	color: $sky-blue;
+}
+
+#result span span{
+	color: $red;
+}
+
+#error span{
+	color: $red;
+}
+
+/************************************/
+/* フッター */
+/************************************/
+#footer {
+	text-align: right;
+	position: sticky;
+	top: 100vh;
+	width: 100%;
+}
+
+#f_box {
+	display: inline-flex;
+	flex-direction: column;
+	text-align: left;
+	font-weight: bold;
+}
+
+#f_t {
+	color: $red;
+}
+
+#f_box span {
+	display: inline-flex;
+	width: 120px;
+}
+
+
+/************************************/
+/* bbsオブジェクト */
+/************************************/
+#bbs {
+    @include margin();
+	width: 650px;
+	height: 200px;
+    overflow: auto;
+    background-color: #e6e6fa;
+    text-align: left;
+    padding: 10px;
+}

@@ -1,0 +1,290 @@
+@mixin flex ($a-items:center) {
+	display: flex;
+	justify-content: center;
+	align-items : $a-items;
+}
+
+@mixin margin ($top:0px,$bottom:0px) {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: $top;
+	margin-bottom: $bottom;
+}
+
+@mixin font_color_size ($color:black,$size:100%) {
+	color: $color ;
+	font-size: $size;
+	font-weight: bold;
+}
+
+@mixin border ($color:black,$size:1px) {
+	box-sizing: border-box;
+	border: solid $size $color;
+}
+
+/**haigou_list.html**/
+
+.haigou_title {
+	@include font_color_size(red,120%);
+	text-align: center;
+}
+
+.haigou_txt {
+	text-align: center;
+}
+
+.haigou_menu {
+	@include margin;
+	@include border();
+	width: 800px;
+}
+
+.haigou_box {
+    border-collapse: collapse;
+	max-height: 80px;
+    width: 100%;
+}
+
+@for $i from 1 through 5 {
+	.menu_title_#{$i} {
+		@include border();
+		background-color: #fce562;
+	}
+}
+
+.menu_title_2 {
+	@include font_color_size(red,100%);
+}
+
+@for $i from 1 through 5 {
+	.haigou_menu_#{$i} {
+		@include border();
+        padding: 0;
+		min-height: 35px;
+        text-align: center;
+	}
+}
+
+.haigou_menu_1 {
+	background-color: #999999;
+}
+
+.haigou_menu_2 {
+	background-color: white;
+}
+
+.haigou_menu_3 ,.haigou_menu_4 {
+    background-color: #87CEEB;
+}
+
+.haigou_menu_3B ,.haigou_menu_4B {
+    @include flex;
+	@include border();
+    margin: -1px 0;
+    margin-left: -1px;
+    margin-right: -1px;
+    position: relative;
+}
+
+.haigou_menu_5 {
+	background-color: white;
+}
+
+#haigou_rightmenu {
+	font-size: 110%;
+	background-color:rgba(255,255,255,0.6);
+	position: fixed ;
+	top: 25%;
+	padding: 10px 10px 10px 10px;
+	border-radius: 15px;	/* 丸みを持たせる */
+	line-height: 200%;		 /* 行の高さ */
+	right: 0%;
+}
+
+/**list2.html**/
+body {
+	background-color: #DEB887;
+}
+
+.haigou_txt ul {
+    /* ulの黒点を中央に寄せる */
+    list-style-position: inside;
+}
+
+.list2_monster_table {
+    @include margin();
+    @include border(blue,2px);
+    @include font_color_size(black, 100%);
+    border-collapse: collapse;
+    width: 1200px;
+    table-layout: fixed;
+    /* 列幅を固定 */
+    background-color: white;
+}
+
+.list2_monster_table td {
+    @include border();
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 画像と名前セル */
+.list2_image_cell {
+    height: 150px;
+    width: 220px;
+    img {
+        max-height: 130px;
+    }
+}
+
+.right-cell {
+    @include border();
+    @include font_color_size(black, 100%);
+    span {
+            color: red;
+        }
+}
+
+/* 右側のセル */
+.right-cell.floor {
+    width: calc((1200px - 220px) * 0.15);
+}
+
+.right-cell.location {
+    width: calc((1200px - 220px) * 0.15);
+}
+
+.right-cell.description-a {
+    width: calc((1200px - 220px) * 0.35);
+    /* デフォルト25% */
+}
+
+.right-cell.description-b {
+    width: calc((1200px - 220px) * 0.35);
+    /* 25% */
+}
+
+/* description_bがない場合、description_aを50%に */
+.right-cell.description-a.expand {
+    width: calc(((1200px - 220px) * 0.70) );
+    /* 50% */
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+    .monster-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+.kinsoku {
+	@include font_color_size(white,60%);
+}
+
+
+/************************************/
+/* フッター */
+/************************************/
+
+#footer {
+	text-align: right;
+}
+
+#f_box {
+	display: inline-flex;
+	flex-direction: column;
+	text-align: left;
+	font-weight: bold;
+}
+
+#f_t {
+	color:red;
+}
+
+#f_box span {
+	display: inline-flex;
+	width: 120px;
+}
+
+
+/************************************/
+/* マニュアル */
+/************************************/
+
+#manual_body {
+	background-color: #99ffff;
+}
+
+.manual_frame {
+	@include margin;
+	background-color: #f9e3b7;
+	width :800px;
+}
+
+.manual_inframe {
+	margin: 10px;
+	width :800px;
+}
+
+.manual_title {
+	text-align: center;
+}
+
+.manual_h {
+	display: inline-block;
+	background-color: #666666;
+	color: #ffffff;
+	width : 80%;
+	font-size: 120%;
+}
+
+.manual_table {
+	th ,td {  border: solid 1px; }
+	background-color: #cdefff;
+	border-collapse:  collapse;
+	border: solid 1px;
+	width: 200px;
+}
+
+.manual_table2 {
+	th ,td {  border: solid 1px; }
+	background-color: #cdefff;
+	border-collapse:  collapse;
+	border: solid 1px;
+	width: 100%;
+}
+
+.manual_big_red {
+	color: red;
+	font-size: 130%;
+}
+
+.manual_big_blue {
+	color: blue;
+	font-size: 130%;
+}
+
+.manual_big_black {
+	color: black;
+	font-size: 120%;
+	font-weight   : bold;
+}
+
+.manual_red {
+	color: red;
+	font-weight   : bold;
+}
+.manual_bule {
+	color: blue;
+	font-weight   : bold;
+}
+
+.manual_syousai {
+	background-color: #ccccff;
+	width : 80%;
+}
+
+.manual_form {
+	text-align: center;
+}

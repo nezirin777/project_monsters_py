@@ -1,0 +1,60 @@
+{% extends "base_tmp.html" %}
+
+{% block head %}
+    <!-- select2 CSS -->
+    <link href="./css_js/select2.min.css" rel="stylesheet" />
+    <!-- select2 JS -->
+    <script src="./css_js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2-user').select2({
+                placeholder: "対象を選択...", // プレースホルダー
+                allowClear: true,                   // 選択をクリアする「×」ボタンを表示
+                minimumResultsForSearch: 0          // 検索ボックスを常に表示（デフォルトは10以上で表示）
+            });
+        });
+    </script>
+    <style>
+        .select2-results__options {
+            max-height: 400px !important; /* 表示する高さを増やす */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+        <div class="kanri_title">モンスター配布</div>
+        <div class="kanri_menu_top">
+            <div class="kanri_menu">
+                対象ユーザーは<span>{{ target_name }}</span>です
+                <form action="{{ Conf.kanri_url }}" method="post">
+                    配布モンスター<br>
+                    <select name="Mons_name" class="select2-user">
+                        <option value="" hidden>選択してください</option>
+                        {{ txt }}
+                    </select>
+                    <br>
+                    性別
+                    <br>
+                    <select name="sex">
+                        <option value="" hidden>選択してください</option>
+                        <option value="陰">陰</option>
+                        <option value="陽">陽</option>
+                    </select>
+                    <br>
+                    MAXレベル
+                    <br>
+                    <input type="number" name="max_level"><br>
+                    配合回数<br>
+                    <input type="number" name="haigou"><br>
+                    <button type="submit">配布する</button>
+                    <input type="hidden" name="mode" value="MON_PRESENT_OK">
+                    <input type="hidden" name="target_name" value="{{ target_name }}">
+                    <input type="hidden" name="token" value="{{ token }}">
+                </form>
+            </div>
+        </div>
+
+    {% include "kanri_page_button_tmp.html" %}
+
+{% endblock %}

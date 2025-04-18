@@ -1,0 +1,18 @@
+
+{% extends "base_tmp.html" %}
+
+{% block content %}
+        <div class="kanri_title">管理モード</div>
+        <div class="kanri_login">
+            <form action="{{ Conf.kanri_url }}" method="post">
+                MASTER_NAME<br>
+                <input type="text" name="m_name"><br>
+                MASTER_PASSWORD<br>
+                <input type="password" name="m_password"><br>
+                <input type="hidden" name="mode" value="KANRI">
+                <input type="hidden" name="token" value="{{ token }}">
+                <button type="submit">管理モード</button>
+            </form>
+        </div>
+
+{% endblock %}
