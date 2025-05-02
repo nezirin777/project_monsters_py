@@ -1,10 +1,12 @@
 #!D:\Python\Python312\python.exe
 import sys, cgi, datetime, urllib.parse, html, json
-
 from pathlib import Path
-import conf
-import sub_def
+
+from sub_def.utils import error, print_html
 from sub_def.file_ops import ensure_logfile, read_log, append_log
+from sub_def.crypto import verify_csrf_token, generate_csrf_token, get_cookie
+
+import conf
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -27,7 +29,7 @@ def send_error(message, is_ajax=False):
         print("Content-Type: application/json\r\n\r\n")
         print(json.dumps({"error": message}))
     else:
-        sub_def.error(message)
+        error(message)
 
     sys.stdout.flush()
     sys.exit()
@@ -35,7 +37,7 @@ def send_error(message, is_ajax=False):
 
 def handle_refresh(form, cookie):
     submitted_token = form.getvalue("csrf_token")
-    if not sub_def.verify_csrf_token(submitted_token, cookie):
+    if not verify_csrf_token(submitted_token, cookie):
         send_error("不正なリクエストです", True)
     print("Content-Type: application/json\r\n\r\n")
     print(
@@ -48,7 +50,7 @@ def handle_refresh(form, cookie):
 
 def handle_post(form, cookie):
     submitted_token = form.getvalue("csrf_token")
-    if not sub_def.verify_csrf_token(submitted_token, cookie):
+    if not verify_csrf_token(submitted_token, cookie):
         send_error("不正なリクエストです", form.getvalue("ajax") == "true")
 
     if "bbs_txt" not in form or not form["bbs_txt"].value:
@@ -69,7 +71,7 @@ def handle_post(form, cookie):
     newlog = f"""<hr><font color="{color}"><b>{cookie["in_name"]}</b> > {txt} <font size="1">--{time}</font></font>\n"""
     append_log(Config.LOGFILE, newlog, Config.MAX_LOG_LINES)
 
-    csrf_token = sub_def.generate_csrf_token(cookie)
+    csrf_token = generate_csrf_token(cookie)
     if form.getvalue("ajax") == "true":
         response = {"log": read_log(Config.LOGFILE), "csrf_token": csrf_token}
         print("Content-Type: application/json\r\n\r\n")
@@ -82,19 +84,18 @@ def handle_post(form, cookie):
 def render_page(form, csrf_token):
     selected_color = form.getvalue("color", "#000000")
     content = {
-        "Conf": Conf,
         "log": read_log(Config.LOGFILE),
         "colors": Config.MESSAGE_COLORS,
         "selected_color": selected_color,
         "csrf_token": csrf_token,
     }
 
-    sub_def.print_html("bbs_tmp.html", content)
+    print_html("bbs_tmp.html", content)
 
 
 # メイン処理
-cookie = sub_def.get_cookie()
-csrf_token = cookie.get("csrf_token") or sub_def.generate_csrf_token(cookie)
+cookie = get_cookie()
+csrf_token = cookie.get("csrf_token") or generate_csrf_token(cookie)
 FORM = cgi.FieldStorage()
 ensure_logfile(Config.LOGFILE)
 

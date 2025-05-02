@@ -1,7 +1,6 @@
 import sys
 import secrets
 import logging
-import json
 from jinja2 import Environment, FileSystemLoader
 
 import conf
@@ -56,7 +55,7 @@ def error(txt, jump="", log_level=logging.ERROR):
 # ==========#
 # リザルト #
 # ==========#
-def result(txt="", html="", token="", kanri=False):
+def print_result(txt="", html="", token="", kanri=False):
     content = {
         "txt": txt,
         "html": html,

@@ -52,7 +52,7 @@ def omiai_touroku(FORM):
         <button type="submit">お見合い所に戻る</button>
         </form>
     """
-    sub_def.result(txt, html, FORM["token"])
+    sub_def.print_result(txt, html, FORM["token"])
 
 
 def omiai_touroku_cancel(FORM):
@@ -106,4 +106,4 @@ def omiai_touroku_cancel(FORM):
             <button type="submit">お見合い所に戻る</button>
         </form>
     """
-    sub_def.result(mes, html, FORM["token"])
+    sub_def.print_result(mes, html, FORM["token"])

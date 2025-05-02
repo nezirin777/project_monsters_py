@@ -121,7 +121,7 @@
                         {% endfor %}
                     </div>
                     <div class="r_u4">コメント</div>
-                    <div class="r_u5">{{ user.mes }}</div>
+                    <div class="r_u5">{{ user.mes | escape }}</div>
                 </div>
             </div>
         {% endfor %}

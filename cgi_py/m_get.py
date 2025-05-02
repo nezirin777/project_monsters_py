@@ -30,7 +30,7 @@ def m_get(FORM):
             pt["no"] = i
 
         sub_def.save_party(party)
-        sub_def.result(f"<span>{get_name}</span>が仲間に加わりました", "", token)
+        sub_def.print_result(f"<span>{get_name}</span>が仲間に加わりました", "", token)
     else:
         # モンスターリスト生成
         options = "".join(

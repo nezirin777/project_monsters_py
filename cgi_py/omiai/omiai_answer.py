@@ -31,7 +31,9 @@ def omiai_answer_no(FORM):
 			<button type="submit">お見合い所に戻る</button>
 		</form>
 	"""
-    sub_def.result(f"{target}さんからの申し込みをお断りしました。", html, FORM["token"])
+    sub_def.print_result(
+        f"{target}さんからの申し込みをお断りしました。", html, FORM["token"]
+    )
 
 
 def omiai_answer_ok(FORM):

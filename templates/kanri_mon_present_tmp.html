@@ -29,7 +29,7 @@
                 対象ユーザーは<span>{{ target_name }}</span>です
                 <form action="{{ Conf.kanri_url }}" method="post">
                     配布モンスター<br>
-                    <select name="Mons_name" class="select2-user">
+                    <select name="mons_name" class="select2-user">
                         <option value="" hidden>選択してください</option>
                         {{ txt }}
                     </select>
@@ -44,9 +44,9 @@
                     <br>
                     MAXレベル
                     <br>
-                    <input type="number" name="max_level"><br>
+                    <input type="number" name="max_level" min="10" value=10 required><br>
                     配合回数<br>
-                    <input type="number" name="haigou"><br>
+                    <input type="number" name="haigou"  min="0" value=0 required><br>
                     <button type="submit">配布する</button>
                     <input type="hidden" name="mode" value="MON_PRESENT_OK">
                     <input type="hidden" name="target_name" value="{{ target_name }}">

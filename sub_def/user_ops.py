@@ -2,7 +2,6 @@
 
 import sys
 import os
-
 import datetime
 import socket  # host取得
 import shutil  # ファイル操作
@@ -17,7 +16,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.stdin.reconfigure(encoding="utf-8")
 Conf = conf.Conf
 
-compiled_noip = [re.compile(ip) for ip in conf.noip]
+compiled_noip = [re.compile(ip) for ip in Conf["noip"]]
 
 
 # ==============#

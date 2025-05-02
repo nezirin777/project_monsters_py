@@ -15,69 +15,113 @@ import glob
 import json
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
-import sub_def
+
+from cgi_py import csv_to_pickle, pickle_to_csv, haigou_list_make
+
+# import sub_def
+from sub_def.crypto import hash_password, get_session, set_session
+from sub_def.file_ops import *
+from sub_def.monster_ops import monster_select
+from sub_def.user_ops import delete_user, backup
+from sub_def.utils import error, print_html, print_result
+from sub_def.validation import (
+    newpass_check,
+    present_monster_check,
+    present_check,
+    admin_check,
+)
 import register
+import exLock
 import conf
-import cgi_py
 
 
 Conf = conf.Conf
 datadir = Conf["savedir"]
 progress_file = os.path.join(datadir, "progress.json")
+lock = exLock.exLock(os.path.join(datadir, "lock_fol"))
 
 sys.stdout.reconfigure(encoding="utf-8")
 # 自動でutf-8にエンコードされて出力される
 
 
 # ==============#
+# 	進捗状況表示 #
+# ==============#
+def process_batch(users, process_func, result_collector=None, batch_size=10):
+    # 進捗バッチ処理
+    total_users = len(users)
+    progress = {"total": total_users, "completed": 0, "status": "running"}
+    last_written = 0  # 最後に進捗を書き込んだ完了数
+
+    with ThreadPoolExecutor(max_workers=Conf.get("max_workers", 8)) as executor:
+        futures = {executor.submit(process_func, user): user for user in users}
+        completed = 0
+        for future in as_completed(futures):
+            user = futures[future]
+            try:
+                result = future.result()
+                if result_collector is not None and result is not None:
+                    result_collector[user] = result
+                completed += 1
+                # 進捗更新は batch_size または全完了時のみ
+                if completed - last_written >= batch_size or completed == total_users:
+                    progress["completed"] = completed
+                    try:
+                        with open(progress_file, mode="w", encoding="utf-8") as ff:
+                            json.dump(progress, ff)
+                        last_written = completed
+                    except Exception as e:
+                        error(f"進捗ファイル書き込みエラー: {e}", "kanri")
+            except Exception as e:
+                error(
+                    f"ユーザー {user} の処理中にエラー: {type(e).__name__}: {e}",
+                    "kanri",
+                )
+
+    delete_progress_file()
+
+
+# ==============#
 # 	json削除	#
 # ==============#
 def delete_progress_file():
-    """進捗ファイルを削除"""
-    try:
-        if os.path.exists(progress_file):
-            os.remove(progress_file)
-    except Exception as e:
-        sub_def.error(f"進捗ファイルの削除に失敗しました: {e}")
-
-
-# ==============#
-# 	チェック	#
-# ==============#
-def admin_check():
-    in_m_name = FORM["m_name"]
-    in_m_pass = FORM["m_password"]
-
-    if in_m_name == "":
-        sub_def.error("MASTER_NAMEが有りません", "kanri")
-    if in_m_pass == "":
-        sub_def.error("MASTER_PASSWORDが有りません", "kanri")
-    if in_m_name != Conf["master_name"]:
-        sub_def.error("MASTER_NAMEが違います", "kanri")
-    if in_m_pass != Conf["master_password"]:
-        sub_def.error("MASTER_PASSWORDが違います", "kanri")
-
-    return
+    # 進捗ファイルを安全に削除
+    retries = 3
+    for attempt in range(retries):
+        try:
+            if os.path.exists(progress_file):
+                with open(progress_file, "r+") as f:
+                    lock.lock()
+                    os.remove(progress_file)
+                    lock.unlock()
+            return
+        except (OSError, IOError) as e:
+            lock.unlock()
+            if attempt < retries - 1:
+                time.sleep(0.5)  # リトライ前に待機
+                continue
+            error(f"進捗ファイルの削除に失敗しました: {e}", "kanri")
 
 
 # ==========#
 # リザルト #
 # ==========#
 def result(txt=""):
-    sub_def.result(txt, kanri=True, token=FORM["token"])
+    print_result(txt, kanri=True, token=FORM["token"])
 
 
 # ==============#
 # 	管理モード	#
 # ==============#
 def OPEN_K():
-    sub_def.print_html("kanri_login_tmp.html", {"token": FORM["token"]})
+    print_html("kanri_login_tmp.html", {"token": FORM["token"]})
 
 
 def KANRI():
     token = FORM["token"]
-    u_list = sub_def.open_user_list()
+    u_list = open_user_list()
 
     mente_chek = True if os.path.exists("mente.mente") else None
 
@@ -88,7 +132,7 @@ def KANRI():
         "token": token,
     }
 
-    sub_def.print_html("kanri_tmp.html", data)
+    print_html("kanri_tmp.html", data)
 
 
 # ====================#
@@ -117,18 +161,22 @@ def event_boost():
         val = 0
         txt = "イベントブーストモードを終了しました。"
 
-    with fileinput.FileInput(
-        "conf.py", inplace=True, backup=".bak", encoding="utf-8"
-    ) as f:
-        for line in f:
-            print(
-                re.sub(
-                    r"Conf\[\"event_boost\"\] = \d",
-                    f'Conf["event_boost"] = {val}',
-                    line,
-                ),
-                end="",
-            )
+    try:
+        with fileinput.FileInput(
+            "conf.py", inplace=True, backup=".bak", encoding="utf-8"
+        ) as f:
+            for line in f:
+                print(
+                    re.sub(
+                        r"Conf\[\"event_boost\"\] = \d",
+                        f'Conf["event_boost"] = {val}',
+                        line,
+                    ),
+                    end="",
+                )
+    except Exception as e:
+        error(f"conf.pyの更新に失敗しました: {e}", "kanri")
+        return
 
     result(txt)
 
@@ -137,7 +185,7 @@ def event_boost():
 # 強制登録 #
 # =========#
 def NEW():
-    register.sinki(FORM["make_name"], FORM["make_password"], True)
+    register.sinki(FORM, True)
 
 
 # ================#
@@ -147,20 +195,17 @@ def NEWPASS():
     target_name = FORM.get("target_name")
     newpass = FORM.get("newpass")
 
-    if not (target_name):
-        sub_def.error("対象ユーザーが選択されていません。", "kanri")
-    if not (newpass):
-        sub_def.error("新しいパスワードが入力されていません。", "kanri")
+    newpass_check(FORM)
 
-    crypted = sub_def.hash_password(newpass)
-    u_list = sub_def.open_user_list()
-    user = sub_def.open_user(target_name)
+    crypted = hash_password(newpass)
+    u_list = open_user_list()
+    user = open_user(target_name)
 
     user["pass"] = crypted
     u_list[target_name]["pass"] = crypted
 
-    sub_def.save_user_list(u_list)
-    sub_def.save_user(user, target_name)
+    save_user_list(u_list)
+    save_user(user, target_name)
 
     result(f"管理モードで<span>{target_name}</span>のパスワードを変更しました")
 
@@ -172,16 +217,16 @@ def DEL():
     target_name = FORM.get("target_name")
 
     if FORM.get("Del_ck") != "on":
-        sub_def.error("確認チェックがONになっていません。", "kanri")
+        error("確認チェックがONになっていません。", "kanri")
     if not (target_name):
-        sub_def.error("対象ユーザーが選択されていません。", "kanri")
+        error("対象ユーザーが選択されていません。", "kanri")
 
-    u_list = sub_def.open_user_list()
+    u_list = open_user_list()
 
-    sub_def.delete_user(target_name)
+    delete_user(target_name)
     del u_list[target_name]
 
-    sub_def.save_user_list(u_list)
+    save_user_list(u_list)
 
     result(f"<span>{target_name}</span>を管理モードで強制削除しました")
 
@@ -190,7 +235,7 @@ def DEL():
 # saveフォルダ削除 #
 # =================#
 def data_del():
-    sub_def.backup()
+    backup()
 
     shutil.rmtree(datadir)
     os.makedirs(datadir)
@@ -203,8 +248,8 @@ def data_del():
     with open(datadir + "/bbslog.log", mode="w", encoding="utf-8_sig") as f:
         f.write("")
 
-    sub_def.open_user_list()
-    sub_def.open_omiai_list()
+    open_user_list()
+    open_omiai_list()
 
 
 # ===========#
@@ -212,45 +257,40 @@ def data_del():
 # ===========#
 def RESTART():
     if FORM.get("Reset_ck") != "on":
-        sub_def.error("確認チェックがONになっていません。", "kanri")
+        error("確認チェックがONになっていません。", "kanri")
 
     new_userlist = {}
     byeday = (
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     ).strftime("%Y-%m-%d")
 
-    monset = [
-        "スライム",
-        "ドラゴンキッズ",
-        "ベロゴン",
-        "ピッキー",
-        "マッドプラント",
-        "キリキリバッタ",
-        "ピクシー",
-        "ゴースト",
-        "トーテムキラー",
-    ]
+    def create_default_data():
+        monset = [
+            "スライム",
+            "ドラゴンキッズ",
+            "ベロゴン",
+            "ピッキー",
+            "マッドプラント",
+            "キリキリバッタ",
+            "ピクシー",
+            "ゴースト",
+            "トーテムキラー",
+        ]
+        default_key = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
+        default_waza = {
+            name: {"no": v["no"], "type": v["type"], "get": 0}
+            for name, v in open_tokugi_dat().items()
+        }
+        default_waza["通常攻撃"]["get"] = 1
+        default_zukan = {
+            k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
+            for k, v in open_monster_dat().items()
+        }
+        return monset, default_key, default_waza, default_zukan
 
-    default_key = {
-        k: {"no": v["no"], "get": 0} for k, v in sub_def.open_key_dat().items()
-    }
-
-    Tokugi_dat = sub_def.open_tokugi_dat()
-    default_waza = {
-        name: {"no": v["no"], "type": v["type"], "get": 0}
-        for name, v in Tokugi_dat.items()
-    }
-    default_waza["通常攻撃"]["get"] = 1
-    default_zukan = {
-        k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
-        for k, v in sub_def.open_monster_dat().items()
-    }
-
-    u_list = sub_def.open_user_list()
-    users = [{"user_name": name, "crypted": v["pass"]} for name, v in u_list.items()]
-
-    def process_user(u):
+    def re_start_sub(u):
         try:
+            monset, default_key, default_waza, default_zukan = create_default_data()
             m_name = random.choice(monset)
 
             new_userlist[u["user_name"]] = {
@@ -273,7 +313,7 @@ def RESTART():
             }
 
             # ユーザーデータ
-            sub_def.save_user(
+            save_user(
                 {
                     "name": u["user_name"],
                     "pass": u["crypted"],
@@ -289,7 +329,7 @@ def RESTART():
             )
 
             # パーティーデータ
-            sub_def.save_party(
+            save_party(
                 [
                     {
                         "no": 1,
@@ -314,40 +354,24 @@ def RESTART():
             )
 
             # 追加データの初期化
-            sub_def.save_room_key(default_key, u["user_name"])
-            sub_def.save_waza(default_waza, u["user_name"])
-            sub_def.save_zukan(default_zukan, u["user_name"])
-            sub_def.save_vips({"パーク": 0}, u["user_name"])
-            sub_def.save_park([], u["user_name"])
+            save_room_key(default_key, u["user_name"])
+            save_waza(default_waza, u["user_name"])
+            save_zukan(default_zukan, u["user_name"])
+            save_vips({"パーク": 0}, u["user_name"])
+            save_park([], u["user_name"])
+            return True
 
         except Exception as e:
-            sub_def.error(f"ユーザー {u['user_name']} の処理中にエラー: {e}")
-            sys.stdout.flush()
+            error(f"ユーザー {u['user_name']} の処理中にエラー: {e}", "kanri")
             return False
 
-    total_users = len(u_list)  # 全体のユーザー数
-    # 初期化
-    progress = {"total": total_users, "completed": 0, "status": "running"}
-    with open(progress_file, mode="w", encoding="utf-8") as ff:
-        json.dump(progress, ff)
+    u_list = open_user_list()
+    users = [{"user_name": name, "crypted": v["pass"]} for name, v in u_list.items()]
+    process_batch(users, re_start_sub)
 
-    completed = 0
-    # スレッドプールを使用して並列実行
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = {executor.submit(process_user, u): u for u in users}
-        for future in as_completed(futures):
-            future.result()  # 例外があればここで捕捉
-            completed += 1
-            if completed % 10 == 0 or completed == total_users:
-                progress["completed"] = completed
-                with open(progress_file, mode="w", encoding="utf-8") as ff:
-                    json.dump(progress, ff)
-
-    sub_def.save_user_list(new_userlist)
-    sub_def.save_omiai_list({})
+    save_user_list(new_userlist)
+    save_omiai_list({})
     result("ゲームを初期化、リスタートしました。")
-
-    delete_progress_file()
 
 
 # =======#
@@ -355,7 +379,7 @@ def RESTART():
 # =======#
 def ALLDEL():
     if FORM["Reset_ck"] != "on":
-        sub_def.error("確認チェックがONになっていません。", "kanri")
+        error("確認チェックがONになっていません。", "kanri")
 
     data_del()
 
@@ -368,8 +392,8 @@ def ALLDEL():
 # ====================#
 def process_user(in_name, bye_day):
     """1ユーザー分のデータを処理する関数"""
-    user = sub_def.open_user(in_name)
-    pt = sub_def.open_party(in_name)
+    user = open_user(in_name)
+    pt = open_party(in_name)
     return {
         "pass": user["pass"],
         "host": "",
@@ -405,30 +429,16 @@ def FUKUGEN():
         json.dump(progress, ff)
 
     u_list = {}
-    completed = 0
 
-    # 並列処理の実行
-    with ThreadPoolExecutor() as executor:
-        future_to_user = {
-            executor.submit(process_user, in_name, bye_day): in_name
-            for in_name in files_dir
-        }
-        for future in as_completed(future_to_user):
-            in_name = future_to_user[future]
-            try:
-                u_list[in_name] = future.result()
-                completed += 1
+    def process_user_wrapper(in_name):
+        return process_user(in_name, bye_day)
 
-                # 一定間隔で進捗更新
-                if completed % 10 == 0 or completed == total_users:
-                    progress["completed"] = completed
-                    with open(progress_file, mode="w", encoding="utf-8") as ff:
-                        json.dump(progress, ff)
-            except Exception as e:
-                sub_def.error(f"ユーザー {in_name} の処理中にエラー: {e}", 99)
-
-    delete_progress_file()
-    sub_def.save_user_list(u_list)
+    process_batch(
+        files_dir,
+        process_user_wrapper,
+        result_collector=u_list,
+    )
+    save_user_list(u_list)
 
     result("ユーザー登録データ(user_list.pickle)を再構築しました。")
 
@@ -440,9 +450,9 @@ def MON_PRESENT():
     target_name = FORM.get("target_name", "")
 
     if target_name == "":
-        sub_def.error("対象ユーザーが選択されていません。", "kanri")
+        error("対象ユーザーが選択されていません。", "kanri")
 
-    M_list = sub_def.open_monster_dat()
+    M_list = open_monster_dat()
     txt = "".join(
         [f"""<option value={name}>{name}</option>\n""" for name in M_list.keys()]
     )
@@ -453,7 +463,7 @@ def MON_PRESENT():
         "token": FORM["token"],
     }
 
-    sub_def.print_html("kanri_mon_present_tmp.html", context)
+    print_html("kanri_mon_present_tmp.html", context)
 
 
 # ====================#
@@ -461,26 +471,19 @@ def MON_PRESENT():
 # ====================#
 def MON_PRESENT_OK():
     target_name = FORM["target_name"]
-    Mons_name = FORM.get("Mons_name")
+    mons_name = FORM.get("mons_name")
     sex = FORM.get("sex")
-    max_level = int(FORM.get("max_level", 0))
+    max_level = int(FORM.get("max_level", 10))
     haigou = int(FORM.get("haigou", 0))
 
-    if not (Mons_name):
-        sub_def.error("モンスターを選択してください", "kanri")
-    if not (sex):
-        sub_def.error("性別を選択してください", "kanri")
-    if not (max_level):
-        sub_def.error("MAXレベルを入力してください", "kanri")
-    if not (haigou):
-        sub_def.error("配合回数を入力してください", "kanri")
+    present_monster_check(FORM)
 
-    party = sub_def.open_party(target_name)
+    party = open_party(target_name)
 
     if len(party) >= 10:
-        sub_def.error("パーティがいっぱいで追加することができません。", "kanri")
+        error("パーティがいっぱいで追加することができません。", "kanri")
 
-    new_mob = sub_def.monster_select(Mons_name, haigou)
+    new_mob = monster_select(mons_name, haigou)
     new_mob["lv"] = 1
     new_mob["mlv"] = max_level
     new_mob["sex"] = sex
@@ -490,7 +493,7 @@ def MON_PRESENT_OK():
     for i, pt in enumerate(party, 1):
         pt["no"] = i
 
-    sub_def.save_party(party, target_name)
+    save_party(party, target_name)
 
     result(f"{target_name}へモンスターを配布しました")
 
@@ -501,53 +504,22 @@ def MON_PRESENT_OK():
 def PRESENT():
     target_name = FORM.get("target_name", "")
 
-    try:
-        money = int(FORM.get("money", 0))
-        medal = int(FORM.get("medal", 0))
-        key = int(FORM.get("key", 0))
-    except ValueError:
-        sub_def.error("お金、メダル、キーは整数で入力してください。", "kanri")
+    present_check(FORM)
 
-    if target_name == "":
-        sub_def.error("ユーザーが選択されていません。", "kanri")
+    money = int(FORM.get("money", 0))
+    medal = int(FORM.get("medal", 0))
+    key = int(FORM.get("key", 0))
 
     def haifu(name):
-        user = sub_def.open_user(name)
+        user = open_user(name)
         user["money"] += int(money)
         user["medal"] += int(medal)
         user["key"] += int(key)
-        sub_def.save_user(user, name)
+        save_user(user, name)
 
     if target_name == "全員":
-        u_list = sub_def.open_user_list()
-        total_users = len(u_list)  # 全体のユーザー数
-
-        # 初期化
-        progress = {"total": total_users, "completed": 0, "status": "running"}
-        with open(progress_file, mode="w", encoding="utf-8") as ff:
-            json.dump(progress, ff)
-
-        batch_size = 10
-        completed = 0
-        # 並列処理を実行
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            future_to_user = {
-                executor.submit(haifu, name): name for name in u_list.keys()
-            }
-            for future in as_completed(future_to_user):
-                name = future_to_user[future]
-                try:
-                    future.result()  # エラーがあればここでキャッチされる
-                except Exception as exc:
-                    sub_def.error(
-                        f"ユーザー {name} の処理中にエラーが発生しました: {exc}"
-                    )
-
-                completed += 1
-                if completed % batch_size == 0 or completed == total_users:
-                    progress["completed"] = completed
-                    with open(progress_file, mode="w", encoding="utf-8") as ff:
-                        json.dump(progress, ff)
+        u_list = open_user_list()
+        process_batch(u_list, haifu)
 
         result(f"全員にプレゼントを送りました。")
 
@@ -567,9 +539,9 @@ def csv_to():
     target_name = FORM.get("target_name")
 
     if not (target_name):
-        sub_def.error("対象が選択されていません。", "kanri")
+        error("対象が選択されていません。", "kanri")
 
-    cgi_py.csv_to_pickle.csv_to_pickle(target_name)
+    csv_to_pickle.csv_to_pickle(target_name)
 
     result(f"{target_name}のcsv→pickle変換が完了しました。")
 
@@ -581,10 +553,10 @@ def pickle_to():
     target_name = FORM.get("target_name")
 
     if not (target_name):
-        sub_def.error("対象が選択されていません。", "kanri")
+        error("対象が選択されていません。", "kanri")
 
-    sub_def.backup()
-    cgi_py.pickle_to_csv.pickle_to_csv(target_name)
+    backup()
+    pickle_to_csv.pickle_to_csv(target_name)
 
     result(f"{target_name}のpickle→csv変換が完了しました。")
 
@@ -605,11 +577,9 @@ def make_table(save_data, txt):
     else:
         rows = save_data if isinstance(save_data, list) else [save_data]
 
-    headers = list(rows[0].keys())
-
     context = {
         "txt": txt,
-        "headers": headers,
+        "headers": list(rows[0].keys()),
         "rows": rows,
         "no_edit": no_edit,
         "target_name": target_name,
@@ -617,7 +587,7 @@ def make_table(save_data, txt):
         "token": FORM["token"],
     }
 
-    sub_def.print_html("kanri_saveedit_table_tmp.html", context)
+    print_html("kanri_saveedit_table_tmp.html", context)
 
 
 def save_editer():
@@ -625,21 +595,19 @@ def save_editer():
     target_data = FORM.get("target_data")
 
     if not (target_name):
-        sub_def.error("対象が選択されていません。", "kanri")
+        error("対象が選択されていません。", "kanri")
 
     match target_name:
         case "user_list":
-            save_data = sub_def.open_user_list()
+            save_data = open_user_list()
             if not (save_data):
-                sub_def.error(
-                    "現在登録者はいないようです。<br>編集できません。", "kanri"
-                )
+                error("現在登録者はいないようです。<br>編集できません。", "kanri")
             save_data = [{"user_name": u} | v for u, v in save_data.items()]
             txt = "登録ユーザーリスト"
         case "omiai_list":
-            save_data = sub_def.open_omiai_list()
+            save_data = open_omiai_list()
             if not (save_data):
-                sub_def.error(
+                error(
                     "現在お見合い登録者はいないようです。<br>編集できません。", "kanri"
                 )
             save_data = [{"user_name": u} | v for u, v in save_data.items()]
@@ -647,33 +615,33 @@ def save_editer():
 
     match target_data:
         case "user_data":
-            save_data = sub_def.open_user(target_name)
+            save_data = open_user(target_name)
             txt = "ユーザー情報"
         case "party_data":
-            save_data = sub_def.open_party(target_name)
+            save_data = open_party(target_name)
             txt = "パーティーデータ"
         case "room_key_data":
-            save_data = sub_def.open_room_key(target_name)
+            save_data = open_room_key(target_name)
             save_data = [{"name": u} | v for u, v in save_data.items()]
             txt = "部屋の鍵データ"
         case "waza_data":
-            save_data = sub_def.open_waza(target_name)
+            save_data = open_waza(target_name)
             save_data = [{"name": u} | v for u, v in save_data.items()]
             txt = "習得特技データ"
         case "zukan_data":
-            save_data = sub_def.open_zukan(target_name)
+            save_data = open_zukan(target_name)
             save_data = [{"name": u} | v for u, v in save_data.items()]
             txt = "図鑑データ"
         case "park_data":
-            save_data = sub_def.open_park(target_name)
+            save_data = open_park(target_name)
             txt = "モンスターパークデータ"
             if not (save_data):
-                sub_def.error(
+                error(
                     "現在パーク内にモンスターはいないようです。<br>編集できません。",
                     "kanri",
                 )
         case "vips_data":
-            save_data = sub_def.open_vips(target_name)
+            save_data = open_vips(target_name)
             txt = "その他データ"
 
     if type(save_data) == list:
@@ -686,7 +654,7 @@ def save_edit_select():
     target_name = FORM.get("target_name")
 
     if not (target_name):
-        sub_def.error("対象が選択されていません。", "kanri")
+        error("対象が選択されていません。", "kanri")
 
     context = {"target_name": target_name, "token": FORM["token"]}
 
@@ -695,7 +663,7 @@ def save_edit_select():
     elif target_name == "omiai_list":
         save_editer()
     else:
-        sub_def.print_html("kanri_saveedit_select_tmp.html", context)
+        print_html("kanri_saveedit_select_tmp.html", context)
 
 
 def save_data(open_func, save_func, form):
@@ -711,7 +679,7 @@ def save_data(open_func, save_func, form):
                 for v in original_data[user_name].keys()
             }
         else:
-            sub_def.error(
+            error(
                 f"警告: インデックス {i} のユーザー名 '{user_name}' が original_data に存在しません。"
             )
 
@@ -768,39 +736,42 @@ def save_edit_save():
     match target_name:
         case "user_list":
             txt = "ユーザーリストを更新しました。"
-            save_data(sub_def.open_user_list, sub_def.save_user_list, FORM)
+            save_data(
+                open_user_list,
+                save_user_list,
+                FORM,
+            )
         case "omiai_list":
             txt = "お見合いリストを更新しました。"
-            save_data(sub_def.open_omiai_list, sub_def.save_omiai_list, FORM)
+            save_data(open_omiai_list, save_omiai_list, FORM)
 
     match target_data:
         case "user_data":
             txt = "ユーザー情報"
-            save_specific_data(target_name, sub_def.open_user, sub_def.save_user, FORM)
+            save_specific_data(target_name, open_user, save_user, FORM)
         case "vips_data":
             txt = "その他データ"
-            save_specific_data(target_name, sub_def.open_vips, sub_def.save_vips, FORM)
+            save_specific_data(target_name, open_vips, save_vips, FORM)
         case "room_key_data":
             txt = "部屋の鍵データ"
             save_specific_data(
-                target_name, sub_def.open_room_key, sub_def.save_room_key, FORM
+                target_name,
+                open_room_key,
+                save_room_key,
+                FORM,
             )
         case "waza_data":
             txt = "習得特技データ"
-            save_specific_data(target_name, sub_def.open_waza, sub_def.save_waza, FORM)
+            save_specific_data(target_name, open_waza, save_waza, FORM)
         case "zukan_data":
             txt = "図鑑データ"
-            save_specific_data(
-                target_name, sub_def.open_zukan, sub_def.save_zukan, FORM
-            )
+            save_specific_data(target_name, open_zukan, save_zukan, FORM)
         case "party_data":
             txt = "パーティーデータ"
-            save_specific_data(
-                target_name, sub_def.open_party, sub_def.save_party, FORM
-            )
+            save_specific_data(target_name, open_party, save_party, FORM)
         case "park_data":
             txt = "モンスターパークデータ"
-            save_specific_data(target_name, sub_def.open_park, sub_def.save_park, FORM)
+            save_specific_data(target_name, open_park, save_park, FORM)
 
     result(f"{target_name}の{txt}を更新しました。")
 
@@ -808,88 +779,33 @@ def save_edit_save():
 # ================#
 # dat_update     #
 # ================#
-def dat_update_check(in_name, M_list, Tokugi_dat):
+def convert_dat_files():
+    """datフォルダのCSVをPickleに変換"""
+    try:
+        files = glob.glob("./dat/*.csv")
+        os.makedirs("./dat/pickle", exist_ok=True)
 
-    user = sub_def.open_user(in_name)
-    zukan = sub_def.open_zukan(in_name)
-    waza = sub_def.open_waza(in_name)
+        def process_file(file):
+            base_name = os.path.basename(file).replace(".csv", ".pickle")
+            save_path = os.path.join("./dat/pickle", base_name)
+            data = (
+                pd.read_csv(file, encoding="utf-8_sig", index_col="name")
+                .convert_dtypes()
+                .fillna("")
+                .sort_values("no")
+                .to_dict(orient="index")
+            )
+            with open(save_path, mode="wb") as f:
+                pickle.dump(data, f)
 
-    def update_data(new_data, existing_data, data_type, save_func):
-        # 新しいデータに既存の取得状態を反映
-        for name in new_data.keys():
-            if name in existing_data:
-                new_data[name]["get"] = existing_data[name].get("get", 0)
-
-        # データを保存
-        save_func(new_data, in_name)
-
-        # ユーザーの収集率を更新（図鑑データの場合のみ）
-        if data_type == "zukan":
-            get = sum(v.get("get") == 1 for v in new_data.values())
-            mleng = len(new_data)
-            s = get / mleng * 100
-            user["getm"] = f"{get}／{mleng}匹 ({s:.2f}％)"
-            sub_def.save_user(user, in_name)
-
-    # 図鑑の更新チェック
-    new_zukan = {
-        name: {"no": mon["no"], "m_type": mon["m_type"], "get": 0}
-        for name, mon in M_list.items()
-    }
-    update_data(new_zukan, zukan, "zukan", sub_def.save_zukan)
-
-    # 技の更新チェック
-    if len(Tokugi_dat) != len(waza):
-        new_waza = {
-            name: {"no": v["no"], "type": v["type"], "get": 0}
-            for name, v in Tokugi_dat.items()
-        }
-        update_data(new_waza, waza, "waza", sub_def.save_waza)
-
-    return
+        with ThreadPoolExecutor(max_workers=Conf.get("max_workers", 4)) as executor:
+            executor.map(process_file, files)
+    except (pd.errors.ParserError, IOError) as e:
+        error(f"データファイルの変換に失敗しました: {e}", "kanri")
 
 
-def dat_file():
-
-    def pickle_dump(obj, path):
-        with open(path, mode="wb") as f:
-            pickle.dump(obj, f)
-
-    def open_dat(file):
-        return (
-            pd.read_csv(file, encoding="utf-8_sig", index_col="name")
-            .convert_dtypes()
-            .fillna("")
-            .sort_values("no")
-            .to_dict(orient="index")
-        )
-
-    files = glob.glob("./dat/*.csv")
-    os.makedirs("./dat/pickle", exist_ok=True)
-
-    def process_file(file):
-        base_name = os.path.basename(file).replace(".csv", ".pickle")
-        save_path = os.path.join("./dat/pickle", base_name)
-        data = open_dat(file)
-        if data:
-            pickle_dump(data, save_path)
-
-    # 並列処理
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        executor.map(process_file, files)
-
-
-def dat_update():
-
-    dat_file()
-
-    # 配合リスト2種を作り直す
-    cgi_py.haigou_list_make.haigou_list_make()
-
-    M_list = sub_def.open_monster_dat()
-    Tokugi_dat = sub_def.open_tokugi_dat()
-
-    # 異世界最深部設定
+def update_isekai_limit(M_list):
+    """異世界最深部設定を更新"""
     # confファイルを書き換えるので注意！
     isekai_max_limit = max(
         [mon["階層B"] for mon in M_list.values() if (mon["room"] in ("特殊"))]
@@ -907,50 +823,62 @@ def dat_update():
                 end="",
             )
 
+
+def dat_update_check(in_name, M_list, Tokugi_dat):
+    """ユーザーの図鑑と技データを更新"""
+    user = open_user(in_name)
+    zukan = open_zukan(in_name)
+    waza = open_waza(in_name)
+
+    def update_data(new_data, existing_data, data_type, save_func):
+        # 新しいデータに既存の取得状態を反映
+        for name in new_data:
+            if name in existing_data:
+                new_data[name]["get"] = existing_data[name].get("get", 0)
+
+        save_func(new_data, in_name)
+
+        if data_type == "zukan":
+            get = sum(v.get("get") == 1 for v in new_data.values())
+            mleng = len(new_data)
+            user["getm"] = f"{get}／{mleng}匹 ({get / mleng * 100:.2f}％)"
+            save_user(user, in_name)
+
+    # 図鑑の更新チェック
+    new_zukan = {
+        name: {"no": mon["no"], "m_type": mon["m_type"], "get": 0}
+        for name, mon in M_list.items()
+    }
+    update_data(new_zukan, zukan, "zukan", save_zukan)
+
+    # 技の更新チェック
+    if len(Tokugi_dat) != len(waza):
+        new_waza = {
+            name: {"no": v["no"], "type": v["type"], "get": 0}
+            for name, v in Tokugi_dat.items()
+        }
+        update_data(new_waza, waza, "waza", save_waza)
+
+
+def dat_update():
+    """データファイルを更新し、ユーザー情報を反映"""
+    convert_dat_files()
+
+    # 配合リスト2種を作り直す
+    haigou_list_make.haigou_list_make()
+
+    M_list = open_monster_dat()
+    Tokugi_dat = open_tokugi_dat()
+
+    # 異世界最深部設定
+    update_isekai_limit(M_list)
+
     def process_user(name):
         dat_update_check(name, M_list, Tokugi_dat)
 
-    u_list = sub_def.open_user_list()
-    total_users = len(u_list)  # 全体のユーザー数
-
-    # 初期化
-    progress = {"total": total_users, "completed": 0, "status": "running"}
-    with open(progress_file, mode="w", encoding="utf-8") as ff:
-        json.dump(progress, ff)
-
-    batch_size = 10
-    completed = 0
-
-    # 並列処理（ThreadPoolExecutorを使用）
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        future_to_user = {
-            executor.submit(process_user, name): name for name in u_list.keys()
-        }
-        for future in as_completed(future_to_user):
-            name = future_to_user[future]
-            try:
-                future.result()  # エラーが発生した場合ここで例外がスローされる
-            except Exception as exc:
-                print(f"ユーザー {name} の処理中にエラーが発生しました: {exc}")
-
-            completed += 1
-            if completed % batch_size == 0 or completed == total_users:
-                progress["completed"] = completed
-                with open(progress_file, mode="w", encoding="utf-8") as ff:
-                    json.dump(progress, ff)
-
-    delete_progress_file()
+    u_list = open_user_list()
+    process_batch(u_list.keys(), process_user)
     result("datファイルの更新を反映しました。")
-
-
-# ================#
-# cgi_python     #
-# ================#
-def cgi_python():
-    dat_file()
-    cgi_py.cgi_python.cgi_python()
-
-    result("python環境へデータ変換しました。")
 
 
 # ================#
@@ -958,35 +886,30 @@ def cgi_python():
 # ================#
 def haigou_list_make():
     # 配合リスト2種を作り直す
-    cgi_py.haigou_list_make.haigou_list_make()
+    haigou_list_make.haigou_list_make()
 
     result("配合リストHTMLを作成しました。")
 
 
 # ============================================================#
 def token_check():
-    session = sub_def.get_session()
+    session = get_session()
+    form_token = FORM.get("token", "")
+    session_token = session.get("token", "")
 
-    if FORM.get("token"):
-        if not (secrets.compare_digest(session["token"], FORM["token"])):
-            sub_def.error(f"トークンが一致しないです？", "kanri")
-            # pass
-    else:
+    if not form_token or not secrets.compare_digest(session_token, form_token):
         # pass
-        sub_def.error(
-            "トークンが送信されてないです？<br>繰り返し表示される場合は管理人へ連絡を。",
-            "kanri",
-        )
+        error("トークンが一致しないです", "kanri")
 
     token = secrets.token_hex(16)
-    data = {
-        "token": token,
-        "m_name": FORM.get("m_name", session.get("m_name", "")),
-        "m_password": FORM.get("m_password", session.get("m_password", "")),
-    }
-
-    session |= data
-    sub_def.set_session(session)
+    session.update(
+        {
+            "token": token,
+            "m_name": FORM.get("m_name", session.get("m_name", "")),
+            "m_password": FORM.get("m_password", session.get("m_password", "")),
+        }
+    )
+    set_session(session)
 
     return session
 
@@ -1005,14 +928,19 @@ def parse_ast(filename):
 if __name__ == "__main__":
 
     # フォームを辞書化
-    form = cgi.FieldStorage()
+    form = cgi.FieldStorage(
+        fp=sys.stdin,
+        environ=os.environ,
+        keep_blank_values=True,
+    )
+
     FORM = {key: form.getvalue(key) for key in form.keys()}
 
     if "mode" not in FORM:
-        sub_def.set_session(FORM := {"token": secrets.token_hex(16)})
+        set_session(FORM := {"token": secrets.token_hex(16)})
         OPEN_K()
     elif os.environ["REQUEST_METHOD"] != "POST":
-        sub_def.error("不正ですか？by管理モード", "top")
+        error("不正ですか？by管理モード", "top")
 
     # このファイル内の関数一覧と取得
     tree = parse_ast("kanri.py")
@@ -1022,13 +950,14 @@ if __name__ == "__main__":
     # 一覧にあれば実行
     if FORM["mode"] in func_list:
         FORM |= token_check()
-        admin_check()
+        admin_check(FORM)
+
         func = globals().get(FORM["mode"])
         if func:
             func()
         else:
-            sub_def.error(f"関数 [{FORM['mode']}] が見つかりませんでした。", "top")
+            error(f"関数 [{FORM['mode']}] が見つかりませんでした。", "top")
     else:
-        sub_def.error(f"無効なモード [{FORM['mode']}] です。", "top")
+        error(f"無効なモード [{FORM['mode']}] です。", "top")
 
-    sub_def.error("あっれれ～？おっかしぃぞぉ～by管理モード")
+    error("あっれれ～？おっかしぃぞぉ～by管理モード")

@@ -55,7 +55,7 @@ def books(FORM):
         </form>
     """
 
-    sub_def.result(mes, html, token)
+    sub_def.print_result(mes, html, token)
 
 
 def book_read(FORM):
@@ -124,4 +124,4 @@ def book_read(FORM):
         </form>
     """
 
-    sub_def.result(mes, html, token)
+    sub_def.print_result(mes, html, token)

@@ -41,4 +41,4 @@ def comment(FORM):
     sub_def.save_user_list(u_list)
     sub_def.save_user(user)
 
-    sub_def.result("メッセージは更新されました", "", FORM["token"])
+    sub_def.print_result("メッセージは更新されました", "", FORM["token"])

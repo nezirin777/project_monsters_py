@@ -36,7 +36,7 @@ def medal_shop_ok(FORM):
     sub_def.save_user(user)
     sub_def.save_party(party)
 
-    sub_def.result(
+    sub_def.print_result(
         f"""<img src="{Conf["imgpath"]}/{m_name}.gif"><span>{m_name}</span>が仲間に加わりました""",
         "",
         FORM["token"],

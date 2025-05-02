@@ -30,4 +30,4 @@ def change(FORM):
 
     sub_def.save_party(party)
 
-    sub_def.result("並べ替えが完了しました", "", FORM["token"])
+    sub_def.print_result("並べ替えが完了しました", "", FORM["token"])

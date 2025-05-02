@@ -110,7 +110,7 @@ def park_1(FORM):
         </form>
     """
 
-    sub_def.result(mes, html, FORM["token"])
+    sub_def.print_result(mes, html, FORM["token"])
 
 
 # ====================##====================##====================##====================##====================#
@@ -147,4 +147,4 @@ def park_2(FORM):
         </form>
     """
 
-    sub_def.result(mes, html, FORM["token"])
+    sub_def.print_result(mes, html, FORM["token"])

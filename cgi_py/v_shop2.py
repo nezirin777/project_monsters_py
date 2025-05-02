@@ -39,4 +39,4 @@ def v_shop2_ok(FORM):
 		</form>
 	"""
 
-    sub_def.result(f"{m_name}を購入しました。", html, token)
+    sub_def.print_result(f"{m_name}を購入しました。", html, token)

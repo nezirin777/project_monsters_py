@@ -10,131 +10,134 @@
     <script src="../css_js/table_sort.js"></script>
 </head>
 <body>
-    <div class="haigou_title" id="top">
-        MONSTER'S 改 {{ Conf.ver }}
-        <br>
-        特殊モンスター配合表・出現階層
-    </div>
+    <div class="wrapper">
+        <div class="haigou_title" id="top">
+            MONSTER'S 改 {{ Conf.ver }}
+            <br>
+            特殊モンスター配合表・出現階層
+        </div>
 
-    <!-- 右メニュー -->
-    <div id="haigou_rightmenu">
-        [<a href="#top">一番上へ</a>]
-        <br>[<a href="#らき☆すた">らき☆すた</a>]
-        <br>[<a href="#まどマギ">まどマギ</a>]
-		<br>[<a href="#シンフォギア">シンフォギア</a>]
-		<br>[<a href="#東方">東方</a>]
-		<br>[<a href="#アイマス">アイマス</a>]
-		<br>[<a href="#ボカロ">ボカロ</a>]
-		<br>[<a href="#シュタゲ">シュタゲ</a>]
-		<br>[<a href="#とある">とある</a>]
-		<br>[<a href="#ミルキィ">ミルキィ</a>]
-		<br>[<a href="#ボイロ">ボイロ</a>]
-		<br>[<a href="#原神">原神</a>]
-		<br>[<a href="#このすば">このすば</a>]
-        <br>[<a href="#ぼざろ">ぼざろ</a>]
-		<br>[<a href="#ドラクエ">ドラクエ</a>]
-        <br><form action="{{ Conf.top_url }}" method="post">
-            <input type="hidden" name="mode" value="">
-            <button type="submit">TOPへ</button>
-        </form>
-    </div>
+        <!-- 右メニュー -->
+        <div id="haigou_rightmenu">
+            [<a href="#top">一番上へ</a>]
+            <br>[<a href="#らき☆すた">らき☆すた</a>]
+            <br>[<a href="#まどマギ">まどマギ</a>]
+            <br>[<a href="#シンフォギア">シンフォギア</a>]
+            <br>[<a href="#東方">東方</a>]
+            <br>[<a href="#アイマス">アイマス</a>]
+            <br>[<a href="#ボカロ">ボカロ</a>]
+            <br>[<a href="#シュタゲ">シュタゲ</a>]
+            <br>[<a href="#とある">とある</a>]
+            <br>[<a href="#ミルキィ">ミルキィ</a>]
+            <br>[<a href="#ボイロ">ボイロ</a>]
+            <br>[<a href="#原神">原神</a>]
+            <br>[<a href="#このすば">このすば</a>]
+            <br>[<a href="#ぼざろ">ぼざろ</a>]
+            <br>[<a href="#ドラクエ">ドラクエ</a>]
+            <br><form action="{{ Conf.top_url }}" method="post">
+                <input type="hidden" name="mode" value="">
+                <button type="submit">TOPへ</button>
+            </form>
+        </div>
 
-    <!-- 追加情報や説明 -->
-    <div class="haigou_txt">
-        <br>
+        <!-- 追加情報や説明 -->
         <div class="haigou_txt">
-            配合のみ、戦闘のみ、交換のみ等入手条件が限られるものもあります。<br>
-            赤字はお見合い限定になります。<br>
-
             <br>
-            モンスター名が伏せてある所はDiscord等でヒントを言うのはOKですが、<br>
-            直接○○だった！っていうのは罰則があるわけでもないけど<span style="color: red;">禁止にします。</span><br>
-            試行錯誤してもらいたいだけなんで、自分勝手ですがよろしくお願いします。<br>
+            <div class="haigou_txt">
+                配合のみ、戦闘のみ、交換のみ等入手条件が限られるものもあります。<br>
+                赤字はお見合い限定になります。<br>
 
-            <br>
-            <button class="sortBtn" rel="no" data-order="asc" data-numeric="true">No順(デフォ)</button>
+                <br>
+                モンスター名が伏せてある所はDiscord等でヒントを言うのはOKですが、<br>
+                直接○○だった！っていうのは罰則があるわけでもないけど<span style="color: red;">禁止にします。</span><br>
+                試行錯誤してもらいたいだけなんで、自分勝手ですがよろしくお願いします。<br>
 
-            <br>
-            <button class="sortBtn" rel="upday" data-order="asc" data-numeric="false">実装が古い順にソート</button>
-            <button class="sortBtn" rel="upday" data-order="desc" data-numeric="false">実装が新しい順にソート</button>
+                <br>
+                <button class="sortBtn" rel="no" data-order="asc" data-numeric="true">No順(デフォ)</button>
 
-            <br>
-            <button class="sortBtn" rel="floor_min" data-order="asc" data-numeric="true">出現階層が浅い順にソート</button>
-            <button class="sortBtn" rel="floor_min" data-order="desc" data-numeric="true">出現階層が深い順にソート</button>
+                <br>
+                <button class="sortBtn" rel="upday" data-order="asc" data-numeric="false">実装が古い順にソート</button>
+                <button class="sortBtn" rel="upday" data-order="desc" data-numeric="false">実装が新しい順にソート</button>
 
-            <br>
-            <ul>
-                <li>2020/01/23 DQM2モンスター実装</li>
-                <li>2021/06/03 DQMキャラバンハートモンスター実装</li>
-            </ul>
+                <br>
+                <button class="sortBtn" rel="floor_min" data-order="asc" data-numeric="true">出現階層が浅い順にソート</button>
+                <button class="sortBtn" rel="floor_min" data-order="desc" data-numeric="true">出現階層が深い順にソート</button>
+
+                <br>
+                <ul>
+                    <li>2020/01/23 DQM2モンスター実装</li>
+                    <li>2021/06/03 DQMキャラバンハートモンスター実装</li>
+                </ul>
+            </div>
+        </div>
+
+        <main class="list2">
+            {% for monster in monsters %}
+            <table class="list2_monster_table" role="grid" aria-label="モンスター {{ monster.name }} の詳細">
+                <tbody>
+                    <!-- 1行目 -->
+                    <tr>
+                        <td rowspan="4" class="list2_image_cell">
+                            <a name="{{ monster.m_type }}"></a>
+                            <img src="../img/{{ monster.name}}.gif" alt="{{ monster.name }}の画像">
+                            <div>{{ monster.name }}</div>
+                        </td>
+                        <td rowspan="2" class="right-cell floor">
+                            {% if monster.room != "出現しない" %}
+                                {{ monster.floor_min }}階～
+                            {% endif %}
+                            {% if monster.floor_max %}
+                                {{ monster.floor_max }}階
+                            {% endif %}
+                        </td>
+                        <td rowspan="2" class="right-cell location">{{ monster.room }}</td>
+                        {% if monster.description_b %}
+                        <td rowspan="2" class="right-cell description-a">{{ monster.description_a }}</td>
+                        <td rowspan="2" class="right-cell description-b">{{ monster.description_b }}</td>
+                        {% else %}
+                        <td rowspan="2" colspan="2" class="right-cell description-a expand">{{ monster.description_a }}</td>
+                        {% endif %}
+                    </tr>
+                    <!-- 2行目（1行目と結合されているため空） -->
+                    <tr></tr>
+                    <!-- 3行目 -->
+                    <tr>
+                        <td colspan="4" class="right-cell">
+                            HP:{{ monster.hp }}
+                            MP:{{ monster.mp }}
+                            ATK:{{ monster.atk }}
+                            DEF:{{ monster.def }}
+                            AGI:{{ monster.agi }}
+                            EXP:{{ monster.exp }}
+                            MONEY:{{ monster.money }}
+                        </td>
+                    </tr>
+                    <!-- 4行目 -->
+                    <tr>
+                        <td colspan="4" class="right-cell">{{ monster.date }}
+                            <span style="display:none" class="upday">{{ monster.date }}</span>
+                            <span style="display:none" class="no">{{ monster.no }}</span>
+                            <span style="display:none" class="floor_min">{{ monster.floor_min }}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endfor %}
+        </main>
+
+        <div id="footer">
+            <div id="f_box">
+                <div id="f_t">MONSTER'S 改 {{ Conf.ver }}</div>
+                <div><span>【改造】</span>おくた</div>
+                <div><span>【ドット絵】</span><A href="http://wpdot.blog106.fc2.com/">wp～ドット絵倉庫～</A></div>
+                <div><span>【ドット絵】</span><A href="https://www.pixiv.net/users/26734">chopper氏</A></div>
+                <div><span>【ドット絵】</span><A href="http://deepmoon.sakura.ne.jp/icon/">DMF別館 アイコン素材屋</A></div>
+                <div><span>【ドット絵】</span><A href="https://dfp2013.jimdofree.com/">Dragon Fake Project</A></div>
+                <div><span>【作成・配布】</span><A href="http://park16.wakwak.com/~mikio-palace/">MIKIO-PALACE</A></div>
+                <div>Copyright (C) 2002-2004：MIKIO</div>
+            </div>
         </div>
     </div>
 
-    <main class="list2">
-        {% for monster in monsters %}
-        <table class="list2_monster_table" role="grid" aria-label="モンスター {{ monster.name }} の詳細">
-            <tbody>
-                <!-- 1行目 -->
-                <tr>
-                    <td rowspan="4" class="list2_image_cell">
-                        <a name="{{ monster.m_type }}"></a>
-                        <img src="../img/{{ monster.name}}.gif" alt="{{ monster.name }}の画像">
-                        <div>{{ monster.name }}</div>
-                    </td>
-                    <td rowspan="2" class="right-cell floor">
-                        {% if monster.room != "出現しない" %}
-                            {{ monster.floor_min }}階～
-                        {% endif %}
-                        {% if monster.floor_max %}
-                            {{ monster.floor_max }}階
-                        {% endif %}
-                    </td>
-                    <td rowspan="2" class="right-cell location">{{ monster.room }}</td>
-                    {% if monster.description_b %}
-                    <td rowspan="2" class="right-cell description-a">{{ monster.description_a }}</td>
-                    <td rowspan="2" class="right-cell description-b">{{ monster.description_b }}</td>
-                    {% else %}
-                    <td rowspan="2" colspan="2" class="right-cell description-a expand">{{ monster.description_a }}</td>
-                    {% endif %}
-                </tr>
-                <!-- 2行目（1行目と結合されているため空） -->
-                <tr></tr>
-                <!-- 3行目 -->
-                <tr>
-                    <td colspan="4" class="right-cell">
-                        HP:{{ monster.hp }}
-                        MP:{{ monster.mp }}
-                        ATK:{{ monster.atk }}
-                        DEF:{{ monster.def }}
-                        AGI:{{ monster.agi }}
-                        EXP:{{ monster.exp }}
-                        MONEY:{{ monster.money }}
-                    </td>
-                </tr>
-                <!-- 4行目 -->
-                <tr>
-                    <td colspan="4" class="right-cell">{{ monster.date }}
-                        <span style="display:none" class="upday">{{ monster.date }}</span>
-                        <span style="display:none" class="no">{{ monster.no }}</span>
-                        <span style="display:none" class="floor_min">{{ monster.floor_min }}</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        {% endfor %}
-    </main>
-
-    <div id="footer">
-        <div id="f_box">
-            <div id="f_t">MONSTER'S 改 {{ Conf.ver }}</div>
-            <div><span>【改造】</span>おくた</div>
-            <div><span>【ドット絵】</span><A href="http://wpdot.blog106.fc2.com/">wp～ドット絵倉庫～</A></div>
-            <div><span>【ドット絵】</span><A href="https://www.pixiv.net/users/26734">chopper氏</A></div>
-            <div><span>【ドット絵】</span><A href="http://deepmoon.sakura.ne.jp/icon/">DMF別館 アイコン素材屋</A></div>
-            <div><span>【ドット絵】</span><A href="https://dfp2013.jimdofree.com/">Dragon Fake Project</A></div>
-            <div><span>【作成・配布】</span><A href="http://park16.wakwak.com/~mikio-palace/">MIKIO-PALACE</A></div>
-            <div>Copyright (C) 2002-2004：MIKIO</div>
-        </div>
-    </div>
 </body>
 </html>

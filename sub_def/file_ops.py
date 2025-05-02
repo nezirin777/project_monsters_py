@@ -9,6 +9,7 @@ import pandas as pd
 import pickle
 from typing import Dict, List, Any, Optional
 from functools import lru_cache
+
 import conf
 import exLock
 
@@ -238,7 +239,7 @@ def save_csv(data: Any, file: str, name: str = "", label: str = "name") -> None:
 def open_dat(file: str) -> Dict:
     file_path = os.path.join(Conf["datdir"], PICKLE_DIR, f"{file}.pickle")
     if not os.path.exists(file_path):
-        error(f"ファイルが見つかりません: {file_path}", 99)
+        error(f"ファイルが見つかりませんよ: {file_path}", 99)
         return {}
     try:
         with open(file_path, mode="rb") as f:
@@ -401,7 +402,8 @@ def open_tournament_time():
 
         # 日付のフォーマットを検証
         datetime.datetime.strptime(date_str, "%Y年%m月%d日")
-    except (ValueError, OSError) as error:
+
+    except (ValueError, OSError) as e:
         # 日付が無効または読み込みに失敗した場合、新しい日付を生成
         return timesyori()
 

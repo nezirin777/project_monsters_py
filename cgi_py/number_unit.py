@@ -6,4 +6,4 @@ def number_unit(FORM):
 
     sub_def.set_cookie(cookie)
 
-    sub_def.result("表記方を変更しました。", "", FORM["token"])
+    sub_def.print_result("表記方を変更しました。", "", FORM["token"])

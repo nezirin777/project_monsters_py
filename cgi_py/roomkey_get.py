@@ -19,4 +19,4 @@ def roomkey_get(FORM):
     sub_def.save_room_key(room_key)
 
     # 結果を出力
-    sub_def.result(f"""{get_key}の部屋の鍵を入手した！""", "", FORM["token"])
+    sub_def.print_result(f"""{get_key}の部屋の鍵を入手した！""", "", FORM["token"])

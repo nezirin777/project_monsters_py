@@ -20,7 +20,9 @@ def my_page2(FORM):
 
     # 必要な変数を辞書にまとめてテンプレートへ渡す
     content = {
-        "Conf": Conf,
+        "script": {
+            "party": "/" + "/".join(pt["name"] for pt in party),
+        },
         "in_name": in_name,
         "token": token,
         "isekai": isekai,

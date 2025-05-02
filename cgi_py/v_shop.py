@@ -68,7 +68,7 @@ def v_shop_ok(FORM):
         </form>
     """
 
-    sub_def.result(
+    sub_def.print_result(
         f"""<img src="{Conf["imgpath"]}/{Aname}.gif"><span>{m_name}</span>が仲間に加わりました""",
         html,
         token,

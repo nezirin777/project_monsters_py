@@ -9,7 +9,7 @@
             window.addEventListener('DOMContentLoaded', () => {
                 const url = "{{ url }}";
                 const par = JSON.parse('{{ par | tojson }}');
-                setTimeout(() => { post(url, par); }, 1000);
+                setTimeout(() => { post(url, par); }, 2000);
             });
         </script>
     {% endif %}

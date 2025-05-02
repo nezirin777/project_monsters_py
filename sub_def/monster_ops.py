@@ -1,7 +1,6 @@
 # monster_ops.py
 import sys
 import random
-from functools import lru_cache
 from typing import Dict, Optional
 
 import conf
@@ -14,24 +13,7 @@ sys.stdin.reconfigure(encoding="utf-8")
 
 Conf = conf.Conf
 
-
-@lru_cache(maxsize=1)
-def _cached_open_monster_dat() -> dict:
-    return open_monster_dat()
-
-
-@lru_cache(maxsize=1)
-def _cached_open_seikaku_dat() -> dict:
-    return open_seikaku_dat()
-
-
-@lru_cache(maxsize=1)
-def _cached_open_monster_boss_dat() -> dict:
-    return open_monster_boss_dat()
-
-
 SEX_OPTIONS = Conf["sex"]
-SEIKAKU_KEYS = list(_cached_open_seikaku_dat().keys())
 
 BASE_STAT = lambda stat, mon, haigou_hosei, floor_hosei: int(
     (mon.get(stat, 0) + haigou_hosei) * floor_hosei
@@ -101,6 +83,7 @@ def select_base_mon(
     Returns:
     dict: 生成されたモンスターの辞書。
     """
+    SEIKAKU_KEYS = list(open_seikaku_dat().keys())
     return {
         "name": name,
         "hp": BASE_STAT("hp", mon, haigou_hosei, floor_hosei),
@@ -132,7 +115,7 @@ def monster_select(
     Returns:
     dict: 新しいモンスターの情報。
     """
-    Mons = _cached_open_monster_dat()
+    Mons = open_monster_dat()
     mon = Mons.get(target)
 
     if not mon:
@@ -173,7 +156,7 @@ def battle_monster_select(
     Returns:
         dict: 生成されたモンスター情報
     """
-    Mons = _cached_open_monster_boss_dat() if is_boss else _cached_open_monster_dat()
+    Mons = open_monster_boss_dat() if is_boss else open_monster_dat()
 
     mon = Mons.get(target)
     if not mon:

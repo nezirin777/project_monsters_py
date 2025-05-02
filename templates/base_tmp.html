@@ -9,7 +9,6 @@
     <script src="./css_js/jquery.min.js"></script>
     <script src="./css_js/main.js"></script>
 
-
     {% if script %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -27,23 +26,25 @@
         {{ battle_txt }}
     {% endif %}
 
-
 </head>
 <body>
 
-    {% block content %}{% endblock %}
+    <div class="wrapper">
+        {% block content %}{% endblock %}
 
-    <div id="footer">
-        <div id="f_box">
-            <div id="f_t">MONSTER'S 改 {{ Conf.ver }}</div>
-            <div><span>【改造】</span>おくた</div>
-            <div><span>【ドット絵】</span><A href="http://wpdot.blog106.fc2.com/">wp～ドット絵倉庫～</A></div>
-            <div><span>【ドット絵】</span><A href="https://www.pixiv.net/users/26734">chopper氏</A></div>
-            <div><span>【ドット絵】</span><A href="http://deepmoon.sakura.ne.jp/icon/">DMF別館 アイコン素材屋</A></div>
-            <div><span>【ドット絵】</span><A href="https://dfp2013.jimdofree.com/">Dragon Fake Project</A></div>
-            <div><span>【作成・配布】</span><A href="http://park16.wakwak.com/~mikio-palace/">MIKIO-PALACE</A></div>
-            <div>Copyright (C) 2002-2004：MIKIO</div>
+        <div id="footer">
+            <div id="f_box">
+                <div id="f_t">MONSTER'S 改 {{ Conf.ver }}</div>
+                <div><span>【改造】</span>おくた</div>
+                <div><span>【ドット絵】</span><A href="http://wpdot.blog106.fc2.com/">wp～ドット絵倉庫～</A></div>
+                <div><span>【ドット絵】</span><A href="https://www.pixiv.net/users/26734">chopper氏</A></div>
+                <div><span>【ドット絵】</span><A href="http://deepmoon.sakura.ne.jp/icon/">DMF別館 アイコン素材屋</A></div>
+                <div><span>【ドット絵】</span><A href="https://dfp2013.jimdofree.com/">Dragon Fake Project</A></div>
+                <div><span>【作成・配布】</span><A href="http://park16.wakwak.com/~mikio-palace/">MIKIO-PALACE</A></div>
+                <div>Copyright (C) 2002-2004：MIKIO</div>
+            </div>
         </div>
     </div>
+
 </body>
 </html>

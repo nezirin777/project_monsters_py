@@ -51,7 +51,7 @@ def medal_shop(FORM):
 
     item_lists = prepare_item_lists(Medal_list, categories)
     html = render_shop(user_v, item_lists, "medal_shop_ok", FORM["token"])
-    sub_def.result("交換したいモンスターを選んでください", html, FORM["token"])
+    sub_def.print_result("交換したいモンスターを選んでください", html, FORM["token"])
 
 
 def v_shop(FORM):
@@ -70,7 +70,7 @@ def v_shop(FORM):
         vshop_list, categories, additional_filter, price_modifier
     )
     html = render_shop(user_v, item_lists, "v_shop_ok", FORM["token"])
-    sub_def.result(
+    sub_def.print_result(
         "交換したいモンスターを選んでください<br>交換回数に応じて値段が上がっていきます",
         html,
         FORM["token"],
@@ -90,4 +90,4 @@ def v_shop2(FORM):
 
     item_lists = prepare_item_lists(vshop_list, categories)
     html = render_shop(user_v, item_lists, "v_shop2_ok", FORM["token"])
-    sub_def.result("交換したいアイテムを選んでください", html, FORM["token"])
+    sub_def.print_result("交換したいアイテムを選んでください", html, FORM["token"])

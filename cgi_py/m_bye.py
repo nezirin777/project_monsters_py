@@ -39,4 +39,4 @@ def m_bye(FORM):
 
     # 更新と結果表示
     sub_def.save_party(party)
-    sub_def.result(message, "", FORM["token"])
+    sub_def.print_result(message, "", FORM["token"])

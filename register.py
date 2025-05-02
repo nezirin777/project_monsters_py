@@ -7,6 +7,9 @@ import datetime
 import random
 import secrets
 import shutil
+import unicodedata
+import re
+import emoji
 
 import sub_def
 import conf
@@ -14,40 +17,6 @@ import conf
 Conf = conf.Conf
 sys.stdout.reconfigure(encoding="utf-8")
 # 自動でutf-8にエンコードされて出力される
-
-
-def check_valid_username_password(in_name, in_pass):
-    """ユーザー名とパスワードの検証を簡略化"""
-    invalid_chars = [
-        "　",
-        " ",
-        "\\",
-        "/",
-        ";",
-        ":",
-        ",",
-        "*",
-        "?",
-        "'",
-        "<",
-        ">",
-        "|",
-        '"',
-        "~",
-        "$",
-        "&",
-        "`",
-        "^",
-    ]
-    if not in_name or not in_pass:
-        return "名前またはパスワードが入力されていません"
-    if in_name == in_pass:
-        return "名前とパスワードは違うものにして下さい"
-    if not (2 <= len(in_name) <= 20) or not (2 <= len(in_pass) <= 20):
-        return "ユーザー名およびパスワードは2文字以上20文字以下で入力して下さい"
-    if any(char in in_name for char in invalid_chars):
-        return "ユーザー名に使用できない文字が含まれています"
-    return None
 
 
 def update_logfile(in_name):
@@ -71,11 +40,12 @@ def make_user_data(in_name="", in_pass="", crypted=""):
     # cryptedは管理モード/リスタート用
 
     user_dir = os.path.join(Conf["savedir"], in_name)
+    created_files = []
 
     try:
         os.makedirs(f"{user_dir}/pickle", exist_ok=True)
+        created_files.append(user_dir)
         crypted = crypted or sub_def.hash_password(in_pass)
-        u_list = sub_def.open_user_list()
 
         monset = [
             "スライム",
@@ -89,28 +59,6 @@ def make_user_data(in_name="", in_pass="", crypted=""):
             "トーテムキラー",
         ]
         m_name = random.choice(monset)
-
-        u_list[in_name] = {
-            "pass": crypted,
-            "host": sub_def.get_host(),
-            "bye": (
-                datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
-            ).strftime("%Y-%m-%d"),
-            "key": 1,
-            "m1_name": m_name,
-            "m1_hai": 0,
-            "m1_lv": 5,
-            "m2_name": "",
-            "m2_hai": "",
-            "m2_lv": "",
-            "m3_name": "",
-            "m3_hai": "",
-            "m3_lv": "",
-            "money": 50,
-            "mes": "未登録",
-            "getm": 0,
-        }
-        sub_def.save_user_list(u_list)
 
         # ユーザーデータ
         sub_def.save_user(
@@ -177,6 +125,30 @@ def make_user_data(in_name="", in_pass="", crypted=""):
         sub_def.save_vips({"パーク": 0}, in_name)
         sub_def.save_park([], in_name)
 
+        # ユーザー一覧の更新
+        u_list = sub_def.open_user_list()
+        u_list[in_name] = {
+            "pass": crypted,
+            "host": sub_def.get_host(),
+            "bye": (
+                datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
+            ).strftime("%Y-%m-%d"),
+            "key": 1,
+            "m1_name": m_name,
+            "m1_hai": 0,
+            "m1_lv": 5,
+            "m2_name": "",
+            "m2_hai": "",
+            "m2_lv": "",
+            "m3_name": "",
+            "m3_hai": "",
+            "m3_lv": "",
+            "money": 50,
+            "mes": "未登録",
+            "getm": 0,
+        }
+        sub_def.save_user_list(u_list)
+
         update_logfile(in_name)
 
     except Exception as e:
@@ -186,46 +158,45 @@ def make_user_data(in_name="", in_pass="", crypted=""):
         sub_def.error(f"データ作成中にエラーが発生しました: {e}", "top")
 
 
-def sinki(FORM, kanri_name="", kanri_pass="", kanri=False):
+def sinki(FORM, kanri=False):
     # 引数は管理画面からの強制登録用
     """新規ユーザー登録のメイン処理"""
-    in_name = kanri_name or FORM.get("name")
-    in_pass = kanri_pass or FORM.get("password")
+    in_name = unicodedata.normalize("NFKC", FORM.get("new_username", ""))
+    in_pass = FORM.get("new_password")
 
-    error_msg = check_valid_username_password(in_name, in_pass)
-    if error_msg:
-        return sub_def.error(error_msg, "top")
+    sub_def.check_valid_username_password(FORM)
 
-    if os.path.exists(f"{Conf["savedir"]}/{in_name}"):
+    user_dir = os.path.join(Conf["savedir"], in_name)
+    if os.path.exists(user_dir):
         return sub_def.error("その名前は既に登録されています", "top")
 
     u_list = sub_def.open_user_list()
 
     # 大文字・小文字を無視した重複名チェック
-    for u_name in u_list:
-        if u_name.casefold() == in_name.casefold():
-            return sub_def.error("その名前では登録することができません。", "top")
+    if in_name.casefold() in (u.casefold() for u in u_list):
+        return sub_def.error("その名前では登録することができません。", "top")
+
+    if Conf["iplog"] == 1 and not kanri:  # 管理モードの強制登録では重複判定スルー
+        host = sub_def.get_host()
+        if any(u["host"] == host for u in u_list.values()):
+            return sub_def.error(
+                "重複登録の可能性があります。現在の設定では参加出来ません。", "top"
+            )
+
+    make_user_data(in_name, in_pass)
+    sub_def.backup()
 
     sub_def.set_cookie(
         {"in_name": in_name, "in_pass": in_pass, "last_floor": 1, "last_room": ""}
     )
 
-    if Conf["iplog"] == 1 and kanri == False:  # 管理モードの強制登録では重複判定スルー
-        host = sub_def.get_host()
-        for u in u_list.values():
-            if host == u["host"]:
-                return sub_def.error(
-                    "重複登録の可能性があります。現在の設定では参加出来ません。", "top"
-                )
-
-    make_user_data(in_name, in_pass)
-    sub_def.backup()
-
     party = sub_def.open_party(in_name)
 
-    k_txt = "以下の内容で登録が完了しました。"
-    if kanri:
-        k_txt = "管理モードで強制登録しました。"
+    k_txt = (
+        "管理モードで強制登録しました。"
+        if kanri
+        else "以下の内容で登録が完了しました。"
+    )
 
     # テンプレートに渡すデータ
     context = {
@@ -245,12 +216,13 @@ def sinki(FORM, kanri_name="", kanri_pass="", kanri=False):
 def token_check(FORM):
     """トークン検証・新規生成"""
     session = sub_def.get_session()
-    if not FORM.get("token") or not secrets.compare_digest(
-        session["token"], FORM["token"]
-    ):
+    form_token = FORM.get("token", "")
+    session_token = session.get("token", "")
+
+    if not form_token or not secrets.compare_digest(session_token, form_token):
         sub_def.error("トークンが一致しないです。", "top")
-    token = secrets.token_hex(16)
-    session["token"] = token
+
+    session["token"] = secrets.token_hex(16)
     sub_def.set_session(session)
     return session
 

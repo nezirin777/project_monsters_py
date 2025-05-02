@@ -21,7 +21,7 @@ def kyoukai(FORM):
         </form>
     """
 
-    sub_def.result("お祈りしますか？", html, FORM["token"])
+    sub_def.print_result("お祈りしますか？", html, FORM["token"])
 
 
 def recover_monster(monster):
@@ -45,4 +45,4 @@ def kyoukai_ok(FORM):
     sub_def.save_user(user)
     sub_def.save_party(party)
 
-    sub_def.result("お祈りが天にとどきました", "", FORM["token"])
+    sub_def.print_result("お祈りが天にとどきました", "", FORM["token"])

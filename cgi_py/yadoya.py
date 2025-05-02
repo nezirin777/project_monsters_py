@@ -23,7 +23,7 @@ def yadoya(FORM):
         </form>
     """
 
-    sub_def.result("宿泊しますか？", html, FORM["token"])
+    sub_def.print_result("宿泊しますか？", html, FORM["token"])
 
 
 def yadoya_ok(FORM):
@@ -44,4 +44,4 @@ def yadoya_ok(FORM):
     sub_def.save_user(user)
     sub_def.save_party(party)
 
-    sub_def.result("HP・MPが全回復しました", "", FORM["token"])
+    sub_def.print_result("HP・MPが全回復しました", "", FORM["token"])

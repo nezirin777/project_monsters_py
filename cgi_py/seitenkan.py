@@ -27,7 +27,7 @@ def seitenkan(FORM):
         </form>
     """
 
-    sub_def.result("性別変換しますか？", html, FORM["token"])
+    sub_def.print_result("性別変換しますか？", html, FORM["token"])
 
 
 def seitenkan_ok(FORM):
@@ -56,4 +56,4 @@ def seitenkan_ok(FORM):
     sub_def.save_user(user)
     sub_def.save_party(party)
 
-    sub_def.result(f"{pt['name']}の陰陽転換が完了しました", "", FORM["token"])
+    sub_def.print_result(f"{pt['name']}の陰陽転換が完了しました", "", FORM["token"])

@@ -110,7 +110,7 @@ def name_change_ok(FORM):
     except OSError as e:
         sub_def.error(f"名前変更中にエラーが発生しました: {e}")
 
-    sub_def.result(
+    sub_def.print_result(
         f"""ユーザー名を<span>{in_name}</span>から<br><span>{new_name}</span>へと変更しました。""",
         "",
         FORM["token"],

@@ -87,7 +87,7 @@ def omiai_request_ok(FORM):
 		</form>
 	"""
 
-    sub_def.result(
+    sub_def.print_result(
         f"<span>{target}さん</span>の<span>{request_monster}</span>にお見合いを申請しました。",
         html,
         token,
@@ -113,4 +113,4 @@ def omiai_request_cancel(FORM):
 		</form>
 	"""
 
-    sub_def.result(f"{target}さんへの申請を取り消しました。", html, FORM["token"])
+    sub_def.print_result(f"{target}さんへの申請を取り消しました。", html, FORM["token"])
