@@ -240,10 +240,6 @@ def main():
     if len(sub_def.open_user_list()) >= Conf["sankaMAX"]:
         return sub_def.error("参加人数上限を超えています。申し訳ありません。", "top")
 
-    cookie = sub_def.get_cookie()
-    if cookie.get("bye"):
-        sub_def.error("放棄後30日間は登録出来ません。", "top")
-
     if "mode" not in FORM:
         FORM["token"] = secrets.token_hex(16)
         sub_def.set_session(FORM)
