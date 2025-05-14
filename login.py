@@ -5,16 +5,19 @@ import cgi
 import os
 import secrets
 
-import sub_def
-import conf
 import cgi_py
+from sub_def.crypto import get_session, set_session
+from sub_def.utils import error
+from sub_def.validation import login_check
+
+import conf
 
 Conf = conf.Conf
 
 sys.stdout.reconfigure(encoding="utf-8")
-
-
 # 自動でutf-8にエンコードされて出力される
+
+MAINTENANCE_MODE = os.path.exists("mente.mente")
 
 # フォームの関数マッピング
 FUNCTION_MAP = {
@@ -85,102 +88,74 @@ FUNCTION_MAP = {
 
 
 # ====================================================================================#
-
-
-def token_check(form):
+def token_check(FORM, session):
     """トークンの一致を確認し、新しいトークンを生成してセッションに保存"""
-    session = sub_def.get_session()
-    form["s"] = session
+    form_token = FORM.get("token")
 
-    token = form.get("token")
-    if not token or not secrets.compare_digest(session["token"], token):
-        # sub_def.error("トークンが一致しないです", "top")
-        pass
+    if not form_token or not secrets.compare_digest(
+        session.get("token", ""), form_token
+    ):
+        error("セッションが無効です。再度ログインしてください", "top")
+        # pass
 
     new_token = secrets.token_hex(16)
     session_data = {
         "token": new_token,
-        "name": form.get("name", session.get("name", "")),
-        "password": form.get("password", session.get("password", "")),
+        "in_name": session.get("in_name", FORM["c"].get("in_name", "")),
     }
-    sub_def.set_session(session_data)
+
+    set_session(session_data)
     return session_data
-
-
-def reg_check(form):
-    """ユーザー登録とパスワードの一致を確認"""
-    name = form.get("name")
-    password = form.get("password")
-
-    if not name:
-        sub_def.error("名前がありません", "top")
-
-    if not password:
-        sub_def.error("パスワードがありません", "top")
-
-    user_path = os.path.join(Conf["savedir"], name)
-    if not os.path.exists(user_path):
-        sub_def.error("あなたは未登録のようです。", "top")
-
-    user = sub_def.open_user(name)
-    if user["pass"] == sub_def.pass_encode(password):
-        # 新しいSHA256ハッシュを保存
-        user["pass"] = sub_def.hash_password(password)
-        sub_def.save_user(user, name)
-
-    if sub_def.verify_password(password, user["pass"]) == False:
-        sub_def.error("パスワードが違います", "top")
-
-    cookie = sub_def.get_cookie()
-    cookie.update({"in_name": name, "in_pass": password})
-    sub_def.set_cookie(cookie)
-    return cookie
 
 
 def dispatch_function(form):
     """フォームのモードに基づき対応する関数を呼び出す"""
     mode = form.get("mode")
     func = FUNCTION_MAP.get(mode)
-    if func:
+    if not func:
+        error(f"無効なモードです: {mode}", "top")
+
+    try:
         func(form)
-    else:
-        raise ValueError(f"[{mode}]が実行できませんでした。")
+    except Exception as e:
+        error(f"処理中にエラーが発生しました: {type(e).__name__}: {str(e)}", "top")
 
 
-def is_maintenance_mode():
-    return os.path.exists("mente.mente")
-
-
-def main():
-    if is_maintenance_mode():
-        raise RuntimeError(
-            "現在メンテナンス中です。しばらくしてから再度アクセスしてください。"
-        )
-
-    # フォームを辞書化
+def process_form():
+    """フォームデータを処理し、認証と関数ディスパッチを実行"""
     form = cgi.FieldStorage()
     FORM = {key: form.getvalue(key) for key in form.keys()}
 
-    # GETメソッドとモードによる条件分岐と処理
+    # メンテナンスモードチェック
+    if MAINTENANCE_MODE:
+        error("現在メンテナンス中です。後で再度お試しください", "top")
+
+    # GETリクエストの処理
     if os.environ["REQUEST_METHOD"] != "POST":
-        if FORM.get("mode") in ("tournament_result", "my_page2", "zukan"):
+        allowed_get_modes = {"tournament_result", "my_page2", "zukan"}
+        if FORM.get("mode") in allowed_get_modes:
             dispatch_function(FORM)
             sys.exit()
         else:
-            sub_def.error(f"モード選択がおかしいです？[{FORM.get('mode','空っぽ')}]")
+            error(f"無効なリクエストです: mode={FORM.get('mode', '未指定')}", "top")
 
     # 認証とトークンチェック
-    FORM.update(token_check(FORM))
-    FORM["c"] = reg_check(FORM)
+    session = get_session()
+    if session.get("ref") or not session.get("in_name"):
+        FORM["c"] = login_check(FORM)
+    else:
+        FORM["c"] = {}
+
+    FORM["s"] = token_check(FORM, session)
 
     # 指定されたモードの関数を呼び出し
     dispatch_function(FORM)
-
-    # 出力
-    sub_def.error("あっれれ～？おっかしぃぞ～？")
 
 
 # ====================================================================================#
 
 if __name__ == "__main__":
-    main()
+    try:
+        process_form()
+    except Exception as e:
+        error(f"システムエラー: {type(e).__name__}: {str(e)}", "top")

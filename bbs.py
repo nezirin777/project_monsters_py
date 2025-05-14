@@ -4,7 +4,7 @@ from pathlib import Path
 
 from sub_def.utils import error, print_html
 from sub_def.file_ops import ensure_logfile, read_log, append_log
-from sub_def.crypto import verify_csrf_token, generate_csrf_token, get_cookie
+from sub_def.crypto import verify_csrf_token, generate_csrf_token, get_session
 
 import conf
 
@@ -35,22 +35,22 @@ def send_error(message, is_ajax=False):
     sys.exit()
 
 
-def handle_refresh(form, cookie):
+def handle_refresh(form, session):
     submitted_token = form.getvalue("csrf_token")
-    if not verify_csrf_token(submitted_token, cookie):
+    if not verify_csrf_token(submitted_token, session):
         send_error("不正なリクエストです", True)
     print("Content-Type: application/json\r\n\r\n")
     print(
         json.dumps(
-            {"log": read_log(Config.LOGFILE), "csrf_token": cookie["csrf_token"]}
+            {"log": read_log(Config.LOGFILE), "csrf_token": session["csrf_token"]}
         )
     )
     sys.exit()
 
 
-def handle_post(form, cookie):
+def handle_post(form, session):
     submitted_token = form.getvalue("csrf_token")
-    if not verify_csrf_token(submitted_token, cookie):
+    if not verify_csrf_token(submitted_token, session):
         send_error("不正なリクエストです", form.getvalue("ajax") == "true")
 
     if "bbs_txt" not in form or not form["bbs_txt"].value:
@@ -64,14 +64,14 @@ def handle_post(form, cookie):
     color = urllib.parse.unquote(form.getvalue("color", "#000000"))
     if not isinstance(color, str) or color not in Config.MESSAGE_COLORS:
         color = "#000000"
-    if not cookie.get("in_name"):
+    if not session.get("in_name"):
         send_error("ユーザー名が設定されていません", form.getvalue("ajax") == "true")
 
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    newlog = f"""<hr><font color="{color}"><b>{cookie["in_name"]}</b> > {txt} <font size="1">--{time}</font></font>\n"""
+    newlog = f"""<hr><font color="{color}"><b>{session["in_name"]}</b> > {txt} <font size="1">--{time}</font></font>\n"""
     append_log(Config.LOGFILE, newlog, Config.MAX_LOG_LINES)
 
-    csrf_token = generate_csrf_token(cookie)
+    csrf_token = generate_csrf_token(session)
     if form.getvalue("ajax") == "true":
         response = {"log": read_log(Config.LOGFILE), "csrf_token": csrf_token}
         print("Content-Type: application/json\r\n\r\n")
@@ -94,13 +94,13 @@ def render_page(form, csrf_token):
 
 
 # メイン処理
-cookie = get_cookie()
-csrf_token = cookie.get("csrf_token") or generate_csrf_token(cookie)
+session = get_session()
+csrf_token = session.get("csrf_token") or generate_csrf_token(session)
 FORM = cgi.FieldStorage()
 ensure_logfile(Config.LOGFILE)
 
 if FORM.getvalue("mode") == "refresh":
-    handle_refresh(FORM, cookie)
+    handle_refresh(FORM, session)
 elif "bbs_txt" in FORM:
-    csrf_token = handle_post(FORM, cookie)
+    csrf_token = handle_post(FORM, session)
 render_page(FORM, csrf_token)

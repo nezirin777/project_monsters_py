@@ -87,22 +87,12 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
 # 	json削除	#
 # ==============#
 def delete_progress_file():
-    # 進捗ファイルを安全に削除
-    retries = 3
-    for attempt in range(retries):
-        try:
-            if os.path.exists(progress_file):
-                with open(progress_file, "r+") as f:
-                    lock.lock()
-                    os.remove(progress_file)
-                    lock.unlock()
-            return
-        except (OSError, IOError) as e:
-            lock.unlock()
-            if attempt < retries - 1:
-                time.sleep(0.5)  # リトライ前に待機
-                continue
-            error(f"進捗ファイルの削除に失敗しました: {e}", "kanri")
+    try:
+        if os.path.exists(progress_file):
+            os.remove(progress_file)
+        return
+    except (OSError, IOError) as e:
+        error(f"進捗ファイルの削除に失敗しました: {e}", "kanri")
 
 
 # ==========#
@@ -139,12 +129,15 @@ def KANRI():
 # メンテナンスモード   #
 # ====================#
 def MENTE():
+    global MAINTENANCE_MODE
     if FORM["mente"] == "start":
         os.makedirs("mente.mente")
+        MAINTENANCE_MODE = True
         txt = "メンテナンスモードに入りました。"
     else:
         if os.path.exists("mente.mente"):
             os.rmdir("mente.mente")
+        MAINTENANCE_MODE = False
         txt = "メンテナンスモードを終了しました。"
     result(txt)
 
@@ -522,9 +515,6 @@ def PRESENT():
         process_batch(u_list, haifu)
 
         result(f"全員にプレゼントを送りました。")
-
-        delete_progress_file()
-
     else:
         haifu(target_name)
 
@@ -884,7 +874,7 @@ def dat_update():
 # ================#
 # cgi_python     #
 # ================#
-def haigou_list_make():
+def make_haigou_list():
     # 配合リスト2種を作り直す
     haigou_list_make.haigou_list_make()
 

@@ -6,8 +6,11 @@ import secrets
 import os
 from itertools import islice
 
-import cgi_py
-import sub_def
+from cgi_py.tournament import tournament
+from sub_def.file_ops import open_user_list, open_tournament_time
+from sub_def.crypto import get_cookie, set_session
+from sub_def.user_ops import getdelday, get_client_ip, delete_check, is_ip_banned
+from sub_def.utils import print_html, error
 import conf
 
 Conf = conf.Conf
@@ -15,18 +18,18 @@ Conf = conf.Conf
 
 class StartTop:
     def __init__(self):
-        self.u_list = sub_def.open_user_list()
+        self.u_list = open_user_list()
         self.u_count = len(self.u_list)
 
-        cookie = sub_def.get_cookie()
+        cookie = get_cookie()
         self.in_name = cookie.get("in_name", "")
         self.in_pass = cookie.get("in_pass", "")
         self.token = secrets.token_hex(16)
-        sub_def.set_session({"token": self.token})
+        set_session({"token": self.token, "ref": "top"})
 
         self.maintenance = os.path.exists("mente.mente")
 
-        self.t_time = sub_def.open_tournament_time()
+        self.t_time = open_tournament_time()
         self.t_count = (
             datetime.datetime.strptime(self.t_time, "%Y年%m月%d日")
             - datetime.datetime.now()
@@ -35,7 +38,7 @@ class StartTop:
     def check_tournament(self):
         # メダル杯開催確認
         if self.t_count < 0:
-            cgi_py.tournament.tournament()
+            tournament()
 
     def user_mlist(self, user_data):
         # ユーザーの手持ちモンスターのリストを作成
@@ -58,7 +61,7 @@ class StartTop:
                 "key": user["key"],
                 "money": user["money"],
                 "getm": user.get("getm", 0),
-                "delday": sub_def.getdelday(user["bye"]),
+                "delday": getdelday(user["bye"]),
                 "monsters": self.user_mlist(user),
                 "mes": user["mes"],
             }
@@ -94,23 +97,23 @@ class StartTop:
         users = self.create_users_list(start, end)
 
         content = self.prepare_content(rank_text, users)
-        sub_def.print_html("top_tmp.html", content)
+        print_html("top_tmp.html", content)
 
 
 if __name__ == "__main__":
 
-    client_ip = sub_def.get_client_ip()  # クライアントIPを取得
+    client_ip = get_client_ip()  # クライアントIPを取得
 
     # IPアドレスが禁止リストに含まれている場合、エラーメッセージを表示
-    if sub_def.is_ip_banned(client_ip):
-        sub_def.error("あなたのIPは禁止されています", 99)
+    if is_ip_banned(client_ip):
+        error("あなたのIPは禁止されています", 99)
 
     # フォームを辞書化
     form = cgi.FieldStorage()
     FORM = {key: form.getvalue(key) for key in form.keys()}
 
     # 放置ユーザーチェック
-    sub_def.delete_check()
+    delete_check()
 
     # インスタンス作成とHTML生成
     start_top_instance = StartTop()
