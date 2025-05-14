@@ -1,5 +1,6 @@
 # sub_def/validation.py
 
+import os
 import unicodedata
 import re
 import emoji
@@ -8,6 +9,15 @@ from wtforms.validators import ValidationError
 import hmac
 
 from sub_def.utils import error
+from sub_def.crypto import (
+    verify_password,
+    pass_encode,
+    hash_password,
+    get_cookie,
+    set_cookie,
+)
+from sub_def.file_ops import open_user, save_user
+
 import conf
 
 Conf = conf.Conf
@@ -140,6 +150,34 @@ class AdminForm(Form):
     m_password = PasswordField("Master Password", [validators.DataRequired()])
 
 
+class login_From(Form):
+    """ユーザー名とパスワードのフォーム"""
+
+    name = StringField(
+        "Username",
+        [
+            validators.DataRequired(message="ユーザー名を入力してください。"),
+            validators.Length(
+                min=2,
+                max=20,
+                message="ユーザー名は2文字以上20文字以下で入力してください。",
+            ),
+        ],
+    )
+
+    password = PasswordField(
+        "Password",
+        [
+            validators.DataRequired(message="パスワードを入力してください。"),
+            validators.Length(
+                min=2,
+                max=20,
+                message="パスワードは2文字以上20文字以下で入力してください。",
+            ),
+        ],
+    )
+
+
 class present_monster_Form(Form):
     """モンスタープレゼントフォーム"""
 
@@ -237,3 +275,33 @@ def newpass_check(FORM):
     validate_form(form, "kanri")
 
     return
+
+
+def login_check(FORM):
+    wtform = login_From(data=FORM)
+    validate_form(wtform, "top")
+
+    name = wtform.name.data
+    password = wtform.password.data
+
+    user_path = os.path.join(Conf["savedir"], name)
+    if not os.path.exists(user_path):
+        error("あなたは未登録のようです。", "top")
+
+    user = open_user(name)
+    # 旧式（pass_encode）の判定を形式で事前チェック
+    if ":" not in user["pass"]:  # hash_password は salt:hashed 形式
+        if user["pass"] == pass_encode(password):
+            # 新しいSHA256ハッシュを保存
+            user["pass"] = hash_password(password)
+            save_user(user, name)
+
+    if not verify_password(password, user["pass"]):
+        error("パスワードが違います", "top")
+
+    cookie = get_cookie()
+    cookie.update({"in_name": name, "in_pass": password})
+
+    set_cookie(cookie)
+
+    return cookie

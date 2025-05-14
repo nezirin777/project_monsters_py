@@ -66,7 +66,7 @@ def _handle_file_error(operation: str, file_path: str, e: Exception) -> None:
 @lru_cache(maxsize=128)
 def get_pickle_file_path(file: str, user: str = "") -> str:
     s = get_session()
-    name = user or s.get("name") or ""
+    name = user or s.get("in_name") or ""
     if not name:
         error(
             f"pickleファイル操作エラー: ユーザー名が存在していません。{file}/ユーザー名：{name}",
