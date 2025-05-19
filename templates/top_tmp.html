@@ -83,10 +83,10 @@
 
         <div class="rank_t">{{ rank_text }}</div>
 
-        {% if u_count > 30 %}
+        {% if u_count > Conf.maxshow %}
             {{ ptxt([
                 {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
-                {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
+                {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 2}
             ]) }}
         {% endif %}
 
@@ -126,10 +126,10 @@
             </div>
         {% endfor %}
 
-        {% if u_count > 30 %}
+        {% if u_count > Conf.maxshow %}
             {{ ptxt([
                 {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
-                {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
+                {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 2}
             ]) }}
         {% endif %}
 
