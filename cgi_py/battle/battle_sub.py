@@ -179,7 +179,7 @@ def battle_roomkey_get(token):
         <div class="battle_roomkey_get">
             どのKEYを取得しますか？
         </div>
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <select name=get_key>
                 {options}
             </select>
@@ -285,7 +285,7 @@ def mon_get(FORM):
                     <span class="red">{get_name}</span>が仲間になりたがっています。<br>
                     仲間にしますか？
                 </div>
-                <form action="{{ Conf.cgiurl }}" method="post">
+                <form action="{{ Conf.cgi_url }}" method="post">
                     <button type="submit">仲間にする</button>
                     <input type="hidden" name="mode" value="m_get">
                     <input type="hidden" name="token" value="{token}">

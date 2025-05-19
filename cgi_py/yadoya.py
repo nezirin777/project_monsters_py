@@ -16,7 +16,7 @@ def yadoya(FORM):
         sub_def.error("お金が足りません")
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <button type="submit">宿泊する</button>
             <input type="hidden" name="mode" value="yadoya_ok">
             <input type="hidden" name="token" value="{token}">

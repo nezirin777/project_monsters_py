@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="battle_start">行動を選択して下さい！</div>
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <div class="battle_pt_box">
             {% for pt in party %}
             {% if pt.hp != "0" %}

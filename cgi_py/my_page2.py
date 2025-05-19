@@ -5,7 +5,7 @@ def my_page2(FORM):
     Conf = conf.Conf
 
     in_name = FORM.get("name")
-    token = FORM.get("token")
+    token = FORM["s"].get("token")
 
     user = sub_def.open_user(in_name)
     party = sub_def.open_party(in_name)

@@ -32,7 +32,7 @@ def v_shop2_ok(FORM):
     sub_def.save_vips(vips)
 
     html = f"""
-		<form action="{{ Conf.cgiurl }}" method="post">
+		<form action="{{ Conf.cgi_url }}" method="post">
 			<input type="hidden" name="mode" value="v_shop2">
 			<input type="hidden" name="token" value="{token}">
 			<button type="submit">交換所に戻る</button>

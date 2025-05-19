@@ -7,7 +7,7 @@
     </div>
     <br>
     <div class="my_page">
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <span>現在の名前</span>
             <input type="text" size="14" name="name" value="{{ current_name }}" disabled><br>
             <span>新しい名前</span>
@@ -23,7 +23,7 @@
     </div>
     <br>
     <div>
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <input type="hidden" name="mode" value="name_change_ok">
             <input type="hidden" name="new_name" value="{{ new_name }}">
             <input type="hidden" name="token" value="{{ token }}">
