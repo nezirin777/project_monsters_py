@@ -77,7 +77,7 @@ def my_page(FORM):
     in_name = FORM.get("name")
     # in_pass = FORM.get("password")
 
-    token = FORM.get("token")
+    token = FORM["s"].get("token")
     last_floor = int(FORM["c"].get("last_floor", 1))
     last_room = FORM["c"].get("last_room", "")
     last_floor_isekai = int(FORM["c"].get("last_floor_isekai", 0))

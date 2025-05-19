@@ -14,7 +14,7 @@ def kyoukai(FORM):
         sub_def.error("現在お祈りする必要はありません")
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <button type="submit">お祈りする</button>
             <input type="hidden" name="mode" value="kyoukai_ok">
             <input type="hidden" name="token" value="{token}">

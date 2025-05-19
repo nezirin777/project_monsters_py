@@ -19,7 +19,7 @@ def seitenkan(FORM):
         sub_def.error("お金が足りません")
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <button type="submit">変換する</button>
             <input type="hidden" name="mode" value="seitenkan_ok">
             <input type="hidden" name="no" value="{no}">

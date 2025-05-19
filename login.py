@@ -95,7 +95,10 @@ def token_check(FORM, session):
     if not form_token or not secrets.compare_digest(
         session.get("token", ""), form_token
     ):
-        error("セッションが無効です。再度ログインしてください", "top")
+        error(
+            f"{session.get("token", "")}:{form_token}セッションが無効です。再度ログインしてください",
+            "99",
+        )
         # pass
 
     new_token = secrets.token_hex(16)

@@ -20,7 +20,7 @@
         <img name="img1" src="{{ Conf.imgpath }}/0.gif">
     </form>
 
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="my_page">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit">マイページへ</button>
@@ -84,7 +84,7 @@
         {% for ppt in park_v[p1:p2] %}
         <div class="park_mob">
             <div class="park_width">{{ ppt.no }}
-                <form action="{{ Conf.cgiurl }}" method="post">
+                <form action="{{ Conf.cgi_url }}" method="post">
                     <input type="hidden" name="mob" value="{{ ppt.no }}">
                     <input type="hidden" name="mode" value="park_2">
                     <input type="hidden" name="token" value="{{ token }}">

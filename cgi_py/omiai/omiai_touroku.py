@@ -46,7 +46,7 @@ def omiai_touroku(FORM):
     sub_def.save_omiai_list(omiai_list)
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="omiai_room">
         <input type="hidden" name="token" value="{token}">
         <button type="submit">お見合い所に戻る</button>
@@ -58,7 +58,7 @@ def omiai_touroku(FORM):
 def omiai_touroku_cancel(FORM):
     in_name = FORM.get("name")
     target = FORM.get("target")
-    token = FORM.get("token")
+    token = FORM["s"].get("token")
     mes = FORM.get("mes", "")
 
     if not in_name or not target or not token:
@@ -100,7 +100,7 @@ def omiai_touroku_cancel(FORM):
     sub_def.save_omiai_list(omiai_list)
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <input type="hidden" name="mode" value="omiai_room">
             <input type="hidden" name="token" value="{token}">
             <button type="submit">お見合い所に戻る</button>

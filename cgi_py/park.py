@@ -103,7 +103,7 @@ def park_1(FORM):
     sub_def.save_party(party)
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="park">
         <input type="hidden" name="token" value="{token}">
         <button type="submit">パークに戻る</button>
@@ -140,7 +140,7 @@ def park_2(FORM):
     sub_def.save_park(park)
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="park">
         <input type="hidden" name="token" value="{token}">
         <button type="submit">パークに戻る</button>

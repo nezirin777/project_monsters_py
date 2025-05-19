@@ -13,7 +13,7 @@
         </div>
         {% endfor %}
     </div>
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <div class="books_text3">モンスターを選択して下さい</div>
         <select name="Mno">
             {% for option in monster_options %}

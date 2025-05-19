@@ -34,7 +34,7 @@ def omiai_baby_get(FORM):
 
     mes = f"""<span>{new_mob["name"]}</span>をパーティに加えました。"""
     html = f"""
-		<form action="{{ Conf.cgiurl }}" method="post">
+		<form action="{{ Conf.cgi_url }}" method="post">
 		<input type="hidden" name="mode" value="omiai_room">
 		<input type="hidden" name="token" value="{token}">
 		<button type="submit">お見合い所に戻る</button>

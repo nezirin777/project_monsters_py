@@ -36,7 +36,7 @@ def books(FORM):
     mes = "モンスターに本を読ませると性格が変わります。<br>現在の性格によっては変わらない場合もあります。<br>1冊1000G。"
     html = f"""
         <div id="books_mbox">{monster_boxes}</div>
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <div class="books_text3">モンスターを選択して下さい</div>
             <select name="Mno">{monster_options}</select>
             <div class="books_text3">本を選択して下さい</div>
@@ -117,7 +117,7 @@ def book_read(FORM):
     )
 
     html = f"""
-        <form action="{{ Conf.cgiurl }}" method="post">
+        <form action="{{ Conf.cgi_url }}" method="post">
             <input type="hidden" name="mode" value="books">
             <input type="hidden" name="token" value="{token}">
             <button type="submit">本屋へ戻る</button>

@@ -37,14 +37,14 @@
     </div>
 
     {% if mode=="omiai_req" %}
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <button type="submit">申請する</button>
         <input type="hidden" name="mode" value="omiai_request_ok">
         <input type="hidden" name="target" value="{{ target }}">
         <input type="hidden" name="token" value="{ {token }}">
     </form>
 
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="omiai_room">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit">キャンセル</button>
@@ -52,14 +52,14 @@
     {% endif %}
 
     {% if mode=="omiai_ans" %}
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <button type="submit">お見合い OK!</button>
         <input type="hidden" name="mode" value="omiai_answer_result">
         <input type="hidden" name="target" value="{{ target }}">
         <input type="hidden" name="token" value="{{ token }}">
     </form>
 
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="omiai_room">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit">キャンセル</button>
@@ -67,13 +67,13 @@
     {% endif %}
 
     {% if mode=="haigou" %}
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <button type="submit">配合 OK!</button>
         <input type="hidden" name="mode" value="haigou_hensin">
         <input type="hidden" name="token" value="{{ token }}">
     </form>
 
-    <form action="{{ Conf.cgiurl }}" method="post">
+    <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="my_page">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit">キャンセル</button>
