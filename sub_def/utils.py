@@ -6,7 +6,6 @@ from jinja2 import Environment, FileSystemLoader
 import conf
 
 sys.stdout.reconfigure(encoding="utf-8")
-sys.stdin.reconfigure(encoding="utf-8")
 
 Conf = conf.Conf
 

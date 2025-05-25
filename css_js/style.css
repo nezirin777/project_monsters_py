@@ -3,7 +3,10 @@
 body {
   margin: 0;
   padding: 0;
-  height: 98%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* 画面全体の高さを確保 */
   /* 画像を常に天地左右の中央に配置 */
   background-position: center center;
   /* 画像をタイル状に繰り返し表示しない */
@@ -82,8 +85,10 @@ button {
 }
 
 .wrapper {
-  position: relative;
-  min-height: 100vh;
+  flex: 1 0 auto;
+  /* コンテンツ部分が伸びてフッターを押し下げる */
+  display: flex;
+  flex-direction: column;
 }
 
 /************************************/
@@ -1797,10 +1802,9 @@ img[name=img1] {
 /* フッター */
 /************************************/
 #footer {
+  flex-shrink: 0;
+  /* フッターが縮まない */
   text-align: right;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
 }
 
 #f_box {

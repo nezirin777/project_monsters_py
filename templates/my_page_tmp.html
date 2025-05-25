@@ -75,9 +75,12 @@
 
         {% include "my_page_exlist_tmp.html" %}
     </div>
-
-    {% endif %}
-
     {% include "my_page_button_tmp.html" %}
+
+    {% else %}
+    <form action="{{ Conf.top_url }}" method="post">
+        <button type="submit">TOPへ</button>
+    </form>
+    {% endif %}
 
 {% endblock %}

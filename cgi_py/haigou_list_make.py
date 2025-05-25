@@ -1,10 +1,8 @@
 from jinja2 import Environment, FileSystemLoader
-import sys
 import sub_def
 import conf
 
 Conf = conf.Conf
-sys.stdout.reconfigure(encoding="utf-8")
 
 
 def haigou_list_make():

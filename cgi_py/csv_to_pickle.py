@@ -2,25 +2,26 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pickle
 import os
 import glob
-import sub_def
-import conf
 import json
 
+import sub_def
+import conf
 
 Conf = conf.Conf
 datadir = Conf["savedir"]
 progress_file = os.path.join(datadir, "progress.json")
 
-
-# CSVファイルと対応するPickleファイルの辞書
+# CSVファイルと対応するPickleファイルの辞書（形式を明示）
 CSV_FILES = {
-    "waza.csv": "waza.pickle",
-    "zukan.csv": "zukan.pickle",
-    "room_key.csv": "room_key.pickle",
-    "park.csv": "park.pickle",
-    "party.csv": "party.pickle",
-    "user.csv": "user.pickle",
-    "vips.csv": "vips.pickle",
+    "waza.csv": ("waza.pickle", "dict"),  # 辞書形式
+    "zukan.csv": ("zukan.pickle", "dict"),  # 辞書形式
+    "room_key.csv": ("room_key.pickle", "dict"),  # 辞書形式
+    "park.csv": ("park.pickle", "list"),  # リスト形式
+    "party.csv": ("party.pickle", "list"),  # リスト形式
+    "user.csv": ("user.pickle", "single"),  # 単一レコード
+    "vips.csv": ("vips.pickle", "single"),  # 単一レコード
+    "user_list.csv": ("user_list.pickle", "dict"),  # 辞書形式
+    "omiai_list.csv": ("omiai_list.pickle", "dict"),  # 辞書形式
 }
 
 
@@ -62,50 +63,28 @@ def pickle_dump(obj, path):
         with open(path, mode="wb") as f:
             pickle.dump(obj, f)
     except IOError as e:
-        sub_def.error(f"Error saving pickle file {path}: {e}")
+        sub_def.error(f"Pickleファイルの保存に失敗しました: {path}: {e}")
 
 
-def convert_csv_to_pickle(csv_name, pickle_name, user_name=None):
+def convert_csv_to_pickle(csv_name, pickle_name, data_type, user_name=None):
     """CSVからPickle形式への変換を行う汎用関数"""
     try:
         # ファイルパスの決定
-        csv_path = (
-            os.path.join(datadir, user_name, csv_name)
-            if user_name
-            else os.path.join(datadir, csv_name)
-        )
-        pickle_path = (
-            os.path.join(datadir, user_name, "pickle", pickle_name)
-            if user_name
-            else os.path.join(datadir, pickle_name)
+        csv_path = sub_def.get_file_path(csv_name, user_name)
+        pickle_path = sub_def.get_file_path(
+            pickle_name, user_name if user_name else "", dir_type="savedir"
         )
 
         if not os.path.exists(csv_path):
             return  # CSVファイルが存在しない場合はスキップ
 
         # データの取得
-        data = sub_def.open_csv(
-            csv_name,
-            user_name,
-            flg=(
-                1
-                if csv_name
-                in ["user.csv", "vips.csv", "user_list.csv", "omiai_list.csv"]
-                else 0
-            ),
-            flg2=(
-                1
-                if csv_name
-                in [
-                    "waza.csv",
-                    "zukan.csv",
-                    "room_key.csv",
-                    "user_list.csv",
-                    "omiai_list.csv",
-                ]
-                else 0
-            ),
-        )
+        if data_type == "dict":
+            data = sub_def.open_csv_dict(csv_name, user_name)
+        elif data_type == "single":
+            data = sub_def.open_csv_list(csv_name, user_name, single=True)
+        else:  # list
+            data = sub_def.open_csv_list(csv_name, user_name, single=False)
 
         # データフィルタリング（必要に応じて）
         if isinstance(data, list):
@@ -117,22 +96,24 @@ def convert_csv_to_pickle(csv_name, pickle_name, user_name=None):
         data = restore_empty_strings(data)
 
         # Pickleファイルに保存
-        os.makedirs(
-            os.path.dirname(pickle_path), exist_ok=True
-        )  # 必要に応じてディレクトリを作成
+        os.makedirs(os.path.dirname(pickle_path), exist_ok=True)
         pickle_dump(data, pickle_path)
 
         # 元のCSVファイルを削除
-        # remove_glob(csv_path)
+        remove_glob(csv_path)
 
     except Exception as e:
-        sub_def.error(f"{csv_name} の変換中にエラーが発生しました: {e}")
+        sub_def.error(f"CSV変換エラー: {csv_name} -> {pickle_name}: {e}")
 
 
 def user_dat(user_name):
     """特定のユーザーのデータをCSVからPickleに変換"""
-    for csv_name, pickle_name in CSV_FILES.items():
-        convert_csv_to_pickle(csv_name, pickle_name, user_name)
+    for csv_name, (pickle_name, data_type) in CSV_FILES.items():
+        if csv_name not in [
+            "user_list.csv",
+            "omiai_list.csv",
+        ]:  # グローバルファイルを除外
+            convert_csv_to_pickle(csv_name, pickle_name, data_type, user_name)
 
 
 def handle_all_users():
@@ -147,7 +128,7 @@ def handle_all_users():
         json.dump(progress, ff)
 
         # 並列処理でユーザーごとのデータを変換
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             futures = {executor.submit(user_dat, name): name for name in u_list}
 
             for completed, future in enumerate(as_completed(futures), 1):
@@ -167,7 +148,8 @@ def handle_all_users():
 def csv_to_pickle(target_name):
     """指定されたターゲットのCSVデータをPickleに変換"""
     if target_name in {"user_list", "omiai_list"}:
-        convert_csv_to_pickle(f"{target_name}.csv", f"{target_name}.pickle")
+        pickle_name, data_type = CSV_FILES[f"{target_name}.csv"]
+        convert_csv_to_pickle(f"{target_name}.csv", pickle_name, data_type)
     elif target_name == "全員":
         handle_all_users()
     else:

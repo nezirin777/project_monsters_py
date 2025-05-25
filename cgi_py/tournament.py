@@ -38,7 +38,7 @@ class Tournament:
             user["medal"] += medal
             sub_def.save_user(user, target)
 
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             futures = [
                 executor.submit(update_user, p["target"], p["medal"])
                 for p in self.present

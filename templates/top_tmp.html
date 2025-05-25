@@ -75,7 +75,7 @@
                 {% for button in buttons %}
                 <form action="{{ Conf.top_url }}" method="post" class="rank_pagination">
                     <button type="submit">{{ button.label }}</button>
-                    <input type="hidden" name="menu" value="{{ button.value }}">
+                    <input type="hidden" name="page" value="{{ button.value }}">
                 </form>
                 {% endfor %}
             </div>

@@ -70,7 +70,7 @@ def handle_all_users():
     batch_size = 10
     completed = 0
     # 並列処理
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         future_to_user = {
             executor.submit(save_user_data, name): name for name in u_list.keys()
         }

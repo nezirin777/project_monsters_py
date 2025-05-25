@@ -15,8 +15,6 @@ import glob
 import json
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
-
 
 from cgi_py import csv_to_pickle, pickle_to_csv, haigou_list_make
 
@@ -55,7 +53,7 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
     progress = {"total": total_users, "completed": 0, "status": "running"}
     last_written = 0  # 最後に進捗を書き込んだ完了数
 
-    with ThreadPoolExecutor(max_workers=Conf.get("max_workers", 8)) as executor:
+    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = {executor.submit(process_func, user): user for user in users}
         completed = 0
         for future in as_completed(futures):
@@ -788,7 +786,7 @@ def convert_dat_files():
             with open(save_path, mode="wb") as f:
                 pickle.dump(data, f)
 
-        with ThreadPoolExecutor(max_workers=Conf.get("max_workers", 4)) as executor:
+        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             executor.map(process_file, files)
     except (pd.errors.ParserError, IOError) as e:
         error(f"データファイルの変換に失敗しました: {e}", "kanri")
@@ -918,11 +916,7 @@ def parse_ast(filename):
 if __name__ == "__main__":
 
     # フォームを辞書化
-    form = cgi.FieldStorage(
-        fp=sys.stdin,
-        environ=os.environ,
-        keep_blank_values=True,
-    )
+    form = cgi.FieldStorage()
 
     FORM = {key: form.getvalue(key) for key in form.keys()}
 

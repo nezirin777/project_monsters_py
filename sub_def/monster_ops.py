@@ -9,7 +9,6 @@ from .utils import error
 from .file_ops import *
 
 sys.stdout.reconfigure(encoding="utf-8")
-sys.stdin.reconfigure(encoding="utf-8")
 
 Conf = conf.Conf
 
