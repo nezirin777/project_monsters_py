@@ -14,9 +14,6 @@ import conf
 
 Conf = conf.Conf
 
-sys.stdout.reconfigure(encoding="utf-8")
-# 自動でutf-8にエンコードされて出力される
-
 MAINTENANCE_MODE = os.path.exists("mente.mente")
 
 # フォームの関数マッピング

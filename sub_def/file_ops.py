@@ -1,13 +1,11 @@
-# # user_ops.py
+# file_ops.py
 
 from pathlib import Path
-import sys
 import os
 import datetime
-from dateutil.relativedelta import relativedelta
 import pandas as pd
 import pickle
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from functools import lru_cache
 
 import conf
@@ -16,39 +14,52 @@ import exLock
 from .utils import error
 from .crypto import get_session
 
-sys.stdout.reconfigure(encoding="utf-8")
-sys.stdin.reconfigure(encoding="utf-8")
 lock = exLock.exLock("./lock_fol")
 Conf = conf.Conf
 
 PICKLE_DIR = "pickle"
-UTF8_SIG = "utf-8_sig"
+# ログ設定
+LOGFILE = Path(Conf["savedir"]) / "bbslog.log"
+MAX_LOG_LINES = Conf["max_log_lines"]
 
 
 # ===========#
-# BBS関係     #
+# BBS関係    #
 # ===========#
-def ensure_logfile(logfile: Path) -> None:
-    if not logfile.exists():
-        logfile.write_text("", encoding=UTF8_SIG)
+def ensure_logfile() -> None:
+    """ログファイルの存在を保証"""
+    if not LOGFILE.exists():
+        LOGFILE.parent.mkdir(parents=True, exist_ok=True)
+        LOGFILE.write_text("", encoding="utf-8")
 
 
-def read_log(logfile: Path) -> str:
+@lru_cache(maxsize=1)
+def read_log() -> str:
+    """ログを読み込み、逆順（最新を先頭）に"""
     try:
-        return logfile.read_text(encoding=UTF8_SIG)
+        lines = LOGFILE.read_text(encoding="utf-8").splitlines()
+        return "".join(lines[::-1])
     except (FileNotFoundError, IOError):
         return ""
 
 
-def append_log(logfile: Path, newlog: str, max_lines: int) -> None:
+def append_log(newlog: str) -> None:
+    """ログを末尾に追記、最大行数を制限"""
+    lock = exLock.exLock(os.path.join(Conf["savedir"], "lock_log"))
+    lock.lock()
     try:
-        with logfile.open("r", encoding=UTF8_SIG) as f:
-            lines = f.readlines()[: max_lines - 1]
-        lines.insert(0, newlog)
-        with logfile.open("w", encoding=UTF8_SIG) as f:
-            f.writelines(lines)
+        with LOGFILE.open("a", encoding="utf-8") as f:
+            f.write(newlog)
+        read_log.cache_clear()
+        with LOGFILE.open("r", encoding="utf-8") as f:
+            lines = f.readlines()
+        if len(lines) > MAX_LOG_LINES:
+            with LOGFILE.open("w", encoding="utf-8") as f:
+                f.writelines(lines[-MAX_LOG_LINES:])
     except IOError as e:
         error(f"ログ操作に失敗しました: {e}")
+    finally:
+        lock.unlock()
 
 
 # ===================#
@@ -63,6 +74,14 @@ def _handle_file_error(operation: str, file_path: str, e: Exception) -> None:
         error(f"{operation}中にエラーが発生しました: {e}", 99)
 
 
+def get_file_path(file: str, user: str = "", dir_type: str = "savedir") -> str:
+    """ファイルパスを生成"""
+    base_dir = Conf["savedir"] if dir_type == "savedir" else Conf["datdir"]
+    if user and dir_type == "savedir":
+        return os.path.join(base_dir, user, PICKLE_DIR, f"{file}.pickle")
+    return os.path.join(base_dir, file)
+
+
 @lru_cache(maxsize=128)
 def get_pickle_file_path(file: str, user: str = "") -> str:
     s = get_session()
@@ -72,7 +91,7 @@ def get_pickle_file_path(file: str, user: str = "") -> str:
             f"pickleファイル操作エラー: ユーザー名が存在していません。{file}/ユーザー名：{name}",
             99,
         )
-    return os.path.join(Conf["savedir"], name, PICKLE_DIR, f"{file}.pickle")
+    return get_file_path(file, name)
 
 
 def pickle_load(file: str, user: str = "") -> Any:
@@ -82,7 +101,7 @@ def pickle_load(file: str, user: str = "") -> Any:
             return pickle.load(f)
     except Exception as e:
         _handle_file_error("pickle", file_path, e)
-        return None
+        raise
 
 
 def pickle_dump(data: Any, file: str, user: str = "") -> None:
@@ -122,74 +141,91 @@ def initialize_pickle(file_name: str, initial_data=None):
         lock.unlock()
 
 
+def _load_pickle_list(file: str) -> Dict:
+    """pickleリストを読み込み、初期化"""
+    file_path = os.path.join(Conf["savedir"], f"{file}.pickle")
+    if not os.path.exists(file_path):
+        initialize_pickle(f"{file}.pickle")
+    try:
+        with open(file_path, mode="rb") as f:
+            return pickle.load(f)
+    except Exception as e:
+        error(f"{file}の読み込み中にエラーが発生しました: {e}", 99)
+        return {}
+
+
+def _save_pickle_list(data: Dict, file: str) -> None:
+    """pickleリストを安全に保存"""
+    import tempfile
+    import shutil
+
+    file_path = os.path.join(Conf["savedir"], f"{file}.pickle")
+    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as temp_file:
+        pickle.dump(data, temp_file)
+        temp_file.flush()
+        os.fsync(temp_file.fileno())
+        temp_file_path = temp_file.name
+    lock.lock()
+    try:
+        shutil.move(temp_file_path, file_path)
+    except Exception as e:
+        error(f"{file}の保存中にエラーが発生しました: {e}", 99)
+    finally:
+        lock.unlock()
+
+
 # ===============#
 # CSV操作       #
 # ===============#
 def get_csv_file_path(file: str, name: str = "") -> str:
-    return (
-        os.path.join(Conf["savedir"], name, file)
-        if name
-        else os.path.join(Conf["savedir"], file)
-    )
+    return get_file_path(file, name) if name else get_file_path(file)
 
 
-def open_csv(
-    file: str,
-    name: str = "",
-    flg: int = 0,
-    flg2: int = 0,
-    col_names: Optional[List[str]] = None,
-) -> Dict | List:
+def open_csv_dict(file: str, name: str = "") -> Dict:
+    """CSVを辞書形式で読み込み"""
     file_path = get_csv_file_path(file, name)
     index_col = "user_name" if file in ["user_list.csv", "omiai_list.csv"] else "name"
     sort_val = None if file in ["user_list.csv", "omiai_list.csv"] else True
-
     try:
-        if flg2:
-            df = pd.read_csv(
-                file_path,
-                encoding=UTF8_SIG,
-                names=col_names,
-                index_col=index_col,
-                na_filter=False,
-            ).convert_dtypes()
-        else:
-            df = (
-                pd.read_csv(file_path, encoding=UTF8_SIG, na_filter=False)
-                .dropna(how="all")
-                .convert_dtypes()
-            )
-    except Exception as e:
-        _handle_file_error("CSV", file_path, e)
-        return {} if flg2 else [] if not flg else {}
-
-    if flg2:
+        df = pd.read_csv(
+            file_path,
+            encoding="utf-8_sig",
+            index_col=index_col,
+            na_filter=False,
+        ).convert_dtypes()
         if sort_val:
             df.sort_values("no")
         return df.to_dict(orient="index")
+    except Exception as e:
+        _handle_file_error("CSV", file_path, e)
+        return {}
 
-    # 空の場合は直接結果を返す
+
+def open_csv_list(file: str, name: str = "", single: bool = False) -> List | Dict:
+    """CSVをリスト形式で読み込み"""
+    file_path = get_csv_file_path(file, name)
+    try:
+        df = (
+            pd.read_csv(file_path, encoding="utf-8_sig", na_filter=False)
+            .dropna(how="all")
+            .convert_dtypes()
+        )
+    except Exception as e:
+        _handle_file_error("CSV", file_path, e)
+        return [{}] if single else []
+
     if df.empty:
-        return [{}] if flg else []
+        return [{}] if single else []
 
-    # 文字列型と欠損値を含む列を事前に特定
+    # 文字列と欠損値の処理（既存ロジックを維持）
     string_cols = [col for col in df.columns if pd.api.types.is_string_dtype(df[col])]
     nullable_cols = [
         col for col in df.columns if df[col].isnull().any() and col not in string_cols
     ]
-
-    # 文字列型の処理
     if string_cols:
         df[string_cols] = df[string_cols].fillna("")
-
-    # flotを使わないならこの二行だけでおｋ。
-    # if nullable_cols:
-    # df[nullable_cols] = df[nullable_cols].astype("Int64")
-
-    # 欠損値を含む列をInt64またはFloat64に変換
     if nullable_cols:
         for col in nullable_cols:
-            # 浮動小数点数が含まれるかチェック（NaNを除いた値に小数点があるか）
             non_na_values = df[col].dropna()
             if (
                 non_na_values.empty
@@ -197,12 +233,12 @@ def open_csv(
                     lambda x: x == int(x) if pd.notnull(x) else True
                 ).all()
             ):
-                df[col] = df[col].astype("Int64")  # 整数型として扱う
+                df[col] = df[col].astype("Int64")
             else:
-                df[col] = df[col].astype("Float64")  # 浮動小数点型として扱う
+                df[col] = df[col].astype("Float64")
 
     dic = df.to_dict(orient="records")
-    return dic[0] if flg else dic
+    return dic[0] if single else dic
 
 
 def save_csv(data: Any, file: str, name: str = "", label: str = "name") -> None:
@@ -228,7 +264,7 @@ def save_csv(data: Any, file: str, name: str = "", label: str = "name") -> None:
         else:
             error("データの形式がサポートされていません。", 99)
             return
-        df.to_csv(file_path, index=index, index_label=index_label, encoding=UTF8_SIG)
+        df.to_csv(file_path, index=index, index_label=index_label, encoding="utf-8_sig")
     except Exception as e:
         _handle_file_error("CSV", file_path, e)
 
@@ -262,56 +298,21 @@ def _create_dat_opener(file_name: str):
 # user_name,pass,host,bye,key,m1_name,m1_hai,m1_lv,m2_name,m2_hai,m2_lv,m3_name,m3_hai,m3_lv,money,mes #
 # =====================================================================================================#
 def open_user_list():
-    """ユーザーリストを読み込み、ランキングを更新して返す"""
-    try:
-        file_path = os.path.join(Conf["savedir"], "user_list.pickle")
-
-        # ファイルが存在しない場合、新しく作成
-        if not os.path.exists(file_path):
-            initialize_pickle("user_list.pickle")
-
-        with open(file_path, mode="rb") as f:
-            user_list = pickle.load(f)
-
-        # user_listが空でない場合のみソートしてランクを更新
-        if user_list:
-            sorted_items = sorted(
-                user_list.items(), key=lambda x: x[1].get("key", 0), reverse=True
-            )
-            user_list = {k: v for k, v in sorted_items}
-
-            # ランクを更新
-            for i, (key, value) in enumerate(user_list.items(), start=1):
-                user_list[key]["rank"] = i
-
-        return user_list
-    except Exception as e:
-        error(f"ユーザーリストの読み込み中にエラーが発生しました: {e}", 99)
-        return {}
+    """ユーザーリストを読み込み、ランキングを更新"""
+    user_list = _load_pickle_list("user_list")
+    if user_list:
+        sorted_items = sorted(
+            user_list.items(), key=lambda x: x[1].get("key", 0), reverse=True
+        )
+        user_list = {k: v for k, v in sorted_items}
+        for i, (key, value) in enumerate(user_list.items(), start=1):
+            user_list[key]["rank"] = i
+    return user_list
 
 
 def save_user_list(user_list):
-    import tempfile
-    import shutil
-
-    """ユーザーリストを一時ファイル経由で安全に保存"""
-    try:
-        file_path = os.path.join(Conf["savedir"], "user_list.pickle")
-
-        # 一時ファイルに保存してからファイルを置き換える
-        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as temp_file:
-            pickle.dump(user_list, temp_file)
-            temp_file.flush()
-            os.fsync(temp_file.fileno())
-            temp_file_path = temp_file.name
-
-        lock.lock()
-        try:
-            shutil.move(temp_file_path, file_path)
-        finally:
-            lock.unlock()
-    except Exception as e:
-        error(f"ユーザーリストの保存中にエラーが発生しました: {e}", 99)
+    """ユーザーリストを保存"""
+    _save_pickle_list(user_list, "user_list")
 
 
 # ========================================================================#
@@ -319,95 +320,85 @@ def save_user_list(user_list):
 # user,pass,name,lv,mlv,hai,hp,mhp,mp,mmp,atk,def,agi,ex,nex,sei,sex,mes  #
 # =========================================================================#
 def open_omiai_list():
-    """お見合いリストを読み込んで返す"""
-    file_path = os.path.join(Conf["savedir"], "omiai_list.pickle")
-
-    # ファイルが存在しない場合、新しく作成
-    if not os.path.exists(file_path):
-        initialize_pickle("omiai_list.pickle")
-
-    try:
-        with open(file_path, mode="rb") as f:
-            return pickle.load(f)
-    except Exception as e:
-        error(f"お見合いリストの読み込み中にエラーが発生しました: {e}", 99)
-        return {}
+    """お見合いリストを読み込み"""
+    return _load_pickle_list("omiai_list")
 
 
 def save_omiai_list(omiai_list):
-    import tempfile
-    import shutil
-
-    """お見合いリストを一時ファイル経由で安全に保存"""
-    try:
-        file_path = os.path.join(Conf["savedir"], "omiai_list.pickle")
-
-        # 一時ファイルに保存してからファイルを置き換える
-        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as temp_file:
-            pickle.dump(omiai_list, temp_file)
-            temp_file.flush()
-            os.fsync(temp_file.fileno())
-            temp_file_path = temp_file.name
-
-        lock.lock()
-        try:
-            shutil.move(temp_file_path, file_path)
-        finally:
-            lock.unlock()
-    except Exception as e:
-        error(f"お見合いリストの保存中にエラーが発生しました: {e}", 99)
+    """お見合いリストを保存"""
+    _save_pickle_list(omiai_list, "omiai_list")
 
 
 # =========================#
 # メダル杯開催時間ファイル  #
 # =========================#
+class TournamentScheduler:
+    """トーナメント日付を管理"""
+
+    FILE_PATH = os.path.join(Conf["savedir"], "tournament_time.txt")
+    FORMAT = "%Y年%m月%d日"
+
+    @staticmethod
+    def calculate_next_date(today: datetime.date = None) -> str:
+        today = today or datetime.date.today()
+        day = today.day
+        if 1 <= day < 11:
+            next_day = 11
+        elif 11 <= day < 21:
+            next_day = 21
+        else:
+            next_day = 1
+            next_month = today.month % 12 + 1
+            next_year = today.year + (today.month // 12)
+            today = today.replace(year=next_year, month=next_month)
+        next_date = today.replace(day=next_day)
+        return next_date.strftime(TournamentScheduler.FORMAT)
+
+    @staticmethod
+    def save_date(date_str: str) -> None:
+        with open(TournamentScheduler.FILE_PATH, mode="w", encoding="utf-8") as f:
+            f.write(date_str)
+
+    @staticmethod
+    def load_date() -> str:
+        if not os.path.exists(TournamentScheduler.FILE_PATH):
+            date_str = TournamentScheduler.calculate_next_date()
+            TournamentScheduler.save_date(date_str)
+            return date_str
+        try:
+            with open(TournamentScheduler.FILE_PATH, encoding="utf-8") as f:
+                date_str = f.read().strip()
+            datetime.datetime.strptime(date_str, TournamentScheduler.FORMAT)
+            return date_str
+        except (ValueError, OSError):
+            date_str = TournamentScheduler.calculate_next_date()
+            TournamentScheduler.save_date(date_str)
+            return date_str
+
+
 def timesyori():
-    """次のトーナメント日付を計算してファイルに保存"""
-    today = datetime.date.today()
-    day = today.day
-
-    # 次のトーナメントの日を決定
-    if 1 <= day < 11:
-        next_day = 11
-    elif 11 <= day < 21:
-        next_day = 21
-    else:
-        next_day = 1
-        today = today + relativedelta(months=1)
-
-    # 日付を更新
-    next_tournament_date = today.replace(day=next_day)
-    formatted_date = next_tournament_date.strftime("%Y年%m月%d日")
-
-    # ファイルに書き込み
-    file_path = os.path.join(Conf["savedir"], "tournament_time.txt")
-    with open(file_path, mode="w", encoding="utf-8") as f:
-        f.write(formatted_date)
-
-    return formatted_date
+    """次のトーナメント日付を計算して保存"""
+    date_str = TournamentScheduler.calculate_next_date()
+    TournamentScheduler.save_date(date_str)
+    return date_str
 
 
 def open_tournament_time():
-    """トーナメント日付をファイルから読み込み、必要なら再計算して返す"""
-    file_path = os.path.join(Conf["savedir"], "tournament_time.txt")
+    """トーナメント日付を読み込み"""
+    return TournamentScheduler.load_date()
 
-    # ファイルが存在しない場合、新しい日付を生成
-    if not os.path.exists(file_path):
-        return timesyori()
 
-    # ファイルから日付を読み込み
+@lru_cache(maxsize=1)
+def get_tournament_status():
+    """トーナメント日時と残日数を返す"""
+    t_time = open_tournament_time()
     try:
-        with open(file_path, encoding="utf-8") as f:
-            date_str = f.read().strip()
-
-        # 日付のフォーマットを検証
-        datetime.datetime.strptime(date_str, "%Y年%m月%d日")
-
-    except (ValueError, OSError) as e:
-        # 日付が無効または読み込みに失敗した場合、新しい日付を生成
-        return timesyori()
-
-    return date_str
+        t_date = datetime.datetime.strptime(t_time, "%Y年%m月%d日")
+        t_count = (t_date - datetime.datetime.now()).days
+        return {"t_time": t_time, "t_count": t_count}
+    except ValueError as e:
+        timesyori()
+        return {"t_time": open_tournament_time(), "t_count": 0}
 
 
 open_user, save_user = _create_pickle_accessor("user")

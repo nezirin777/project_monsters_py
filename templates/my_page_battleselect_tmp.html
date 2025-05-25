@@ -6,7 +6,9 @@
                 <select name="in_room">
                     <option value="通常">通常の部屋
                     {% for room in room_key_display %}
-                    <option value="{{ room.name }}">{{ room.name }}の部屋</option>
+                        {% if room.has_key %}
+                            <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 の地下
@@ -24,7 +26,9 @@
                 <select name="in_room">
                     <option value="通常" room>通常の部屋
                     {% for room in room_key_display %}
-                    <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
+                        {% if room.has_key %}
+                        <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 の地下

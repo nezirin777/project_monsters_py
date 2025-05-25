@@ -1,11 +1,7 @@
 def my_page2(FORM):
     import sub_def
-    import conf
-
-    Conf = conf.Conf
 
     in_name = FORM.get("name")
-    token = FORM["s"].get("token")
 
     user = sub_def.open_user(in_name)
     party = sub_def.open_party(in_name)
@@ -24,7 +20,7 @@ def my_page2(FORM):
             "party": "/" + "/".join(pt["name"] for pt in party),
         },
         "in_name": in_name,
-        "token": token,
+        "token": "",
         "isekai": isekai,
         "user": user,
         "user_v": user_v,

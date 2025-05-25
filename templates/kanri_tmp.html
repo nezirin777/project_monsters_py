@@ -237,7 +237,7 @@
 
         <div class="kanri_menu">
             セーブデータ編集
-            <form action="{{ Conf.cgi_url }}" method="post">
+            <form action="{{ Conf.kanri_url }}" method="post">
                 <select name="target_name" class="select2-user">
                     <option value="" hidden>対象を選択</option>
                     <option value="user_list">user_list</option>
@@ -308,7 +308,7 @@
 
         <div class="kanri_menu">
             データ一括削除
-            <form action="{{ Conf.cgi_url }}" method="post">
+            <form action="{{ Conf.kanri_url }}" method="post">
                 確認<input type="checkbox" name="Reset_ck" value="on">
                 <button type="submit">全部削除</button>
                 <input type="hidden" name="mode" value="ALLDEL">
@@ -318,7 +318,7 @@
 
         <div class="kanri_menu">
             ルール違反者と思われる人の削除を行います
-            <form action="{{ Conf.cgi_url }}" method="post">
+            <form action="{{ Conf.kanri_url }}" method="post">
                 <select name="target_name" class="select2-user">
                     <option value="" hidden>対象の人を選択</option>
                     {{ user_list() }}
@@ -333,7 +333,7 @@
 
         <div class="kanri_menu">
             パスワードの変更 <br>
-            <form action="{{ Conf.cgi_url }}" method="post">
+            <form action="{{ Conf.kanri_url }}" method="post">
                 <select name=target_name class="select2-user">
                     <option value="" hidden>対象の人を選択</option>
                     {{ user_list() }}
@@ -349,7 +349,7 @@
 
         <div class="kanri_menu">
             重複の対象のためエラーが出る人を新規登録します
-            <form action="{{ Conf.cgi_url }}" method="post">
+            <form action="{{ Conf.kanri_url }}" method="post">
                 登録ユーザー名<input type=text name=new_username><br>
                 登録パスワード<input type=password name=new_password><br>
                 <button type="submit">管理登録</button>

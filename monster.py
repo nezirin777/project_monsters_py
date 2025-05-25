@@ -7,7 +7,7 @@ import os
 from itertools import islice
 
 from cgi_py.tournament import tournament
-from sub_def.file_ops import open_user_list, open_tournament_time, timesyori
+from sub_def.file_ops import open_user_list, get_tournament_status
 from sub_def.crypto import get_cookie, set_session
 from sub_def.user_ops import getdelday, get_client_ip, delete_check, is_ip_banned
 from sub_def.utils import print_html, error
@@ -58,15 +58,9 @@ class TopPageRenderer:
         self.token = secrets.token_hex(16)
         set_session({"token": self.token, "ref": "top"})
 
-        try:
-            self.t_time = open_tournament_time()
-            self.t_count = (
-                datetime.datetime.strptime(self.t_time, "%Y年%m月%d日")
-                - datetime.datetime.now()
-            ).days
-        except ValueError as e:
-            timesyori()  # 日時設定ファイルを作りなおす
-            error(f"トーナメント日時の解析に失敗しました: {str(e)}", "top")
+        status = get_tournament_status()
+        self.t_time = status["t_time"]
+        self.t_count = status["t_count"]
 
     def check_tournament(self):
         """トーナメント開催を確認（日時超過で実行）"""
@@ -77,14 +71,13 @@ class TopPageRenderer:
         except Exception as e:
             error(f"トーナメント処理中にエラーが発生しました: {str(e)}", "top")
 
-    def render(self, menu, user_list_manager):
+    def render(self, page, user_list_manager):
         self.check_tournament()
 
         # 開始・終了インデックスを動的に決定
         max_show = Conf["maxshow"]
-        is_first_page = menu == "1"
-        start = 0 if is_first_page else max_show
-        end = max_show if is_first_page else user_list_manager.u_count
+        start = 0 if page == 1 else max_show
+        end = max_show if page == 1 else user_list_manager.u_count
 
         # 必要なデータを生成
         rank_text = f"RANKING [{start + 1}位～{end}位]"
@@ -116,13 +109,17 @@ if __name__ == "__main__":
     # フォームを辞書化
     form = cgi.FieldStorage()
     FORM = {key: form.getvalue(key) for key in form.keys()}
-    menu = FORM.get("menu", "1")
-    if menu not in ("1", "2"):
-        error(f"無効なメニューです: {menu}", "top")
+
+    try:
+        page = int(FORM.get("page", "1"))
+        if page not in (1, 2):
+            raise ValueError
+    except ValueError:
+        error(f"無効なメニューです: {FORM.get('page', '1')}", "top")
 
     # 放置ユーザーチェック
     delete_check()
 
     user_list_manager = UserListManager()
     renderer = TopPageRenderer()
-    renderer.render(menu, user_list_manager)
+    renderer.render(page, user_list_manager)

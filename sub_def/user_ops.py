@@ -13,7 +13,6 @@ from .file_ops import open_omiai_list, save_omiai_list, open_user_list, save_use
 from .utils import error
 
 sys.stdout.reconfigure(encoding="utf-8")
-sys.stdin.reconfigure(encoding="utf-8")
 Conf = conf.Conf
 
 compiled_noip = [re.compile(ip) for ip in Conf["noip"]]

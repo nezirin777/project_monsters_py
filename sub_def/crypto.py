@@ -140,12 +140,12 @@ def get_session() -> Dict[str, str | int]:
 # =============#
 # CSRFトークン  #
 # =============#
-def generate_csrf_token(cookie: dict) -> str:
+def generate_csrf_token(session: dict) -> str:
     token = secrets.token_hex(16)
-    cookie["csrf_token"] = token
-    set_cookie(cookie)  # クッキーを即時保存
+    session["csrf_token"] = token
+    set_session(session)  # クッキーを即時保存
     return token
 
 
-def verify_csrf_token(submitted_token: str, cookie: dict) -> bool:
-    return submitted_token == cookie.get("csrf_token")
+def verify_csrf_token(submitted_token: str, session: dict) -> bool:
+    return submitted_token == session.get("csrf_token")
