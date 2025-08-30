@@ -104,7 +104,7 @@ def result(txt=""):
 # 	管理モード	#
 # ==============#
 def OPEN_K():
-    print_html("kanri_login_tmp.html", {"token": FORM["token"]})
+    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["token"]})
 
 
 def KANRI():
@@ -114,11 +114,7 @@ def KANRI():
     mente_chek = True if os.path.exists("mente.mente") else None
 
     # テンプレートに渡すデータ
-    data = {
-        "mente_chek": mente_chek,
-        "users": u_list,
-        "token": token,
-    }
+    data = {"mente_chek": mente_chek, "users": u_list, "token": token, "Conf": Conf}
 
     print_html("kanri_tmp.html", data)
 
@@ -452,6 +448,7 @@ def MON_PRESENT():
         "target_name": target_name,
         "txt": txt,
         "token": FORM["token"],
+        "Conf": Conf,
     }
 
     print_html("kanri_mon_present_tmp.html", context)
@@ -573,6 +570,7 @@ def make_table(save_data, txt):
         "target_name": target_name,
         "target_data": target_data,
         "token": FORM["token"],
+        "Conf": Conf,
     }
 
     print_html("kanri_saveedit_table_tmp.html", context)
@@ -644,7 +642,7 @@ def save_edit_select():
     if not (target_name):
         error("対象が選択されていません。", "kanri")
 
-    context = {"target_name": target_name, "token": FORM["token"]}
+    context = {"target_name": target_name, "token": FORM["token"], "Conf": Conf}
 
     if target_name == "user_list":
         save_editer()

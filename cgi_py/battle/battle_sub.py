@@ -54,7 +54,15 @@ def Lv_up(pt0):
 
     for stat, rand_factors in factors.items():
         growth = calculate_growth(pt0[f"{stat}"], rand_factors, pt0["lv"])
-        pt0[f"{stat}"] += int(growth + hosei)
+        if stat in ["mhp", "atk"]:  # HPとATKに条件を適用
+            if pt0[f"{stat}"] == 1:  # ステータスが1の場合
+                pt0[f"{stat}"] += 1  # 必ず1上昇
+            elif pt0[f"{stat}"] == 2:  # ステータスが2の場合
+                pt0[f"{stat}"] += random.choice([0, 1])  # 50%で1上昇
+            else:  # ステータスが3以上の場合
+                pt0[f"{stat}"] += int(growth + hosei)  # 従来通り
+        else:  # mmp, def, agiは従来通り
+            pt0[f"{stat}"] += int(growth + hosei)
 
     """"
         lan = random.choice([0.8, 0.9, 1.0, 1.1, 1.2])
@@ -82,11 +90,11 @@ def Lv_Max(pt0):
 # LVup出力処理---------------------------------------------------------------------------
 def pr_Lv_up(pt0, pt):
 
-    up_hp = sub_def.slim_number(pt0["mhp"] - pt["mhp"])
-    up_mp = sub_def.slim_number(pt0["mmp"] - pt["mmp"])
-    up_atk = sub_def.slim_number(pt0["atk"] - pt["atk"])
-    up_def = sub_def.slim_number(pt0["def"] - pt["def"])
-    up_agi = sub_def.slim_number(pt0["agi"] - pt["agi"])
+    up_hp = sub_def.slim_number_with_cookie(pt0["mhp"] - pt["mhp"])
+    up_mp = sub_def.slim_number_with_cookie(pt0["mmp"] - pt["mmp"])
+    up_atk = sub_def.slim_number_with_cookie(pt0["atk"] - pt["atk"])
+    up_def = sub_def.slim_number_with_cookie(pt0["def"] - pt["def"])
+    up_agi = sub_def.slim_number_with_cookie(pt0["agi"] - pt["agi"])
 
     html = f"""
         <div class="battle_log_Lvup">
@@ -370,8 +378,8 @@ def battle_end(Fend, s, special):
         exp *= 2
         money *= 2
 
-    exp2 = sub_def.slim_number(exp)
-    money2 = sub_def.slim_number(money)
+    exp2 = sub_def.slim_number_with_cookie(exp)
+    money2 = sub_def.slim_number_with_cookie(money)
 
     html = f"""
         <div class="battle_log_Lvup">

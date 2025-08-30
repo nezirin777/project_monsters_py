@@ -18,7 +18,7 @@
         "せいれい系", "らき☆すた", "まどマギ", "シンフォギア", "東方", "アイマス", "ボカロ", "シュタゲ", "とある", "ミルキィ", "ボイロ", "原神", "このすば", "ぼざろ", "ドラクエ"]
         %}
         {% for category in categories %}
-        [<a href="{{ Conf.cgi_url }}?mode=zukan&name={{ in_name | urlencode }}&type={{ category | urlencode }}">{{ category }}</a>]
+        [<a href="{{ Conf.cgi_url }}?mode=zukan&name={{ in_name | urlencode }}&type={{ category | urlencode }}&fol={{ fol }}">{{ category }}</a>]
         {% if loop.index % 10 == 0 %}<br>{% endif %}
         {% endfor %}
     </div>

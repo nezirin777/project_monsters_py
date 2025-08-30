@@ -114,7 +114,7 @@ def render_battle(teki, target):
     """バトルデータをレンダリングしてHTMLを生成"""
     env = Environment(loader=FileSystemLoader("./templates"))
     template = env.get_template("battle_encount_tmp.html")
-    teki_v = sub_def.slim_number(teki)
+    teki_v = sub_def.slim_number_with_cookie(teki)
     return template.render(
         imgpath=Conf["imgpath"], tekis=teki_v[1:], target=target, Conf=Conf
     )

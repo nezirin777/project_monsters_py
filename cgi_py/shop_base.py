@@ -31,7 +31,7 @@ def prepare_item_lists(
         category["name"]: [
             {
                 "name": name,
-                "price": sub_def.slim_number(
+                "price": sub_def.slim_number_with_cookie(
                     price_modifier(name, item) if price_modifier else item["price"]
                 ),
                 "val1": category["val1"],
@@ -46,8 +46,8 @@ def prepare_item_lists(
 
 
 def medal_shop(FORM):
-    Medal_list = sub_def.slim_number(sub_def.open_medal_shop_dat())
-    user_v = sub_def.slim_number(sub_def.open_user())
+    Medal_list = sub_def.slim_number_with_cookie(sub_def.open_medal_shop_dat())
+    user_v = sub_def.slim_number_with_cookie(sub_def.open_user())
 
     item_lists = prepare_item_lists(Medal_list, categories)
     html = render_shop(user_v, item_lists, "medal_shop_ok", FORM["token"])
@@ -58,7 +58,7 @@ def v_shop(FORM):
     vips = sub_def.open_vips()
     zukan = sub_def.open_zukan()
     vshop_list = sub_def.open_vips_shop_dat()
-    user_v = sub_def.slim_number(sub_def.open_user())
+    user_v = sub_def.slim_number_with_cookie(sub_def.open_user())
 
     def additional_filter(name, item):
         return zukan[item["b_name"]]["get"]
@@ -80,7 +80,7 @@ def v_shop(FORM):
 def v_shop2(FORM):
     vips = sub_def.open_vips()
     vshop_list = sub_def.open_vips_shop2_dat()
-    user_v = sub_def.slim_number(sub_def.open_user())
+    user_v = sub_def.slim_number_with_cookie(sub_def.open_user())
 
     # 条件に応じて表示するアイテムの絞り込み
     if vips.get("パーク", 0):

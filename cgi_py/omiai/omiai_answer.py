@@ -126,7 +126,7 @@ def omiai_answer_result(FORM):
         )
 
     sub_def.save_omiai_list(omiai_list)
-    my_data = sub_def.slim_number(my_data)
+    my_data = sub_def.slim_number_with_cookie(my_data)
 
     # Jinja2の環境設定とテンプレートファイルの読み込み
     template = env.get_template("new_monster_tmp.html")

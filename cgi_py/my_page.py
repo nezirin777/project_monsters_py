@@ -104,8 +104,8 @@ def my_page(FORM):
     # 表示用のパラメータを作成
     # インデックスを付けたリストを生成
     option_list = list(range(1, len(party) + 1))
-    party_with_index = list(enumerate(sub_def.slim_number(party), 1))
-    user_v = sub_def.slim_number(user)
+    party_with_index = list(enumerate(sub_def.slim_number_with_cookie(party), 1))
+    user_v = sub_def.slim_number_with_cookie(user)
 
     # 必要なデータの準備
     # 鍵のテキストリスト
@@ -136,8 +136,8 @@ def my_page(FORM):
         calculate_costs_and_options(party)
     )
 
-    yadoya_cost_v = sub_def.slim_number(yadoya_cost)
-    kyoukai_cost_v = sub_def.slim_number(kyoukai_cost)
+    yadoya_cost_v = sub_def.slim_number_with_cookie(yadoya_cost)
+    kyoukai_cost_v = sub_def.slim_number_with_cookie(kyoukai_cost)
 
     # 必要な変数を辞書にまとめてテンプレートへ渡す
     content = {

@@ -64,7 +64,7 @@ def battle_menu(FORM, special):
 
     # HTML生成
     return template.render(
-        party=sub_def.slim_number(battle["party"]),
+        party=sub_def.slim_number_with_cookie(battle["party"]),
         imgpath=Conf["imgpath"],
         enemy_options=enemy_options,
         special_skill_options=special_skill_options,

@@ -1,18 +1,17 @@
 #!D:\Python\Python312\python.exe
 
 import cgi
-import datetime
 import secrets
 import os
 from itertools import islice
 
+import conf
 from cgi_py.tournament import tournament
 from sub_def.file_ops import open_user_list, get_tournament_status
 from sub_def.crypto import get_cookie, set_session
 from sub_def.user_ops import getdelday, get_client_ip, delete_check, is_ip_banned
 from sub_def.utils import print_html, error
 
-import conf
 
 Conf = conf.Conf
 
@@ -25,12 +24,14 @@ class UserListManager:
 
     def user_mlist(self, user_data):
         for i in range(1, 4):
-            if name := user_data.get(f"m{i}_name"):
-                yield {
-                    "name": name,
-                    "lv": user_data.get(f"m{i}_lv"),
-                    "hai": user_data.get(f"m{i}_hai"),
-                }
+            name = user_data.get(f"m{i}_name")
+            if not name:
+                continue
+            yield {
+                "name": name,
+                "lv": user_data.get(f"m{i}_lv", 0),
+                "hai": user_data.get(f"m{i}_hai", 0),
+            }
 
     def create_users_list(self, start, end):
         return [
@@ -42,7 +43,7 @@ class UserListManager:
                 "getm": user.get("getm", 0),
                 "delday": getdelday(user["bye"]),
                 "monsters": list(self.user_mlist(user)),
-                "mes": user["mes"],
+                "mes": user.get("mes", ""),
             }
             for name, user in islice(self.u_list.items(), start, end)
         ]
@@ -75,9 +76,11 @@ class TopPageRenderer:
         self.check_tournament()
 
         # 開始・終了インデックスを動的に決定
-        max_show = Conf["maxshow"]
-        start = 0 if page == 1 else max_show
-        end = max_show if page == 1 else user_list_manager.u_count
+        max_show = Conf.get("maxshow", 100)
+        if page == 1:
+            start, end = 0, max_show
+        else:
+            start, end = max_show, user_list_manager.u_count
 
         # 必要なデータを生成
         rank_text = f"RANKING [{start + 1}位～{end}位]"
@@ -94,8 +97,12 @@ class TopPageRenderer:
             "t_count": self.t_count,
             "t_time": self.t_time,
             "u_count": user_list_manager.u_count,
+            "fol": FORM.get("fol", ""),
         }
-        print_html("top_tmp.html", content)
+        if FORM.get("mode", "") == "view":
+            print_html("top_eventlog_tmp.html", content)
+        else:
+            print_html("top_tmp.html", content)
 
 
 if __name__ == "__main__":
@@ -108,7 +115,9 @@ if __name__ == "__main__":
 
     # フォームを辞書化
     form = cgi.FieldStorage()
-    FORM = {key: form.getvalue(key) for key in form.keys()}
+    FORM = {key: form.getfirst(key) for key in form}
+    # パラメーターによるセーブデータフォルダ分岐処理
+    conf.apply_fol(FORM)
 
     try:
         page = int(FORM.get("page", "1"))
@@ -122,4 +131,7 @@ if __name__ == "__main__":
 
     user_list_manager = UserListManager()
     renderer = TopPageRenderer()
-    renderer.render(page, user_list_manager)
+    renderer.render(
+        page,
+        user_list_manager,
+    )

@@ -83,7 +83,13 @@ def process_battle(FORM, special, floor_key, floor_value):
     txt = cgi_py.battle_encount.battle_encount(FORM, special)
     txt += cgi_py.battle_menu.battle_menu(FORM, special)
 
-    sub_def.print_html("base_tmp.html", {"battle_txt": txt})
+    sub_def.print_html(
+        "base_tmp.html",
+        {
+            "battle_txt": txt,
+            "Conf": Conf,
+        },
+    )
 
 
 def battle_type(FORM):

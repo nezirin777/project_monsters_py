@@ -232,7 +232,7 @@ def validate_form(form, error_context="top"):
         error_msg = "; ".join(
             f"{field}: {errors[0]}" for field, errors in form.errors.items()
         )
-        error(f"入力情報の検証に失敗しました: {error_msg}", error_context)
+        error(f"入力情報の検証に失敗しました: {error_msg}", 99)
     return True
 
 

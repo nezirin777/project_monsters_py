@@ -9,6 +9,10 @@ import secrets
 import shutil
 import unicodedata
 
+import conf
+
+Conf = conf.Conf
+
 from sub_def.file_ops import (
     open_user_list,
     save_user_list,
@@ -25,14 +29,16 @@ from sub_def.file_ops import (
     open_tokugi_dat,
     append_log,
 )
-from sub_def.crypto import hash_password, set_cookie, set_session, get_session
+from sub_def.crypto import (
+    hash_password,
+    set_cookie,
+    set_session,
+    get_session,
+    token_check,
+)
 from sub_def.user_ops import get_host, backup
 from sub_def.utils import error, print_html
 from sub_def.validation import check_valid_username_password
-
-import conf
-
-Conf = conf.Conf
 
 
 def log_registration(in_name):
@@ -45,9 +51,9 @@ def log_registration(in_name):
 def create_user(in_name, crypted):
     """ユーザー基本データを作成"""
     user_dir = os.path.join(Conf["savedir"], in_name)
-    os.makedirs(f"{user_dir}/pickle", exist_ok=True)
-
+    pickle_dir = os.path.join(user_dir, "pickle")
     try:
+        os.makedirs(pickle_dir, exist_ok=True)
         save_user(
             {
                 "name": in_name,
@@ -64,7 +70,8 @@ def create_user(in_name, crypted):
         )
         return user_dir
     except Exception as e:
-        shutil.rmtree(user_dir, ignore_errors=True)
+        if os.path.exists(user_dir):
+            shutil.rmtree(user_dir, ignore_errors=True)
         raise RuntimeError(f"ユーザー作成に失敗: {e}")
 
 
@@ -155,31 +162,25 @@ def update_user_list(in_name, crypted, m_name):
 
 def make_user_data(in_name="", in_pass="", crypted=""):
     # cryptedは管理モード/リスタート用
-    user_dir = None
-    try:
-        crypted = crypted or hash_password(in_pass)
-        monset = [
-            "スライム",
-            "ドラゴンキッズ",
-            "ベロゴン",
-            "ピッキー",
-            "マッドプラント",
-            "キリキリバッタ",
-            "ピクシー",
-            "ゴースト",
-            "トーテムキラー",
-        ]
+    crypted = crypted or hash_password(in_pass)
+    monset = [
+        "スライム",
+        "ドラゴンキッズ",
+        "ベロゴン",
+        "ピッキー",
+        "マッドプラント",
+        "キリキリバッタ",
+        "ピクシー",
+        "ゴースト",
+        "トーテムキラー",
+    ]
 
-        m_name = random.choice(monset)
+    m_name = random.choice(monset)
 
-        user_dir = create_user(in_name, crypted)
-        initialize_data(in_name, m_name)
-        update_user_list(in_name, crypted, m_name)
-        log_registration(in_name)
-    except Exception as e:
-        if user_dir and os.path.exists(user_dir):
-            shutil.rmtree(user_dir, ignore_errors=True)
-        error(f"データ作成中にエラーが発生しました: {e}", "top")
+    create_user(in_name, crypted)
+    initialize_data(in_name, m_name)
+    update_user_list(in_name, crypted, m_name)
+    log_registration(in_name)
 
 
 def sinki(FORM, kanri=False):
@@ -218,6 +219,7 @@ def sinki(FORM, kanri=False):
 
     # テンプレートに渡すデータ
     context = {
+        "Conf": Conf,
         "k_txt": k_txt,
         "in_name": in_name,
         "in_pass": in_pass,
@@ -230,23 +232,6 @@ def sinki(FORM, kanri=False):
 
 
 # ====================================================================================#
-def token_check(FORM):
-    """トークン検証・新規生成"""
-    session = get_session()
-    form_token = FORM.get("token", "")
-    session_token = session.get("token", "")
-
-    if not form_token or not secrets.compare_digest(session_token, form_token):
-        error("無効なセッションです。再度お試しください", "top")
-
-    new_session = {
-        "token": secrets.token_hex(16),
-    }
-    set_session(new_session)
-
-    return
-
-
 def main():
     if os.path.exists("mente.mente"):
         return error(
@@ -255,7 +240,7 @@ def main():
         )
 
     form = cgi.FieldStorage()
-    FORM = {key: form.getvalue(key) for key in form.keys()}
+    FORM = {key: form.getfirst(key) for key in form}
 
     if len(open_user_list()) >= Conf["sankaMAX"]:
         return error("参加人数上限を超えています。申し訳ありません。", "top")
@@ -263,10 +248,10 @@ def main():
     if "mode" not in FORM:
         FORM["token"] = secrets.token_hex(16)
         set_session(FORM)
-        print_html("newgame_tmp.html", {"token": FORM["token"]})
+        print_html("newgame_tmp.html", {"token": FORM["token"], "Conf": Conf})
 
     elif FORM["mode"] == "sinki":
-        token_check(FORM)
+        FORM["s"] = token_check(FORM, get_session())
         sinki(FORM)
 
 
