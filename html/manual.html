@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>MONSTER'Sとは</title>
-	<LINK REL="stylesheet" HREF="../css_js/html_style.css">
+	<LINK REL="stylesheet" HREF="../css_js/html_style.css" TYPE="text/css">
 </head>
 
 <body id="manual_body">
@@ -397,8 +397,7 @@
 					<br>依頼が来た場合に「受け入れる」「お断りする」のコマンドが現れます。
 					<br>「承諾する」を選ぶとお見合いが始まります。
 					<br>配合回数は共に1回ずつプラスされます。
-					<br>最大レベルは両モンスターの現在レベルを加えた数になります。
-					<br>(例：レベル10同士のモンスター　(10＋10)＝20　では最大レベル20になるという事です。)
+					<br>最大レベルは現在レベル+10になります。
 					<br>
 					<br><span class="manual_big_black">【お見合い所に登録されているモンスター】</span>
 					<br>お見合い所に登録されているモンスターが表示されます。
@@ -453,7 +452,7 @@
 			<br>[<a href="#異世界">異世界について</a>]
 			<form action="../monster.py" method="post" class="manual_form">
 				<input type="hidden" name="mode" value="">
-				<button type="submit">TOPへ</button>
+				<button>TOPへ</button>
 			</form>
 		</div>
 

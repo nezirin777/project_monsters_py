@@ -13,8 +13,8 @@ def pr(actor, target, txt):
     c = sub_def.get_cookie()
     turn = c["turn"]
 
-    actor2 = sub_def.slim_number(actor)
-    target2 = sub_def.slim_number(target)
+    actor2 = sub_def.slim_number_with_cookie(actor)
+    target2 = sub_def.slim_number_with_cookie(target)
 
     html = f"""
         <div class="battle_log_a">
@@ -108,7 +108,7 @@ def teki_action(actor, battle, special, in_floor):
         target = battle["party"][0]
 
     dmg = calculate_damage(actor, target)
-    dmg2 = sub_def.slim_number(dmg)
+    dmg2 = sub_def.slim_number_with_cookie(dmg)
 
     if dmg == 0:
         txt = f"""<span class="sky_blue">{target["name"]}</span>は<span class="red">{actor["name"]}</span>の攻撃をかわした！"""
@@ -136,7 +136,7 @@ def mikata_action(actor, battle):
             )
 
         dmg = calculate_damage(actor, target, zyumon["damage"] * kaisin)
-        dmg2 = sub_def.slim_number(dmg)
+        dmg2 = sub_def.slim_number_with_cookie(dmg)
 
         if kaisin == 2:
             txt += "会心の一撃！<br>"

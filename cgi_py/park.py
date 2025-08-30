@@ -30,7 +30,7 @@ def park(FORM):
 
     page = int(FORM.get("page", 1))
     sort_v = int(FORM.get("sort_v", 0))
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     # 各種データを取得
     party = sub_def.open_party()
@@ -46,13 +46,14 @@ def park(FORM):
 
     # ソート処理
     park = sort_park(park, sort_v)
-    park_v = sub_def.slim_number(park)
+    park_v = sub_def.slim_number_with_cookie(park)
 
     p1 = (page - 1) * 10
     p2 = min(page * 10, waku)
     jump_count = -(-len(park) // 10)
 
     content = {
+        "Conf": Conf,
         "token": token,
         "azukari": azukari,
         "waku": waku,
@@ -75,7 +76,7 @@ def park_1(FORM):
 
     # 配列位置を合わせるため-1
     Mno = int(FORM["Mno"]) - 1
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     party = sub_def.open_party()
     park = sub_def.open_park()
@@ -103,7 +104,7 @@ def park_1(FORM):
     sub_def.save_party(party)
 
     html = f"""
-        <form action="{{ Conf.cgi_url }}" method="post">
+        <form action="{ Conf.cgi_url }" method="post">
         <input type="hidden" name="mode" value="park">
         <input type="hidden" name="token" value="{token}">
         <button type="submit">パークに戻る</button>
@@ -118,7 +119,7 @@ def park_1(FORM):
 def park_2(FORM):
     # 配列位置を合わせるため-1
     Mno = int(FORM["mob"]) - 1
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     party = sub_def.open_party()
     park = sub_def.open_park()
@@ -140,7 +141,7 @@ def park_2(FORM):
     sub_def.save_park(park)
 
     html = f"""
-        <form action="{{ Conf.cgi_url }}" method="post">
+        <form action="{ Conf.cgi_url }" method="post">
         <input type="hidden" name="mode" value="park">
         <input type="hidden" name="token" value="{token}">
         <button type="submit">パークに戻る</button>

@@ -3,19 +3,15 @@
 import sys
 import cgi
 import os
-import secrets
 import importlib
+import secrets
 from functools import lru_cache
-
-from sub_def.crypto import get_session, set_session
-from sub_def.utils import error
-from sub_def.validation import login_check
 
 import conf
 
-Conf = conf.Conf
-
-MAINTENANCE_MODE = os.path.exists("mente.mente")
+from sub_def.crypto import get_session, set_session, token_check
+from sub_def.utils import error
+from sub_def.validation import login_check
 
 FUNCTION_MAP = {
     # my_page画面 #
@@ -85,29 +81,6 @@ FUNCTION_MAP = {
 
 
 # ====================================================================================#
-def token_check(FORM, session):
-    """トークンの一致を確認し、新しいトークンを生成してセッションに保存"""
-    form_token = FORM.get("token")
-
-    if not form_token or not secrets.compare_digest(
-        session.get("token", ""), form_token
-    ):
-        error(
-            f"{session.get("token", "")}:{form_token}セッションが無効です。再度ログインしてください",
-            "99",
-        )
-        # pass
-
-    new_token = secrets.token_hex(16)
-    session_data = {
-        "token": new_token,
-        "in_name": session.get("in_name", FORM["c"].get("in_name", "")),
-    }
-
-    set_session(session_data)
-    return session_data
-
-
 @lru_cache(maxsize=35)
 def load_module(module_path: str):
     return importlib.import_module(module_path)
@@ -122,6 +95,8 @@ def dispatch_function(form):
     try:
         module = load_module(module_path)
         func = getattr(module, func_name)
+        if not callable(func):
+            error(f"{func_name} は呼び出し可能な関数ではありません", "top")
         func(form)
     except (ImportError, AttributeError) as e:
         error(f"モジュールの読み込みに失敗しました: {mode}: {str(e)}", "top")
@@ -132,10 +107,12 @@ def dispatch_function(form):
 def process_form():
     """フォームデータを処理し、認証と関数ディスパッチを実行"""
     form = cgi.FieldStorage()
-    FORM = {key: form.getvalue(key) for key in form.keys()}
+    FORM = {key: form.getfirst(key) for key in form}
+    # パラメーターによるセーブデータフォルダ分岐処理
+    conf.apply_fol(FORM)
 
     # メンテナンスモードチェック
-    if MAINTENANCE_MODE:
+    if os.path.exists("mente.mente"):
         error("現在メンテナンス中です。後で再度お試しください", "top")
 
     # GETリクエストの処理
@@ -157,6 +134,10 @@ def process_form():
     FORM["s"] = token_check(FORM, session)
 
     # 指定されたモードの関数を呼び出し
+    print("Content-Type: text/html; charset=utf-8\r\n\r\n")
+
+    print(FORM["s"])
+
     dispatch_function(FORM)
 
 

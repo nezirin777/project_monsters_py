@@ -7,7 +7,7 @@ Conf = conf.Conf
 
 
 def omiai_monster(omiai, target, mode, val, token, mode2="", val2=""):
-    omiai_v = sub_def.slim_number(omiai)
+    omiai_v = sub_def.slim_number_with_cookie(omiai)
     template = env.get_template("omiai_room_monster_list_tmp.html")
     return template.render(
         Conf=Conf,
@@ -80,7 +80,7 @@ def omiai_room(FORM):
             )
 
     # 登録されている他のモンスターを表示
-    for name, v in list(omiai_list.items())[p1 - 1 : p2 - 1]:
+    for name, v in list(omiai_list.items())[p1 - 1 : p2]:
         if (
             name not in (in_name, request_user)
             and v["request"] != in_name

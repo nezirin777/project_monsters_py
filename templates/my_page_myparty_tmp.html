@@ -9,7 +9,7 @@
             異世界探索度<br>{{ user.get("isekai_key",0)-1 }}/{{ user.get("isekai_limit",0) }}/{{ Conf.isekai_max_limit }}</div>
         <div class="my_page_user_st1">メダル<br>{{ user_v.medal }}個</div>
         <div class="my_page_user_st1 my_page_zukan">
-            <a href="{{ Conf.cgi_url }}?mode=zukan&name={{ in_name | urlencode }}&type=スライム系">[魔物図鑑]</a>
+            <a href="{{ Conf.cgi_url }}?mode=zukan&name={{ in_name | urlencode }}&type=スライム系&fol={{ fol }}">[魔物図鑑]</a>
             <br>{{ user.getm }}
         </div>
     </div>

@@ -6,7 +6,7 @@
         <span>お見合い所にモンスターを登録することができます<br>Lv{{ Conf.haigoulevel }}以上必要です<br>登録できるのは1体だけです</span>
     </div>
 
-    {% if not txt2 %}
+    {% if not txt2 and not txt6 %}
     <!-- 登録可能モンスター表示 -->
     <form name="form1" method="post">
         <select name="haigou1" onClick="change_img1()">
@@ -32,12 +32,19 @@
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit">マイページへ</button>
     </form>
-    {% else %}
+    {% elif txt2 %}
     <hr>
     <div id="result">
         <span>あなたが登録しているモンスター</span>
     </div>
     <div class="omiai_pt">{{ txt2 | safe }}</div>
+
+    {% elif txt6 %}
+    <hr>
+    <div id="result">
+        <span>{{ mes }}<br>受け取るには配合回数×5000Gが必要です</span>
+    </div>
+    <div class="omiai_pt">{{ txt6 | safe }}</div>
     {% endif %}
 
     {% if txt3 %}
@@ -92,12 +99,6 @@
     </div>
     {% endif %}
 
-    {% if txt6 %}
-    <hr>
-    <div id="result">
-        <span>{{ mes }}<br>受け取るには配合回数×5000Gが必要です</span>
-    </div>
-    <div class="omiai_pt">{{ txt6 | safe }}</div>
-    {% endif %}
+
 
 {% endblock %}

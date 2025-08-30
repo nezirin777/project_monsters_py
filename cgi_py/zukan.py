@@ -1,8 +1,12 @@
 def zukan(FORM):
     import sub_def
+    import conf
+
+    Conf = conf.Conf
 
     in_name = FORM.get("name")
     m_type = FORM.get("type", "")
+    fol = FORM.get("fol", "")
 
     zukan = sub_def.open_zukan(in_name)
     user = sub_def.open_user(in_name)
@@ -16,12 +20,14 @@ def zukan(FORM):
     zukan_list = {name: zu for name, zu in zukan.items() if (m_type == zu["m_type"])}
 
     content = {
+        "Conf": Conf,
         "in_name": in_name,
         "user": user,
         "zukan_list": zukan_list,
         "m_type": m_type,
         "M_list": M_list,
         "ref": ref,
+        "fol": fol,
     }
 
     sub_def.print_html("zukan_tmp.html", content)

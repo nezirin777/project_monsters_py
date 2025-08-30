@@ -12,6 +12,7 @@ import conf
 from .file_ops import open_omiai_list, save_omiai_list, open_user_list, save_user_list
 from .utils import error
 
+
 sys.stdout.reconfigure(encoding="utf-8")
 Conf = conf.Conf
 

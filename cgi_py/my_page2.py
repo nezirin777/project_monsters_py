@@ -1,21 +1,26 @@
 def my_page2(FORM):
     import sub_def
+    import conf
+
+    Conf = conf.Conf
 
     in_name = FORM.get("name")
+    fol = FORM.get("fol", "")
 
     user = sub_def.open_user(in_name)
     party = sub_def.open_party(in_name)
 
-    user_v = sub_def.slim_number(user)
+    user_v = sub_def.slim_number_with_cookie(user)
 
     # 追加情報を生成
     isekai = "hidden" if not user.get("isekai_limit") else ""
 
     option_list = list(range(1, len(party) + 1))
-    party_with_index = list(enumerate(sub_def.slim_number(party), 1))
+    party_with_index = list(enumerate(sub_def.slim_number_with_cookie(party), 1))
 
     # 必要な変数を辞書にまとめてテンプレートへ渡す
     content = {
+        "Conf": Conf,
         "script": {
             "party": "/" + "/".join(pt["name"] for pt in party),
         },
@@ -26,6 +31,7 @@ def my_page2(FORM):
         "user_v": user_v,
         "party_with_index": party_with_index,
         "option_list": option_list,
+        "fol": fol,
     }
 
     sub_def.print_html("my_page_tmp.html", content)
