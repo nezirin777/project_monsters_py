@@ -4,7 +4,7 @@ def zukan(FORM):
 
     Conf = conf.Conf
 
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     m_type = FORM.get("type", "")
     fol = FORM.get("fol", "")
 

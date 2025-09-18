@@ -74,7 +74,7 @@ def update_user_list(in_name, user, party):
 
 def my_page(FORM):
 
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     # in_pass = FORM.get("password")
 
     token = FORM["s"].get("token")

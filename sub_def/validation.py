@@ -70,7 +70,7 @@ class UsernamePasswordDifferent:
     """ユーザー名とパスワードが異なることを検証"""
 
     def __call__(self, form, field):
-        if form.new_username.data == field.data:
+        if form.username.data == field.data:
             raise ValidationError("名前とパスワードは違うものにして下さい")
 
 
@@ -106,17 +106,17 @@ class ValidUsername:
             )
 
         # Windows予約語チェック
-        if username.upper() in (name.upper() for name in NG_STR):
+        if username.upper() in [name.upper() for name in NG_STR]:
             raise ValidationError(f"ユーザー名に予約語 '{username}' は使用できません")
 
         if any(ord(char) < 32 or ord(char) == 127 for char in username):
             raise ValidationError("ユーザー名に制御文字や特殊文字が含まれています")
 
 
-class register_From(Form):
-    """ユーザー名とパスワードのフォーム"""
+class BaseUserForm(Form):
+    """ユーザー名とパスワードの共通バリデーション"""
 
-    new_username = StringField(
+    username = StringField(
         "Username",
         [
             validators.DataRequired(message="ユーザー名を入力してください。"),
@@ -128,43 +128,6 @@ class register_From(Form):
             ValidUsername(),
         ],
     )
-
-    new_password = PasswordField(
-        "Password",
-        [
-            validators.DataRequired(message="パスワードを入力してください。"),
-            validators.Length(
-                min=2,
-                max=20,
-                message="パスワードは2文字以上20文字以下で入力してください。",
-            ),
-            UsernamePasswordDifferent(),
-        ],
-    )
-
-
-class AdminForm(Form):
-    """管理者認証フォーム"""
-
-    m_name = StringField("Master Name", [validators.DataRequired()])
-    m_password = PasswordField("Master Password", [validators.DataRequired()])
-
-
-class login_From(Form):
-    """ユーザー名とパスワードのフォーム"""
-
-    name = StringField(
-        "Username",
-        [
-            validators.DataRequired(message="ユーザー名を入力してください。"),
-            validators.Length(
-                min=2,
-                max=20,
-                message="ユーザー名は2文字以上20文字以下で入力してください。",
-            ),
-        ],
-    )
-
     password = PasswordField(
         "Password",
         [
@@ -178,7 +141,32 @@ class login_From(Form):
     )
 
 
-class present_monster_Form(Form):
+class RegisterForm(BaseUserForm):
+    """ユーザー登録フォーム"""
+
+    # 親クラスのフィールドをそのまま継承するため、明示的に再定義不要
+    # 追加のバリデーションを定義
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 登録時のみの追加バリデーションをpasswordフィールドに追加
+        self.password.validators.append(UsernamePasswordDifferent())
+
+
+class LoginForm(BaseUserForm):
+    """ログインフォーム"""
+
+    # 親クラスのフィールドをそのまま継承
+    pass
+
+
+class AdminForm(Form):
+    """管理者認証フォーム"""
+
+    m_name = StringField("Master Name", [validators.DataRequired()])
+    m_password = PasswordField("Master Password", [validators.DataRequired()])
+
+
+class PresentMonsterForm(Form):
     """モンスタープレゼントフォーム"""
 
     mons_name = StringField("monster name", [validators.DataRequired()])
@@ -193,7 +181,7 @@ class present_monster_Form(Form):
     )
 
 
-class present_Form(Form):
+class PresentForm(Form):
     """プレゼントフォーム"""
 
     target_name = StringField("target_name", [validators.DataRequired()])
@@ -211,7 +199,7 @@ class present_Form(Form):
     )
 
 
-class newpass_form(Form):
+class NewPassForm(Form):
     target_name = StringField("target_name", [validators.DataRequired()])
     newpass = PasswordField(
         "New Password",
@@ -237,15 +225,13 @@ def validate_form(form, error_context="top"):
 
 
 def check_valid_username_password(FORM):
-    form = register_From(data=FORM)
+    form = RegisterForm(data=FORM)
     validate_form(form, "top")
-
-    return
+    return form
 
 
 def admin_check(FORM):
     form = AdminForm(data=FORM)
-
     validate_form(form, "kanri")
 
     if not hmac.compare_digest(form.m_name.data, Conf["master_name"]):
@@ -253,35 +239,32 @@ def admin_check(FORM):
     if not hmac.compare_digest(form.m_password.data, Conf["master_password"]):
         error("MASTER_PASSWORDが違います", "kanri")
 
-    return
+    return form
 
 
 def present_monster_check(FORM):
-    form = present_monster_Form(data=FORM)
+    form = PresentMonsterForm(data=FORM)
     validate_form(form, "kanri")
-
-    return
+    return form
 
 
 def present_check(FORM):
-    form = present_Form(data=FORM)
+    form = PresentForm(data=FORM)
     validate_form(form, "kanri")
-
-    return
+    return form
 
 
 def newpass_check(FORM):
-    form = newpass_form(data=FORM)
+    form = NewPassForm(data=FORM)
     validate_form(form, "kanri")
-
-    return
+    return form
 
 
 def login_check(FORM):
-    wtform = login_From(data=FORM)
+    wtform = LoginForm(data=FORM)
     validate_form(wtform, "top")
 
-    name = wtform.name.data
+    name = wtform.username.data  # usernameに変更
     password = wtform.password.data
 
     user_path = os.path.join(Conf["savedir"], name)

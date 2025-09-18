@@ -14,13 +14,21 @@ import exLock
 from .utils import error
 from .crypto import get_session
 
-lock = exLock.exLock("./lock_fol")
 Conf = conf.Conf
 
 PICKLE_DIR = "pickle"
+
 # ログ設定
 LOGFILE = Path(Conf["savedir"]) / "bbslog.log"
 MAX_LOG_LINES = Conf["max_log_lines"]
+
+# モジュールレベルでロックを定義
+LOG_LOCK = exLock.exLock(os.path.join(Conf["savedir"], "lock_log"))
+PICKLE_LOCK = exLock.exLock(os.path.join(Conf["savedir"], "lock_fol"))
+
+
+# モジュールレベルでログを保持
+_log_cache = None
 
 
 # ===========#
@@ -33,33 +41,35 @@ def ensure_logfile() -> None:
         LOGFILE.write_text("", encoding="utf-8")
 
 
-@lru_cache(maxsize=1)
 def read_log() -> str:
     """ログを読み込み、逆順（最新を先頭）に"""
-    try:
-        lines = LOGFILE.read_text(encoding="utf-8").splitlines()
-        return "".join(lines[::-1])
-    except (FileNotFoundError, IOError):
-        return ""
+    global _log_cache
+    if _log_cache is None:
+        try:
+            lines = LOGFILE.read_text(encoding="utf-8").splitlines()
+            _log_cache = "".join(lines[::-1])
+        except (FileNotFoundError, IOError):
+            _log_cache = ""
+    return _log_cache
 
 
 def append_log(newlog: str) -> None:
     """ログを末尾に追記、最大行数を制限"""
-    lock = exLock.exLock(os.path.join(Conf["savedir"], "lock_log"))
-    lock.lock()
+    global _log_cache
+    LOG_LOCK.lock()
     try:
         with LOGFILE.open("a", encoding="utf-8") as f:
             f.write(newlog)
-        read_log.cache_clear()
-        with LOGFILE.open("r", encoding="utf-8") as f:
-            lines = f.readlines()
+        lines = (newlog + (_log_cache or "")).splitlines()
         if len(lines) > MAX_LOG_LINES:
-            with LOGFILE.open("w", encoding="utf-8") as f:
-                f.writelines(lines[-MAX_LOG_LINES:])
+            lines = lines[-MAX_LOG_LINES:]
+        _log_cache = "".join(lines[::-1])
+        with LOGFILE.open("w", encoding="utf-8") as f:
+            f.writelines(lines)
     except IOError as e:
         error(f"ログ操作に失敗しました: {e}")
     finally:
-        lock.unlock()
+        LOG_LOCK.unlock()
 
 
 # ===================#
@@ -99,22 +109,24 @@ def pickle_load(file: str, user: str = "") -> Any:
     try:
         with open(file_path, mode="rb") as f:
             return pickle.load(f)
+    except FileNotFoundError:
+        error(f"pickleファイルが見つかりません: {file_path}", 99)
+    except pickle.UnpicklingError:
+        error(f"pickleファイルの読み込みに失敗しました: {file_path}", 99)
     except Exception as e:
-        _handle_file_error("pickle", file_path, e)
-        raise
+        error(f"pickleファイルの読み込み中にエラーが発生しました: {e}", 99)
 
 
 def pickle_dump(data: Any, file: str, user: str = "") -> None:
     file_path = get_pickle_file_path(file, user)
-    lock = exLock.exLock(os.path.join(Conf["savedir"], user, "lock_fol"))
-    lock.lock()
+    PICKLE_LOCK.lock()
     try:
         with open(file_path, mode="wb") as f:
             pickle.dump(data, f)
     except Exception as e:
         _handle_file_error("pickle", file_path, e)
     finally:
-        lock.unlock()
+        PICKLE_LOCK.unlock()
 
 
 def _create_pickle_accessor(file_name: str):
@@ -130,7 +142,7 @@ def _create_pickle_accessor(file_name: str):
 def initialize_pickle(file_name: str, initial_data=None):
     """任意のpickleファイルを初期化"""
     initial_data = initial_data or {}
-    lock.lock()
+    PICKLE_LOCK.PICKLE_LOCK()
     try:
         file_path = os.path.join(Conf["savedir"], file_name)
         with open(file_path, mode="wb") as f:
@@ -138,7 +150,7 @@ def initialize_pickle(file_name: str, initial_data=None):
     except Exception as e:
         error(f"pickleファイルの初期化に失敗しました: {e}", 99)
     finally:
-        lock.unlock()
+        PICKLE_LOCK.unlock()
 
 
 def _load_pickle_list(file: str) -> Dict:
@@ -165,13 +177,13 @@ def _save_pickle_list(data: Dict, file: str) -> None:
         temp_file.flush()
         os.fsync(temp_file.fileno())
         temp_file_path = temp_file.name
-    lock.lock()
+    PICKLE_LOCK.lock()
     try:
         shutil.move(temp_file_path, file_path)
     except Exception as e:
         error(f"{file}の保存中にエラーが発生しました: {e}", 99)
     finally:
-        lock.unlock()
+        PICKLE_LOCK.unlock()
 
 
 # ===============#

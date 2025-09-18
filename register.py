@@ -38,7 +38,7 @@ from sub_def.crypto import (
 )
 from sub_def.user_ops import get_host, backup
 from sub_def.utils import error, print_html
-from sub_def.validation import check_valid_username_password
+from sub_def.validation import check_valid_username_password, RegisterForm
 
 
 def log_registration(in_name):
@@ -150,7 +150,7 @@ def update_user_list(in_name, crypted, m_name):
             "m3_name": "",
             "m3_hai": "",
             "m3_lv": "",
-            "money": Conf["initial_money"],
+            "money": 150,
             "mes": "未登録",
             "getm": 0,
         }
@@ -186,10 +186,18 @@ def make_user_data(in_name="", in_pass="", crypted=""):
 def sinki(FORM, kanri=False):
     # 引数は管理画面からの強制登録用
     """新規ユーザー登録のメイン処理"""
-    in_name = unicodedata.normalize("NFKC", FORM.get("new_username", ""))
-    in_pass = FORM.get("new_password")
 
-    check_valid_username_password(FORM)
+    # フォーム検証（validation.py の関数を直接使用）
+    form = RegisterForm(data=FORM)
+    if not form.validate():
+        error_msg = "; ".join(
+            f"{field}: {errors[0]}" for field, errors in form.errors.items()
+        )
+        error(f"入力情報の検証に失敗しました: {error_msg}", "top")
+
+    # 検証済みのデータを取得
+    in_name = unicodedata.normalize("NFKC", form.username.data)
+    in_pass = form.password.data
 
     user_dir = os.path.join(Conf["savedir"], in_name)
     if os.path.exists(user_dir):
@@ -240,7 +248,8 @@ def main():
         )
 
     form = cgi.FieldStorage()
-    FORM = {key: form.getfirst(key) for key in form}
+    # getfirst ではなく getvalue を使用（複数値対応）
+    FORM = {key: form.getvalue(key) for key in form.keys()}
 
     if len(open_user_list()) >= Conf["sankaMAX"]:
         return error("参加人数上限を超えています。申し訳ありません。", "top")

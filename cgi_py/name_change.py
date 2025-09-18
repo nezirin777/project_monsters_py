@@ -39,7 +39,7 @@ def contains_invalid_characters(name):
 
 # 関数：名前変更ページを表示
 def name_change(FORM):
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     token = FORM["token"]
 
     if sub_def.open_omiai_list().get(in_name):
