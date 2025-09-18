@@ -6,7 +6,7 @@ Conf = conf.Conf
 
 def omiai_touroku(FORM):
     # 必須フィールドの取得とエラーチェック
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     if not in_name:
         sub_def.error("名前が指定されていません")
 
@@ -56,7 +56,7 @@ def omiai_touroku(FORM):
 
 
 def omiai_touroku_cancel(FORM):
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     target = FORM.get("target")
     token = FORM["s"].get("token")
     mes = FORM.get("mes", "")

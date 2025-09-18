@@ -64,12 +64,13 @@ def zukan_get(target: str, user_name: str = "") -> None:
 # モンスターセレクト#
 # ==================#
 # 配合、交換所等GET 基礎ステ + 補正(配合回数/2)
-def select_base_mon(
+def create_monster_base(
     mon: dict,
     name: str = "",
     haigou_hosei: float = 0,
     floor_hosei: float = 1,
     exp_modifier: float = 1,
+    additional_attrs: dict = None,
 ) -> dict:
     """
     モンスターの基本情報を生成する共通関数。
@@ -78,12 +79,9 @@ def select_base_mon(
     mon (dict): モンスターの元データ。
     haigou_hosei (float): ステータス補正値。
     exp_modifier (float): 経験値や報酬の倍率調整。
-
-    Returns:
-    dict: 生成されたモンスターの辞書。
     """
     SEIKAKU_KEYS = list(open_seikaku_dat().keys())
-    return {
+    base = {
         "name": name,
         "hp": BASE_STAT("hp", mon, haigou_hosei, floor_hosei),
         "mhp": BASE_STAT("hp", mon, haigou_hosei, floor_hosei),
@@ -97,6 +95,9 @@ def select_base_mon(
         "sex": random.choice(SEX_OPTIONS),
         "sei": random.choice(SEIKAKU_KEYS),
     }
+    if additional_attrs:
+        base.update(additional_attrs)
+    return base
 
 
 def monster_select(
@@ -114,6 +115,7 @@ def monster_select(
     Returns:
     dict: 新しいモンスターの情報。
     """
+
     Mons = open_monster_dat()
     mon = Mons.get(target)
 
@@ -121,19 +123,17 @@ def monster_select(
         error(f"モンスター {target} が見つかりません。", 99)
         return None
 
-    new_mob = select_base_mon(
+    new_mob = create_monster_base(
         mon,
         name=target,
         haigou_hosei=hosei,
-    )
-    new_mob.update(
-        {
+        additional_attrs={
             "lv": 2,
             "mlv": 10,
             "hai": 0,
             "exp": 0,
             "n_exp": int(Conf["nextup"]),
-        }
+        },
     )
 
     if get:
@@ -162,7 +162,7 @@ def battle_monster_select(
         error(f"{'ボス' if is_boss else ''}モンスター {target} が見つかりません。", 99)
         return None
 
-    new_mob = select_base_mon(
+    new_mob = create_monster_base(
         mon,
         name=target,
         floor_hosei=hosei,

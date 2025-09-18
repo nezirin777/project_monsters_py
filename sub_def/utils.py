@@ -3,6 +3,7 @@
 import sys
 import secrets
 import logging
+import json
 import html  # 追加: エラーメッセージのサニタイズ用
 from jinja2 import Environment, FileSystemLoader
 
@@ -13,15 +14,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 Conf = conf.Conf
 
-# ログ設定（UTF-8で保存）
-logging.basicConfig(
-    filename="app.log",
-    level=logging.ERROR,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    encoding="utf-8",
+env = Environment(
+    loader=FileSystemLoader("templates"), auto_reload=False, cache_size=100
 )
-
-env = Environment(loader=FileSystemLoader("templates"))
 
 # URLマッピングをモジュールレベルで定義
 URL_MAP = {
@@ -31,10 +26,26 @@ URL_MAP = {
 }
 
 
+# ==============#
+# エラーログ設定 #
+# ==============#
+def configure_logging(level=logging.ERROR):
+    logging.basicConfig(
+        filename="app.log",
+        level=level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        encoding="utf-8",
+    )
+
+
+# 初期化時にデフォルトでERRORレベルを設定
+configure_logging()
+
+
 # ========#
 # エラー  #
 # ========#
-def error(txt, jump="", log_level=logging.ERROR):
+def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
     from .crypto import get_session, set_session
 
     token = secrets.token_hex(16)
@@ -42,24 +53,24 @@ def error(txt, jump="", log_level=logging.ERROR):
     session |= {"token": token}
     set_session(session)
 
-    # エラーメッセージをサニタイズ
     sanitized_txt = html.escape(str(txt))
-
-    # URLとパラメータを取得（jumpがURL_MAPにない場合はデフォルト）
     url, base_par = URL_MAP.get(jump, URL_MAP[""])
     par = base_par | {"token": token} if jump != "top" else base_par
 
     logging.log(log_level, f"Error: {sanitized_txt}, Jump: {jump}")
 
-    content = {
-        "Conf": Conf,
-        "txt": sanitized_txt,
-        "url": url,
-        "par": par,
-        "jump": jump,  # 条件分岐用にjumpも渡す
-    }
-
-    print_html("error_tmp.html", content)
+    if exit_code == 1:  # AJAXの場合
+        print("Content-Type: application/json\r\n\r\n")
+        print(json.dumps({"error": sanitized_txt}))
+    else:
+        content = {
+            "Conf": Conf,
+            "txt": sanitized_txt,
+            "url": url,
+            "par": par,
+            "jump": jump,
+        }
+        print_html("error_tmp.html", content)
 
 
 # ==========#

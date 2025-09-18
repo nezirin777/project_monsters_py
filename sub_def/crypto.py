@@ -76,6 +76,15 @@ def set_session(data: dict = None) -> None:
     _set_cookie_common(cookie, "session", data, datetime.timedelta(minutes=30))
 
 
+def set_session(data: dict = None) -> None:
+    cookie = cookies.SimpleCookie()
+    data = data or {}
+    data["expires_at"] = (
+        datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30)
+    ).isoformat()
+    _set_cookie_common(cookie, "session", data, datetime.timedelta(minutes=30))
+
+
 # =============#
 # クッキーGET #
 # =============#
@@ -115,7 +124,12 @@ def get_cookie() -> Dict[str, str | int]:
 
 
 def get_session() -> Dict[str, str | int]:
-    return _parse_cookie(_get_raw_cookies(), "session")
+    session = _parse_cookie(_get_raw_cookies(), "session")
+    if "expires_at" in session:
+        expires_at = datetime.datetime.fromisoformat(session["expires_at"])
+        if expires_at < datetime.datetime.now(datetime.timezone.utc):
+            return {}  # 期限切れセッションを破棄
+    return session
 
 
 # =============#

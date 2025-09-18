@@ -20,7 +20,7 @@ def sanitize_message(mes):
 
 
 def comment(FORM):
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     mes = FORM.get("message", "")
 
     # 入力検証

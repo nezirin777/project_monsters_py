@@ -23,7 +23,7 @@ def omiai_monster(omiai, target, mode, val, token, mode2="", val2=""):
 
 
 def omiai_room(FORM):
-    in_name = FORM.get("name")
+    in_name = FORM.get("username")
     if not in_name:
         raise ValueError("Name is required.")
 
