@@ -23,7 +23,7 @@ compiled_noip = [re.compile(ip) for ip in Conf["noip"]]
 # ==============#
 def backup() -> None:
     """バックアップを作成する"""
-    if Conf["backup"] == 1:
+    if Conf["backup"]:
         try:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
             backup_path = os.path.join(Conf["backfolder"], timestamp)
