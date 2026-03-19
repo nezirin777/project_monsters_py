@@ -1,23 +1,24 @@
 # crypto.py
 
-import os
-import hashlib
 import base64
 import cryptocode
+import datetime
+import hashlib
+import os
+import secrets
 import urllib.parse
 from http import cookies
-import datetime
-import secrets
 from typing import Dict
 
 from .utils import error
+
 import conf
 
 Conf = conf.Conf
 
 
 # ===========#
-# 暗号化	#
+# 暗号化     #
 # ===========#
 def pass_encode(p: str) -> str:
     return base64.b64encode(hashlib.sha1(str(p).encode("utf-8")).digest()).decode()
@@ -45,12 +46,15 @@ def verify_password(password: str, stored_hash: str) -> bool:
 
 
 # =============#
-# クッキーSET #
+# クッキーSET  #
 # =============#
 def _set_cookie_common(
-    cookie, name: str, data: dict, expires_delta: datetime.timedelta, path: str = "/"
+    cookie: cookies.SimpleCookie,
+    name: str,
+    data: dict,
+    expires_delta: datetime.timedelta,
+    path: str = "/",
 ) -> None:
-
     try:
         cookie = cookies.SimpleCookie()
         cook = ",".join([f"{k}:{v}" for k, v in data.items()])
@@ -73,11 +77,6 @@ def set_cookie(c_data: dict) -> None:
 
 def set_session(data: dict = None) -> None:
     cookie = cookies.SimpleCookie()
-    _set_cookie_common(cookie, "session", data, datetime.timedelta(minutes=30))
-
-
-def set_session(data: dict = None) -> None:
-    cookie = cookies.SimpleCookie()
     data = data or {}
     data["expires_at"] = (
         datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30)
@@ -86,7 +85,7 @@ def set_session(data: dict = None) -> None:
 
 
 # =============#
-# クッキーGET #
+# クッキーGET  #
 # =============#
 def _get_raw_cookies() -> str:
     """環境変数からクッキーデータを取得"""
@@ -112,10 +111,7 @@ def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str | int]:
                     key, value = pair.split(":", 1)
                     result[key] = int(value) if value.isdecimal() else value
     except Exception as e:
-        error(
-            f"クッキー {name} の処理中にエラーが発生しました: {e}",
-            "top",
-        )
+        error(f"クッキー {name} の処理中にエラーが発生しました: {e}", "top")
     return result
 
 
@@ -133,7 +129,7 @@ def get_session() -> Dict[str, str | int]:
 
 
 # =============#
-# CSRFトークン  #
+# CSRFトークン #
 # =============#
 def generate_csrf_token(session: dict) -> str:
     token = secrets.token_hex(16)
@@ -146,18 +142,21 @@ def verify_csrf_token(submitted_token: str, session: dict) -> bool:
     return secrets.compare_digest(submitted_token or "", session.get("csrf_token", ""))
 
 
-def token_check(FORM, session):
-    form_token = FORM.get("token", "")
-    session_token = session.get("token", "")
+def token_check(FORM: dict, session: dict) -> dict:
+    form_token = FORM.get("token", "").strip()
+    session_token = session.get("token", "").strip()
 
     if not form_token or not secrets.compare_digest(session_token, form_token):
-        error("無効なセッションです。再度お試しください")
+        error(
+            f"無効なセッションです。再度お試しください {form_token}, セッション：{session_token} ",
+            "",
+        )
 
     session.update(
         {
             "ref": "",
             "token": secrets.token_hex(16),
-            "in_name": session.get("in_name", FORM.get("name", "")),
+            "in_name": session.get("in_name", FORM.get("username", "")),
         }
     )
     set_session(session)

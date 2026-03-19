@@ -20,6 +20,7 @@ def zukan(FORM):
     zukan_list = {name: zu for name, zu in zukan.items() if (m_type == zu["m_type"])}
 
     content = {
+        "ccc": ccc,
         "Conf": Conf,
         "in_name": in_name,
         "user": user,

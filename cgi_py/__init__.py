@@ -25,6 +25,8 @@ from . import yadoya
 from . import zukan
 from . import haigou_list_make
 from . import shop_base
+from . import v_shop3
+from . import kakin_item
 
 from .battle import battle_action
 from .battle import battle_fight

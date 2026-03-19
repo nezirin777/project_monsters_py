@@ -10,48 +10,59 @@ lock.lock()
 lock.unlock()
 """
 
-import os, time, stat
-from sub_def.utils import error
+import os
+import time
 
 
 class exLock:
-
-    def __init__(self, lockDir):
+    def __init__(
+        self,
+        lockDir,
+        stale_seconds=60,
+        retry_count=30,
+        retry_interval=1.0,
+    ):
         self.lockDir = lockDir
         self.result = False
+        self.stale_seconds = stale_seconds
+        self.retry_count = retry_count
+        self.retry_interval = retry_interval
 
     def lock(self):
-        # 20秒以上前に作成されたロックファイルを削除する
-        # ※何らかの原因で残ったままになったロックファイル
-        #
+        # 古いロックを掃除
         try:
-            fileStat = os.stat(self.lockDir)
-            timeStamp = fileStat[stat.ST_MTIME]
-            if timeStamp < (time.time() - 20):
-                os.rmdir(self.lockDir)
-        except:
+            if os.path.isdir(self.lockDir):
+                mtime = os.path.getmtime(self.lockDir)
+                if time.time() - mtime > self.stale_seconds:
+                    try:
+                        os.rmdir(self.lockDir)
+                    except OSError:
+                        pass
+        except Exception:
             pass
 
-        # ロックファイルを作成してみる
-        # ※5回やってダメなら失敗とする
         self.result = False
-        for i in range(5):
+
+        for _ in range(self.retry_count):
             try:
                 os.mkdir(self.lockDir)
-                self.result = True  # ロックを自分で作ったという印
-                break
-            except OSError:
-                time.sleep(1)
-        if self.result == False:
-            error("現在サーバーが込み合っています。", "top")
-        return self.result
+                self.result = True
+                return True
+            except FileExistsError:
+                time.sleep(self.retry_interval)
+            except Exception:
+                time.sleep(self.retry_interval)
+
+        return False
 
     def unlock(self):
-        if self.result == True:  # 自分で作ったロックファイルなら消す
-            os.rmdir(self.lockDir)
-        self.result = False
+        if not self.result:
+            return
 
-    def __del__(self):
-        if self.result == True:  # 自分で作ったロックファイルなら消す
-            os.rmdir(self.lockDir)
-        self.result = False
+        try:
+            if os.path.isdir(self.lockDir):
+                os.rmdir(self.lockDir)
+        except Exception:
+            pass
+        finally:
+            self.result = False

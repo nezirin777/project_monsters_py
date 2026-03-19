@@ -1,4 +1,4 @@
-#!D:\Python\Python312\python.exe
+#!D:\Python\Python314\python.exe
 import sys, cgi, datetime, urllib.parse, html, json
 import conf
 

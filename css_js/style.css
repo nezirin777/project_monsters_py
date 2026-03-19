@@ -1773,7 +1773,7 @@ img[name=img1] {
   font-weight: bold;
   max-width: 600px;
   min-height: 80px;
-  max-height: 120px;
+  max-height: 250px;
   background-color: #000000;
 }
 
@@ -1837,4 +1837,51 @@ img[name=img1] {
   background-color: #e6e6fa;
   text-align: left;
   padding: 10px;
+}
+
+/************************************/
+/* VIPS送金ステータスなど */
+/************************************/
+#shop_main_area {
+  position: relative;
+}
+
+#wallet_status_box {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  min-width: 260px;
+  max-width: 480px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(30, 30, 30, 0.92);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  white-space: pre-wrap;
+}
+
+#wallet_toast {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  min-width: 260px;
+  max-width: 480px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(30, 30, 30, 0.92);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  white-space: pre-wrap;
 }/*# sourceMappingURL=style.css.map */

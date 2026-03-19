@@ -290,24 +290,24 @@ body {
   font-size: 120%;
 }
 
+.manual_table th, .manual_table td {
+  border: solid 1px;
+}
 .manual_table {
   background-color: #cdefff;
   border-collapse: collapse;
   border: solid 1px;
   width: 200px;
 }
-.manual_table th, .manual_table td {
+
+.manual_table2 th, .manual_table2 td {
   border: solid 1px;
 }
-
 .manual_table2 {
   background-color: #cdefff;
   border-collapse: collapse;
   border: solid 1px;
   width: 100%;
-}
-.manual_table2 th, .manual_table2 td {
-  border: solid 1px;
 }
 
 .manual_big_red {
@@ -331,7 +331,7 @@ body {
   font-weight: bold;
 }
 
-.manual_bule {
+.manual_blue {
   color: blue;
   font-weight: bold;
 }

@@ -1,17 +1,16 @@
 # user_ops.py
 
-import sys
 import os
-import datetime
-import socket  # host取得
-import shutil  # ファイル操作
 import re
+import shutil
+import socket
+import sys
+import datetime
 
 import conf
 
 from .file_ops import open_omiai_list, save_omiai_list, open_user_list, save_user_list
 from .utils import error
-
 
 sys.stdout.reconfigure(encoding="utf-8")
 Conf = conf.Conf
@@ -20,9 +19,10 @@ compiled_noip = [re.compile(ip) for ip in Conf["noip"]]
 
 
 # ==============#
-# バックアップ #
+# バックアップ  #
 # ==============#
-def backup():
+def backup() -> None:
+    """バックアップを作成する"""
     if Conf["backup"] == 1:
         try:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
@@ -42,19 +42,20 @@ def backup():
             error(f"バックアップ作成時のOSエラー: {e}")
 
 
-# =============#
-# 削除時間取得 #
-# =============#
-def getdelday(bye):
+# ==============#
+# 削除時間取得  #
+# ==============#
+def get_del_day(bye: str) -> int:
+    """ユーザーの削除までの残り日数を計算"""
     return (
         datetime.datetime.strptime(str(bye), "%Y-%m-%d") - datetime.datetime.now()
     ).days
 
 
 # ================#
-# 	保存期間調査  #
+# 保存期間調査   #
 # ================#
-def delete_user(target):
+def delete_user(target: str) -> None:
     """
     指定されたユーザーを削除し、お見合いリストから該当データを更新・削除。
     """
@@ -86,22 +87,22 @@ def delete_user(target):
         error(f"ユーザーディレクトリの削除中にエラーが発生しました: {e}", 99)
 
 
-def delete_check():
+def delete_check() -> None:
     """
     ユーザーリストを確認し、削除対象のユーザーを削除。
     """
     u_list = open_user_list()
     for key in list(u_list.keys()):  # ループ中の辞書変更対策でlist()を使用
-        if getdelday(u_list[key]["bye"]) <= 0:
+        if get_del_day(u_list[key]["bye"]) <= 0:
             delete_user(key)
             del u_list[key]
     save_user_list(u_list)
 
 
-# ==========#
-# host取得 #
-# ==========#
-def get_client_ip():
+# ============#
+# host取得   #
+# ============#
+def get_client_ip() -> str:
     """
     クライアントのIPアドレスを取得します。
     X-Forwarded-Forヘッダーを考慮して、最も信頼できるIPアドレスを返します。
@@ -112,11 +113,11 @@ def get_client_ip():
         remote_addr = os.environ.get("REMOTE_ADDR", "0.0.0.0")
         # X-Forwarded-Forが存在する場合、最初のIPを使用
         return x_forwarded_for.split(",")[0].strip() if x_forwarded_for else remote_addr
-    except Exception as e:
+    except Exception:
         return "0.0.0.0"
 
 
-def get_host():
+def get_host() -> str:
     """
     クライアントのリモートアドレスからホスト名を取得する。
     - X-Forwarded-For ヘッダーを優先的に確認する。
@@ -126,13 +127,13 @@ def get_host():
     try:
         # IPアドレスからホスト名を取得
         return socket.gethostbyaddr(ip_address)[0]
-    except (socket.herror, KeyError) as e:
+    except (socket.herror, KeyError):
         return ip_address  # ホスト名解決失敗時はIPを返す
-    except Exception as e:
+    except Exception:
         return ip_address
 
 
-def is_ip_banned(ip_address):
+def is_ip_banned(ip_address: str) -> bool:
     """
     指定されたIPアドレスが禁止リストに含まれているかを確認します。
     - conf.noipに設定されている禁止IPリストを正規表現でチェック。
