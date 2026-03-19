@@ -1,4 +1,4 @@
-#!D:\Python\Python312\python.exe
+#!D:\Python\Python314\python.exe
 
 import cgi
 import secrets
@@ -9,7 +9,7 @@ import conf
 from cgi_py.tournament import tournament
 from sub_def.file_ops import open_user_list, get_tournament_status
 from sub_def.crypto import get_cookie, set_session
-from sub_def.user_ops import getdelday, get_client_ip, delete_check, is_ip_banned
+from sub_def.user_ops import get_del_day, get_client_ip, delete_check, is_ip_banned
 from sub_def.utils import print_html, error
 
 
@@ -41,7 +41,7 @@ class UserListManager:
                 "key": user["key"],
                 "money": user["money"],
                 "getm": user.get("getm", 0),
-                "delday": getdelday(user["bye"]),
+                "delday": get_del_day(user["bye"]),
                 "monsters": list(self.user_mlist(user)),
                 "mes": user.get("mes", ""),
             }

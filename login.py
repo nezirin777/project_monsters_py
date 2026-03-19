@@ -1,4 +1,4 @@
-#!D:\Python\Python312\python.exe
+#!D:\Python\Python314\python.exe
 
 import sys
 import cgi
@@ -50,6 +50,7 @@ FUNCTION_MAP = {
     "v_shop_ok": ("cgi_py.v_shop", "v_shop_ok"),
     "v_shop2": ("cgi_py.shop_base", "v_shop2"),
     "v_shop2_ok": ("cgi_py.v_shop2", "v_shop2_ok"),
+    "v_shop3": ("cgi_py.v_shop3", "v_shop3_menu"),
     # 	配合  #
     "haigou_check": ("cgi_py.haigou_check", "haigou_check"),
     "haigou_hensin": ("cgi_py.haigou_hensin", "haigou_hensin"),
@@ -134,10 +135,6 @@ def process_form():
     FORM["s"] = token_check(FORM, session)
 
     # 指定されたモードの関数を呼び出し
-    print("Content-Type: text/html; charset=utf-8\r\n\r\n")
-
-    print(FORM["s"])
-
     dispatch_function(FORM)
 
 

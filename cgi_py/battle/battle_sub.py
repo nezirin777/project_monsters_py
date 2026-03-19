@@ -143,6 +143,10 @@ def Lv_up_check(pt0, pt):
 def key_get(in_floor):
 
     user = sub_def.open_user()
+    vips = sub_def.open_vips()
+
+    vip_boost = vips["boost"]
+    event_boost = Conf["event_boost"]
 
     if in_floor == user["key"]:
         key_sets = {
@@ -154,10 +158,13 @@ def key_get(in_floor):
             50: "希望の鍵+50",
             100: "奇跡の鍵+100",
         }
-        w = [10, 50, 15, 12, 7, 4, 2]
 
-        if Conf["event_boost"]:
-            w = [1, 51, 17, 14, 8, 5, 4]
+        if event_boost and vip_boost:
+            w = [0, 40, 22, 16, 10, 7, 5]
+        elif event_boost or vip_boost:
+            w = [3, 50, 18, 14, 8, 4, 3]
+        else:
+            w = [12, 52, 15, 10, 6, 3, 2]
 
         get, txt = random.choices(list(key_sets.items()), weights=w)[0]
 
@@ -242,8 +249,17 @@ def battle_isekai_key_get(in_isekai):
 
 # メダル獲得処理---------------------------------------------------------------------------
 def battle_medal_get(in_floor):
+    vips = sub_def.open_vips()
+    vip_boost = vips["boost"]
 
-    arr = [5, 7, 10, 15] if Conf["event_boost"] else [3, 5, 7, 10]
+    event_boost = Conf["event_boost"]
+
+    if event_boost and vip_boost:
+        arr = [10, 14, 20, 30]
+    elif event_boost or vip_boost:
+        arr = [5, 7, 10, 15]
+    else:
+        arr = [3, 5, 7, 10]
 
     if in_floor <= 500:
         get = arr[0]
@@ -364,6 +380,7 @@ def battle_end(Fend, s, special):
     user = sub_def.open_user()
     party = sub_def.open_party()
     battle = sub_def.open_battle()
+    vips = sub_def.open_vips()
 
     # パーティ人数の計算
     pt_num = 1 if special in ("わたぼう", "スライム") else min(len(party), 3)
@@ -374,9 +391,18 @@ def battle_end(Fend, s, special):
     exp = max(int(base_exp * s / pt_num), 0)
     money = int(base_money * s)
 
-    if Conf["event_boost"]:
+    vip_boost = vips["boost"]
+    event_boost = Conf["event_boost"]
+
+    if event_boost and vip_boost:
+        exp *= 4
+        money *= 4
+    elif event_boost or vip_boost:
         exp *= 2
         money *= 2
+    else:
+        exp *= 1
+        money *= 1
 
     exp2 = sub_def.slim_number_with_cookie(exp)
     money2 = sub_def.slim_number_with_cookie(money)

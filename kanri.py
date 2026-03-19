@@ -1,4 +1,4 @@
-#!D:\Python\Python312\python.exe
+#!D:\Python\Python314\python.exe
 
 import sys
 import cgi
@@ -42,6 +42,29 @@ lock = exLock.exLock(os.path.join(datadir, "lock_fol"))
 
 sys.stdout.reconfigure(encoding="utf-8")
 # 自動でutf-8にエンコードされて出力される
+
+CSV_INDEX_MAP = {
+    "user_list.csv": "user_name",
+    "omiai_list.csv": "user_name",
+    "book_dat.csv": "name",
+    "key_dat.csv": "name",
+    "seikaku_dat.csv": "name",
+    "tokugi_dat.csv": "name",
+    "medal_shop_dat.csv": "name",
+    "monster_boss_dat.csv": "name",
+    "monster_dat.csv": "name",
+    "vips_shop_dat.csv": "name",
+    "vips_shop2_dat.csv": "name",
+    "vips_shop3_dat.csv": "id",
+    "battle.csv": "name",
+    "park.csv": "name",
+    "party.csv": "name",
+    "room_key.csv": "name",
+    "user.csv": "name",
+    "vips.csv": "name",
+    "waza.csv": "name",
+    "zukan.csv": "name",
+}
 
 
 # ==============#
@@ -404,7 +427,12 @@ def process_user(in_name, bye_day):
 def FUKUGEN():
     # セーブデータフォルダ内各ユーザー名取得
     files = os.listdir(datadir)
-    files_dir = [f for f in files if os.path.isdir(os.path.join(datadir, f))]
+    exclude_dirs = {"locks", "logs"}  # ← ここに除外したいフォルダを追加していく
+    files_dir = [
+        f
+        for f in files
+        if os.path.isdir(os.path.join(datadir, f)) and f not in exclude_dirs
+    ]
 
     bye_day = (
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
@@ -772,20 +800,26 @@ def convert_dat_files():
         os.makedirs("./dat/pickle", exist_ok=True)
 
         def process_file(file):
-            base_name = os.path.basename(file).replace(".csv", ".pickle")
-            save_path = os.path.join("./dat/pickle", base_name)
-            data = (
-                pd.read_csv(file, encoding="utf-8_sig", index_col="name")
-                .convert_dtypes()
-                .fillna("")
-                .sort_values("no")
-                .to_dict(orient="index")
-            )
+            base_name = os.path.basename(file)
+            pickle_name = base_name.replace(".csv", ".pickle")
+            save_path = os.path.join("./dat/pickle", pickle_name)
+
+            index_col = CSV_INDEX_MAP.get(base_name, "name")
+
+            df = pd.read_csv(file, encoding="utf-8_sig", index_col=index_col)
+            df = df.convert_dtypes().fillna("")
+
+            if "no" in df.columns:
+                df = df.sort_values("no")
+
+            data = df.to_dict(orient="index")
+
             with open(save_path, mode="wb") as f:
                 pickle.dump(data, f)
 
         with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            executor.map(process_file, files)
+            list(executor.map(process_file, files))
+
     except (pd.errors.ParserError, IOError) as e:
         error(f"データファイルの変換に失敗しました: {e}", "kanri")
 

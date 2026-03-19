@@ -42,8 +42,18 @@ def determine_special_enemy(user, in_floor):
     Returns:
     - list: 出現する特殊敵のリスト。
     """
+    vips = sub_def.open_vips()
+    vip_boost = vips["boost"]
+
     event_boost = Conf["event_boost"]
-    randam = 20 if event_boost else 25
+
+    if event_boost and vip_boost:
+        randam = 15
+    elif event_boost or vip_boost:
+        randam = 20
+    else:
+        randam = 25
+
     special_enemies = ["わたぼう"] if random.randint(1, randam) == 1 else []
 
     # 特殊条件判定

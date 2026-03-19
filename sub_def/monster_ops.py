@@ -1,4 +1,5 @@
 # monster_ops.py
+
 import sys
 import random
 from typing import Dict, Optional
@@ -19,9 +20,9 @@ BASE_STAT = lambda stat, mon, haigou_hosei, floor_hosei: int(
 )
 
 
-# ==========#
-# 特技取得  #
-# ==========#
+# ============#
+# 特技取得    #
+# ============#
 def waza_get(target: str, user_name: str = "") -> Optional[Dict]:
     waza = open_waza(user_name)
     if target not in waza:
@@ -31,9 +32,9 @@ def waza_get(target: str, user_name: str = "") -> Optional[Dict]:
     save_waza(waza, user_name)
 
 
-# ==========#
-# 図鑑登録  #
-# ==========#
+# ============#
+# 図鑑登録    #
+# ============#
 def zukan_get(target: str, user_name: str = "") -> None:
     try:
         # ユーザー情報と図鑑データを取得
@@ -52,7 +53,7 @@ def zukan_get(target: str, user_name: str = "") -> None:
         progress_percentage = (get_count / total_count) * 100
         user["getm"] = f"{get_count}／{total_count}匹 ({progress_percentage:.2f}％)"
 
-        # 更新された報を保存
+        # 更新された情報を保存
         save_zukan(zukan, user_name)
         save_user(user, user_name)
     except Exception as e:
@@ -61,9 +62,8 @@ def zukan_get(target: str, user_name: str = "") -> None:
 
 
 # ==================#
-# モンスターセレクト#
+# モンスターセレクト #
 # ==================#
-# 配合、交換所等GET 基礎ステ + 補正(配合回数/2)
 def create_monster_base(
     mon: dict,
     name: str = "",
@@ -115,7 +115,6 @@ def monster_select(
     Returns:
     dict: 新しいモンスターの情報。
     """
-
     Mons = open_monster_dat()
     mon = Mons.get(target)
 
@@ -146,12 +145,15 @@ def monster_select(
 def battle_monster_select(
     target: str, hosei: float, in_floor: float, is_boss: bool = False
 ) -> dict:
-    """バトル用のモンスター（通常またはボス）を生成
+    """
+    バトル用のモンスター（通常またはボス）を生成
+
     Parameters:
         target (str): モンスターの名前
         hosei (float): ステータス補正値
         in_floor (float): フロアによる補正値
         is_boss (bool): ボスモンスターかどうか（デフォルトはFalse）
+
     Returns:
         dict: 生成されたモンスター情報
     """
@@ -172,7 +174,6 @@ def battle_monster_select(
     return new_mob
 
 
-# 置き換え
 def battle_mob_select(target: str, hosei: float, in_floor: float) -> dict:
     return battle_monster_select(target, hosei, in_floor, is_boss=False)
 

@@ -69,6 +69,14 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
+              <span data-msg='アイテム等を購入できます'">
+                <button type="submit">スペシャル</button>
+                <input type="hidden" name="mode" value="v_shop3">
+                <input type="hidden" name="token" value="{{ token }}">
+              </span>
+            </form>
+
+            <form action="{{ Conf.cgi_url }}" method="post" class="form">
                 <span data-msg = '他のユーザーとお見合いができます'">
                     <button type="submit">お見合い所</button>
                     <input type="hidden" name="mode" value="omiai_room">

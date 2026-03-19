@@ -2,6 +2,7 @@ import datetime
 
 import sub_def
 import conf
+import datetime
 
 Conf = conf.Conf
 
@@ -74,8 +75,10 @@ def update_user_list(in_name, user, party):
 
 def my_page(FORM):
 
-    in_name = FORM.get("username")
-    # in_pass = FORM.get("password")
+    # ログイン→マイページからの処理では更新されたセッションを読み込めない。
+    # よってin_name付与などが必須。
+
+    in_name = FORM["s"].get("in_name") or FORM.get("name")
 
     token = FORM["s"].get("token")
     last_floor = int(FORM["c"].get("last_floor", 1))
@@ -92,6 +95,26 @@ def my_page(FORM):
 
     # ユーザーリスト更新
     update_user_list(in_name, user, party)
+
+    # ブーストの有効期限チェック
+    now_ts = datetime.datetime.now().timestamp()
+    boost_until = vips.get("boost")
+
+    if boost_until is not None and boost_until > now_ts:
+        boost_flg = True
+        boost_remain_sec = int(boost_until - now_ts)
+    else:
+        boost_flg = False
+        boost_remain_sec = 0
+
+        if boost_until is not None:
+            vips["boost"] = None
+            sub_def.save_vips(vips, in_name)
+
+    hours = boost_remain_sec // 3600
+    minutes = (boost_remain_sec % 3600) // 60
+    seconds = boost_remain_sec % 60
+    boost_time = f"{hours}時間{minutes}分{seconds}秒"
 
     # 追加情報を生成
     isekai, isekai_next = (
@@ -156,6 +179,8 @@ def my_page(FORM):
         "park_get": park_get,
         "user": user,
         "user_v": user_v,
+        "boost_flg": boost_flg,
+        "boost_time": boost_time,
         "party_with_index": party_with_index,
         "option_list": option_list,
         "room_key_display": room_key_display,
@@ -167,6 +192,7 @@ def my_page(FORM):
         "kyoukai_cost_v": kyoukai_cost_v,
         "haigou_options": haigou_options,
         "tenkan_options": tenkan_options,
+        "sss": FORM["s"],
     }
 
     sub_def.print_html("my_page_tmp.html", content)
