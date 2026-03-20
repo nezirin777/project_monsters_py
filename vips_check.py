@@ -31,39 +31,122 @@ form = cgi.FieldStorage()
 # ログ出力用の日本時間タイムゾーン
 JST = ZoneInfo("Asia/Tokyo")
 
-# 課金ネットワーク設定を conf から読む
-network = Conf["network"]
 
-# 利用ネットワークごとの RPC / Program / Mint を切り替える
-if network == "mainnet":
-    RPC_URL = Conf["rpc_mainnet"]
-    TOKEN_PROGRAM_ID_USED = Pubkey.from_string(Conf["token_program_id_mainnet"])
-    ITEM_MINT = Conf["token_mint_mainnet"]
-else:
-    network = "devnet"
-    RPC_URL = Conf["rpc_devnet"]
-    TOKEN_PROGRAM_ID_USED = Pubkey.from_string(Conf["token_program_id_devnet"])
-    ITEM_MINT = Conf["token_mint_devnet"]
+def build_runtime_config(form: cgi.FieldStorage) -> dict:
+    # 課金ネットワーク設定を POST 優先で決める
+    posted_network = form.getfirst("network", "").strip()
+    if posted_network in ("mainnet", "devnet"):
+        network = posted_network
+    else:
+        network = Conf["network"]
+        if network != "mainnet":
+            network = "devnet"
 
-# 共通のショップ受取先ウォレット
-SHOP_WALLET = Conf["shop_wallet"]
-# 共通のトークン小数桁数
-ITEM_DECIMALS = Conf["token_decimals"]
+    # ログ保存先ディレクトリ
+    save_dir = Conf["log_dir"]
 
-# ATA 導出に使う Program ID
-ASSOCIATED_TOKEN_PROGRAM_ID = Pubkey.from_string(Conf["associated_token_program_id"])
+    try:
+        # 利用ネットワークごとの RPC / Program / Mint を切り替える
+        if network == "mainnet":
+            rpc_url = Conf["rpc_mainnet"]
+            token_program_id_used = Pubkey.from_string(Conf["token_program_id_mainnet"])
+            item_mint = Conf["token_mint_mainnet"]
+        else:
+            network = "devnet"
+            rpc_url = Conf["rpc_devnet"]
+            token_program_id_used = Pubkey.from_string(Conf["token_program_id_devnet"])
+            item_mint = Conf["token_mint_devnet"]
 
+        # 共通のショップ受取先ウォレット
+        shop_wallet = Conf["shop_wallet"]
+        # 共通のトークン小数桁数
+        item_decimals = int(Conf["token_decimals"])
+
+        # ATA 導出に使う Program ID
+        associated_token_program_id = Pubkey.from_string(
+            Conf["associated_token_program_id"]
+        )
+
+        # 使用済みトランザクションログ
+        log_file = f"{save_dir}/used_tx_{network}.jsonl"
+        # エラーログ
+        error_log_file = f"{save_dir}/vips_check_error_{network}.log"
+        # tx 単位のロック保存先
+        lock_dir = f"{save_dir}/tx_locks_{network}"
+
+        # 商品一覧データを読み込む
+        items = open_vips_shop3_dat()
+
+        return {
+            "network": network,
+            "save_dir": save_dir,
+            "rpc_url": rpc_url,
+            "token_program_id_used": token_program_id_used,
+            "item_mint": item_mint,
+            "shop_wallet": shop_wallet,
+            "item_decimals": item_decimals,
+            "associated_token_program_id": associated_token_program_id,
+            "log_file": log_file,
+            "error_log_file": error_log_file,
+            "lock_dir": lock_dir,
+            "items": items,
+        }
+
+    except SystemExit:
+        raise
+    except Exception:
+        append_startup_error_log(save_dir, traceback.format_exc(), network)
+        print("startup error")
+        print("サーバー設定の初期化に失敗しました。")
+        print("管理者にお問い合わせください。")
+        raise SystemExit
+
+
+# 実行時設定をまとめて構築する
+RUNTIME = build_runtime_config(form)
+
+# 課金ネットワーク
+network = RUNTIME["network"]
 # ログ保存先ディレクトリ
-SAVE_DIR = Conf["log_dir"]
+SAVE_DIR = RUNTIME["save_dir"]
+# 利用中の RPC URL
+RPC_URL = RUNTIME["rpc_url"]
+# 利用中のトークンプログラム
+TOKEN_PROGRAM_ID_USED = RUNTIME["token_program_id_used"]
+# 利用中のトークン Mint
+ITEM_MINT = RUNTIME["item_mint"]
+# ショップ受取先ウォレット
+SHOP_WALLET = RUNTIME["shop_wallet"]
+# トークン小数桁数
+ITEM_DECIMALS = RUNTIME["item_decimals"]
+# ATA 導出に使う Program ID
+ASSOCIATED_TOKEN_PROGRAM_ID = RUNTIME["associated_token_program_id"]
 # 使用済みトランザクションログ
-LOG_FILE = f"{SAVE_DIR}/used_tx_{network}.jsonl"
+LOG_FILE = RUNTIME["log_file"]
 # エラーログ
-ERROR_LOG_FILE = f"{SAVE_DIR}/vips_check_error_{network}.log"
+ERROR_LOG_FILE = RUNTIME["error_log_file"]
 # tx 単位のロック保存先
-LOCK_DIR = f"{SAVE_DIR}/tx_locks_{network}"
+LOCK_DIR = RUNTIME["lock_dir"]
+# 商品一覧データ
+ITEMS = RUNTIME["items"]
 
-# 商品一覧データを読み込む
-ITEMS = open_vips_shop3_dat()
+
+def now_iso() -> str:
+    # 現在時刻を日本時間の ISO 形式で返す
+    return datetime.datetime.now(JST).isoformat()
+
+
+def append_startup_error_log(
+    save_dir: str, message: str, network_name: str = "startup"
+) -> None:
+    # 起動時の設定読み込み失敗を文字列ベースで追記する
+    try:
+        os.makedirs(save_dir, exist_ok=True)
+        error_log_file = f"{save_dir}/vips_check_error_{network_name}.log"
+        with open(error_log_file, "a", encoding="utf-8") as f:
+            f.write(f"[{now_iso()}] {message}\n")
+    except Exception:
+        pass
 
 
 def ensure_dirs() -> None:
@@ -72,20 +155,15 @@ def ensure_dirs() -> None:
     os.makedirs(LOCK_DIR, exist_ok=True)
 
 
-def now_iso() -> str:
-    # 現在時刻を日本時間の ISO 形式で返す
-    return datetime.datetime.now(JST).isoformat()
-
-
 def format_token_amount(amount_raw: str, decimals: int) -> str:
     # 最小単位の整数値を人間向けの小数表記へ変換する
     value = Decimal(amount_raw) / (Decimal(10) ** decimals)
     return format(value.normalize(), "f")
 
 
-def parse_ui_amount_to_raw(ui_amount: str, decimals: int) -> str:
+def parse_ui_amount_to_raw(ui_amount, decimals: int) -> str:
     # 人間向けの小数表記を最小単位の整数値へ変換する
-    value = Decimal(ui_amount) * (Decimal(10) ** decimals)
+    value = Decimal(str(ui_amount)) * (Decimal(10) ** decimals)
     return str(int(value))
 
 
@@ -352,6 +430,7 @@ if not txid or item is None or not user_wallet:
 
 # 同じ tx の同時処理を防ぐためロックを取る
 lock_path = acquire_tx_lock(txid)
+
 if lock_path is None:
     log_event(
         status="duplicate_reject",

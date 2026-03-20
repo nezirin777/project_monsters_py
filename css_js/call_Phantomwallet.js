@@ -385,6 +385,13 @@ async function buyItem(itemId) {
       .filter((line) => line !== "OK" && line !== "purchase success")
       .join("\n");
 
+    if (!res.ok) {
+      hideStatus();
+      showToast("サーバー確認処理でエラーが発生しました。error_log を確認してください。", 6000);
+      console.error("vips_check failed:", res.status, text);
+      return;
+    }
+
     // 成功時はトースト表示の後にマイページへ戻る
     if (text.includes("OK")) {
       showStatus("購入完了。マイページへ移動します…");

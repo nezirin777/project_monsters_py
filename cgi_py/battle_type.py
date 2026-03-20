@@ -43,7 +43,7 @@ def determine_special_enemy(user, in_floor):
     - list: 出現する特殊敵のリスト。
     """
     vips = sub_def.open_vips()
-    vip_boost = vips["boost"]
+    vip_boost = vips.get("boost", None)
 
     event_boost = Conf["event_boost"]
 
