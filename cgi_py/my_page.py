@@ -2,7 +2,6 @@ import datetime
 
 import sub_def
 import conf
-import datetime
 
 Conf = conf.Conf
 
@@ -192,7 +191,6 @@ def my_page(FORM):
         "kyoukai_cost_v": kyoukai_cost_v,
         "haigou_options": haigou_options,
         "tenkan_options": tenkan_options,
-        "sss": FORM["s"],
     }
 
     sub_def.print_html("my_page_tmp.html", content)

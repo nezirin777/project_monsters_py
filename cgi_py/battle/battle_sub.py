@@ -145,7 +145,7 @@ def key_get(in_floor):
     user = sub_def.open_user()
     vips = sub_def.open_vips()
 
-    vip_boost = vips["boost"]
+    vip_boost = vips.get("boost", None)
     event_boost = Conf["event_boost"]
 
     if in_floor == user["key"]:
@@ -250,7 +250,7 @@ def battle_isekai_key_get(in_isekai):
 # メダル獲得処理---------------------------------------------------------------------------
 def battle_medal_get(in_floor):
     vips = sub_def.open_vips()
-    vip_boost = vips["boost"]
+    vip_boost = vips.get("boost", None)
 
     event_boost = Conf["event_boost"]
 
@@ -391,7 +391,7 @@ def battle_end(Fend, s, special):
     exp = max(int(base_exp * s / pt_num), 0)
     money = int(base_money * s)
 
-    vip_boost = vips["boost"]
+    vip_boost = vips.get("boost", None)
     event_boost = Conf["event_boost"]
 
     if event_boost and vip_boost:
