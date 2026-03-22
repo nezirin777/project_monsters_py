@@ -272,6 +272,7 @@ def login_check(FORM):
         error("あなたは未登録のようです。", "top")
 
     user = open_user(name)
+
     # 旧式（pass_encode）の判定を形式で事前チェック
     if ":" not in user["pass"]:  # hash_password は salt:hashed 形式
         if user["pass"] == pass_encode(password):
@@ -283,7 +284,12 @@ def login_check(FORM):
         error("パスワードが違います", "top")
 
     cookie = get_cookie()
-    cookie.update({"in_name": name, "in_pass": password})
+
+    # 既存の危険な保存データを削除
+    cookie.pop("in_pass", None)
+
+    # ユーザー名だけ保持
+    cookie["in_name"] = name
 
     set_cookie(cookie)
 

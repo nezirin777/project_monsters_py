@@ -90,7 +90,6 @@ class TopPageRenderer:
             "Conf": Conf,
             "token": self.token,
             "in_name": self.in_name,
-            "in_pass": self.in_pass,
             "maintenance": self.MAINTENANCE_MODE,
             "rank_text": rank_text,
             "users": users,
