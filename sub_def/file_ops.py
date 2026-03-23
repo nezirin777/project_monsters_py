@@ -6,7 +6,6 @@ import datetime
 import pandas as pd
 import pickle
 from typing import Dict, List, Any
-from functools import lru_cache
 import tempfile
 import conf
 import exLock
@@ -56,9 +55,6 @@ CSV_INDEX_MAP = {
     "zukan.csv": "name",
 }
 
-# 読み込み済みログキャッシュ
-_log_cache = None
-
 
 # ===========#
 # BBS関係    #
@@ -72,36 +68,31 @@ def ensure_logfile() -> None:
 
 def read_log() -> str:
     """ログを読み込み、逆順（最新を先頭）にして返す"""
-    global _log_cache
-    if _log_cache is None:
-        try:
-            lines = LOGFILE.read_text(encoding="utf-8").splitlines()
-            _log_cache = "".join(lines[::-1])
-        except (FileNotFoundError, IOError):
-            _log_cache = ""
-    return _log_cache
+    try:
+        ensure_logfile()
+        lines = LOGFILE.read_text(encoding="utf-8").splitlines(keepends=True)
+        return "".join(reversed(lines))
+    except (FileNotFoundError, IOError):
+        return ""
 
 
 def append_log(newlog: str) -> None:
     """ログを末尾に追記し、最大行数を制限"""
-    global _log_cache
-
     if not LOG_LOCK.lock():
         error("現在サーバーが込み合っています。", "top")
 
     try:
         ensure_logfile()
 
-        with LOGFILE.open("a", encoding="utf-8") as f:
-            f.write(newlog)
+        lines = LOGFILE.read_text(encoding="utf-8").splitlines()
 
-        lines = (newlog + (_log_cache or "")).splitlines()
+        new_lines = newlog.splitlines()
+        lines.extend(new_lines)
+
         if len(lines) > MAX_LOG_LINES:
             lines = lines[-MAX_LOG_LINES:]
-        _log_cache = "".join(lines[::-1])
 
-        with LOGFILE.open("w", encoding="utf-8") as f:
-            f.writelines(line + "\n" for line in lines)
+        LOGFILE.write_text("".join(line + "\n" for line in lines), encoding="utf-8")
 
     except IOError as e:
         error(f"ログ操作に失敗しました: {e}")
@@ -248,10 +239,17 @@ def pickle_load(file: str, user: str = "") -> Any:
 
 
 def pickle_dump(data: Any, file: str, user: str = "") -> None:
-    """ユーザー個別pickleを書き込む。userありならユーザー単位、なしなら共有ロックを使う"""
-    file_path = get_pickle_file_path(file, user)
+    s = get_session()
+    name = user or s.get("in_name") or ""
+    if not name:
+        error(
+            f"pickleファイル操作エラー: ユーザー名が存在していません。{file}/ユーザー名：{name}",
+            99,
+        )
 
-    lock = get_user_lock(user) if user else get_shared_lock(file)
+    file_path = get_file_path(file, name)
+    lock = get_user_lock(name)
+
     if not lock.lock():
         error("現在サーバーが込み合っています。", "top")
 
@@ -382,7 +380,6 @@ def open_csv_list(file: str, name: str = "", single: bool = False) -> List | Dic
 # ====================================#
 # dat / 共通マスタ類読み込み          #
 # ====================================#
-@lru_cache(maxsize=128)
 def open_dat(file_name: str) -> Dict:
     """dat/pickle配下の共通マスタを読み込む（キャッシュあり）"""
     file_path = os.path.join(Conf["datdir"], "pickle", f"{file_name}.pickle")
@@ -439,7 +436,6 @@ class TournamentScheduler:
 
         try:
             _atomic_text_save_unlocked(date_str, TournamentScheduler.FILE_PATH)
-            get_tournament_status.cache_clear()
         finally:
             lock.unlock()
 
@@ -476,7 +472,6 @@ def open_tournament_time() -> str:
     return TournamentScheduler.load_date()
 
 
-@lru_cache(maxsize=1)
 def get_tournament_status() -> Dict:
     """トーナメント日時と残日数を返す"""
     t_time = open_tournament_time()

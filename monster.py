@@ -9,7 +9,12 @@ import conf
 from cgi_py.tournament import tournament
 from sub_def.file_ops import open_user_list, get_tournament_status
 from sub_def.crypto import get_cookie, set_session
-from sub_def.user_ops import get_del_day, get_client_ip, delete_check, is_ip_banned
+from sub_def.user_ops import (
+    get_del_day,
+    get_client_ip,
+    run_daily_delete_check,
+    is_ip_banned,
+)
 from sub_def.utils import print_html, error
 
 
@@ -55,7 +60,6 @@ class TopPageRenderer:
     def __init__(self):
         cookie = get_cookie()
         self.in_name = cookie.get("in_name", "")
-        self.in_pass = cookie.get("in_pass", "")
         self.token = secrets.token_hex(16)
         set_session({"token": self.token, "ref": "top"})
 
@@ -125,8 +129,8 @@ if __name__ == "__main__":
     except ValueError:
         error(f"無効なメニューです: {FORM.get('page', '1')}", "top")
 
-    # 放置ユーザーチェック
-    delete_check()
+    # 放置ユーザーチェック1日1回だけ
+    run_daily_delete_check()
 
     user_list_manager = UserListManager()
     renderer = TopPageRenderer()

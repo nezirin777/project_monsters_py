@@ -9,7 +9,7 @@
         </div>
         <div class="my_page_menu4">
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'モンスターに本を読ませて性格を変更させる事が出来ます。'">
+                <span data-msg = "モンスターに本を読ませて性格を変更させる事が出来ます。">
                     <button type="submit">本屋に入室</button>
                     <input type="hidden" name="mode" value="books">
                     <input type="hidden" name="token" value="{{ token }}">
@@ -17,7 +17,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'ｺﾞｰﾙﾄﾞを支払ってHP･MPを完全に回復させます。'">
+                <span data-msg = "ｺﾞｰﾙﾄﾞを支払ってHP･MPを完全に回復させます。">
                     <button type="submit">宿屋({{ yadoya_cost_v }}G)</button>
                     <input type="hidden" name="mode" value="yadoya">
                     <input type="hidden" name="yadodai" value="{{ yadoya_cost }}">
@@ -27,7 +27,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'ｺﾞｰﾙﾄﾞを支払って死亡したモンスターを復活させます。'">
+                <span data-msg = "ｺﾞｰﾙﾄﾞを支払って死亡したモンスターを復活させます。">
                     <button type="submit">教会({{ kyoukai_cost_v }}G)</button>
                     <input type="hidden" name="mode" value="kyoukai">
                     <input type="hidden" name="kyoukaidai" value="{{ kyoukai_cost }}">
@@ -37,7 +37,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'メダルやGを使いモンスター等を交換できます。'">
+                <span data-msg = "メダルやGを使いモンスター等を交換できます。">
                     <button type="submit">交換所</button>
                     <input type="hidden" name="mode" value="medal_shop">
                     <input type="hidden" name="token" value="{{ token }}">
@@ -45,7 +45,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'モンスターを預けることが出来ます'">
+                <span data-msg = "モンスターを預けることが出来ます">
                     <button type="submit" {{park_get}}>モンスターパーク</button>
                     <input type="hidden" name="mode" value="park">
                     <input type="hidden" name="token" value="{{ token }}">
@@ -53,7 +53,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'モンスターを購入できます'">
+                <span data-msg = "モンスターを購入できます">
                     <button type="submit">VIP交換所1</button>
                     <input type="hidden" name="mode" value="v_shop">
                     <input type="hidden" name="token" value="{{ token }}">
@@ -61,7 +61,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'アイテム等を購入できます'">
+                <span data-msg="アイテム等を購入できます">
                     <button type="submit">VIP交換所2</button>
                     <input type="hidden" name="mode" value="v_shop2">
                     <input type="hidden" name="token" value="{{ token }}">
@@ -69,7 +69,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-              <span data-msg='アイテム等を購入できます'">
+              <span data-msg="アイテム等を購入できます">
                 <button type="submit">スペシャル</button>
                 <input type="hidden" name="mode" value="v_shop3">
                 <input type="hidden" name="token" value="{{ token }}">
@@ -77,7 +77,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = '他のユーザーとお見合いができます'">
+                <span data-msg = "他のユーザーとお見合いができます">
                     <button type="submit">お見合い所</button>
                     <input type="hidden" name="mode" value="omiai_room">
                     <input type="hidden" name="token" value="{{ token }}">
@@ -85,7 +85,7 @@
             </form>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = 'ユーザー名を変更できます'">
+                <span data-msg = "ユーザー名を変更できます">
                     <button type="submit">ユーザー名変更所</button>
                     <input type="hidden" name="mode" value="name_change">
                     <input type="hidden" name="token" value="{{ token }}">
