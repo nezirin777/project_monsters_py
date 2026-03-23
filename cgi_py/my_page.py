@@ -74,16 +74,18 @@ def update_user_list(in_name, user, party):
 
 def my_page(FORM):
 
-    # ログイン→マイページからの処理では更新されたセッションを読み込めない。
+    # ログイン→マイページからの処理ではpikkel読み込み時に更新されたセッションを読み込めない。
     # よってin_name付与などが必須。
 
-    in_name = FORM["s"].get("in_name") or FORM.get("name")
+    session = FORM.get("s", {})
 
-    token = FORM["s"].get("token")
-    last_floor = int(FORM["c"].get("last_floor", 1))
-    last_room = FORM["c"].get("last_room", "")
-    last_floor_isekai = int(FORM["c"].get("last_floor_isekai", 0))
-    next_t = float(FORM["c"].get("next_t", 0))
+    in_name = session.get("in_name") or FORM.get("name")
+    token = session.get("token")
+
+    last_floor = int(session.get("last_floor", 1))
+    last_room = session.get("last_room", "")
+    last_floor_isekai = int(session.get("last_floor_isekai", 0))
+    next_t = float(session.get("next_t", 0))
 
     omiai_list = sub_def.open_omiai_list()
     user = sub_def.open_user(in_name)

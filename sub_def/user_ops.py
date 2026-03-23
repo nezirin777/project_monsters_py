@@ -55,6 +55,27 @@ def get_del_day(bye: str) -> int:
 # ================#
 # 保存期間調査   #
 # ================#
+def run_daily_delete_check() -> None:
+    """delete_check を1日1回だけ実行する"""
+    marker_path = os.path.join(Conf["savedir"], "last_delete_check.txt")
+    today = datetime.date.today().isoformat()
+
+    try:
+        if os.path.exists(marker_path):
+            with open(marker_path, encoding="utf-8") as f:
+                last_run = f.read().strip()
+            if last_run == today:
+                return
+
+        delete_check()
+
+        with open(marker_path, "w", encoding="utf-8") as f:
+            f.write(today)
+
+    except OSError as e:
+        error(f"削除チェックの実行記録更新に失敗しました: {e}", 99)
+
+
 def delete_user(target: str) -> None:
     """
     指定されたユーザーを削除し、お見合いリストから該当データを更新・削除。
@@ -118,6 +139,7 @@ def get_client_ip() -> str:
 
 
 def get_host() -> str:
+    return get_client_ip()
     """
     クライアントのリモートアドレスからホスト名を取得する。
     - X-Forwarded-For ヘッダーを優先的に確認する。

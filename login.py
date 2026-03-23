@@ -4,12 +4,10 @@ import sys
 import cgi
 import os
 import importlib
-import secrets
-from functools import lru_cache
 
 import conf
 
-from sub_def.crypto import get_session, set_session, token_check
+from sub_def.crypto import get_session, token_check
 from sub_def.utils import error
 from sub_def.validation import login_check
 
@@ -82,7 +80,6 @@ FUNCTION_MAP = {
 
 
 # ====================================================================================#
-@lru_cache(maxsize=35)
 def load_module(module_path: str):
     return importlib.import_module(module_path)
 
@@ -116,23 +113,42 @@ def process_form():
     if os.path.exists("mente.mente"):
         error("現在メンテナンス中です。後で再度お試しください", "top")
 
-    # GETリクエストの処理
-    if os.environ["REQUEST_METHOD"] != "POST":
-        allowed_get_modes = {"tournament_result", "my_page2", "zukan"}
-        if FORM.get("mode") in allowed_get_modes:
+    mode = FORM.get("mode", "")
+    request_method = os.environ.get("REQUEST_METHOD", "GET")
+    allowed_get_modes = {"tournament_result", "my_page2", "zukan"}
+
+    # GETは例外モードだけ許可
+    if request_method != "POST":
+        if mode in allowed_get_modes:
             dispatch_function(FORM)
             sys.exit()
-        else:
-            error(f"無効なリクエストです: mode={FORM.get('mode', '未指定')}", "top")
+        error(f"無効なリクエストです: mode={mode or '未指定'}", "top")
 
     # 認証とトークンチェック
     session = get_session()
-    if session.get("ref") or not session.get("in_name"):
-        FORM["c"] = login_check(FORM)
-    else:
-        FORM["c"] = {}
+    login_data = None
 
-    FORM["s"] = token_check(FORM, session)
+    is_login_attempt = (
+        session.get("ref") == "top"
+        and bool(FORM.get("username"))
+        and bool(FORM.get("password"))
+    )
+
+    has_authenticated_session = bool(session.get("in_name"))
+
+    if is_login_attempt:
+        # topからのログイン
+        login_data = login_check(FORM)
+    elif has_authenticated_session:
+        # 既認証ユーザーの通常POST、セッションが維持されてれば認証スルー
+        pass
+    else:
+        # 未認証で認証情報なし = 不正 or セッション切れ
+        error(
+            "ログイン状態が無効です。トップページからログインし直してください。", "top"
+        )
+
+    FORM["s"] = token_check(FORM, session, login_data)
 
     # 指定されたモードの関数を呼び出し
     dispatch_function(FORM)

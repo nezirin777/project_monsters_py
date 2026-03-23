@@ -48,8 +48,24 @@ def verify_password(password: str, stored_hash: str) -> bool:
 # =============#
 # クッキーSET  #
 # =============#
+def _is_secure_request() -> bool:
+    """現在のリクエストがHTTPSかどうかを判定"""
+    https = os.environ.get("HTTPS", "").lower()
+    if https in {"on", "1", "true"}:
+        return True
+
+    request_scheme = os.environ.get("REQUEST_SCHEME", "").lower()
+    if request_scheme == "https":
+        return True
+
+    forwarded_proto = os.environ.get("HTTP_X_FORWARDED_PROTO", "").lower()
+    if forwarded_proto == "https":
+        return True
+
+    return False
+
+
 def _set_cookie_common(
-    cookie: cookies.SimpleCookie,
     name: str,
     data: dict,
     expires_delta: datetime.timedelta,
@@ -61,27 +77,32 @@ def _set_cookie_common(
         cook = cryptocode.encrypt(cook, Conf["secret_key"])
         cookie[name] = urllib.parse.quote_plus(cook)
         cookie[name]["path"] = path
+
         # UTCじゃないとブラウザ保存時にローカル時間にさらにタイムゾーンが追加される
         expires = datetime.datetime.now(datetime.timezone.utc) + expires_delta
         cookie[name]["expires"] = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+
         cookie[name]["SameSite"] = "Strict"
+        cookie[name]["httponly"] = True
+
+        if _is_secure_request():
+            cookie[name]["secure"] = True
+
         print(cookie)
     except Exception as e:
         error(f"クッキー {name} の設定に失敗しました: {e}", "top")
 
 
 def set_cookie(c_data: dict) -> None:
-    cookie = cookies.SimpleCookie()
-    _set_cookie_common(cookie, "MONSTERS2", c_data, datetime.timedelta(days=60))
+    _set_cookie_common("MONSTERS2", c_data, datetime.timedelta(days=60))
 
 
 def set_session(data: dict = None) -> None:
-    cookie = cookies.SimpleCookie()
-    data = data or {}
+    data = dict(data or {})
     data["expires_at"] = (
         datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30)
     ).isoformat()
-    _set_cookie_common(cookie, "session", data, datetime.timedelta(minutes=30))
+    _set_cookie_common("session", data, datetime.timedelta(minutes=30))
 
 
 # =============#
@@ -109,7 +130,7 @@ def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str | int]:
             for pair in decrypted.split(","):
                 if ":" in pair:
                     key, value = pair.split(":", 1)
-                    result[key] = int(value) if value.isdecimal() else value
+                    result[key] = value
     except Exception as e:
         error(f"クッキー {name} の処理中にエラーが発生しました: {e}", "top")
     return result
@@ -142,23 +163,26 @@ def verify_csrf_token(submitted_token: str, session: dict) -> bool:
     return secrets.compare_digest(submitted_token or "", session.get("csrf_token", ""))
 
 
-def token_check(FORM: dict, session: dict) -> dict:
+def token_check(FORM: dict, session: dict, login_data: dict | None = None) -> dict:
     form_token = FORM.get("token", "").strip()
     session_token = session.get("token", "").strip()
 
     if not form_token or not secrets.compare_digest(session_token, form_token):
-        error(
-            f"無効なセッションです。再度お試しください {form_token}, セッション：{session_token} ",
-            "",
-        )
+        error("無効なセッションです。再度お試しください", "")
+        # f"無効なセッションです。再度お試しください {form_token}, セッション：{session_token} ",
 
     session.update(
         {
             "ref": "",
             "token": secrets.token_hex(16),
-            "in_name": session.get("in_name", FORM.get("username", "")),
         }
     )
-    set_session(session)
 
+    # ログイン直後の確定情報を session に載せる
+    if login_data:
+        session.update(login_data)
+    elif not session.get("in_name"):
+        session["in_name"] = FORM.get("username", "")
+
+    set_session(session)
     return session

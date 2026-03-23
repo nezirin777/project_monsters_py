@@ -62,8 +62,6 @@ def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
     if exit_code == 1:  # AJAXの場合
         print("Content-Type: application/json\r\n\r\n")
         print(json.dumps({"error": sanitized_txt}))
-
-        print("おかしいよ")
     else:
         content = {
             "Conf": Conf,
@@ -94,7 +92,7 @@ def print_result(txt="", html="", token="", kanri=False):
 # ==========#
 # html出力  #
 # ==========#
-def print_html(tmp_name="", content={}, exit=True):
+def print_html(tmp_name="", content=None, exit=True):
     template = env.get_template(tmp_name)
     full_content = content or {}  # contentがNoneの場合、空の辞書を使用
 

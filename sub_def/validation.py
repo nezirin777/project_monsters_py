@@ -24,6 +24,7 @@ Conf = conf.Conf
 
 # Windows予約語（既存のNG_STRを前提）
 NG_STR = [
+    "logs",
     "CON",
     "PRN",
     "AUX",
@@ -63,15 +64,6 @@ class ZeroAllowedDataRequired:
             return
         if not field.data:
             raise ValidationError(self.message)
-
-
-# 新しいカスタムバリデータ
-class UsernamePasswordDifferent:
-    """ユーザー名とパスワードが異なることを検証"""
-
-    def __call__(self, form, field):
-        if form.username.data == field.data:
-            raise ValidationError("名前とパスワードは違うものにして下さい")
 
 
 class ValidUsername:
@@ -142,14 +134,11 @@ class BaseUserForm(Form):
 
 
 class RegisterForm(BaseUserForm):
-    """ユーザー登録フォーム"""
+    """ユーザー名とパスワードが異なることを検証"""
 
-    # 親クラスのフィールドをそのまま継承するため、明示的に再定義不要
-    # 追加のバリデーションを定義
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # 登録時のみの追加バリデーションをpasswordフィールドに追加
-        self.password.validators.append(UsernamePasswordDifferent())
+    def validate_password(self, field):
+        if self.username.data == field.data:
+            raise ValidationError("名前とパスワードは違うものにして下さい")
 
 
 class LoginForm(BaseUserForm):
@@ -220,7 +209,7 @@ def validate_form(form, error_context="top"):
         error_msg = "; ".join(
             f"{field}: {errors[0]}" for field, errors in form.errors.items()
         )
-        error(f"入力情報の検証に失敗しました: {error_msg}", 99)
+        error(f"入力情報の検証に失敗しました: {error_msg}", error_context)
     return True
 
 
@@ -273,24 +262,26 @@ def login_check(FORM):
 
     user = open_user(name)
 
-    # 旧式（pass_encode）の判定を形式で事前チェック
-    if ":" not in user["pass"]:  # hash_password は salt:hashed 形式
+    # 旧式パスワード → 新方式へ移行
+    if ":" not in user["pass"]:
         if user["pass"] == pass_encode(password):
-            # 新しいSHA256ハッシュを保存
             user["pass"] = hash_password(password)
             save_user(user, name)
 
     if not verify_password(password, user["pass"]):
         error("パスワードが違います", "top")
 
+    # Cookieはユーザー名だけ保持
     cookie = get_cookie()
-
-    # 既存の危険な保存データを削除
     cookie.pop("in_pass", None)
-
-    # ユーザー名だけ保持
     cookie["in_name"] = name
-
     set_cookie(cookie)
 
-    return cookie
+    # my_page表示に必要な最小限を返す
+    return {
+        "in_name": name,
+        "last_floor": user.get("last_floor", 1),
+        "last_room": user.get("last_room", ""),
+        "last_floor_isekai": user.get("last_floor_isekai", 0),
+        "next_t": user.get("next_t", 0),
+    }

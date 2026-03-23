@@ -35,8 +35,8 @@
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
                 <select name=no>
                     <option value="0" hidden>選 択</option>
-                    {% for tenakan in tenkan_options %}
-                    <option value="{{ tenakan.index }}">{{ tenakan.index }}:{{ tenakan.name }} {{ tenakan.sex }} {{ tenakan.cost }}G
+                    {% for tenkan in tenkan_options %}
+                    <option value="{{ tenkan.index }}">{{ tenkan.index }}:{{ tenkan.name }} {{ tenkan.sex }} {{ tenkan.cost }}G
                     </option>
                     {% endfor %}
                 </select>

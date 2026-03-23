@@ -24,6 +24,9 @@ BASE_STAT = lambda stat, mon, haigou_hosei, floor_hosei: int(
 # 特技取得    #
 # ============#
 def waza_get(target: str, user_name: str = "") -> Optional[Dict]:
+    if not target:
+        return None
+
     waza = open_waza(user_name)
     if target not in waza:
         error(f"特技 {target} がデータに見つかりません。", 99)
@@ -136,7 +139,7 @@ def monster_select(
     )
 
     if get:
-        waza_get(mon.pop("waza", []), user_name)
+        waza_get(mon.pop("waza", ""), user_name)
         zukan_get(new_mob["name"], user_name)
 
     return new_mob
