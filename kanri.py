@@ -6,14 +6,12 @@ import os
 import datetime
 import shutil
 import secrets
-import ast
-import fileinput
-import re
 import pickle
 import pandas as pd
 import glob
 import json
 import random
+import copy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from cgi_py import csv_to_pickle, pickle_to_csv, haigou_list_make
@@ -75,17 +73,26 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
     total_users = len(users)
     progress = {"total": total_users, "completed": 0, "status": "running"}
     last_written = 0  # 最後に進捗を書き込んだ完了数
+    errors = []
 
     with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = {executor.submit(process_func, user): user for user in users}
         completed = 0
+
         for future in as_completed(futures):
             user = futures[future]
+
             try:
                 result = future.result()
                 if result_collector is not None and result is not None:
                     result_collector[user] = result
+            except Exception as e:
+                errors.append(
+                    f"ユーザー {user} の処理中にエラー: {type(e).__name__}: {e}"
+                )
+            finally:
                 completed += 1
+
                 # 進捗更新は batch_size または全完了時のみ
                 if completed - last_written >= batch_size or completed == total_users:
                     progress["completed"] = completed
@@ -94,26 +101,22 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
                             json.dump(progress, ff)
                         last_written = completed
                     except Exception as e:
-                        error(f"進捗ファイル書き込みエラー: {e}", "kanri")
-            except Exception as e:
-                error(
-                    f"ユーザー {user} の処理中にエラー: {type(e).__name__}: {e}",
-                    "kanri",
-                )
+                        errors.append(f"進捗ファイル書き込みエラー: {e}")
 
-    delete_progress_file()
+    try:
+        delete_progress_file()
+    except Exception as e:
+        errors.append(f"進捗ファイルの削除に失敗しました: {e}")
+
+    return errors
 
 
 # ==============#
 # 	json削除	#
 # ==============#
 def delete_progress_file():
-    try:
-        if os.path.exists(progress_file):
-            os.remove(progress_file)
-        return
-    except (OSError, IOError) as e:
-        error(f"進捗ファイルの削除に失敗しました: {e}", "kanri")
+    if os.path.exists(progress_file):
+        os.remove(progress_file)
 
 
 # ==========#
@@ -121,6 +124,27 @@ def delete_progress_file():
 # ==========#
 def result(txt=""):
     print_result(txt, kanri=True, token=FORM["token"])
+
+
+# ==================#
+# confオーバーライド #
+# ==================#
+def update_conf_value(key, value):
+    path = Conf["override_file"]
+
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {}
+
+    data[key] = value
+
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    os.replace(tmp, path)
 
 
 # ==============#
@@ -147,15 +171,23 @@ def KANRI():
 # ====================#
 def MENTE():
     global MAINTENANCE_MODE
+
+    mente_path = "mente.mente"
+
     if FORM["mente"] == "start":
-        os.makedirs("mente.mente")
+        if not os.path.exists(mente_path):
+            os.makedirs(mente_path, exist_ok=True)
         MAINTENANCE_MODE = True
         txt = "メンテナンスモードに入りました。"
     else:
-        if os.path.exists("mente.mente"):
-            os.rmdir("mente.mente")
+        if os.path.exists(mente_path):
+            try:
+                os.rmdir(mente_path)
+            except OSError as e:
+                error(f"メンテナンスモードの解除に失敗しました: {e}", "kanri")
         MAINTENANCE_MODE = False
         txt = "メンテナンスモードを終了しました。"
+
     result(txt)
 
 
@@ -171,22 +203,7 @@ def event_boost():
         val = 0
         txt = "イベントブーストモードを終了しました。"
 
-    try:
-        with fileinput.FileInput(
-            "conf.py", inplace=True, backup=".bak", encoding="utf-8"
-        ) as f:
-            for line in f:
-                print(
-                    re.sub(
-                        r"Conf\[\"event_boost\"\] = \d",
-                        f'Conf["event_boost"] = {val}',
-                        line,
-                    ),
-                    end="",
-                )
-    except Exception as e:
-        error(f"conf.pyの更新に失敗しました: {e}", "kanri")
-        return
+    update_conf_value("event_boost", val)
 
     result(txt)
 
@@ -269,119 +286,117 @@ def RESTART():
     if FORM.get("Reset_ck") != "on":
         error("確認チェックがONになっていません。", "kanri")
 
-    new_userlist = {}
     byeday = (
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     ).strftime("%Y-%m-%d")
 
-    def create_default_data():
-        monset = [
-            "スライム",
-            "ドラゴンキッズ",
-            "ベロゴン",
-            "ピッキー",
-            "マッドプラント",
-            "キリキリバッタ",
-            "ピクシー",
-            "ゴースト",
-            "トーテムキラー",
-        ]
-        default_key = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
-        default_waza = {
-            name: {"no": v["no"], "type": v["type"], "get": 0}
-            for name, v in open_tokugi_dat().items()
-        }
-        default_waza["通常攻撃"]["get"] = 1
-        default_zukan = {
-            k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
-            for k, v in open_monster_dat().items()
-        }
-        return monset, default_key, default_waza, default_zukan
+    monset = [
+        "スライム",
+        "ドラゴンキッズ",
+        "ベロゴン",
+        "ピッキー",
+        "マッドプラント",
+        "キリキリバッタ",
+        "ピクシー",
+        "ゴースト",
+        "トーテムキラー",
+    ]
+    default_key_base = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
+    default_waza_base = {
+        name: {"no": v["no"], "type": v["type"], "get": 0}
+        for name, v in open_tokugi_dat().items()
+    }
+    default_waza_base["通常攻撃"]["get"] = 1
+    default_zukan_base = {
+        k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
+        for k, v in open_monster_dat().items()
+    }
 
     def re_start_sub(u):
-        try:
-            monset, default_key, default_waza, default_zukan = create_default_data()
-            m_name = random.choice(monset)
+        m_name = random.choice(monset)
 
-            new_userlist[u["user_name"]] = {
+        # ユーザーデータ
+        save_user(
+            {
+                "name": u["user_name"],
                 "pass": u["crypted"],
-                "host": "",
-                "bye": byeday,
                 "key": 1,
-                "m1_name": m_name,
-                "m1_hai": 0,
-                "m1_lv": 5,
-                "m2_name": "",
-                "m2_hai": "",
-                "m2_lv": "",
-                "m3_name": "",
-                "m3_hai": "",
-                "m3_lv": "",
-                "money": 50,
+                "money": 100,
+                "medal": 0,
+                "isekai_limit": 0,
+                "isekai_key": 1,
                 "mes": "未登録",
-                "getm": 0,
-            }
+                "getm": "0／0匹(0％)",
+            },
+            u["user_name"],
+        )
 
-            # ユーザーデータ
-            save_user(
+        # パーティーデータ
+        save_party(
+            [
                 {
-                    "name": u["user_name"],
-                    "pass": u["crypted"],
-                    "key": 1,
-                    "money": 100,
-                    "medal": 0,
-                    "isekai_limit": 0,
-                    "isekai_key": 1,
-                    "mes": "未登録",
-                    "getm": "0／0匹(0％)",
-                },
-                u["user_name"],
-            )
+                    "no": 1,
+                    "name": m_name,
+                    "lv": 1,
+                    "mlv": 10,
+                    "hai": 0,
+                    "hp": 5,
+                    "mhp": 5,
+                    "mp": 5,
+                    "mmp": 5,
+                    "atk": 5,
+                    "def": 5,
+                    "agi": 5,
+                    "exp": 0,
+                    "n_exp": 10,
+                    "sei": "ふつう",
+                    "sex": random.choice(Conf["sex"]),
+                }
+            ],
+            u["user_name"],
+        )
 
-            # パーティーデータ
-            save_party(
-                [
-                    {
-                        "no": 1,
-                        "name": m_name,
-                        "lv": 1,
-                        "mlv": 10,
-                        "hai": 0,
-                        "hp": 5,
-                        "mhp": 5,
-                        "mp": 5,
-                        "mmp": 5,
-                        "atk": 5,
-                        "def": 5,
-                        "agi": 5,
-                        "exp": 0,
-                        "n_exp": 10,
-                        "sei": "ふつう",
-                        "sex": random.choice(Conf["sex"]),
-                    }
-                ],
-                u["user_name"],
-            )
+        # 追加データの初期化
+        save_room_key(copy.deepcopy(default_key_base), u["user_name"])
+        save_waza(copy.deepcopy(default_waza_base), u["user_name"])
+        save_zukan(copy.deepcopy(default_zukan_base), u["user_name"])
+        save_vips({"パーク": 0}, u["user_name"])
+        save_park([], u["user_name"])
 
-            # 追加データの初期化
-            save_room_key(default_key, u["user_name"])
-            save_waza(default_waza, u["user_name"])
-            save_zukan(default_zukan, u["user_name"])
-            save_vips({"パーク": 0}, u["user_name"])
-            save_park([], u["user_name"])
-            return True
-
-        except Exception as e:
-            error(f"ユーザー {u['user_name']} の処理中にエラー: {e}", "kanri")
-            return False
+        # user_list 用データを返す
+        return {
+            "pass": u["crypted"],
+            "host": "",
+            "bye": byeday,
+            "key": 1,
+            "m1_name": m_name,
+            "m1_hai": 0,
+            "m1_lv": 5,
+            "m2_name": "",
+            "m2_hai": "",
+            "m2_lv": "",
+            "m3_name": "",
+            "m3_hai": "",
+            "m3_lv": "",
+            "money": 50,
+            "mes": "未登録",
+            "getm": 0,
+        }
 
     u_list = open_user_list()
     users = [{"user_name": name, "crypted": v["pass"]} for name, v in u_list.items()]
-    process_batch(users, re_start_sub)
+    new_userlist = {}
+
+    errors = process_batch(users, re_start_sub, result_collector=new_userlist)
 
     save_user_list(new_userlist)
     save_omiai_list({})
-    result("ゲームを初期化、リスタートしました。")
+
+    msg = "ゲームを初期化、リスタートしました。"
+    if errors:
+        msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
+
+    result(msg)
 
 
 # =======#
@@ -427,7 +442,7 @@ def process_user(in_name, bye_day):
 def FUKUGEN():
     # セーブデータフォルダ内各ユーザー名取得
     files = os.listdir(datadir)
-    exclude_dirs = {"locks", "logs"}  # ← ここに除外したいフォルダを追加していく
+    exclude_dirs = {"locks", "logs"}
     files_dir = [
         f
         for f in files
@@ -438,24 +453,23 @@ def FUKUGEN():
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     ).strftime("%Y-%m-%d")
 
-    total_users = len(files_dir)  # 全体のユーザー数
-    progress = {"total": total_users, "completed": 0, "status": "running"}
-    with open(progress_file, mode="w", encoding="utf-8") as ff:
-        json.dump(progress, ff)
-
     u_list = {}
 
     def process_user_wrapper(in_name):
         return process_user(in_name, bye_day)
 
-    process_batch(
+    errors = process_batch(
         files_dir,
         process_user_wrapper,
         result_collector=u_list,
     )
     save_user_list(u_list)
 
-    result("ユーザー登録データ(user_list.pickle)を再構築しました。")
+    msg = "ユーザー登録データ(user_list.pickle)を再構築しました。"
+    if errors:
+        msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
+
+    result(msg)
 
 
 # ====================#
@@ -528,20 +542,24 @@ def PRESENT():
 
     def haifu(name):
         user = open_user(name)
-        user["money"] += int(money)
-        user["medal"] += int(medal)
-        user["key"] += int(key)
+        user["money"] += money
+        user["medal"] += medal
+        user["key"] += key
         save_user(user, name)
 
     if target_name == "全員":
         u_list = open_user_list()
-        process_batch(u_list, haifu)
+        errors = process_batch(u_list, haifu)
 
-        result(f"全員にプレゼントを送りました。")
+        msg = "全員にプレゼントを送りました。"
+        if errors:
+            msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
+
+        result(msg)
+
     else:
         haifu(target_name)
-
-    result(f"{target_name}にプレゼントを送りました。")
+        result(f"{target_name}にプレゼントを送りました。")
 
 
 # ====================#
@@ -726,7 +744,10 @@ def save_specific_data(target_name, open_func, save_func, form):
     elif isinstance(save_data, list):
         # リスト形式の場合（party_data, park_data など）
         save_data = [
-            {v: form[f"{i},{v}"] for v in save_data[i].keys()}
+            {
+                v: form.get(f"{i},{v}", save_data[i].get(v, ""))
+                for v in save_data[i].keys()
+            }
             for i in range(len(save_data))
         ]
         save_func(save_data, target_name)
@@ -742,10 +763,10 @@ def save_edit_save():
 
     # 数値変換
     for key in FORM.keys():
-        if str(FORM[key]).isdecimal():
+        try:
             FORM[key] = int(FORM[key])
-        else:
-            FORM[key] = FORM[key]
+        except (ValueError, TypeError):
+            pass
 
     match target_name:
         case "user_list":
@@ -830,18 +851,8 @@ def update_isekai_limit(M_list):
     isekai_max_limit = max(
         [mon["階層B"] for mon in M_list.values() if (mon["room"] in ("特殊"))]
     )
-    with fileinput.FileInput(
-        "conf.py", inplace=True, backup=".bak", encoding="utf-8"
-    ) as f:
-        for line in f:
-            print(
-                re.sub(
-                    r"Conf\[\"isekai_max_limit\"\] = \d*",
-                    f'Conf["isekai_max_limit"] = {isekai_max_limit}',
-                    line,
-                ),
-                end="",
-            )
+
+    update_conf_value("isekai_max_limit", isekai_max_limit)
 
 
 def dat_update_check(in_name, M_list, Tokugi_dat):
@@ -897,8 +908,13 @@ def dat_update():
         dat_update_check(name, M_list, Tokugi_dat)
 
     u_list = open_user_list()
-    process_batch(u_list.keys(), process_user)
-    result("datファイルの更新を反映しました。")
+    errors = process_batch(u_list.keys(), process_user)
+
+    msg = "datファイルの更新を反映しました。"
+    if errors:
+        msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
+
+    result(msg)
 
 
 # ================#
@@ -934,46 +950,49 @@ def token_check():
     return session
 
 
-def top_level_functions(body):
-    return (f for f in body if isinstance(f, ast.FunctionDef))
-
-
-def parse_ast(filename):
-    with open(filename, "rt", encoding="utf-8") as file:
-        return ast.parse(file.read(), filename=filename)
-
-
+FUNCTION_MAP = {
+    "OPEN_K": OPEN_K,
+    "KANRI": KANRI,
+    "MENTE": MENTE,
+    "event_boost": event_boost,
+    "NEW": NEW,
+    "NEWPASS": NEWPASS,
+    "DEL": DEL,
+    "RESTART": RESTART,
+    "ALLDEL": ALLDEL,
+    "FUKUGEN": FUKUGEN,
+    "MON_PRESENT": MON_PRESENT,
+    "MON_PRESENT_OK": MON_PRESENT_OK,
+    "PRESENT": PRESENT,
+    "csv_to": csv_to,
+    "pickle_to": pickle_to,
+    "save_editer": save_editer,
+    "save_edit_select": save_edit_select,
+    "save_edit_save": save_edit_save,
+    "dat_update": dat_update,
+    "make_haigou_list": make_haigou_list,
+}
 # ============================================================#
 
 if __name__ == "__main__":
 
     # フォームを辞書化
     form = cgi.FieldStorage()
-
     FORM = {key: form.getvalue(key) for key in form.keys()}
 
     if "mode" not in FORM:
         set_session(FORM := {"token": secrets.token_hex(16)})
         OPEN_K()
-    elif os.environ["REQUEST_METHOD"] != "POST":
+
+    if os.environ["REQUEST_METHOD"] != "POST":
         error("不正ですか？by管理モード", "top")
 
-    # このファイル内の関数一覧と取得
-    tree = parse_ast("kanri.py")
-    func_list = [func.name for func in top_level_functions(tree.body)]
-
-    # FORM["mode"]内に実行関数名が入ってる
-    # 一覧にあれば実行
-    if FORM["mode"] in func_list:
-        FORM |= token_check()
-        admin_check(FORM)
-
-        func = globals().get(FORM["mode"])
-        if func:
-            func()
-        else:
-            error(f"関数 [{FORM['mode']}] が見つかりませんでした。", "top")
-    else:
+    func = FUNCTION_MAP.get(FORM["mode"])
+    if not func:
         error(f"無効なモード [{FORM['mode']}] です。", "top")
+
+    FORM |= token_check()
+    admin_check(FORM)
+    func()
 
     error("あっれれ～？おっかしぃぞぉ～by管理モード")

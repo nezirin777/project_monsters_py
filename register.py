@@ -7,7 +7,7 @@ import datetime
 import random
 import secrets
 import shutil
-import unicodedata
+import html
 
 import conf
 
@@ -29,6 +29,7 @@ from sub_def.file_ops import (
     open_tokugi_dat,
     append_log,
 )
+
 from sub_def.crypto import (
     hash_password,
     set_cookie,
@@ -36,15 +37,16 @@ from sub_def.crypto import (
     get_session,
     token_check,
 )
+
 from sub_def.user_ops import get_host, backup
 from sub_def.utils import error, print_html
-from sub_def.validation import check_valid_username_password, RegisterForm
+from sub_def.validation import RegisterForm
 
 
 def log_registration(in_name):
     """新規登録をBBSログに追加（追記ベース）"""
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    newlog = f"""<hr><font color="red">{in_name}</font>さんが参加しました！。 <font size="1">--{time}</font>\n"""
+    newlog = f"""<hr><font color="red">{html.escape(in_name)}</font>さんが参加しました！。 <font size="1">--{time}</font>\n"""
     append_log(newlog)
 
 
@@ -177,10 +179,16 @@ def make_user_data(in_name="", in_pass="", crypted=""):
 
     m_name = random.choice(monset)
 
-    create_user(in_name, crypted)
-    initialize_data(in_name, m_name)
-    update_user_list(in_name, crypted, m_name)
-    log_registration(in_name)
+    try:
+        create_user(in_name, crypted)
+        initialize_data(in_name, m_name)
+        update_user_list(in_name, crypted, m_name)
+        log_registration(in_name)
+
+    except Exception:
+        user_dir = os.path.join(Conf["savedir"], in_name)
+        shutil.rmtree(user_dir, ignore_errors=True)
+        raise
 
 
 def sinki(FORM, kanri=False):
@@ -196,7 +204,7 @@ def sinki(FORM, kanri=False):
         error(f"入力情報の検証に失敗しました: {error_msg}", "top")
 
     # 検証済みのデータを取得
-    in_name = unicodedata.normalize("NFKC", form.username.data)
+    in_name = form.username.data
     in_pass = form.password.data
 
     user_dir = os.path.join(Conf["savedir"], in_name)
@@ -206,7 +214,8 @@ def sinki(FORM, kanri=False):
     u_list = open_user_list()
 
     # 大文字・小文字を無視した重複名チェック
-    if in_name.casefold() in (u.casefold() for u in u_list):
+    lower_names = {u.casefold() for u in u_list}
+    if in_name.casefold() in lower_names:
         error("その名前は使用できません", "top")
 
     if Conf["iplog"] == 1 and not kanri:  # 管理モードの強制登録では重複判定スルー
@@ -217,9 +226,7 @@ def sinki(FORM, kanri=False):
     make_user_data(in_name, in_pass)
     backup()
 
-    set_cookie(
-        {"in_name": in_name, "in_pass": in_pass, "last_floor": 1, "last_room": ""}
-    )
+    set_cookie({"in_name": in_name, "last_floor": 1, "last_room": ""})
 
     party = open_party(in_name)
 
