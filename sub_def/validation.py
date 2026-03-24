@@ -25,6 +25,7 @@ Conf = conf.Conf
 # Windows予約語（既存のNG_STRを前提）
 NG_STR = [
     "logs",
+    "lock_fol",
     "CON",
     "PRN",
     "AUX",
