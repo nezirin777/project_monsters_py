@@ -77,14 +77,11 @@ def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
 # ==========#
 # リザルト #
 # ==========#
-def print_result(txt="", html="", token="", kanri=False):
-    content = {
-        "Conf": Conf,
-        "txt": txt,
-        "html": html,
-        "token": token,
+def print_result(content, kanri=False):
+    d = {
         "kanri": kanri,
     }
+    content.update(d)
 
     print_html("result_tmp.html", content)
 

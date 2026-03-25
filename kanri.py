@@ -122,8 +122,15 @@ def delete_progress_file():
 # ==========#
 # リザルト #
 # ==========#
-def result(txt=""):
-    print_result(txt, kanri=True, token=FORM["token"])
+def result(mes=""):
+    content = {
+        "Conf": Conf,
+        "token": FORM["token"],
+        "mes": mes,
+        "kanri": True,
+    }
+
+    print_html("result_tmp.html", content)
 
 
 # ==================#
