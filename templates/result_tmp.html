@@ -8,7 +8,7 @@
     {{ html | safe }}
 
     {% if mode %}
-      <form method="post">
+      <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="{{ mode }}">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit">{{ button_name }}</button>
