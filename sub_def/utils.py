@@ -78,10 +78,11 @@ def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
 # リザルト #
 # ==========#
 def print_result(content, kanri=False):
-    d = {
-        "kanri": kanri,
-    }
-    content.update(d)
+    content.update(
+        {
+            "kanri": kanri,
+        }
+    )
 
     print_html("result_tmp.html", content)
 
