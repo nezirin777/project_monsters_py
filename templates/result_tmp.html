@@ -2,9 +2,18 @@
 
 {% block content %}
     <div id="result">
-        <span>{{ txt }}</span>
+        <span>{{ mes }}</span>
     </div>
+
     {{ html | safe }}
+
+    {% if mode %}
+      <form method="post">
+        <input type="hidden" name="mode" value="{{ mode }}">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">{{ button_name }}</button>
+      </form>
+    {% endif %}
 
     {% if not kanri %}
         {% include "my_page_button_tmp.html" %}
