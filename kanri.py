@@ -41,28 +41,9 @@ lock = exLock.exLock(os.path.join(datadir, "lock_fol"))
 sys.stdout.reconfigure(encoding="utf-8")
 # 自動でutf-8にエンコードされて出力される
 
-CSV_INDEX_MAP = {
-    "user_list.csv": "user_name",
-    "omiai_list.csv": "user_name",
-    "book_dat.csv": "name",
-    "key_dat.csv": "name",
-    "seikaku_dat.csv": "name",
-    "tokugi_dat.csv": "name",
-    "medal_shop_dat.csv": "name",
-    "monster_boss_dat.csv": "name",
-    "monster_dat.csv": "name",
-    "vips_shop_dat.csv": "name",
-    "vips_shop2_dat.csv": "name",
-    "vips_shop3_dat.csv": "id",
-    "battle.csv": "name",
-    "park.csv": "name",
-    "party.csv": "name",
-    "room_key.csv": "name",
-    "user.csv": "name",
-    "vips.csv": "name",
-    "waza.csv": "name",
-    "zukan.csv": "name",
-}
+CSV_DEFS_MASTER = Conf.get("csv_defs_master", {})
+CSV_DEFS_GLOBAL = Conf.get("csv_defs_global", {})
+CSV_DEFS_USER = Conf.get("csv_defs_user", {})
 
 
 # ==============#
@@ -821,40 +802,9 @@ def save_edit_save():
 # ================#
 # dat_update     #
 # ================#
-def convert_dat_files():
-    """datフォルダのCSVをPickleに変換"""
-    try:
-        files = glob.glob("./dat/*.csv")
-        os.makedirs("./dat/pickle", exist_ok=True)
-
-        def process_file(file):
-            base_name = os.path.basename(file)
-            pickle_name = base_name.replace(".csv", ".pickle")
-            save_path = os.path.join("./dat/pickle", pickle_name)
-
-            index_col = CSV_INDEX_MAP.get(base_name, "name")
-
-            df = pd.read_csv(file, encoding="utf-8_sig", index_col=index_col)
-            df = df.convert_dtypes().fillna("")
-
-            if "no" in df.columns:
-                df = df.sort_values("no")
-
-            data = df.to_dict(orient="index")
-
-            with open(save_path, mode="wb") as f:
-                pickle.dump(data, f)
-
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            list(executor.map(process_file, files))
-
-    except (pd.errors.ParserError, IOError) as e:
-        error(f"データファイルの変換に失敗しました: {e}", "kanri")
-
-
 def update_isekai_limit(M_list):
     """異世界最深部設定を更新"""
-    # confファイルを書き換えるので注意！
+    # confオーバーライドファイルに異世界最深部の最大階層を保存
     isekai_max_limit = max(
         [mon["階層B"] for mon in M_list.values() if (mon["room"] in ("特殊"))]
     )
@@ -900,7 +850,8 @@ def dat_update_check(in_name, M_list, Tokugi_dat):
 
 def dat_update():
     """データファイルを更新し、ユーザー情報を反映"""
-    convert_dat_files()
+    for csv_name, conf_def in CSV_DEFS_MASTER.items():
+        csv_to_pickle.convert_csv_to_pickle(csv_name)
 
     # 配合リスト2種を作り直す
     haigou_list_make.haigou_list_make()

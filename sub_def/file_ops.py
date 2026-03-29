@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import sys
 import datetime
 import pandas as pd
 import pickle
@@ -10,16 +11,15 @@ import tempfile
 import conf
 import exLock
 
+
 from .utils import error
 from .crypto import get_session
 
 Conf = conf.Conf
 
-PICKLE_DIR = "pickle"
+PICKLE_DIR = "./pickle"
 
-# ======================#
-# ログ設定              #
-# ======================#
+# ログ設定
 LOGFILE = Path(Conf["savedir"]) / "bbslog.log"
 MAX_LOG_LINES = Conf["max_log_lines"]
 
@@ -32,28 +32,13 @@ LOG_LOCK = exLock.exLock(
 )
 
 # CSVごとの主キー列
-CSV_INDEX_MAP = {
-    "user_list.csv": "user_name",
-    "omiai_list.csv": "user_name",
-    "book_dat.csv": "name",
-    "key_dat.csv": "name",
-    "seikaku_dat.csv": "name",
-    "tokugi_dat.csv": "name",
-    "medal_shop_dat.csv": "name",
-    "monster_boss_dat.csv": "name",
-    "monster_dat.csv": "name",
-    "vips_shop_dat.csv": "name",
-    "vips_shop2_dat.csv": "name",
-    "vips_shop3_dat.csv": "id",
-    "battle.csv": "name",
-    "park.csv": "name",
-    "party.csv": "name",
-    "room_key.csv": "name",
-    "user.csv": "name",
-    "vips.csv": "name",
-    "waza.csv": "name",
-    "zukan.csv": "name",
-}
+CSV_DEFS_MASTER = Conf.get("csv_defs_master", {})
+CSV_DEFS_GLOBAL = Conf.get("csv_defs_global", {})
+CSV_DEFS_USER = Conf.get("csv_defs_user", {})
+
+
+def log(msg):
+    print(msg, file=sys.stderr)
 
 
 # ===========#
@@ -204,29 +189,79 @@ def _atomic_pickle_save_unlocked(data: Any, file_path: str) -> None:
         _handle_file_error("pickle", file_path, e)
 
 
-def get_file_path(file: str, user: str = "", dir_type: str = "savedir") -> str:
-    """保存先/データ置き場の基本パスを組み立てる"""
-    base_dir = Conf["savedir"] if dir_type == "savedir" else Conf["datdir"]
-    if user and dir_type == "savedir":
-        return os.path.join(base_dir, user, PICKLE_DIR, f"{file}.pickle")
-    return os.path.join(base_dir, file)
+def get_csv_conf(file_name: str):
+    """CSV定義を統一取得"""
+    if file_name in CSV_DEFS_MASTER:
+        return CSV_DEFS_MASTER[file_name]
+    if file_name in CSV_DEFS_GLOBAL:
+        return CSV_DEFS_GLOBAL[file_name]
+    if file_name in CSV_DEFS_USER:
+        return CSV_DEFS_USER[file_name]
+    return None
 
 
-def get_pickle_file_path(file: str, user: str = "") -> str:
+def get_file_path(file: str, user: str = "") -> str:
+    base_name = file.replace(".pickle", ".csv")
+
+    # MASTER
+    if base_name in CSV_DEFS_MASTER:
+        if file.endswith(".pickle"):
+            return os.path.join(Conf["datdir"], PICKLE_DIR, file)
+        return os.path.join(Conf["datdir"], file)
+
+    # GLOBAL
+    elif base_name in CSV_DEFS_GLOBAL:
+        return os.path.join(Conf["savedir"], file)
+
+    # USER
+    elif base_name in CSV_DEFS_USER:
+        if not user:
+            error(f"ユーザー名必須: {file}", 99)
+
+        if file.endswith(".pickle"):
+            return os.path.join(Conf["savedir"], user, PICKLE_DIR, file)
+        return os.path.join(Conf["savedir"], user, file)
+
+    # fallback
+    else:
+        error(f"未定義ファイル: {file}", 99)
+
+
+def _create_pickle_accessor(file_name: str):
+    """open_xxx / save_xxx 用の簡易アクセサを生成"""
+    file_name = f"{file_name}.pickle"
+
+    def load(user: str = ""):
+        return pickle_load(file_name, user)
+
+    def dump(data: Any, user: str = ""):
+        pickle_dump(data, file_name, user)
+
+    return load, dump
+
+
+def _create_global_pickle_accessor(file_name: str):
+    """グローバルlist系open_xxx / save_xxx 用の簡易アクセサを生成"""
+    file_name = f"{file_name}.pickle"
+
+    def load():
+        return _load_pickle_list(file_name)
+
+    def dump(data: Dict):
+        _save_pickle_list(data, file_name)
+
+    return load, dump
+
+
+# ======================#
+# pickle(ユーザー系)操作 #
+# ======================#
+def pickle_load(file: str, user: str = "") -> Any:
     """ユーザー個別pickleのフルパスを返す。user未指定時はsessionのin_nameを参照"""
     s = get_session()
-    name = user or s.get("in_name") or ""
-    if not name:
-        error(
-            f"pickleファイル操作エラー: ユーザー名が存在していません。{file}/ユーザー名：{name}",
-            99,
-        )
-    return get_file_path(file, name)
+    user = user or s.get("in_name") or ""
+    file_path = get_file_path(file, user)
 
-
-def pickle_load(file: str, user: str = "") -> Any:
-    """ユーザー個別pickleを読み込む"""
-    file_path = get_pickle_file_path(file, user)
     try:
         with open(file_path, mode="rb") as f:
             return pickle.load(f)
@@ -240,15 +275,16 @@ def pickle_load(file: str, user: str = "") -> Any:
 
 def pickle_dump(data: Any, file: str, user: str = "") -> None:
     s = get_session()
-    name = user or s.get("in_name") or ""
-    if not name:
-        error(
-            f"pickleファイル操作エラー: ユーザー名が存在していません。{file}/ユーザー名：{name}",
-            99,
-        )
+    user = user or s.get("in_name") or ""
 
-    file_path = get_file_path(file, name)
-    lock = get_user_lock(name)
+    file_path = get_file_path(file, user)
+
+    base_name = file.replace(".pickle", ".csv")
+
+    if base_name in CSV_DEFS_GLOBAL:
+        lock = get_shared_lock(file)
+    else:
+        lock = get_user_lock(user)
 
     if not lock.lock():
         error("現在サーバーが込み合っています。", "top")
@@ -259,22 +295,15 @@ def pickle_dump(data: Any, file: str, user: str = "") -> None:
         lock.unlock()
 
 
-def _create_pickle_accessor(file_name: str):
-    """open_xxx / save_xxx 用の簡易アクセサを生成"""
-
-    def load(user: str = ""):
-        return pickle_load(file_name, user)
-
-    def dump(data: Any, user: str = ""):
-        pickle_dump(data, file_name, user)
-
-    return load, dump
-
-
+# =============================#
+# pickle(グローバルリスト系)操作 #
+# =============================#
 def initialize_pickle(file_name: str, initial_data: Any = None) -> None:
     """共有pickleを初期データ付きで新規作成"""
-    initial_data = initial_data or {}
-    file_path = os.path.join(Conf["savedir"], file_name)
+    if initial_data is None:
+        initial_data = {}
+
+    file_path = get_file_path(file_name)
 
     lock = get_shared_lock(file_name)
     if not lock.lock():
@@ -288,9 +317,11 @@ def initialize_pickle(file_name: str, initial_data: Any = None) -> None:
 
 def _load_pickle_list(file: str) -> Dict:
     """共有pickle(dict前提)を読み込む。無ければ初期化する"""
-    file_path = os.path.join(Conf["savedir"], f"{file}.pickle")
+
+    file_path = get_file_path(file)
+
     if not os.path.exists(file_path):
-        initialize_pickle(f"{file}.pickle")
+        initialize_pickle(file)
 
     try:
         with open(file_path, mode="rb") as f:
@@ -302,7 +333,7 @@ def _load_pickle_list(file: str) -> Dict:
 
 def _save_pickle_list(data: Dict, file: str) -> None:
     """共有pickle(dict前提)を書き込む"""
-    file_path = os.path.join(Conf["savedir"], f"{file}.pickle")
+    file_path = get_file_path(file)
 
     lock = get_shared_lock(file)
     if not lock.lock():
@@ -317,16 +348,19 @@ def _save_pickle_list(data: Dict, file: str) -> None:
 # ===============#
 # CSV操作        #
 # ===============#
-def get_csv_file_path(file: str, name: str = "") -> str:
-    """CSVファイルのフルパスを返す"""
-    return get_file_path(file, name) if name else get_file_path(file)
-
-
-def open_csv_dict(file: str, name: str = "") -> Dict:
+def open_csv_dict(file_name: str, name: str = "") -> Dict:
     """CSVをindex付きdictとして読み込む"""
-    file_path = get_csv_file_path(file, name)
-    index_col = CSV_INDEX_MAP.get(file, "name")
-    sort_val = file not in ["user_list.csv", "omiai_list.csv"]
+    file_path = get_file_path(file_name, name)
+
+    conf_def = get_csv_conf(file_name)
+    index_col = conf_def.get("index", "name") if conf_def else "name"
+
+    # ソート制御（GLOBALだけ除外）
+    sort_val = file_name not in CSV_DEFS_GLOBAL
+
+    log(
+        f"[変換toDict] 対象: {file_name} ｜｜ パス: {file_path} ｜｜ インデックス: {index_col}"
+    )
 
     try:
         df = pd.read_csv(
@@ -348,7 +382,7 @@ def open_csv_dict(file: str, name: str = "") -> Dict:
 
 def open_csv_list(file: str, name: str = "", single: bool = False) -> List | Dict:
     """CSVをレコード配列として読み込む。single=Trueなら先頭1件のみ返す"""
-    file_path = get_csv_file_path(file, name)
+    file_path = get_file_path(file, name)
     try:
         df = (
             pd.read_csv(file_path, encoding="utf-8_sig", na_filter=False)
@@ -381,8 +415,9 @@ def open_csv_list(file: str, name: str = "", single: bool = False) -> List | Dic
 # dat / 共通マスタ類読み込み          #
 # ====================================#
 def open_dat(file_name: str) -> Dict:
-    """dat/pickle配下の共通マスタを読み込む（キャッシュあり）"""
-    file_path = os.path.join(Conf["datdir"], "pickle", f"{file_name}.pickle")
+    """dat/pickle配下の共通マスタを読み込む"""
+    file_path = os.path.join(Conf["datdir"], PICKLE_DIR, f"{file_name}.pickle")
+
     try:
         with open(file_path, "rb") as f:
             return pickle.load(f)
@@ -487,21 +522,8 @@ def get_tournament_status() -> Dict:
 # ===============#
 # list系         #
 # ===============#
-def open_user_list() -> Dict:
-    return _load_pickle_list("user_list")
-
-
-def save_user_list(data: Dict) -> None:
-    _save_pickle_list(data, "user_list")
-
-
-def open_omiai_list() -> Dict:
-    return _load_pickle_list("omiai_list")
-
-
-def save_omiai_list(data: Dict) -> None:
-    _save_pickle_list(data, "omiai_list")
-
+open_user_list, save_user_list = _create_global_pickle_accessor("user_list")
+open_omiai_list, save_omiai_list = _create_global_pickle_accessor("omiai_list")
 
 # ===============#
 # user個別pickle #
@@ -514,7 +536,6 @@ open_waza, save_waza = _create_pickle_accessor("waza")
 open_room_key, save_room_key = _create_pickle_accessor("room_key")
 open_battle, save_battle = _create_pickle_accessor("battle")
 open_park, save_park = _create_pickle_accessor("park")
-
 
 # ===============#
 # dat系          #
