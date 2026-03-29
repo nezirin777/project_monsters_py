@@ -7,7 +7,7 @@ from itertools import islice
 
 import conf
 from cgi_py.tournament import tournament
-from sub_def.file_ops import open_user_list, get_tournament_status
+from sub_def.file_ops import open_user_list, get_ranked_user_list, get_tournament_status
 from sub_def.crypto import get_cookie, set_session
 from sub_def.user_ops import (
     get_del_day,
@@ -24,7 +24,9 @@ Conf = conf.Conf
 class UserListManager:
 
     def __init__(self):
-        self.u_list = open_user_list()
+        ulist = open_user_list()
+        # ランキング順にユーザーデータを整形
+        self.u_list = get_ranked_user_list(ulist)
         self.u_count = len(self.u_list)
 
     def user_mlist(self, user_data):
