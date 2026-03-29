@@ -345,6 +345,22 @@ def _save_pickle_list(data: Dict, file: str) -> None:
         lock.unlock()
 
 
+def get_ranked_user_list(user_list: dict):
+    sorted_items = sorted(
+        user_list.items(),
+        key=lambda x: x[1].get("key", 0),
+        reverse=True,
+    )
+
+    new_dict = {}
+    for i, (uid, data) in enumerate(sorted_items, start=1):
+        d = data.copy()
+        d["rank"] = i
+        new_dict[uid] = d
+
+    return new_dict
+
+
 # ===============#
 # CSV操作        #
 # ===============#
