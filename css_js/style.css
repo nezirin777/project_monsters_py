@@ -20,8 +20,7 @@ body {
   background-color: #DEB887;
   /* アイフォン文字はみ出し対策 */
   -webkit-text-size-adjust: 100%;
-  -moz-appearance: none;
-       appearance: none;
+  appearance: none;
   -webkit-appearance: none;
 }
 
@@ -1257,7 +1256,6 @@ img[name=img2] {
     color: #000;
     background-color: #fff;
     border: 1px solid;
-    width: -moz-fit-content;
     width: fit-content;
     padding: 3px;
   }
@@ -1457,25 +1455,74 @@ img[name=img2] {
   width: 100%;
 }
 
-/* 配合結果 */
-.hen_box0 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.hai_msg {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: auto;
   margin-left: auto;
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
+}
+
+.hai_rare {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #FFFFFF;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #FF0000;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+/* 配合結果 */
+.hen_box0 {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
   flex-wrap: wrap;
   width: 200px;
 }
-.hen_box0 img {
-  max-height: 120px;
+
+.hen_box1 {
+  display: block;
+  position: relative;
+  min-height: 150px;
+  width: 100%;
 }
 
-.hen_box1, .hen_box3 {
-  box-sizing: border-box;
-  border: solid 1px black;
+.hen_img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.hen_rare_bg {
+  background-image: url("../img/rare_bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hen_text1 {
+  background-color: #00CCCC;
+  width: 100%;
+}
+
+.hen_text2 {
+  background-color: #FFFFFF;
   width: 100%;
 }
 
@@ -1494,15 +1541,9 @@ img[name=img2] {
 }
 
 .hen_box3 {
+  box-sizing: border-box;
+  border: solid 1px black;
   width: 25%;
-}
-
-.hen_text1 {
-  background-color: #00CCCC;
-}
-
-.hen_text2 {
-  background-color: #FFFFFF;
 }
 
 .hent_box1 {

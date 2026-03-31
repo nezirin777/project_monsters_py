@@ -4,12 +4,19 @@
 
     <div class="hai_title">NEW MONSTER!</div>
 
+    {% if hint_flag and not is_rare %}
+    <div class="hai_msg">不思議な気配を感じたが…何も起こらなかったようだ…</div>
+    {% endif %}
+
+    {% if is_rare and is_new %}
+    <div class="hai_rare">特別なモンスターが誕生した！</div>
+    {% endif %}
+
     <div class="hen_box0">
-        <div class="hen_box1">
-            <div class="hen_text1">モンスター名</div>
-            <div><img src="{{ Conf.imgpath }}/{{ my_data.name }}.gif"></div>
-            <div class="hen_text2">{{ my_data.name }}<br>{{ my_data.sex }}<br>{{ my_data.sei }}</div>
+        <div class="hen_box1{% if is_rare %} hen_rare_bg{% endif %}">
+            <div class="hen_img"><img src="{{ Conf.imgpath }}/{{ my_data.name }}.gif"></div>
         </div>
+        <div class="hen_text2">{{ my_data.name }}<br>{{ my_data.sex }}<br>{{ my_data.sei }}</div>
     </div>
 
     <div class="hen_box2">
@@ -55,6 +62,14 @@
 
     </div>
 
+    {% if is_new %}
+    <div class="hai_msg">図鑑に登録されました！</div>
+    {% endif %}
+
+    {% if is_waza %}
+    <div class="hai_msg">新たな特技が使えるようになった！</div>
+    {% endif %}
+
     {% if mode=="omiai" %}
     <form action="{{ Conf.cgi_url }}" method="post">
         <input type="hidden" name="mode" value="omiai_room">
@@ -62,5 +77,7 @@
         <button type="submit">お見合い部屋に戻る</button>
     </form>
     {% endif %}
+
+  {% include "my_page_button_tmp.html" %}
 
 {% endblock %}

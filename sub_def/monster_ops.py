@@ -23,22 +23,31 @@ BASE_STAT = lambda stat, mon, haigou_hosei, floor_hosei: int(
 # ============#
 # 特技取得    #
 # ============#
-def waza_get(target: str, user_name: str = "") -> Optional[Dict]:
+def waza_get(target: str, user_name: str = "") -> bool:
     if not target:
         return None
 
     waza = open_waza(user_name)
+
     if target not in waza:
         error(f"特技 {target} がデータに見つかりません。", 99)
         return None
+
+    # すでに取得済みなら何もしない
+    if waza[target].get("get", 0) == 1:
+        return False
+
+    # 新規取得
     waza[target]["get"] = 1
     save_waza(waza, user_name)
+
+    return True
 
 
 # ============#
 # 図鑑登録    #
 # ============#
-def zukan_get(target: str, user_name: str = "") -> None:
+def zukan_get(target: str, user_name: str = "") -> bool:
     try:
         # ユーザー情報と図鑑データを取得
         user = open_user(user_name)
@@ -48,7 +57,14 @@ def zukan_get(target: str, user_name: str = "") -> None:
             error(f"ターゲット {target} が図鑑に見つかりません。", 99)
             return None
 
+        # すでに登録済みなら何もしない
+        if zukan[target].get("get", 0) == 1:
+            return False
+
+        # 新規登録
         zukan[target]["get"] = 1
+
+        # 取得数カウント
         get_count = sum(1 for val in zukan.values() if val.get("get", 0) == 1)
         total_count = len(zukan)
 
@@ -56,9 +72,12 @@ def zukan_get(target: str, user_name: str = "") -> None:
         progress_percentage = (get_count / total_count) * 100
         user["getm"] = f"{get_count}／{total_count}匹 ({progress_percentage:.2f}％)"
 
-        # 更新された情報を保存
+        # 保存
         save_zukan(zukan, user_name)
         save_user(user, user_name)
+
+        return True
+
     except Exception as e:
         error(f"図鑑の更新中にエラーが発生しました: {e}", 99)
         return None
@@ -98,6 +117,7 @@ def create_monster_base(
         "sex": random.choice(SEX_OPTIONS),
         "sei": random.choice(SEIKAKU_KEYS),
     }
+
     if additional_attrs:
         base.update(additional_attrs)
     return base
@@ -135,12 +155,10 @@ def monster_select(
             "hai": 0,
             "exp": 0,
             "n_exp": int(Conf["nextup"]),
+            "waza": mon.get("waza", ""),
+            "room": mon.get("room", ""),
         },
     )
-
-    if get:
-        waza_get(mon.pop("waza", ""), user_name)
-        zukan_get(new_mob["name"], user_name)
 
     return new_mob
 

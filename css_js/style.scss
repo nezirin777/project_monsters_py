@@ -842,6 +842,7 @@ img[name="img2"] {
 	}
 }
 
+
 @media (pointer: coarse), (hover: none) {
 
 	.zukan_img[title]:focus::after {
@@ -981,7 +982,6 @@ img[name="img2"] {
 	img {
 		max-height: 180px;
 	}
-
 }
 
 .hai_1 {
@@ -1002,20 +1002,56 @@ img[name="img2"] {
 .hai_box3 div{
 	width: 100%;
 }
-/* 配合結果 */
-.hen_box0 {
-	@include flex;
-	@include margin(10px,10px);
-	flex-wrap: wrap;
-	width: 200px;
-	img {
-		max-height: 120px;
-	}
+
+.hai_msg {
+  @include text_whiteback();
+  @include margin(10px, 10px);
 }
 
-.hen_box1 , .hen_box3 {
-	@include border();
-	width: 100%;
+
+.hai_rare {
+  @include text_whiteback();
+  @include margin(10px, 10px);
+  @include text-style($red, 120%);
+}
+
+/* 配合結果 */
+.hen_box0 {
+	@include margin(0px,0px);
+	flex-wrap: wrap;
+	width: 200px;
+}
+
+.hen_box1 {
+  display: block;
+  position: relative;
+  min-height: 150px;
+  width: 100%;
+}
+
+.hen_img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.hen_rare_bg {
+  background-image: url("../img/rare_bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hen_text1 {
+  background-color: $sky-blue;
+  width: 100%;
+}
+
+.hen_text2 {
+  background-color: $white;
+  width: 100%;
 }
 
 .hen_box2 {
@@ -1027,16 +1063,10 @@ img[name="img2"] {
 }
 
 .hen_box3 {
+  @include border();
 	width: 25%;
 }
 
-.hen_text1 {
-	background-color: $sky-blue;
-}
-
-.hen_text2 {
-	background-color: $white;
-}
 
 .hent_box1 {
 	@include margin(10px,10px);

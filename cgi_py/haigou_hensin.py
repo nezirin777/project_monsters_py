@@ -1,9 +1,20 @@
-from jinja2 import Environment, FileSystemLoader
-
-import sub_def
+from sub_def.utils import print_html
+from sub_def.file_ops import (
+    open_user,
+    open_party,
+    save_party,
+    save_user,
+)
+from sub_def.monster_ops import monster_select, waza_get, zukan_get
 import conf
 
 Conf = conf.Conf
+
+import sys
+
+
+def log(msg):
+    print(msg, file=sys.stderr)
 
 
 def haigou_hensin(FORM):
@@ -11,9 +22,10 @@ def haigou_hensin(FORM):
     new_m = FORM["s"]["new_mons"].replace("フィッシュル(制服)", "フィッシュル")
     # 配列位置に合わせ-1されたものを引き継いでいるのでそのままで大丈夫
     haigou1, haigou2 = int(FORM["s"]["haigou1"]), int(FORM["s"]["haigou2"])
+    hint_flag = True if FORM["s"]["hint_flag"] == "True" else False
 
-    user = sub_def.open_user()
-    party = sub_def.open_party()
+    user = open_user()
+    party = open_party()
 
     hai_A = party[haigou1]
     hai_B = party[haigou2]
@@ -22,14 +34,23 @@ def haigou_hensin(FORM):
 
     # ユーザーのお金を更新
     user["money"] -= cost
-    sub_def.save_user(user)
+    save_user(user)
 
     # 新モンスター生成
     mlv = int(hai_A["lv"] + hai_B["lv"])
     new_hai = hai_A["hai"] + hai_B["hai"] + 1
     hosei = max(new_hai // 2, 1)
 
-    new_mob = sub_def.monster_select(new_m, hosei, 1)
+    new_mob = monster_select(new_m, hosei)
+
+    log(new_mob)
+    is_waza = waza_get(new_mob.pop("waza"))
+    is_new = zukan_get(new_mob["name"])
+    is_rare = True if new_mob["room"] == "特殊" else False
+    new_mob.pop("room")
+
+    log(f"hint_flag: {hint_flag}, is_new: {is_new}, is_rare: {is_rare}")
+
     new_mob.update(
         {
             "name": FORM["s"]["new_mons"],
@@ -49,16 +70,17 @@ def haigou_hensin(FORM):
     for i, pt in enumerate(party, 1):
         pt["no"] = i
 
-    sub_def.save_party(party)
+    save_party(party)
 
-    # HTML生成
-    # Jinja2の環境設定とテンプレートファイルの読み込み
-    env = Environment(
-        loader=FileSystemLoader("templates"), cache_size=100
-    )  # テンプレートディレクトリ
-    template = env.get_template("new_monster_tmp.html")
-    html = template.render(Conf=Conf, my_data=new_mob, token="", mode="")
+    content = {
+        "Conf": Conf,
+        "my_data": new_mob,
+        "token": FORM["token"],
+        "mode": "haigou",
+        "is_waza": is_waza,
+        "is_new": is_new,
+        "is_rare": is_rare,
+        "hint_flag": hint_flag,
+    }
 
-    sub_def.header()
-    print(html)
-    sub_def.my_page_button(FORM["token"])
+    print_html("new_monster_tmp.html", content)
