@@ -3,7 +3,7 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-    {% if mode=="omiai_ans" %}
+    {% if mode=="omiai_req" %}
     <div class="hai_title">お見合いを申し込みますか？</div>
     {% endif %}
 
@@ -36,12 +36,17 @@
         <div class="hai_name">{{ my_new_mons }}</div>
     </div>
 
+    {% if hint_flag %}
+    <div class="hai_msg">不思議な気配を感じる…</div>
+    {% endif %}
+
+
     {% if mode=="omiai_req" %}
     <form action="{{ Conf.cgi_url }}" method="post">
         <button type="submit">申請する</button>
         <input type="hidden" name="mode" value="omiai_request_ok">
         <input type="hidden" name="target" value="{{ target }}">
-        <input type="hidden" name="token" value="{ {token }}">
+        <input type="hidden" name="token" value="{{ token }}">
     </form>
 
     <form action="{{ Conf.cgi_url }}" method="post">
