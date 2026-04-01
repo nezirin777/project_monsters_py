@@ -48,7 +48,7 @@ def get_monster_list(floor, room_type, special_monster=None):
         if mon["階層A"] <= floor <= mon["階層B"]
         and (
             room_type == "通常"
-            and mon["room"] not in ("特殊", "？？？系")
+            and mon["room"] not in ("異世界", "？？？系")
             or room_type == mon["room"]
         )
     ]
@@ -58,7 +58,7 @@ def get_monster_list(floor, room_type, special_monster=None):
         party = sub_def.open_party()
         if 21 <= floor <= 30:
             for member in party[: min(len(party), 3)]:
-                if monsters[member["name"]]["room"] == "特殊":
+                if monsters[member["name"]]["room"] == "異世界":
                     aite.append("キュゥべえ")
 
     if not aite:

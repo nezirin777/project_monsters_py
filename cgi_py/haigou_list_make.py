@@ -1,12 +1,114 @@
+# haigou_list_make.py
+
 from jinja2 import Environment, FileSystemLoader
-import sub_def
+
+from sub_def.monster_ops import (
+    open_monster_dat,
+)
 import conf
 
 Conf = conf.Conf
 
+# Jinja2テンプレート環境を設定
+env = Environment(loader=FileSystemLoader("templates"))
+
+
+def build_monster_view(name, data):
+    return {
+        "name": name,
+        "no": data.get("no", 0),
+        "m_type": data.get("m_type", ""),
+        "blood": [data.get(f"血統{i}") for i in range(1, 4) if data.get(f"血統{i}")],
+        "mate": [data.get(f"相手{i}") for i in range(1, 4) if data.get(f"相手{i}")],
+        "floor": build_floor(data.get("階層A"), data.get("階層B")),
+        "get_text": "OK" if data.get("get") else "NO",
+    }
+
+
+def build_floor(a, b):
+    if not a:
+        return ""
+    if b:
+        return f"{a}階～{b}階"
+    return f"{a}階～"
+
+
+def normalize_monster(m):
+    return {
+        "name": m["name"],
+        "m_type": m.get("m_type", ""),
+        "floor": build_floor(m.get("floor_min"), m.get("floor_max")),
+        "room": m.get("room", ""),
+        "desc_a": m.get("description_a", ""),
+        "desc_b": m.get("description_b", ""),
+        "stats": f'HP:{m["hp"]} MP:{m["mp"]} ATK:{m["atk"]} DEF:{m["def"]} AGI:{m["agi"]} EXP:{m["exp"]} MONEY:{m["money"]}',
+        "date": m.get("date", ""),
+        "no": m.get("no", 0),
+        "floor_min": m.get("floor_min", 0),
+    }
+
+
+# list2用（normalize前データ生成）
+def build_list2(M_list):
+    result = []
+
+    for name, data in M_list.items():
+        if int(data.get("list_type") or 0) == 2:
+
+            is_hidden = int(data.get("name_hidden") or 0) == 1
+            description_a = (
+                f"<span>{data.get('説明A', '')}</span>"
+                if int(data.get("omiai_only") or 0) == 1
+                else data.get("説明A", "")
+            )
+
+            result.append(
+                {
+                    "name": "？？？" if is_hidden else name,
+                    "m_type": data.get("m_type", ""),
+                    "floor_min": data.get("階層A", ""),
+                    "floor_max": data.get("階層B", ""),
+                    "room": data.get("room", "出現しない"),
+                    "description_a": description_a,
+                    "description_b": data.get("説明B", ""),
+                    "hp": data.get("hp", 0),
+                    "mp": data.get("mp", 0),
+                    "atk": data.get("atk", 0),
+                    "def": data.get("def", 0),
+                    "agi": data.get("agi", 0),
+                    "exp": data.get("exp", 0),
+                    "money": data.get("money", 0),
+                    "date": data.get("date", "2000/1/1"),
+                    "no": data.get("no", 0),
+                }
+            )
+
+    return result
+
 
 def haigou_list_make():
-    # list(通常モンスタ)用
+    M_list = open_monster_dat()
+
+    # =========================
+    # list1（通常モンスター）
+    # =========================
+
+    filtered_M_list = {}
+
+    for name, dat in M_list.items():
+        # 判定はこれだけ
+        if int(dat.get("list_type") or 0) == 2:
+            continue
+
+        m_type = dat.get("m_type", "その他")
+
+        monster = build_monster_view(name, dat)
+
+        # グループ初期化
+        if m_type not in filtered_M_list:
+            filtered_M_list[m_type] = []
+
+        filtered_M_list[m_type].append(monster)
 
     M_types = [
         "スライム系",
@@ -22,365 +124,47 @@ def haigou_list_make():
         "？？？系",
     ]
 
-    # 表示させないモンスター
-    M_del_list = [
-        "アイぼう",
-        "かくれんぼう",
-        "じげんりゅう",
-        "ラーミア",
-        "ゾーマズデビル",
-        "マスタードラゴン",
-    ]
-
-    M_list = sub_def.open_monster_dat()
-
-    # フィルタリングされたモンスターリストを作成
-    filtered_M_list = {
-        m_type: {
-            name: dat
-            for name, dat in M_list.items()
-            if dat["m_type"] == m_type and name not in M_del_list
-        }
-        for m_type in M_types
-    }
-
     # リンク用のデータ作成
     links = [{"id": m_type, "label": m_type} for m_type in M_types]
 
     context1 = {
         "Conf": Conf,
-        "links": links,
         "filtered_M_list": filtered_M_list,
+        "links": links,
     }
 
-    # Jinja2テンプレート環境を設定
-    env = Environment(loader=FileSystemLoader("templates"), cache_size=100)
     template1 = env.get_template("haigou_list_tmp.html")
 
-    # テンプレートをレンダリング
     html1 = template1.render(context1)
 
-    # ファイル保存 (haigou_list.html)
-    output_path1 = "html/haigou_list.html"
-    with open(output_path1, "w", encoding="utf-8") as file:
+    with open("html/haigou_list.html", "w", encoding="utf-8") as file:
         file.write(html1)
 
-    # 以下list2(特殊モンスタ)用
-    monsters1 = [
-        {
-            "name": "ワンダーエッグ",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>？？？</span>",
-            "description_b": "<span>？？？</span>",
-            "hp": 10,
-            "mp": 3,
-            "atk": 5,
-            "def": 8,
-            "agi": 4,
-            "exp": 10,
-            "money": 100,
-            "date": "2000/01/01",
-            "m_type": "ワンダーエッグ",
-        },
-        {
-            "name": "？？？",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>某精霊×某精霊(逆でもおｋ)</span>",
-            "hp": 40,
-            "mp": 60,
-            "atk": 40,
-            "def": 40,
-            "agi": 80,
-            "date": "2000/01/01",
-            "m_type": "某精霊",
-        },
-        {
-            "name": "？？？",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>相棒×たまご(逆でもおｋ)</span>",
-            "hp": 50,
-            "mp": 70,
-            "atk": 50,
-            "def": 50,
-            "agi": 50,
-            "date": "2000/01/01",
-            "m_type": "相棒",
-        },
-        {
-            "name": "？？？",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>真りゅうおう×隠(逆でもおｋ)</span>",
-            "hp": 80,
-            "mp": 60,
-            "atk": 100,
-            "def": 80,
-            "agi": 90,
-            "date": "2000/01/01",
-            "m_type": "真りゅうおう",
-        },
-        {
-            "name": "？？？",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>最強の鳥さん×↑(逆でもおｋ)</span>",
-            "hp": 100,
-            "mp": 100,
-            "atk": 100,
-            "def": 100,
-            "agi": 100,
-            "date": "2000/01/01",
-            "m_type": "最強の鳥さん",
-        },
-        {
-            "name": "？？？",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>アスラン×これでもラスボスでした。(逆でもおｋ)</span>",
-            "hp": 50,
-            "mp": 40,
-            "atk": 60,
-            "def": 40,
-            "agi": 30,
-            "date": "2000/01/01",
-            "m_type": "アスラン",
-        },
-        {
-            "name": "？？？",
-            "floor_min": "",
-            "floor_max": "",
-            "room": "出現しない",
-            "description_a": "<span>天界獣×ギスヴァーグ(逆でもおｋ)</span>",
-            "hp": 150,
-            "mp": 150,
-            "atk": 150,
-            "def": 150,
-            "agi": 150,
-            "date": "2000/01/01",
-            "m_type": "天界獣",
-        },
-        {
-            "name": "ひのせいれい",
-            "floor_min": 300,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "交換所のみ",
-            "hp": 25,
-            "mp": 20,
-            "atk": 30,
-            "def": 10,
-            "agi": 20,
-            "exp": 300,
-            "money": 300,
-            "date": "2000/01/01",
-            "m_type": "ひのせいれい",
-        },
-        {
-            "name": "みずのせいれい",
-            "floor_min": 300,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "交換所のみ",
-            "hp": 20,
-            "mp": 20,
-            "atk": 20,
-            "def": 20,
-            "agi": 20,
-            "exp": 300,
-            "money": 300,
-            "date": "2000/01/01",
-            "m_type": "みずのせいれい",
-        },
-        {
-            "name": "かぜのせいれい",
-            "floor_min": 300,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "交換所のみ",
-            "hp": 15,
-            "mp": 20,
-            "atk": 20,
-            "def": 15,
-            "agi": 30,
-            "exp": 300,
-            "money": 300,
-            "date": "2000/01/01",
-            "m_type": "かぜのせいれい",
-        },
-        {
-            "name": "ちのせいれい",
-            "floor_min": 300,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "交換所のみ",
-            "hp": 30,
-            "mp": 10,
-            "atk": 25,
-            "def": 30,
-            "agi": 10,
-            "exp": 300,
-            "money": 300,
-            "date": "2000/01/01",
-            "m_type": "ちのせいれい",
-        },
-        {
-            "name": "ひかりのせいれい",
-            "floor_min": 300,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "ちのせいれい×みずのせいれい(逆でもok)",
-            "hp": 30,
-            "mp": 30,
-            "atk": 30,
-            "def": 30,
-            "agi": 30,
-            "exp": 400,
-            "money": 200,
-            "date": "2000/01/01",
-            "m_type": "ひかりのせいれい",
-        },
-        {
-            "name": "やみのせいれい",
-            "floor_min": 300,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "ひのせいれい×かぜのせいれい(逆でもok)",
-            "hp": 30,
-            "mp": 30,
-            "atk": 30,
-            "def": 30,
-            "agi": 30,
-            "exp": 400,
-            "money": 200,
-            "date": "2000/01/01",
-            "m_type": "やみのせいれい",
-        },
-        {
-            "name": "イイロ",
-            "floor_min": 400,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "スライム系×ちのせいれい",
-            "hp": 5,
-            "mp": 5,
-            "atk": 7,
-            "def": 6,
-            "agi": 5,
-            "exp": 100,
-            "money": 100,
-            "date": "2000/01/01",
-            "m_type": "イイロ",
-        },
-        {
-            "name": "ピモ",
-            "floor_min": 400,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "スライム系×ひのせいれい",
-            "hp": 6,
-            "mp": 6,
-            "atk": 5,
-            "def": 7,
-            "agi": 5,
-            "exp": 100,
-            "money": 100,
-            "date": "2000/01/01",
-            "m_type": "ピモ",
-        },
-        {
-            "name": "アルー",
-            "floor_min": 400,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "スライム系×みずのせいれい",
-            "hp": 7,
-            "mp": 4,
-            "atk": 8,
-            "def": 3,
-            "agi": 5,
-            "exp": 100,
-            "money": 100,
-            "date": "2000/01/01",
-            "m_type": "アルー",
-        },
-        {
-            "name": "ドリーン",
-            "floor_min": 400,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "スライム系×かぜのせいれい",
-            "hp": 8,
-            "mp": 4,
-            "atk": 4,
-            "def": 5,
-            "agi": 5,
-            "exp": 100,
-            "money": 100,
-            "date": "2000/01/01",
-            "m_type": "ドリーン",
-        },
-        {
-            "name": "パーラル",
-            "floor_min": 400,
-            "floor_max": "",
-            "room": "通常部屋",
-            "description_a": "スライム系×やみのせいれい",
-            "hp": 9,
-            "mp": 5,
-            "atk": 10,
-            "def": 7,
-            "agi": 5,
-            "exp": 100,
-            "money": 100,
-            "date": "2000/01/01",
-            "m_type": "パーラル",
-        },
-    ]
+    # =========================
+    # list2（特殊モンスター）
+    # =========================
 
-    monsters2 = [
-        {
-            "name": name,
-            "m_type": data["m_type"],
-            "floor_min": data["階層A"],
-            "floor_max": data["階層B"],
-            "description_a": data["説明A"],
-            "description_b": data["説明B"],
-            "hp": data["hp"],
-            "mp": data["mp"],
-            "atk": data["atk"],
-            "def": data["def"],
-            "agi": data["agi"],
-            "exp": data["exp"],
-            "money": data["money"],
-            "date": data["date"],
-            "no": data["no"],
-            "room": "異世界",
-        }
-        for name, data in M_list.items()
-        if data["room"] == "特殊"
-    ]
+    monsters_raw = build_list2(M_list)
+    monsters = [normalize_monster(m) for m in monsters_raw]
+
+    seen = set()
+    links2 = []
+
+    for m in monsters:
+        t = m["m_type"]
+        if t and t not in seen:
+            seen.add(t)
+            links2.append({"id": t, "label": t})
 
     context2 = {
         "Conf": Conf,
-        "monsters": monsters1 + monsters2,
+        "monsters": monsters,
+        "links": links2,
     }
 
-    # Jinja2テンプレート環境を設定
     template2 = env.get_template("haigou_list2_tmp.html")
 
-    # テンプレートをレンダリング
     html2 = template2.render(context2)
 
-    # ファイル保存
-    output_path = "html/haigou_list2.html"
-    with open(output_path, "w", encoding="utf-8") as file:
+    with open("html/haigou_list2.html", "w", encoding="utf-8") as file:
         file.write(html2)

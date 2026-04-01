@@ -29,29 +29,22 @@ def haigou_sub(base, aite, flg=0):
 
     # 条件を満たす新モンスターを検索
     for name, mon in M_list.items():
+
+        if int(mon["omiai_only"] or 0) == 1 and flg == 0:
+            continue  # お見合い限定は通常配合では出現しない
+
         for n in range(1, 4):
             blood = mon[f"血統{n}"]
             partner = mon[f"相手{n}"]
 
             # 特殊条件に対するヒント獲得
-            if mon["room"] == "特殊":
+            if mon["room"] == "異世界":
                 if base == blood or aite == partner:
                     hint_flag = True
 
-            # お見合い
-            if (
-                flg
-                and base == mon.get(f"お見合いA{n}")
-                and aite == mon.get(f"お見合いB{n}")
-            ):
-                return name  # 最優先なので即終了
-
             # 個体×個体
             if base == blood and aite == partner:
-                if best_rank > 1:
-                    best = name
-                    best_rank = 1
-                continue
+                return name, hint_flag  # 最優先なので即返す
 
             # 系統×個体
             if (base_type == blood and aite == partner) or (

@@ -41,26 +41,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for name, target in monsters.items() %}
+                        {% for m in monsters %}
                         <tr>
-                            <td class="haigou_menu_1">{{ target["no"] }}</td>
-                            <td class="haigou_menu_2">{{ name }}</td>
+                            <td class="haigou_menu_1">{{ m.no }}</td>
+                            <td class="haigou_menu_2">{{ m.name }}</td>
                             <td class="haigou_menu_3">
-                                {% for x in range(1, 4) %}
-                                {% if target["血統" ~ x] %}
-                                <span class="haigou_menu_3B">{{ target["血統" ~ x] }}</span>
-                                {% endif %}
-                                {% endfor %}
+                              {% for b in m.blood %}
+                              <span class="haigou_menu_3B">{{ b }}</span>
+                              {% endfor %}
                             </td>
                             <td class="haigou_menu_4">
-                                {% for x in range(1, 4) %}
-                                {% if target["相手" ~ x] %}
-                                <span class="haigou_menu_4B">{{ target["相手" ~ x] }}</span>
-                                {% endif %}
-                                {% endfor %}
+                              {% for mate in m.mate %}
+                              <span class="haigou_menu_4B">{{ mate }}</span>
+                              {% endfor %}
                             </td>
-                            <td class="haigou_menu_5">{{ target["階層A"] }}階～{{ target["階層B"] }}階</td>
-                            <td class="haigou_menu_1">{{ "OK" if target["get"] else "NO" }}</td>
+                            <td class="haigou_menu_5">{{ m.floor }}</td>
+                            <td class="haigou_menu_1">{{ m.get_text }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -68,18 +64,7 @@
             {% endfor %}
         </div>
 
-        <div id="footer">
-            <div id="f_box">
-                <div id="f_t">MONSTER'S 改 {{ Conf.ver }}</div>
-                <div><span>【改造】</span>おくた</div>
-                <div><span>【ドット絵】</span><a href="http://wpdot.blog106.fc2.com/">wp～ドット絵倉庫～</a></div>
-                <div><span>【ドット絵】</span><a href="https://www.pixiv.net/users/26734">chopper氏</a></div>
-                <div><span>【ドット絵】</span><a href="http://deepmoon.sakura.ne.jp/icon/">DMF別館 アイコン素材屋</a></div>
-                <div><span>【ドット絵】</span><a href="https://dfp2013.jimdofree.com/">Dragon Fake Project</a></div>
-                <div><span>【作成・配布】</span><a href="http://park16.wakwak.com/~mikio-palace/">MIKIO-PALACE</a></div>
-                <div>Copyright (C) 2002-2004：MIKIO</div>
-            </div>
-        </div>
+        {% include "footer_tmp.html" %}
     </div>
 </body>
 
