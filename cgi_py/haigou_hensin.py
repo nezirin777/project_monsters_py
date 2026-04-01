@@ -10,12 +10,6 @@ import conf
 
 Conf = conf.Conf
 
-import sys
-
-
-def log(msg):
-    print(msg, file=sys.stderr)
-
 
 def haigou_hensin(FORM):
     """配合による新モンスター生成と表示"""
@@ -43,13 +37,10 @@ def haigou_hensin(FORM):
 
     new_mob = monster_select(new_m, hosei)
 
-    log(new_mob)
     is_waza = waza_get(new_mob.pop("waza"))
     is_new = zukan_get(new_mob["name"])
     is_rare = True if new_mob["room"] == "特殊" else False
     new_mob.pop("room")
-
-    log(f"hint_flag: {hint_flag}, is_new: {is_new}, is_rare: {is_rare}")
 
     new_mob.update(
         {

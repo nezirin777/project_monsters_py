@@ -11,6 +11,7 @@
 	margin-bottom: $bottom;
 }
 
+
 @mixin font_color_size ($color:black,$size:100%) {
 	color: $color ;
 	font-size: $size;
