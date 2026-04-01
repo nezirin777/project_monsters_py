@@ -806,7 +806,7 @@ def update_isekai_limit(M_list):
     """異世界最深部設定を更新"""
     # confオーバーライドファイルに異世界最深部の最大階層を保存
     isekai_max_limit = max(
-        [mon["階層B"] for mon in M_list.values() if (mon["room"] in ("特殊"))]
+        [mon["階層B"] for mon in M_list.values() if (mon["room"] in ("異世界"))]
     )
 
     update_conf_value("isekai_max_limit", isekai_max_limit)

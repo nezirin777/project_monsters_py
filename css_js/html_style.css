@@ -135,11 +135,14 @@
   font-size: 110%;
   background-color: rgba(255, 255, 255, 0.6);
   position: fixed;
-  top: 25%;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 10px 10px 10px 10px;
   border-radius: 15px; /* 丸みを持たせる */
   line-height: 200%; /* 行の高さ */
-  right: 0%;
 }
 
 /**list2.html**/
@@ -150,6 +153,17 @@ body {
 .haigou_txt ul {
   /* ulの黒点を中央に寄せる */
   list-style-position: inside;
+}
+
+.list2_group_header {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  text-align: center;
+  color: black;
+  font-size: 110%;
+  font-weight: bold;
 }
 
 .list2_monster_table {

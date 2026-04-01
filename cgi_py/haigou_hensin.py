@@ -39,7 +39,7 @@ def haigou_hensin(FORM):
 
     is_waza = waza_get(new_mob.pop("waza"))
     is_new = zukan_get(new_mob["name"])
-    is_rare = True if new_mob["room"] == "特殊" else False
+    is_rare = True if new_mob["room"] == "異世界" else False
     new_mob.pop("room")
 
     new_mob.update(
