@@ -14,8 +14,7 @@
         </div>
     </div>
 
-    <form action="{{ Conf.cgi_url }}" method="post" class="form">
-        <div class="my_page_pt">
+    <div class="my_page_pt" id="party_form">
             {% for i, pt in party_with_index %}
             <div class="my_page_chara_{{ i }}">
                 <div class="my_page_st_1">
@@ -64,14 +63,12 @@
                 </div>
             </div>
             {% endfor %}
-        </div>
-
-        {% if my_page_flg %}
-        <div class="my_page_title">
-            <button type="submit">並び替えOK</button>
-            <input type="hidden" name="mode" value="change">
-            <input type="hidden" name="token" value="{{ token }}">
-            No.1からNo.3迄のモンスターが戦闘を行います
-        </div>
-        {% endif %}
-    </form>
+    </div>
+    {% if my_page_flg %}
+      <div>
+        <button id="change_btn" data-url="{{ Conf.cgi_url }}" data-token="{{ token }}" onclick="doChange(this)" type="submit" >
+        <span>並び替えOK</span>
+        </button>
+      </div>
+        <span class="my_page_title">No.1からNo.3迄のモンスターが戦闘を行います</span>
+    {% endif %}

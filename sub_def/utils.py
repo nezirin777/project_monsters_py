@@ -112,6 +112,7 @@ def print_html(tmp_name="", content=None, exit=True):
 def print_json(data):
     print("Content-Type: application/json\r\n\r\n")
     print(json.dumps(data))
+    sys.exit()
 
 
 # =============#
