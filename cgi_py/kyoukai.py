@@ -1,27 +1,8 @@
-import sub_def
+# kyoukai.py - 教会での処理を担当するモジュール
 
-
-def kyoukai(FORM):
-    """教会でお祈りを行う準備と確認画面の表示"""
-    kyoukaidai = int(FORM["kyoukaidai"])
-    money = int(FORM["money"])
-    token = FORM["token"]
-
-    # エラーチェック
-    if money < kyoukaidai:
-        sub_def.error("お金が足りません")
-    elif kyoukaidai == 0:
-        sub_def.error("現在お祈りする必要はありません")
-
-    html = f"""
-        <form action="{{ Conf.cgi_url }}" method="post">
-            <button type="submit">お祈りする</button>
-            <input type="hidden" name="mode" value="kyoukai_ok">
-            <input type="hidden" name="token" value="{token}">
-        </form>
-    """
-
-    sub_def.print_result("お祈りしますか？", html, FORM["token"])
+from sub_def.file_ops import open_user, save_user, open_party, save_party
+from sub_def.utils import print_json
+import json
 
 
 def recover_monster(monster):
@@ -33,16 +14,21 @@ def recover_monster(monster):
 
 
 def kyoukai_ok(FORM):
-    """お祈りによりパーティのHP・MPを回復し、費用を更新"""
-    user = sub_def.open_user()
-    party = sub_def.open_party()
+    user = open_user()
+    party = open_party()
 
-    # 回復と費用計算
     total_cost = sum(recover_monster(pt) for pt in party)
 
-    # 所持金更新と保存
-    user["money"] -= int(total_cost)
-    sub_def.save_user(user)
-    sub_def.save_party(party)
+    # エラーチェック
+    if user["money"] < total_cost:
+        print_json({"error": "お金が足りません"})
+        return
+    elif total_cost == 0:
+        print_json({"error": "現在お祈りする必要はありません"})
+        return
 
-    sub_def.print_result("お祈りが天にとどきました", "", FORM["token"])
+    user["money"] -= total_cost
+    save_user(user)
+    save_party(party)
+
+    print_json({"success": True})

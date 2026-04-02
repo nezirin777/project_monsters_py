@@ -62,6 +62,10 @@ body {
 	-webkit-appearance: none;
 }
 
+/* モーダルが開いている場合スクロール停止 */
+body.modal-open {
+  overflow: hidden;
+}
 
 A:Link {
 	color:$white;
@@ -1384,4 +1388,207 @@ img[name="img1"] {
   text-align: center;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
   white-space: pre-wrap;
+}
+
+.hidden {
+  display: none;
+}
+
+/************************************/
+/* UI */
+/************************************/
+/************************************/
+/* トースト */
+/************************************/
+#toast-container {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+  /* ←トースト自体はクリック邪魔しない */
+}
+
+/* 本体 */
+.toast {
+  min-width: 260px;
+  max-width: 320px;
+  padding: 14px 18px;
+
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+
+  color: #fff;
+  font-size: 15px;
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+
+  animation: toastIn 0.25s ease;
+}
+
+/* 色アクセント */
+.toast.success {
+  background: rgba(0, 180, 0, 0.9);
+}
+
+.toast.error {
+  background: rgba(200, 0, 0, 0.9);
+}
+
+.toast.info {
+  background: rgba(0, 120, 200, 0.9);
+}
+
+/* 登場 */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 退場 */
+.toast.fade-out {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.2s ease;
+}
+/************************************/
+/* オーバーレイ */
+/************************************/
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  backdrop-filter: blur(3px);
+}
+
+.overlay-content {
+  text-align: center;
+}
+
+.overlay-text {
+  margin-top: 10px;
+  color: #fff;
+  font-size: 14px;
+}
+
+/************************************/
+/* スピナー */
+/************************************/
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top: 5px solid #4af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/************************************/
+/* モーダル */
+/************************************/
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+/* 背景 */
+.modal-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+/* 本体 */
+.modal-box {
+  position: relative;
+  z-index: 1;
+
+  background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+  color: #fff;
+  padding: 24px 28px;
+  border-radius: 14px;
+
+  min-width: 280px;
+  max-width: 90%;
+  text-align: center;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from {
+    transform: translateY(10px) scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/************************************/
+/* ボタン */
+/************************************/
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.modal-buttons button {
+  min-width: 90px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+#confirm-ok {
+  background: linear-gradient(135deg, #4caf50, #43a047);
+  color: #fff;
+}
+
+#confirm-cancel {
+  background: #444;
+  color: #ddd;
 }

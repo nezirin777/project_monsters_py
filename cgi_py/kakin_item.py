@@ -1,8 +1,8 @@
 def kakin_item(item_id, user_name):
-    import sub_def
+    from sub_def.file_ops import open_vips, save_vips
     import time
 
-    vips = sub_def.open_vips(user_name)
+    vips = open_vips(user_name)
 
     if item_id == "boost1":
         now_ts = time.time()
@@ -13,7 +13,7 @@ def kakin_item(item_id, user_name):
         else:
             vips["boost"] = now_ts + (3600 * 24)  # 新規
 
-        sub_def.save_vips(vips, user_name)
+        save_vips(vips, user_name)
         return True
 
     if item_id == "boost3":
@@ -25,7 +25,7 @@ def kakin_item(item_id, user_name):
         else:
             vips["boost"] = now_ts + (3600 * 24 * 3)  # 新規
 
-        sub_def.save_vips(vips, user_name)
+        save_vips(vips, user_name)
         return True
 
     if item_id == "boost7":
@@ -37,7 +37,7 @@ def kakin_item(item_id, user_name):
         else:
             vips["boost"] = now_ts + (3600 * 24 * 7)  # 新規
 
-        sub_def.save_vips(vips, user_name)
+        save_vips(vips, user_name)
         return True
 
     return False

@@ -1,6 +1,7 @@
 # utils.py
 
 import sys
+import os
 import secrets
 import logging
 import json
@@ -45,6 +46,10 @@ configure_logging()
 # ========#
 # エラー  #
 # ========#
+def is_ajax():
+    return os.environ.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+
+
 def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
     from .crypto import get_session, set_session
 
@@ -59,9 +64,9 @@ def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
 
     logging.log(log_level, f"Error: {sanitized_txt}, Jump: {jump}")
 
-    if exit_code == 1:  # AJAXの場合
+    if is_ajax():  # AJAXの場合
         print("Content-Type: application/json\r\n\r\n")
-        print(json.dumps({"error": sanitized_txt}))
+        print(json.dumps({"ok": False, "error": sanitized_txt}))
     else:
         content = {
             "Conf": Conf,
@@ -99,6 +104,14 @@ def print_html(tmp_name="", content=None, exit=True):
 
     if exit:
         sys.exit()
+
+
+# ==========#
+# json出力  #
+# ==========#
+def print_json(data):
+    print("Content-Type: application/json\r\n\r\n")
+    print(json.dumps(data))
 
 
 # =============#

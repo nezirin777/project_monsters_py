@@ -6,7 +6,11 @@
 {% block content %}
 
   <div id="result">
-    <span>{{ mes }}</span>
+    <span>
+      モンスターに本を読ませると性格が変わります。<br>
+      現在の性格によっては変わらない場合もあります。<br>
+      1冊{{ book_price }}G。
+    </span>
   </div>
 
   <div id="books_mbox">
@@ -35,9 +39,12 @@
 
       <div class="books_text3">本を選択して下さい</div>
       <select name="Bname">
-          {% for book in books_list %}
-              <option value="{{ book }}">{{ book }}</option>
-          {% endfor %}
+              <option value="ぼうけんたん">ぼうけんたん</option>
+              <option value="こわいはなしのほん">こわいはなしのほん</option>
+              <option value="やさしくなれるほん">やさしくなれるほん</option>
+              <option value="ずるっこのほん">ずるっこのほん</option>
+              <option value="あたまがさえるほん">あたまがさえるほん</option>
+              <option value="ユーモアのほん">ユーモアのほん</option>
       </select>
 
       <br><br>
