@@ -1,25 +1,47 @@
 <!-- templates/error_tmp.html -->
 
-
 {% extends "base_tmp.html" %}
 
 {% block head %}
-    {% if jump in ["top", "kanri", ""] %}
-        <script>
-            window.addEventListener('DOMContentLoaded', () => {
-                const url = "{{ url }}";
-                const par = JSON.parse('{{ par | tojson }}');
-                setTimeout(() => { post(url, par); }, 2000);
-            });
-        </script>
-    {% endif %}
+<script id="error-data" type="application/json">
+  {{ {
+      "txt": txt,
+      "url": url,
+      "par": par,
+      "shouldJump": jump in ["top", "kanri", ""]
+  } | tojson }}
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+
+    const raw = document.getElementById("error-data").textContent;
+    const DATA = JSON.parse(raw);
+
+    const { txt, url, par, shouldJump } = DATA;
+
+    // トースト
+    if (typeof showToast === "function") {
+      showToast(txt, "error");
+    }
+
+    // 遷移
+    if (shouldJump) {
+      setTimeout(() => {
+        setUILock(true, "移動中...");
+        postNavigate(url, par);
+      }, 2000);
+    }
+  });
+</script>
 {% endblock %}
 
 {% block content %}
-
-
     <div id="error">
-        <span>{{ txt }}{% if jump in ["top", "kanri", ""] %}<br>自動移動します{% endif %}</span>
+        <span>
+            {{ txt }}
+            {% if jump in ["top", "kanri", ""] %}
+                <br>自動移動します
+            {% endif %}
+        </span>
     </div>
-
 {% endblock %}

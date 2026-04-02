@@ -1,4 +1,7 @@
-        <div class="my_page_menu1">施設色々</div>
+<!-- templates/my_page_shoplist_tmp.html -->
+
+
+      <div class="my_page_menu1">施設色々</div>
         <div class="my_page_menu2"><span id="link_msg">説明がここに。</span></div>
         <div class="my_page_menu3">【お店へ】<br>
             {% if omiai_status == "baby" %}
@@ -16,7 +19,7 @@
                 </span>
             </form>
 
-            <form action="{{ Conf.cgi_url }}" method="post" class="form">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form" data-money="{{ user.money }}">
                 <span data-msg = "ｺﾞｰﾙﾄﾞを支払ってHP･MPを完全に回復させます。">
                     <button type="submit">宿屋({{ yadoya_cost_v }}G)</button>
                     <input type="hidden" name="mode" value="yadoya">
@@ -26,15 +29,11 @@
                 </span>
             </form>
 
-            <form action="{{ Conf.cgi_url }}" method="post" class="form">
-                <span data-msg = "ｺﾞｰﾙﾄﾞを支払って死亡したモンスターを復活させます。">
-                    <button type="submit">教会({{ kyoukai_cost_v }}G)</button>
-                    <input type="hidden" name="mode" value="kyoukai">
-                    <input type="hidden" name="kyoukaidai" value="{{ kyoukai_cost }}">
-                    <input type="hidden" name="money" value="{{ user.money }}">
-                    <input type="hidden" name="token" value="{{ token }}">
+            <button id="kyoukai_btn" data-url="{{ Conf.cgi_url }}" data-token="{{ token }}" onclick="doKyoukai(this)" type="submit">
+                <span data-msg="ｺﾞｰﾙﾄﾞを支払って死亡したモンスターを復活させます。">
+                  教会({{ kyoukai_cost_v }}G)
                 </span>
-            </form>
+            </button>
 
             <form action="{{ Conf.cgi_url }}" method="post" class="form">
                 <span data-msg = "メダルやGを使いモンスター等を交換できます。">

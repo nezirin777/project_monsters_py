@@ -31,3 +31,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/************************************/
+/* メイン処理（教会ボタン） */
+/************************************/
+async function doKyoukai(btn) {
+  const url = btn.dataset.url;
+  const token = btn.dataset.token;
+
+  const ok = await showConfirm("お祈りしますか？");
+  if (!ok) return;
+
+  // ロック開始
+  setUILock(true, "お祈り中...");
+
+  const result = await apiPost(url, {
+    mode: "kyoukai_ok",
+    token: token
+  });
+
+  if (!result.ok) {
+    setUILock(false);
+    showToast(result.error, "error");
+    return;
+  }
+
+  showToast("お祈りが天にとどきました", "success");
+
+  setTimeout(() => {
+    setUILock(true, "マイページへ移動中...");
+    postNavigate(url, {
+      mode: "my_page",
+      token: token
+    });
+  }, 800);
+}

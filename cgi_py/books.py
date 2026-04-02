@@ -40,29 +40,12 @@ def books(FORM):
         for pt in party
     ]
 
-    # 本リスト
-    books_list = [
-        "ぼうけんたん",
-        "こわいはなしのほん",
-        "やさしくなれるほん",
-        "ずるっこのほん",
-        "あたまがさえるほん",
-        "ユーモアのほん",
-    ]
-
-    mes = (
-        "モンスターに本を読ませると性格が変わります。<br>"
-        "現在の性格によっては変わらない場合もあります。<br>"
-        f"1冊{BOOK_PRICE}G。"
-    )
-
     content = {
         "Conf": Conf,
         "token": token,
         "monster_data": monster_data,
         "monster_options": monster_options,
-        "books_list": books_list,
-        "mes": mes,
+        "book_price": BOOK_PRICE,
     }
 
     print_html("book_tmp.html", content)
