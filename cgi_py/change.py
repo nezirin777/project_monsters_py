@@ -1,4 +1,6 @@
-from sub_def.utils import error, print_html
+# cange.py - パーティの並び替え処理を担当するモジュール
+
+from sub_def.utils import print_json
 from sub_def.file_ops import open_party, save_party
 import conf
 
@@ -11,19 +13,19 @@ def validate_c_no(c_no, party):
 
     # 長さチェック（zip事故防止）
     if len(c_no) != len(party):
-        error("並び替えデータ数が不正です")
+        print_json({"error": "並び替えデータ数が不正です"})
 
     # 範囲チェック
     if any(n < 1 or n > len(party) for n in c_no):
-        error("並び替えの数値が不正です")
+        print_json({"error": "並び替えの数値が不正です"})
 
     # 重複チェック
     if len(c_no) != len(set(c_no)):
-        error("並び替えの数値が重複しています")
+        print_json({"error": "並び替えの数値が重複しています"})
 
     # 欠損チェック（念のため）
     if set(c_no) != expected:
-        error("並び替えの数値が不足しています")
+        print_json({"error": "並び替えの数値が不足しています"})
 
 
 def safe_int(val):
@@ -34,8 +36,6 @@ def safe_int(val):
 
 
 def change(FORM):
-    token = FORM["token"]
-
     party = open_party()
 
     # 入力取得（パーティ数に合わせる）
@@ -52,15 +52,9 @@ def change(FORM):
 
     # 先頭モンスターの生存チェック
     if new_party[0]["hp"] == 0:
-        error("No.1は必ず生存中のモンスターを設定をしてください")
+        print_json({"error": "No.1は必ず生存中のモンスターを設定してください"})
 
     # 問題なければ保存
     save_party(new_party)
 
-    content = {
-        "Conf": Conf,
-        "token": token,
-        "mes": "並べ替えが完了しました",
-    }
-
-    print_html("result_tmp.html", content)
+    print_json({"success": True})

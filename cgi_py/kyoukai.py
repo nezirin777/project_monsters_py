@@ -2,7 +2,6 @@
 
 from sub_def.file_ops import open_user, save_user, open_party, save_party
 from sub_def.utils import print_json
-import json
 
 
 def recover_monster(monster):

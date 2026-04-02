@@ -66,3 +66,42 @@ async function doKyoukai(btn) {
     });
   }, 800);
 }
+
+async function doChange(btn) {
+    const url = btn.dataset.url;
+    const token = btn.dataset.token;
+
+    const ok = await showConfirm("並び替えますか？");
+    if (!ok) return;
+
+    setUILock(true, "並び替え中...");
+
+    // フォーム外ボタンでも select 値を取得可能
+    const data = { mode: "change", token: token };
+    const form = document.getElementById("party_form");
+    const selects = Array.from(form.querySelectorAll("select[name^='c_no']"));
+
+
+    // select の値を個別キーに変換
+    selects.forEach((sel, idx) => {
+        data[`c_no${idx+1}`] = parseInt(sel.value);
+    });
+
+    const result = await apiPost(url,data);
+
+    if (!result.ok) {
+        setUILock(false);
+        showToast(result.error, "error");
+        return;
+    }
+
+    showToast("並び替えが完了しました", "success");
+
+    setTimeout(() => {
+        setUILock(true, "マイページへ移動中...");
+        postNavigate(url, {
+            mode: "my_page",
+            token: token
+        });
+    }, 800);
+}
