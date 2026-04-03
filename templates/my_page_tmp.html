@@ -58,12 +58,10 @@
         </div>
     </div>
 
-    <form action="{{ Conf.cgi_url }}" method="post" class="form">
-        <input class="input" size="40" type="text" name="message" value="{{ user.mes | escape }}">
-        <input type="hidden" name="mode" value="comment">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit">コメント変更</button>
-    </form>
+    <div>
+        <input id="my_page_comment" class="input" size="40" type="text" name="comment" value="{{ user.mes | escape }}">
+        <button data-url="{{ Conf.cgi_url }}" data-token="{{ token }}" data-username="{{ in_name }}"onclick="docomment(this)" type="submit">コメント変更</button>
+    </div>
     <br>
 
     <div id="bbs"></div>
