@@ -181,7 +181,7 @@ async function apiPost(url, params) {
       return { ok: false, error: data.error };
     }
 
-    return { ok: true, data };
+    return { ok: true, ...data };
 
   } catch {
     return { ok: false, error: "通信エラー" };
@@ -193,7 +193,6 @@ async function apiPost(url, params) {
 /* POST遷移 */
 /************************************/
 function postNavigate(url, params) {
-
 
   const form = document.createElement("form");
   form.method = "POST";

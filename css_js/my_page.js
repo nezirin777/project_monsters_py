@@ -67,6 +67,9 @@ async function doKyoukai(btn) {
   }, 800);
 }
 
+/************************************/
+/* メイン処理（並び替えボタン） */
+/************************************/
 async function doChange(btn) {
     const url = btn.dataset.url;
     const token = btn.dataset.token;
@@ -104,4 +107,86 @@ async function doChange(btn) {
             token: token
         });
     }, 800);
+}
+
+/* ドラッグ＆ドロップで並び替え */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const items = document.querySelectorAll('[class^="my_page_chara_"]');
+
+  let dragSrc = null;
+
+  items.forEach((el, index) => {
+    el.draggable = true;
+    el.dataset.index = index;
+
+    el.addEventListener("dragstart", (e) => {
+      dragSrc = el;
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault(); // これ必須
+    });
+
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === el) return;
+
+      swapSelectValues(dragSrc, el);
+    });
+  });
+
+  function swapSelectValues(a, b) {
+    const selA = a.querySelector("select");
+    const selB = b.querySelector("select");
+
+    if (!selA || !selB) return;
+
+    const tmp = selA.value;
+    selA.value = selB.value;
+    selB.value = tmp;
+  }
+});
+
+
+/************************************/
+/* メイン処理（本読み） */
+/************************************/
+async function doHonYomi(btn) {
+  const url = btn.dataset.url;
+  const token = btn.dataset.token;
+
+  const ok = await showConfirm("本を読みますか？");
+  if (!ok) return;
+
+  // ロック開始
+  setUILock(true, "本読み中...");
+
+  const form = document.getElementById("book_shop_form");
+  const Mno = form.querySelector("select[name='Mno']").value;
+  const Bname = form.querySelector("select[name='Bname']").value;
+
+  const result = await apiPost(url, {
+    mode: "book_read",
+    token: token,
+    Mno : Mno,
+    Bname : Bname
+  });
+
+  if (!result.ok) {
+    setUILock(false);
+    showToast(result.error, "error");
+    return;
+  }
+
+  showToast(result.success, "success");
+
+  setTimeout(() => {
+    setUILock(true, "本屋に戻ります...");
+    postNavigate(url, {
+      mode: "books",
+      token: token
+    });
+  }, 800);
 }
