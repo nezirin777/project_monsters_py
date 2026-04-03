@@ -1,4 +1,4 @@
-from sub_def.utils import error, print_html
+from sub_def.utils import error, print_html, print_json
 from sub_def.file_ops import (
     open_user,
     open_party,
@@ -57,9 +57,7 @@ def book_read(FORM):
         Mno = int(FORM["Mno"]) - 1  # 配列位置に合わせるため -1
         Bname = FORM["Bname"]
     except (ValueError, KeyError):
-        error("モンスターまたは本が選択されていません")
-
-    token = FORM["token"]
+        print_json({"error": "モンスターまたは本が選択されていません"})
 
     user = open_user()
     party = open_party()
@@ -67,7 +65,7 @@ def book_read(FORM):
     seikaku = open_seikaku_dat()
 
     if user["money"] < BOOK_PRICE:
-        error("お金が足りません")
+        print_json({"error": "お金が足りません"})
 
     user["money"] -= BOOK_PRICE
 
@@ -102,17 +100,9 @@ def book_read(FORM):
     save_party(party)
 
     mes = (
-        f"性格が【{Msei}】から【{Newsei}】に変わった"
+        f"{party[Mno]['name']}の性格が【{Msei}】から【{Newsei}】に変わった"
         if Msei != Newsei
-        else "モンスターの性格は変わらなかった"
+        else f"{party[Mno]['name']}の性格は変わらなかった"
     )
 
-    content = {
-        "Conf": Conf,
-        "token": token,
-        "mes": mes,
-        "mode": "books",
-        "button_name": "本屋に戻る",
-    }
-
-    print_html("result_tmp.html", content)
+    print_json({"success": mes})
