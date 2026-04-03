@@ -1,4 +1,4 @@
-from sub_def.utils import error, print_html, print_json
+from sub_def.utils import print_html, print_json
 from sub_def.file_ops import (
     open_user,
     open_party,

@@ -52,6 +52,7 @@ async function safeFetch(url, options = {}) {
 
 /************************************/
 /* UIロック（ボタン＋オーバーレイ） */
+/* ロック除外は<button data-no-lock="true"> */
 /************************************/
 document.addEventListener("submit", function (e) {
   const form = e.target;

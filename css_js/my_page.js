@@ -190,3 +190,43 @@ async function doHonYomi(btn) {
     });
   }, 800);
 }
+
+/************************************/
+/* メイン処理（コメント更新） */
+/************************************/
+async function docomment(btn) {
+  const url = btn.dataset.url;
+  const token = btn.dataset.token;
+  const in_name = btn.dataset.username;
+
+  const ok = await showConfirm("コメントを更新しますか？");
+  if (!ok) return;
+
+  // ロック開始
+  setUILock(true, "コメント更新中...");
+
+  const comment = document.getElementById("my_page_comment").value;
+
+  const result = await apiPost(url, {
+    mode: "comment",
+    token: token,
+    username: in_name,
+    comment: comment
+  });
+
+  if (!result.ok) {
+    setUILock(false);
+    showToast(result.error, "error");
+    return;
+  }
+
+  showToast(result.success, "success");
+
+  setTimeout(() => {
+    setUILock(true, "マイページへ移動中...");
+    postNavigate(url, {
+      mode: "my_page",
+      token: token
+    });
+  }, 800);
+}
