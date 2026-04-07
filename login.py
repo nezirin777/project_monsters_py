@@ -1,5 +1,7 @@
 #!D:\Python\Python314\python.exe
 
+# login.py - ログイン処理とエラーハンドリング
+
 import sys
 import cgi
 import os
@@ -29,7 +31,6 @@ FUNCTION_MAP = {
     "yadoya_ok": ("cgi_py.yadoya", "yadoya_ok"),
     # 教会     #
     "kyoukai": ("cgi_py.kyoukai", "kyoukai"),
-    "kyoukai_ok": ("cgi_py.kyoukai", "kyoukai_ok"),
     # メダル交換所 #
     "medal_shop": ("cgi_py.shop_base", "medal_shop"),
     "medal_shop_ok": ("cgi_py.medal_shop", "medal_shop_ok"),

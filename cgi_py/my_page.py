@@ -1,3 +1,5 @@
+# my_page.py
+
 import datetime
 
 import sub_def
@@ -76,11 +78,18 @@ def my_page(FORM):
 
     # ログイン→マイページからの処理ではpikkel読み込み時に更新されたセッションを読み込めない。
     # よってin_name付与などが必須。
+    import time
+    import sys
+
+    start = time.time()
 
     session = FORM.get("s", {})
 
     in_name = session.get("in_name") or FORM.get("name")
     token = session.get("token")
+
+    flash_msg = session.pop("flash_msg", "")
+    flash_type = session.pop("flash_type", "error")
 
     last_floor = int(session.get("last_floor", 1))
     last_room = session.get("last_room", "")
@@ -166,9 +175,6 @@ def my_page(FORM):
     # 必要な変数を辞書にまとめてテンプレートへ渡す
     content = {
         "my_page_flg": 1,
-        "script": {
-            "party": "/" + "/".join(pt["name"] for pt in party),
-        },
         "Conf": Conf,
         "in_name": in_name,
         "token": token,
@@ -193,6 +199,10 @@ def my_page(FORM):
         "kyoukai_cost_v": kyoukai_cost_v,
         "haigou_options": haigou_options,
         "tenkan_options": tenkan_options,
+        "flash_msg": flash_msg,
+        "flash_type": flash_type,
     }
 
+    end = time.time()
+    print(f"<!-- my_page total: {end - start:.3f} sec -->", file=sys.stderr)
     sub_def.print_html("my_page_tmp.html", content)

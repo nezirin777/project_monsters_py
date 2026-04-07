@@ -49,7 +49,7 @@ input:invalid {
 }
 
 button {
-  margin: 6px 1px;
+  margin: 7px 1px;
 }
 
 .form {
@@ -1387,9 +1387,6 @@ img[name=img2] {
   max-height: 120px;
 }
 
-#book_shop_form {
-  margin-bottom: 20px;
-}
 /************************************/
 /* 配合 */
 /************************************/

@@ -21,7 +21,7 @@ from sub_def.crypto import hash_password, get_session, set_session
 from sub_def.file_ops import *
 from sub_def.monster_ops import monster_select
 from sub_def.user_ops import delete_user, backup
-from sub_def.utils import error, print_html, print_result
+from sub_def.utils import error, print_html
 from sub_def.validation import (
     newpass_check,
     present_monster_check,

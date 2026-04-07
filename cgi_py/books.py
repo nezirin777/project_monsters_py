@@ -1,4 +1,4 @@
-from sub_def.utils import print_html, print_json
+from sub_def.utils import error, success, print_html
 from sub_def.file_ops import (
     open_user,
     open_party,
@@ -18,6 +18,8 @@ SEIKAKU_MIN = 1  # 性格のパラメータ最小値
 def books(FORM):
     token = FORM["token"]
     party = open_party()
+    flash_msg = FORM["s"].pop("flash_msg", None)
+    flash_type = FORM["s"].pop("flash_type", "error")
 
     # モンスター表示用データ
     monster_data = [
@@ -46,6 +48,8 @@ def books(FORM):
         "monster_data": monster_data,
         "monster_options": monster_options,
         "book_price": BOOK_PRICE,
+        "flash_msg": flash_msg,
+        "flash_type": flash_type,
     }
 
     print_html("book_tmp.html", content)
@@ -57,7 +61,9 @@ def book_read(FORM):
         Mno = int(FORM["Mno"]) - 1  # 配列位置に合わせるため -1
         Bname = FORM["Bname"]
     except (ValueError, KeyError):
-        print_json({"error": "モンスターまたは本が選択されていません"})
+        error("モンスターまたは本が選択されていません", jump="books")
+
+    token = FORM["token"]
 
     user = open_user()
     party = open_party()
@@ -65,7 +71,7 @@ def book_read(FORM):
     seikaku = open_seikaku_dat()
 
     if user["money"] < BOOK_PRICE:
-        print_json({"error": "お金が足りません"})
+        error("お金が足りません")
 
     user["money"] -= BOOK_PRICE
 
@@ -102,7 +108,7 @@ def book_read(FORM):
     mes = (
         f"{party[Mno]['name']}の性格が【{Msei}】から【{Newsei}】に変わった"
         if Msei != Newsei
-        else f"{party[Mno]['name']}の性格は変わらなかった"
+        else f"{party[Mno]['name']}モンスターの性格は変わらなかった"
     )
 
-    print_json({"success": mes})
+    success(mes, jump="books")
