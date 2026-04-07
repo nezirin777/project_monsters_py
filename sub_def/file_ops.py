@@ -27,7 +27,7 @@ MAX_LOG_LINES = Conf["max_log_lines"]
 LOG_LOCK = exLock.exLock(
     os.path.join(Conf["savedir"], "locks", "shared", "log"),
     stale_seconds=120,
-    retry_count=60,
+    retry_count=5,
     retry_interval=1.0,
 )
 

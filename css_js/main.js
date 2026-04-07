@@ -11,6 +11,32 @@ document.addEventListener('click', (e) => {
   btn.disabled = true;
 });
 
+
+// データ属性で表示切替
+document.addEventListener("submit", async function (e) {
+  const form = e.target;
+
+  // confirm付きじゃないならそのまま
+  const confirmMsg = form.dataset.confirm;
+  if (!confirmMsg) {
+    handleUILock(e);
+    return;
+  }
+
+  // 一旦止める
+  e.preventDefault();
+
+  const ok = await showConfirm(confirmMsg);
+  if (!ok) return;
+
+  // UIロック
+  handleUILock(e);
+
+  // 再送信（無限ループ防止）
+  form.dataset.confirm = "";
+  form.submit();
+});
+
 // =====================
 // UILock安全対策まとめ
 // =====================
@@ -53,15 +79,19 @@ async function safeFetch(url, options = {}) {
 /************************************/
 /* UIロック（ボタン＋オーバーレイ） */
 /* ロック除外は<button data-no-lock="true"> */
+/* 表示メッセージはdata-loading="お祈り中..." */
 /************************************/
-document.addEventListener("submit", function (e) {
+function handleUILock(e) {
   const form = e.target;
 
-  // 例外
   if (form.dataset.noLock === "true") return;
 
-  setUILock(true, "読み込み中...");
-});
+  const btn = e.submitter;
+  const msg = form.dataset.loading || "読み込み中...";
+
+  setUILock(true, msg);
+}
+
 
 function setUILock(locked, message = "") {
   const overlay = document.getElementById("overlay");
@@ -138,8 +168,13 @@ function sleep(ms) {
 /************************************/
 /* 確認モーダル */
 /************************************/
+let confirmOpen = false;
+
 function showConfirm(message) {
   return new Promise((resolve) => {
+    if (confirmOpen) return resolve(false); // 多重防止
+    confirmOpen = true;
+
     const modal = document.getElementById("confirm-modal");
     const msg = document.getElementById("confirm-message");
     const okBtn = document.getElementById("confirm-ok");
@@ -148,18 +183,34 @@ function showConfirm(message) {
     msg.textContent = message;
     modal.classList.remove("hidden");
 
+    // フォーカス
+    okBtn.focus();
+
     function cleanup(result) {
       modal.classList.add("hidden");
       okBtn.onclick = null;
       cancelBtn.onclick = null;
+      document.removeEventListener("keydown", onKey);
+      confirmOpen = false;
       resolve(result);
     }
 
+    function onKey(e) {
+      if (e.key === "Enter") cleanup(true);
+      if (e.key === "Escape") cleanup(false);
+    }
+
+    document.addEventListener("keydown", onKey);
+
     okBtn.onclick = () => cleanup(true);
     cancelBtn.onclick = () => cleanup(false);
+
+    // 背景クリックでキャンセル
+    modal.onclick = (e) => {
+      if (e.target === modal) cleanup(false);
+    };
   });
 }
-
 
 /************************************/
 /* API通信（UIは触らない） */

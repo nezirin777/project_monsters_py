@@ -4,10 +4,10 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <TITLE> MONSTER'S 改 {{ Conf.ver }}</TITLE>
+    <title> MONSTER'S 改 {{ Conf.ver }}</title>
     <link rel="stylesheet" href="./css_js/style.css">
     <script src="./css_js/jquery.min.js"></script>
-    <script src="./css_js/main.js?0319"></script>
+    <script src="./css_js/main.js"></script>
 
     {% if script %}
     <script>
@@ -19,12 +19,15 @@
         });
     </script>
     {% endif %}
+    {% if flash_msg  %}
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        showToast({{ flash_msg | tojson }}, "{{ flash_type or 'error' }}");
+            });
+    </script>
+    {% endif %}
 
     {% block head %}{% endblock %}
-
-    {% if battle_txt %}
-        {{ battle_txt }}
-    {% endif %}
 
 </head>
 <body>
@@ -34,6 +37,10 @@
     <div class="wrapper">
         {% block content %}{% endblock %}
     </div>
+
+    {% if battle_txt %}
+    {{ battle_txt }}
+    {% endif %}
 
 
     {% include "footer_tmp.html" %}

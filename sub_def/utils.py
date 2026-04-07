@@ -23,8 +23,80 @@ env = Environment(
 URL_MAP = {
     "top": (Conf["top_url"], {}),
     "kanri": (Conf["kanri_url"], {"mode": "KANRI"}),
-    "": (Conf["cgi_url"], {"mode": "my_page"}),
+    "my_page": (Conf["cgi_url"], {"mode": "my_page"}),
+    "books": (Conf["cgi_url"], {"mode": "books"}),
 }
+
+
+# ==========#
+# 共通関数  #
+# ==========#
+def is_ajax():
+    return os.environ.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+
+
+def clear_flash():
+    from .crypto import get_session, set_session
+
+    """表示済みのflashメッセージをセッションから削除する"""
+    session = get_session()
+    session.pop("flash_msg", None)
+    session.pop("flash_type", None)
+    # flash_once など他のフラグもあればここでpop
+    set_session(session)
+
+
+def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INFO):
+    from .crypto import get_session, set_session
+
+    token = secrets.token_hex(16)
+    session = get_session() if jump != "top" else {}
+
+    # ★ flash統一
+    session |= {
+        "token": token,
+        "flash_msg": str(txt),
+        "flash_type": msg_type,
+    }
+    set_session(session)
+
+    sanitized_txt = html.escape(str(txt))
+    url, base_par = URL_MAP.get(jump, URL_MAP["my_page"])
+    par = base_par | {"token": token} if jump != "top" else base_par
+
+    logging.log(log_level, f"{msg_type.upper()}: {sanitized_txt}, Jump: {jump}")
+
+    # AJAX
+    if is_ajax():
+        print("Content-Type: application/json\r\n\r\n")
+        print(
+            json.dumps(
+                {"ok": msg_type == "success", "msg": sanitized_txt, "type": msg_type}
+            )
+        )
+        sys.exit()
+
+    # 指定されたモードに移行
+    if not jump == "":
+        from login import dispatch_function
+
+        FORM = {
+            "s": session,
+            "mode": base_par["mode"],
+            "token": session.get("token"),
+        }
+        dispatch_function(FORM)
+        sys.exit()
+
+    content = {
+        "Conf": Conf,
+        "txt": sanitized_txt,
+        "url": url,
+        "par": par,
+        "jump": jump,
+    }
+
+    print_html("error_tmp.html", content)
 
 
 # ==============#
@@ -46,37 +118,15 @@ configure_logging()
 # ========#
 # エラー  #
 # ========#
-def is_ajax():
-    return os.environ.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+def error(txt, jump="my_page", log_level=logging.ERROR):
+    _flash_and_jump(txt=txt, msg_type="error", jump=jump, log_level=log_level)
 
 
-def error(txt, jump="", log_level=logging.ERROR, exit_code=0):
-    from .crypto import get_session, set_session
-
-    token = secrets.token_hex(16)
-    session = get_session() if jump != "top" else {}
-    session |= {"token": token}
-    set_session(session)
-
-    sanitized_txt = html.escape(str(txt))
-    url, base_par = URL_MAP.get(jump, URL_MAP[""])
-    par = base_par | {"token": token} if jump != "top" else base_par
-
-    logging.log(log_level, f"Error: {sanitized_txt}, Jump: {jump}")
-
-    if is_ajax():  # AJAXの場合
-        print("Content-Type: application/json\r\n\r\n")
-        print(json.dumps({"ok": False, "error": sanitized_txt}))
-    else:
-        content = {
-            "Conf": Conf,
-            "txt": sanitized_txt,
-            "url": url,
-            "par": par,
-            "jump": jump,
-        }
-
-        print_html("error_tmp.html", content)
+# ========#
+# 成功    #
+# ========#
+def success(txt, jump="my_page"):
+    _flash_and_jump(txt=txt, msg_type="success", jump=jump, log_level=logging.INFO)
 
 
 # ==========#
@@ -95,24 +145,17 @@ def print_result(content, kanri=False):
 # ==========#
 # html出力  #
 # ==========#
-def print_html(tmp_name="", content=None, exit=True):
+def print_html(tmp_name="", content={}, exit=True):
+
     template = env.get_template(tmp_name)
-    full_content = content or {}  # contentがNoneの場合、空の辞書を使用
 
     print("Content-Type: text/html; charset=utf-8\n")
-    print(template.render(full_content))
+    print(template.render(content))
+
+    clear_flash()
 
     if exit:
         sys.exit()
-
-
-# ==========#
-# json出力  #
-# ==========#
-def print_json(data):
-    print("Content-Type: application/json\r\n\r\n")
-    print(json.dumps(data))
-    sys.exit()
 
 
 # =============#
