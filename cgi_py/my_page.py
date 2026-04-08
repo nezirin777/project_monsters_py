@@ -78,10 +78,6 @@ def my_page(FORM):
 
     # ログイン→マイページからの処理ではpikkel読み込み時に更新されたセッションを読み込めない。
     # よってin_name付与などが必須。
-    import time
-    import sys
-
-    start = time.time()
 
     session = FORM.get("s", {})
 
@@ -203,6 +199,4 @@ def my_page(FORM):
         "flash_type": flash_type,
     }
 
-    end = time.time()
-    print(f"<!-- my_page total: {end - start:.3f} sec -->", file=sys.stderr)
     sub_def.print_html("my_page_tmp.html", content)
