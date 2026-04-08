@@ -34,57 +34,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /************************************/
-/* メイン処理（並び替えボタン） */
+/* 状態管理 */
 /************************************/
-async function doChange(btn) {
-    const url = btn.dataset.url;
-    const token = btn.dataset.token;
+function markChanged() {
+  changed = true;
 
-    const ok = await showConfirm("並び替えますか？");
-    if (!ok) return;
-
-    setUILock(true, "並び替え中...");
-
-    // フォーム外ボタンでも select 値を取得可能
-    const data = { mode: "change", token: token };
-    const form = document.getElementById("party_form");
-    const selects = Array.from(form.querySelectorAll("select[name^='c_no']"));
-
-
-    // select の値を個別キーに変換
-    selects.forEach((sel, idx) => {
-        data[`c_no${idx+1}`] = parseInt(sel.value);
-    });
-
-    const result = await apiPost(url,data);
-
-    if (!result.ok) {
-        setUILock(false);
-        showToast(result.error, "error");
-        return;
-    }
-
-    showToast("並び替えが完了しました", "success");
-
-    setTimeout(() => {
-        setUILock(true, "マイページへ移動中...");
-        postNavigate(url, {
-            mode: "my_page",
-            token: token
-        });
-    }, 800);
+  const submitBtn = document.querySelector(".my_page_title button");
+  if (submitBtn) {
+    submitBtn.classList.add("active");
+  }
 }
 
-/* ドラッグ＆ドロップで並び替え */
-
+/************************************/
+/* 初期化（全機能まとめ） */
+/************************************/
 document.addEventListener("DOMContentLoaded", () => {
+
+  const selects = Array.from(document.querySelectorAll("select[name^='c_no']"));
   const items = document.querySelectorAll('[class^="my_page_chara_"]');
 
+  /***************/
+  /* 初期値保存 */
+  /***************/
+  selects.forEach(sel => {
+    sel.dataset.prev = sel.value;
+  });
+
+  /************************************/
+  /* select変更で自動入れ替え */
+  /************************************/
+  selects.forEach(sel => {
+    sel.addEventListener("change", () => {
+
+      const oldValue = sel.dataset.prev;
+      const newValue = sel.value;
+
+      if (oldValue === newValue) return;
+
+      const target = selects.find(s => s !== sel && s.value === newValue);
+
+      if (target) {
+        target.value = oldValue;
+        target.dataset.prev = oldValue;
+      } else {
+        normalize(selects);
+      }
+
+      sel.dataset.prev = newValue;
+
+      normalize(selects);
+      markChanged(); // ★ 変更通知
+
+    });
+  });
+
+  /************************************/
+  /* ドラッグ＆ドロップ */
+  /************************************/
   let dragSrc = null;
 
-  items.forEach((el, index) => {
+  items.forEach((el) => {
     el.draggable = true;
-    el.dataset.index = index;
 
     el.addEventListener("dragstart", (e) => {
       dragSrc = el;
@@ -92,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     el.addEventListener("dragover", (e) => {
-      e.preventDefault(); // これ必須
+      e.preventDefault();
     });
 
     el.addEventListener("drop", (e) => {
@@ -112,5 +122,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const tmp = selA.value;
     selA.value = selB.value;
     selB.value = tmp;
+
+    // prevも更新
+    selA.dataset.prev = selA.value;
+    selB.dataset.prev = selB.value;
+
+    normalize(selects);
+    markChanged(); // ★ 変更通知
   }
+
+  /************************************/
+  /* 整合処理（重複防止） */
+  /************************************/
+  function normalize(selects) {
+
+    const used = new Set();
+
+    selects.forEach(sel => {
+      if (used.has(sel.value)) {
+        sel.dataset.duplicate = "1";
+      } else {
+        used.add(sel.value);
+        delete sel.dataset.duplicate;
+      }
+    });
+
+    const max = selects.length;
+    const missing = [];
+
+    for (let i = 1; i <= max; i++) {
+      if (!used.has(String(i))) {
+        missing.push(String(i));
+      }
+    }
+
+    let mi = 0;
+    selects.forEach(sel => {
+      if (sel.dataset.duplicate) {
+        sel.value = missing[mi++];
+        sel.dataset.prev = sel.value;
+        delete sel.dataset.duplicate;
+      }
+    });
+  }
+
 });

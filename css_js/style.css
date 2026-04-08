@@ -846,6 +846,12 @@ button {
   color: #FF0000;
 }
 
+/* 並び替えのボタン強調 */
+button.active {
+  background: #ff9800;
+  box-shadow: 0 0 8px #ff9800;
+}
+
 /* 鍵や特技のテーブル */
 .my_page_keylist {
   margin-left: auto;
