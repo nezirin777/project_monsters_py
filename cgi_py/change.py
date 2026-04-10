@@ -34,27 +34,48 @@ def safe_int(val):
 
 
 def change(FORM):
+    """パーティの並び替えを保存する関数
+    JavaScript側から送られてくる c_no1, c_no2, ... の値は
+    「新しい位置に配置したいモンスターの、本来の番号」を意味しています。
+    """
     token = FORM["token"]
 
     party = open_party()
 
-    # 入力取得（パーティ数に合わせる）
-    c_no = [safe_int(FORM.get(f"c_no{i}")) for i in range(1, len(party) + 1)]
+    # 1. フォームから送られてきた並び替え情報を取得
+    # c_no = [新しい1番目に置きたいモンスターの元番号,
+    #         新しい2番目に置きたいモンスターの元番号, ...]
 
-    # バリデーション
+    c_no = []
+    for i in range(1, len(party) + 1):
+        val = FORM.get(f"c_no{i}")
+        c_no.append(safe_int(val))
+
+    # 2. バリデーション（不正な並び替えを防ぐ）
     validate_c_no(c_no, party)
 
-    # 新しい並びを安全に構築（ロールバック前提）
-    new_party = sorted(
-        [{**pt, "no": c} for pt, c in zip(party, c_no)],
-        key=lambda x: x["no"],
-    )
+    # 3. 新しい並び順のパーティを作成
+    # new_party は「最終的に保存する新しい順番のリスト」
+    new_party = [None] * len(party)
 
-    # 先頭モンスターの生存チェック
+    for position, original_index in enumerate(c_no, 1):
+        # c_noの値は1始まりなので、リストのインデックスにするために -1 する
+        idx = original_index - 1
+
+        # 安全策：範囲外の値が来てもエラーにしないようチェック
+        if 0 <= idx < len(party):
+            # 元のpartyから該当するモンスターを取り出して、新しい位置に配置
+            new_party[position - 1] = party[idx]
+
+    # Noneが残っていないか最終チェック（理論上は起きないはず）
+    if None in new_party:
+        error("並び替えデータが不正です")
+
+    # 4. 追加のビジネスルールチェック
+    # No.1（戦闘で先頭に立つモンスター）は必ず生きている必要がある
     if new_party[0]["hp"] == 0:
-        error("No.1は必ず生存中のモンスターを設定をしてください")
+        error("No.1は必ず生存中のモンスターを設定してください")
 
-    # 問題なければ保存
+    # 5. 保存して完了
     save_party(new_party)
-
     success("並べ替えが完了しました。")

@@ -40,10 +40,10 @@ def clear_flash():
 
     """表示済みのflashメッセージをセッションから削除する"""
     session = get_session()
-    session.pop("flash_msg", None)
-    session.pop("flash_type", None)
-    # flash_once など他のフラグもあればここでpop
-    set_session(session)
+    if "flash_msg" in session or "flash_type" in session:
+        session.pop("flash_msg", None)
+        session.pop("flash_type", None)
+        set_session(session)  # ← ここで即座にクッキー更新
 
 
 def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INFO):
@@ -58,6 +58,7 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
         "flash_msg": str(txt),
         "flash_type": msg_type,
     }
+
     set_session(session)
 
     sanitized_txt = html.escape(str(txt))

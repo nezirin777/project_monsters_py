@@ -32,137 +32,179 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
-/************************************/
-/* 状態管理 */
-/************************************/
-function markChanged() {
-  changed = true;
-
-  const submitBtn = document.querySelector(".my_page_title button");
-  if (submitBtn) {
-    submitBtn.classList.add("active");
-  }
-}
-
-/************************************/
-/* 初期化（全機能まとめ） */
-/************************************/
+// パーティ編成のドラッグ＆ドロップとセレクト変更
 document.addEventListener("DOMContentLoaded", () => {
 
-  const selects = Array.from(document.querySelectorAll("select[name^='c_no']"));
-  const items = document.querySelectorAll('[class^="my_page_chara_"]');
+  const partyContainer = document.querySelector(".my_page_pt");
 
-  /***************/
-  /* 初期値保存 */
-  /***************/
-  selects.forEach(sel => {
-    sel.dataset.prev = sel.value;
-  });
-
-  /************************************/
-  /* select変更で自動入れ替え */
-  /************************************/
-  selects.forEach(sel => {
-    sel.addEventListener("change", () => {
-
-      const oldValue = sel.dataset.prev;
-      const newValue = sel.value;
-
-      if (oldValue === newValue) return;
-
-      const target = selects.find(s => s !== sel && s.value === newValue);
-
-      if (target) {
-        target.value = oldValue;
-        target.dataset.prev = oldValue;
-      } else {
-        normalize(selects);
-      }
-
-      sel.dataset.prev = newValue;
-
-      normalize(selects);
-      markChanged(); // ★ 変更通知
-
-    });
-  });
-
-  /************************************/
-  /* ドラッグ＆ドロップ */
-  /************************************/
-  let dragSrc = null;
-
-  items.forEach((el) => {
-    el.draggable = true;
-
-    el.addEventListener("dragstart", (e) => {
-      dragSrc = el;
-      e.dataTransfer.effectAllowed = "move";
-    });
-
-    el.addEventListener("dragover", (e) => {
-      e.preventDefault();
-    });
-
-    el.addEventListener("drop", (e) => {
-      e.preventDefault();
-      if (!dragSrc || dragSrc === el) return;
-
-      swapSelectValues(dragSrc, el);
-    });
-  });
-
-  function swapSelectValues(a, b) {
-    const selA = a.querySelector("select");
-    const selB = b.querySelector("select");
-
-    if (!selA || !selB) return;
-
-    const tmp = selA.value;
-    selA.value = selB.value;
-    selB.value = tmp;
-
-    // prevも更新
-    selA.dataset.prev = selA.value;
-    selB.dataset.prev = selB.value;
-
-    normalize(selects);
-    markChanged(); // ★ 変更通知
+  function getCharaItems() {
+    return Array.from(partyContainer.children);
   }
 
-  /************************************/
-  /* 整合処理（重複防止） */
-  /************************************/
-  function normalize(selects) {
+  let dragSrc = null;
 
-    const used = new Set();
+  // ======================
+  // クラス更新
+  // ======================
+  function updateCharaClasses() {
+    const items = getCharaItems();
+    items.forEach((item, index) => {
+      for (let i = 1; i <= 10; i++) {
+        item.classList.remove(`my_page_chara_${i}`);
+      }
+      item.classList.add(`my_page_chara_${index + 1}`);
+    });
+  }
 
-    selects.forEach(sel => {
-      if (used.has(sel.value)) {
-        sel.dataset.duplicate = "1";
-      } else {
-        used.add(sel.value);
-        delete sel.dataset.duplicate;
+  // ======================
+  // 表示用セレクト値更新
+  // ======================
+  function syncSelectValues() {
+    const items = getCharaItems();
+    items.forEach((item, index) => {
+      const select = item.querySelector("select");
+      if (!select) return;
+
+      const newNo = String(index + 1);
+      select.name = `c_no${newNo}`;
+      select.value = newNo;
+      select.dataset.prev = newNo;
+    });
+  }
+
+  // ======================
+  // 保存時に送る正しい値を準備
+  // ======================
+  function prepareForSubmit() {
+    const items = getCharaItems();
+    items.forEach((item, index) => {
+      const select = item.querySelector("select");
+      if (!select) return;
+
+      select.name = `c_no${index + 1}`;
+      const originalNo = select.dataset.originalNo || select.value;
+      select.value = originalNo;
+    });
+  }
+
+  // ======================
+  // 要素交換
+  // ======================
+  function swapItems(itemA, itemB) {
+    if (itemA === itemB) return;
+
+    const parent = partyContainer;
+    const nextA = itemA.nextSibling;
+    const nextB = itemB.nextSibling;
+
+    itemA.remove();
+
+    if (nextB) parent.insertBefore(itemA, nextB);
+    else parent.appendChild(itemA);
+
+    if (nextA) parent.insertBefore(itemB, nextA);
+    else parent.appendChild(itemB);
+
+    updateCharaClasses();
+    syncSelectValues();
+    markChanged();        // ← ここを確実に呼ぶ
+  }
+
+  // ======================
+  // ドラッグ＆ドロップ
+  // ======================
+  function initDragAndDrop() {
+    getCharaItems().forEach(item => {
+      if (item.dataset.dragInit === "1") return;
+      item.dataset.dragInit = "1";
+      item.draggable = true;
+
+      item.addEventListener("dragstart", e => {
+        dragSrc = item;
+        item.classList.add("dragging");
+      });
+
+      item.addEventListener("dragend", () => item.classList.remove("dragging"));
+      item.addEventListener("dragover", e => e.preventDefault());
+
+      item.addEventListener("drop", e => {
+        e.preventDefault();
+        if (!dragSrc || dragSrc === item) return;
+
+        swapItems(dragSrc, item);
+      });
+    });
+  }
+
+  // ======================
+  // セレクト変更時
+  // ======================
+  function handleSelectChange(e) {
+    const sel = e.target;
+    const oldValue = String(sel.dataset.prev || sel.value);
+    const newValue = String(sel.value);
+
+    if (oldValue === newValue) return;
+
+    const currentItem = sel.closest('[class^="my_page_chara_"]');
+    if (!currentItem) return;
+
+    let targetItem = null;
+    getCharaItems().forEach(item => {
+      const s = item.querySelector("select");
+      if (s && s !== sel && s.value === newValue) {
+        targetItem = item;
       }
     });
 
-    const max = selects.length;
-    const missing = [];
-
-    for (let i = 1; i <= max; i++) {
-      if (!used.has(String(i))) {
-        missing.push(String(i));
-      }
+    if (targetItem) {
+      swapItems(currentItem, targetItem);
     }
+  }
 
-    let mi = 0;
-    selects.forEach(sel => {
-      if (sel.dataset.duplicate) {
-        sel.value = missing[mi++];
-        sel.dataset.prev = sel.value;
-        delete sel.dataset.duplicate;
+  // ======================
+  // 変更フラグ（ボタンの色変更）
+  // ======================
+  function markChanged() {
+    changed = true;
+    const btn = document.querySelector(".my_page_title button");
+    if (btn) {
+      btn.classList.add("active");
+    }
+  }
+
+  // ======================
+  // 初期化
+  // ======================
+  function init() {
+    initDragAndDrop();
+
+    getCharaItems().forEach(item => {
+      const sel = item.querySelector("select");
+      if (sel) {
+        if (!sel.dataset.changeInit) {
+          sel.dataset.changeInit = "1";
+          sel.addEventListener("change", handleSelectChange);
+        }
+        if (!sel.dataset.originalNo) {
+          sel.dataset.originalNo = sel.value;
+        }
       }
+    });
+
+    updateCharaClasses();
+    syncSelectValues();
+  }
+
+  init();
+
+  // ======================
+  // フォーム送信時に送信用値を準備
+  // ======================
+  const form = document.querySelector("form");
+  if (form) {
+    form.addEventListener("submit", () => {
+      prepareForSubmit();
     });
   }
 

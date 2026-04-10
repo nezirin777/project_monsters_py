@@ -104,6 +104,10 @@ def dispatch_function(form):
         error(f"処理中にエラーが発生しました: {type(e).__name__}: {str(e)}", "top")
 
 
+def log(msg):
+    print(msg, file=sys.stderr)
+
+
 def process_form():
     """フォームデータを処理し、認証と関数ディスパッチを実行"""
     form = cgi.FieldStorage()
@@ -136,7 +140,13 @@ def process_form():
         and bool(FORM.get("password"))
     )
 
+    log(f"session: {session}, form: {FORM}, is_login_attempt: {is_login_attempt}")
+
     has_authenticated_session = bool(session.get("in_name"))
+
+    log(
+        f"Login Attempt: {is_login_attempt}, Authenticated Session: {has_authenticated_session}, Session Data: {session}"
+    )
 
     if is_login_attempt:
         # topからのログイン
