@@ -1,3 +1,6 @@
+//main.js
+
+
 // ボタンの多重クリック対策
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-once-click]');
