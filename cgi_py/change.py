@@ -76,6 +76,10 @@ def change(FORM):
     if new_party[0]["hp"] == 0:
         error("No.1は必ず生存中のモンスターを設定してください")
 
-    # 5. 保存して完了
+    # 5. 新しい位置に合わせて各モンスターの "no" を更新
+    for new_no, monster in enumerate(new_party, 1):
+        monster["no"] = new_no
+
+    # 6. 保存
     save_party(new_party)
     success("並べ替えが完了しました。")
