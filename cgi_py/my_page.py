@@ -78,23 +78,13 @@ def my_page(FORM):
 
     # ログイン→マイページからの処理ではpikkel読み込み時に更新されたセッションを読み込めない。
     # よってin_name付与などが必須。
-
     session = FORM.get("s", {})
-
-    # ★★★ ここを追加 ★★★
-    # ページ表示時にフラッシュを即座にクリア（F5対策の最重要ポイント）
-    if "flash_msg" in session:
-        flash_msg = session.pop("flash_msg", "")
-        flash_type = session.pop("flash_type", "error")
-        # 即座にセッションを保存
-        sub_def.set_session(session)
-    else:
-        flash_msg = ""
-        flash_type = "error"
-    # ★★★ ここまで ★★★
 
     in_name = session.get("in_name") or FORM.get("name")
     token = session.get("token")
+
+    flash_msg = session.pop("flash_msg", "")
+    flash_type = session.pop("flash_type", "error")
 
     last_floor = int(session.get("last_floor", 1))
     last_room = session.get("last_room", "")

@@ -147,13 +147,12 @@ def print_result(content, kanri=False):
 # html出力  #
 # ==========#
 def print_html(tmp_name="", content={}, exit=True):
+    clear_flash()
 
     template = env.get_template(tmp_name)
 
     print("Content-Type: text/html; charset=utf-8\n")
     print(template.render(content))
-
-    clear_flash()
 
     if exit:
         sys.exit()
