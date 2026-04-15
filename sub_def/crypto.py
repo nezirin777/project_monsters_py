@@ -5,6 +5,7 @@ import cryptocode
 import datetime
 import hashlib
 import os
+import sys
 import secrets
 import urllib.parse
 from http import cookies
@@ -114,38 +115,81 @@ def _get_raw_cookies() -> str:
 
 
 def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str | int]:
-    """指定されたクッキーをパースして辞書を返す"""
+    """指定されたクッキーをパースして辞書を返す（無限ループ対策強化版）"""
     result: Dict[str, str | int] = {}
     if not raw_cookies:
         return result
+
     try:
         cook = cookies.SimpleCookie(raw_cookies)
-        if name in cook:
-            pairs = urllib.parse.unquote_plus(cook[name].value)
-            decrypted = cryptocode.decrypt(pairs, Conf["secret_key"])
+        if name not in cook:
+            return result
 
-            if decrypted is None:
-                error(f"クッキー {name} の復号化に失敗しました", "top")
+        pairs = urllib.parse.unquote_plus(cook[name].value)
+        decrypted = cryptocode.decrypt(pairs, Conf["secret_key"])
 
-            for pair in decrypted.split(","):
-                if ":" in pair:
+        # 復号に失敗した場合、または結果が不正な場合
+        if decrypted is None or decrypted is False:
+            print(
+                f"<!-- Cookie decrypt failed for {name} (None/False) -->",
+                file=sys.stderr,
+            )
+            return {}
+
+        if not isinstance(decrypted, str) or not decrypted.strip():
+            print(
+                f"<!-- Cookie decrypt failed for {name} (not string or empty) -->",
+                file=sys.stderr,
+            )
+            return {}
+
+        # 復号結果が明らかに不正（: がほとんどないなど）の場合も安全に破棄
+        if decrypted.count(":") < 1:  # 最低1つ以上の : が必要
+            print(
+                f"<!-- Cookie decrypt result looks corrupted for {name} -->",
+                file=sys.stderr,
+            )
+            return {}
+
+        # ここで初めて分割処理
+        for pair in decrypted.split(","):
+            pair = pair.strip()
+            if ":" in pair:
+                try:
                     key, value = pair.split(":", 1)
-                    result[key] = value
+                    result[key.strip()] = value.strip()
+                except Exception:
+                    continue  # 1ペアが壊れていても他のペアは試す
+
     except Exception as e:
-        error(f"クッキー {name} の処理中にエラーが発生しました: {e}", "top")
+        print(f"<!-- Cookie parse exception for {name}: {e} -->", file=sys.stderr)
+        return {}  # ここも空辞書を返す（sys.exit() は絶対にやめる）
+
     return result
 
 
 def get_cookie() -> Dict[str, str | int]:
-    return _parse_cookie(_get_raw_cookies(), "MONSTERS2")
+    cookie = _parse_cookie(_get_raw_cookies(), "MONSTERS2")
+    if not cookie or "expires_at" not in cookie:
+        return {}
+
+    return cookie
 
 
 def get_session() -> Dict[str, str | int]:
     session = _parse_cookie(_get_raw_cookies(), "session")
-    if "expires_at" in session:
+
+    # セッションが明らかに壊れている場合は空で返す
+    if not session or "expires_at" not in session:
+        return {}
+
+    try:
         expires_at = datetime.datetime.fromisoformat(session["expires_at"])
         if expires_at < datetime.datetime.now(datetime.timezone.utc):
-            return {}  # 期限切れセッションを破棄
+            return {}
+    except Exception:
+        return {}  # 期限切れ判定も失敗したら空で返す
+
     return session
 
 

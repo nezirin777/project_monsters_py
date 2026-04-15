@@ -447,6 +447,73 @@ def _create_dat_opener(file_name: str):
     return lambda: open_dat(file_name)
 
 
+# ======================#
+# 完全移行用：ユーザー全データ1ファイル
+# ======================#
+def open_user_all(user: str = "") -> dict:
+    """ユーザー個別全データを1ファイルで読み込み（安全版）"""
+    file_name = "user_all.pickle"
+    file_path = get_file_path(file_name, user)
+
+    try:
+        with open(file_path, mode="rb") as f:
+            data = pickle.load(f)
+
+        # 後方互換性
+        default = {"user": {}, "party": [], "vips": {}, "room_key": {}, "waza": {}}
+        for key in default:
+            if key not in data:
+                data[key] = default[key]
+        return data
+
+    except FileNotFoundError:
+        # まだ user_all.pickle が存在しない場合のみ、従来方式で合成
+        # 注意：ここでは get_session() に頼らないよう直接 user を受け取る前提
+        try:
+            return {
+                "user": open_user(user),  # ここは従来のまま（一時的）
+                "party": open_party(user),
+                "vips": open_vips(user),
+                "room_key": open_room_key(user),
+                "waza": open_waza(user),
+            }
+        except Exception as e:
+            print(f"フォールバック失敗 ({user}): {e}", file=sys.stderr)
+            return {"user": {}, "party": [], "vips": {}, "room_key": {}, "waza": {}}
+
+    except Exception as e:
+        _handle_file_error("user_all", file_path, e)
+        return {"user": {}, "party": [], "vips": {}, "room_key": {}, "waza": {}}
+
+
+def save_user_all(data: dict, user: str = "") -> None:
+    """1ファイルにまとめて保存（安全版）"""
+    if not user:
+        # セッションから取得しようとせず、userが渡されなかったらエラーにする
+        from .crypto import get_session
+
+        s = get_session()
+        user = s.get("in_name") or ""
+
+    if not user:
+        error("save_user_all: user名が指定されていません", "top")
+
+    file_name = "user_all.pickle"
+    file_path = get_file_path(file_name, user)
+
+    data = dict(data)  # コピー
+    data["updated_at"] = datetime.datetime.now().isoformat()
+
+    lock = get_user_lock(user)
+    if not lock.lock():
+        error("現在サーバーが込み合っています。", "top")
+
+    try:
+        _atomic_pickle_save_unlocked(data, file_path)
+    finally:
+        lock.unlock()
+
+
 # =========================#
 # メダル杯開催時間ファイル #
 # =========================#

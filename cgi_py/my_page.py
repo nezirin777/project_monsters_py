@@ -92,11 +92,14 @@ def my_page(FORM):
     next_t = float(session.get("next_t", 0))
 
     omiai_list = sub_def.open_omiai_list()
-    user = sub_def.open_user(in_name)
-    party = sub_def.open_party(in_name)
-    vips = sub_def.open_vips(in_name)
-    room_key = sub_def.open_room_key(in_name)
-    waza = sub_def.open_waza(in_name)
+
+    all_data = sub_def.open_user_all(in_name)
+
+    user = all_data.get("user", {})
+    party = all_data.get("party", [])
+    vips = all_data.get("vips", {})
+    room_key = all_data.get("room_key", {})
+    waza = all_data.get("waza", {})
 
     # ユーザーリスト更新
     update_user_list(in_name, user, party)

@@ -77,13 +77,18 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
         )
         sys.exit()
 
+    if jump == "99":  # エラー専用の特例
+        print("Content-Type: text/plain; charset=utf-8\n")
+        print(sanitized_txt)
+        sys.exit()
+
     # 指定されたモードに移行
     if not jump == "":
         from login import dispatch_function
 
         FORM = {
             "s": session,
-            "mode": base_par["mode"],
+            "mode": base_par.get("mode", ""),
             "token": session.get("token"),
         }
         dispatch_function(FORM)
