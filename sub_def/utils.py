@@ -5,6 +5,7 @@ import os
 import secrets
 import logging
 import json
+
 import html  # 追加: エラーメッセージのサニタイズ用
 from jinja2 import Environment, FileSystemLoader
 
@@ -48,9 +49,17 @@ def clear_flash():
 
 def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INFO):
     from .crypto import get_session, set_session
+    import urllib.parse
 
     token = secrets.token_hex(16)
-    session = get_session() if jump != "top" else {}
+
+    if jump == "top":
+        # トップに戻る場合は、既存のセッションを維持しつつフラッシュだけ追加
+        session = get_session()  # 現在のセッションを読み込む
+        session["ref"] = "top"  # ログイン試行時に必要
+    else:
+        # その他のジャンプ（my_pageなど）は通常通り空 or 既存セッション
+        session = get_session()
 
     # ★ flash統一
     session |= {
@@ -80,6 +89,28 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
     if jump == "99":  # エラー専用の特例
         print("Content-Type: text/plain; charset=utf-8\n")
         print(sanitized_txt)
+        sys.exit()
+
+    if jump == "kanri":  # エラー専用の特例
+        print("Content-Type: text/plain; charset=utf-8\n")
+        print(sanitized_txt)
+        sys.exit()
+
+    if jump == "top":
+        redirect_url = url
+        if par:
+            redirect_url += "?" + urllib.parse.urlencode(par)
+
+        if sanitized_txt:
+            separator = "&" if "?" in redirect_url else "?"
+            redirect_url += f"{separator}msg={urllib.parse.quote_plus(sanitized_txt)}"
+
+        print("Status: 302 Found")
+        print(f"Location: {redirect_url}")
+        print("Content-Type: text/html; charset=utf-8\n")
+        print(
+            f'<html><head><meta http-equiv="refresh" content="0; url={redirect_url}"></head><body></body></html>'
+        )
         sys.exit()
 
     # 指定されたモードに移行

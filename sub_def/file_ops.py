@@ -476,14 +476,32 @@ def open_user_all(user: str = "") -> dict:
                 "vips": open_vips(user),
                 "room_key": open_room_key(user),
                 "waza": open_waza(user),
+                "park": open_park(user),
+                "zukan": open_zukan(user),
             }
         except Exception as e:
             print(f"フォールバック失敗 ({user}): {e}", file=sys.stderr)
-            return {"user": {}, "party": [], "vips": {}, "room_key": {}, "waza": {}}
+            return {
+                "user": {},
+                "party": [],
+                "vips": {},
+                "room_key": {},
+                "waza": {},
+                "park": [],
+                "zukan": {},
+            }
 
     except Exception as e:
         _handle_file_error("user_all", file_path, e)
-        return {"user": {}, "party": [], "vips": {}, "room_key": {}, "waza": {}}
+        return {
+            "user": {},
+            "party": [],
+            "vips": {},
+            "room_key": {},
+            "waza": {},
+            "park": [],
+            "zukan": {},
+        }
 
 
 def save_user_all(data: dict, user: str = "") -> None:
