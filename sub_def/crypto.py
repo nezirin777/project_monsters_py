@@ -1,7 +1,7 @@
 # crypto.py
 
 import base64
-import cryptocode
+from Cryptodome.Cipher import AES
 import datetime
 import hashlib
 import os
@@ -16,6 +16,35 @@ from .utils import error
 import conf
 
 Conf = conf.Conf
+
+
+# ------------------- ヘルパー関数（crypto.py などに置く） -------------------
+def _encrypt_cookie_value(data: str, secret_key: str) -> str:
+    """クッキー暗号化 - secret_key が短くてもOK（SHA-256で32バイトに変換）"""
+    # secret_key をそのまま使って32バイトの鍵に変換（これが一番シンプルで安全）
+    key = hashlib.sha256(secret_key.encode("utf-8")).digest()
+
+    cipher = AES.new(key, AES.MODE_GCM)
+    ciphertext, tag = cipher.encrypt_and_digest(data.encode("utf-8"))
+
+    # nonce + ciphertext + tag を結合して urlsafe base64
+    encrypted = cipher.nonce + ciphertext + tag
+    return base64.urlsafe_b64encode(encrypted).decode("utf-8")
+
+
+def _decrypt_cookie_value(encrypted_b64: str, secret_key: str) -> str:
+    """復号（同じくSHA-256で鍵生成）"""
+    key = hashlib.sha256(secret_key.encode("utf-8")).digest()
+
+    data = base64.urlsafe_b64decode(encrypted_b64)
+
+    nonce = data[:16]
+    ciphertext = data[16:-16]
+    tag = data[-16:]
+
+    cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
+    plaintext = cipher.decrypt_and_verify(ciphertext, tag)
+    return plaintext.decode("utf-8")
 
 
 # ===========#
@@ -73,10 +102,14 @@ def _set_cookie_common(
     path: str = "/",
 ) -> None:
     try:
-        cookie = cookies.SimpleCookie()
+        # dict → 文字列に変換
         cook = ",".join([f"{k}:{v}" for k, v in data.items()])
-        cook = cryptocode.encrypt(cook, Conf["secret_key"])
-        cookie[name] = urllib.parse.quote_plus(cook)
+
+        # 暗号化（secret_key をそのまま渡すだけ）
+        encrypted_cook = _encrypt_cookie_value(cook, Conf["secret_key"])
+
+        cookie = cookies.SimpleCookie()
+        cookie[name] = urllib.parse.quote_plus(encrypted_cook)
         cookie[name]["path"] = path
 
         # UTCじゃないとブラウザ保存時にローカル時間にさらにタイムゾーンが追加される
@@ -125,26 +158,19 @@ def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str | int]:
         if name not in cook:
             return result
 
-        pairs = urllib.parse.unquote_plus(cook[name].value)
-        decrypted = cryptocode.decrypt(pairs, Conf["secret_key"])
+        # URLデコード
+        encrypted_value = urllib.parse.unquote_plus(cook[name].value)
 
-        # 復号に失敗した場合、または結果が不正な場合
-        if decrypted is None or decrypted is False:
-            print(
-                f"<!-- Cookie decrypt failed for {name} (None/False) -->",
-                file=sys.stderr,
-            )
+        # 復号（cryptocode → 自前関数）
+        decrypted = _decrypt_cookie_value(encrypted_value, Conf["secret_key"])
+
+        # 復号失敗チェック
+        if decrypted is None or not isinstance(decrypted, str) or not decrypted.strip():
+            print(f"<!-- Cookie decrypt failed for {name} -->", file=sys.stderr)
             return {}
 
-        if not isinstance(decrypted, str) or not decrypted.strip():
-            print(
-                f"<!-- Cookie decrypt failed for {name} (not string or empty) -->",
-                file=sys.stderr,
-            )
-            return {}
-
-        # 復号結果が明らかに不正（: がほとんどないなど）の場合も安全に破棄
-        if decrypted.count(":") < 1:  # 最低1つ以上の : が必要
+        # 明らかに不正なデータの場合も破棄
+        if decrypted.count(":") < 1:
             print(
                 f"<!-- Cookie decrypt result looks corrupted for {name} -->",
                 file=sys.stderr,
