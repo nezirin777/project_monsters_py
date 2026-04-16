@@ -18,7 +18,31 @@ from cgi_py import csv_to_pickle, pickle_to_csv, haigou_list_make
 
 # import sub_def
 from sub_def.crypto import hash_password, get_session, set_session
-from sub_def.file_ops import *
+from sub_def.file_ops import (
+    open_key_dat,
+    open_tokugi_dat,
+    open_monster_dat,
+    open_user_list,
+    save_user_list,
+    open_omiai_list,
+    save_omiai_list,
+    open_user_all,
+    save_user_all,
+    open_user,
+    open_party,
+    open_vips,
+    open_room_key,
+    open_waza,
+    open_zukan,
+    open_park,
+    save_user,
+    save_room_key,
+    save_party,
+    save_waza,
+    save_zukan,
+    save_park,
+    save_vips,
+)
 from sub_def.monster_ops import monster_select
 from sub_def.user_ops import delete_user, backup
 from sub_def.utils import error, print_html
@@ -56,25 +80,35 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
     last_written = 0  # 最後に進捗を書き込んだ完了数
     errors = []
 
-    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+    with ThreadPoolExecutor(max_workers=min(6, os.cpu_count() or 4)) as executor:
         futures = {executor.submit(process_func, user): user for user in users}
         completed = 0
 
         for future in as_completed(futures):
-            user = futures[future]
+            user_info = futures[future]  # 辞書全体
 
             try:
                 result = future.result()
                 if result_collector is not None and result is not None:
-                    result_collector[user] = result
+                    # ★★★ ここを確実に修正 ★★★
+                    user_name = (
+                        user_info.get("user_name")
+                        if isinstance(user_info, dict)
+                        else str(user_info)
+                    )
+                    if user_name:
+                        result_collector[user_name] = result
             except Exception as e:
+                user_name = (
+                    user_info.get("user_name")
+                    if isinstance(user_info, dict)
+                    else str(user_info)
+                )
                 errors.append(
-                    f"ユーザー {user} の処理中にエラー: {type(e).__name__}: {e}"
+                    f"ユーザー {user_name} の処理中にエラー: {type(e).__name__}: {e}"
                 )
             finally:
                 completed += 1
-
-                # 進捗更新は batch_size または全完了時のみ
                 if completed - last_written >= batch_size or completed == total_users:
                     progress["completed"] = completed
                     try:
@@ -85,19 +119,12 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
                         errors.append(f"進捗ファイル書き込みエラー: {e}")
 
     try:
-        delete_progress_file()
-    except Exception as e:
-        errors.append(f"進捗ファイルの削除に失敗しました: {e}")
+        if os.path.exists(progress_file):
+            os.remove(progress_file)
+    except Exception:
+        pass
 
     return errors
-
-
-# ==============#
-# 	json削除	#
-# ==============#
-def delete_progress_file():
-    if os.path.exists(progress_file):
-        os.remove(progress_file)
 
 
 # ==========#
@@ -213,14 +240,16 @@ def NEWPASS():
     newpass_check(FORM)
 
     crypted = hash_password(newpass)
+
+    all_data = open_user_all(target_name)
+    all_data["user"]["pass"] = crypted
+
+    save_user_all(all_data, target_name)
+
     u_list = open_user_list()
-    user = open_user(target_name)
-
-    user["pass"] = crypted
-    u_list[target_name]["pass"] = crypted
-
-    save_user_list(u_list)
-    save_user(user, target_name)
+    if target_name in u_list:
+        u_list[target_name]["pass"] = crypted
+        save_user_list(u_list)
 
     result(f"管理モードで<span>{target_name}</span>のパスワードを変更しました")
 
@@ -236,11 +265,10 @@ def DEL():
     if not (target_name):
         error("対象ユーザーが選択されていません。", "kanri")
 
-    u_list = open_user_list()
-
     delete_user(target_name)
-    del u_list[target_name]
 
+    u_list = open_user_list()
+    u_list.pop(target_name, None)
     save_user_list(u_list)
 
     result(f"<span>{target_name}</span>を管理モードで強制削除しました")
@@ -289,90 +317,104 @@ def RESTART():
         "ゴースト",
         "トーテムキラー",
     ]
+
     default_key_base = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
     default_waza_base = {
         name: {"no": v["no"], "type": v["type"], "get": 0}
         for name, v in open_tokugi_dat().items()
     }
     default_waza_base["通常攻撃"]["get"] = 1
+
     default_zukan_base = {
         k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
         for k, v in open_monster_dat().items()
     }
 
-    def re_start_sub(u):
-        m_name = random.choice(monset)
+    def re_start_sub(user_info):
+        try:
+            user_name = user_info["user_name"]
+            crypted = user_info.get("crypted", "")
 
-        # ユーザーデータ
-        save_user(
-            {
-                "name": u["user_name"],
-                "pass": u["crypted"],
+            m_name = random.choice(monset)
+
+            all_data = {
+                "user": {
+                    "name": user_name,
+                    "pass": crypted,
+                    "key": 1,
+                    "money": 100,
+                    "medal": 0,
+                    "isekai_limit": 0,
+                    "isekai_key": 1,
+                    "mes": "未登録",
+                    "getm": "0／0匹(0％)",
+                },
+                "party": [
+                    {
+                        "no": 1,
+                        "name": m_name,
+                        "lv": 1,
+                        "mlv": 10,
+                        "hai": 0,
+                        "hp": 5,
+                        "mhp": 5,
+                        "mp": 5,
+                        "mmp": 5,
+                        "atk": 5,
+                        "def": 5,
+                        "agi": 5,
+                        "exp": 0,
+                        "n_exp": 10,
+                        "sei": "ふつう",
+                        "sex": random.choice(Conf.get("sex", ["オス", "メス"])),
+                    }
+                ],
+                "vips": {"パーク": 0},
+                "room_key": copy.deepcopy(default_key_base),
+                "waza": copy.deepcopy(default_waza_base),
+                "zukan": copy.deepcopy(default_zukan_base),
+                "park": [],
+                "updated_at": datetime.datetime.now().isoformat(),
+            }
+
+            save_user_all(all_data, user_name)
+
+            # user_list 用データ
+            return {
+                "pass": crypted,
+                "host": "",
+                "bye": byeday,
                 "key": 1,
+                "m1_name": m_name,
+                "m1_hai": 0,
+                "m1_lv": 5,
+                "m2_name": "",
+                "m2_hai": "",
+                "m2_lv": "",
+                "m3_name": "",
+                "m3_hai": "",
+                "m3_lv": "",
                 "money": 100,
-                "medal": 0,
-                "isekai_limit": 0,
-                "isekai_key": 1,
                 "mes": "未登録",
                 "getm": "0／0匹(0％)",
-            },
-            u["user_name"],
-        )
+            }
 
-        # パーティーデータ
-        save_party(
-            [
-                {
-                    "no": 1,
-                    "name": m_name,
-                    "lv": 1,
-                    "mlv": 10,
-                    "hai": 0,
-                    "hp": 5,
-                    "mhp": 5,
-                    "mp": 5,
-                    "mmp": 5,
-                    "atk": 5,
-                    "def": 5,
-                    "agi": 5,
-                    "exp": 0,
-                    "n_exp": 10,
-                    "sei": "ふつう",
-                    "sex": random.choice(Conf["sex"]),
-                }
-            ],
-            u["user_name"],
-        )
+        except Exception as e:
+            print(
+                f"リスタート失敗 {user_info.get('user_name', 'Unknown')}: {e}",
+                file=sys.stderr,
+            )
+            return None
 
-        # 追加データの初期化
-        save_room_key(copy.deepcopy(default_key_base), u["user_name"])
-        save_waza(copy.deepcopy(default_waza_base), u["user_name"])
-        save_zukan(copy.deepcopy(default_zukan_base), u["user_name"])
-        save_vips({"パーク": 0}, u["user_name"])
-        save_park([], u["user_name"])
-
-        # user_list 用データを返す
-        return {
-            "pass": u["crypted"],
-            "host": "",
-            "bye": byeday,
-            "key": 1,
-            "m1_name": m_name,
-            "m1_hai": 0,
-            "m1_lv": 5,
-            "m2_name": "",
-            "m2_hai": "",
-            "m2_lv": "",
-            "m3_name": "",
-            "m3_hai": "",
-            "m3_lv": "",
-            "money": 50,
-            "mes": "未登録",
-            "getm": 0,
-        }
-
+    # ======================
+    # メイン
+    # ======================
     u_list = open_user_list()
-    users = [{"user_name": name, "crypted": v["pass"]} for name, v in u_list.items()]
+    users = [
+        {"user_name": name, "crypted": info.get("pass", "")}
+        for name, info in u_list.items()
+    ]
+
     new_userlist = {}
 
     errors = process_batch(users, re_start_sub, result_collector=new_userlist)
@@ -403,35 +445,11 @@ def ALLDEL():
 # ユーザーデータ再構築 #
 # user_list.pickle    #
 # ====================#
-def process_user(in_name, bye_day):
-    """1ユーザー分のデータを処理する関数"""
-    user = open_user(in_name)
-    pt = open_party(in_name)
-    return {
-        "pass": user["pass"],
-        "host": "",
-        "bye": bye_day,
-        "m1_name": pt[0]["name"],
-        "m1_hai": pt[0]["hai"],
-        "m1_lv": pt[0]["lv"],
-        "m2_hai": pt[1]["hai"] if (pt[1:2]) else "",
-        "m2_lv": pt[1]["lv"] if (pt[1:2]) else "",
-        "m2_name": pt[1]["name"] if (pt[1:2]) else "",
-        "m3_hai": pt[2]["hai"] if (pt[2:3]) else "",
-        "m3_lv": pt[2]["lv"] if (pt[2:3]) else "",
-        "m3_name": pt[2]["name"] if (pt[2:3]) else "",
-        "key": user["key"],
-        "money": user["money"],
-        "getm": user["getm"],
-        "mes": user["mes"],
-    }
-
-
 def FUKUGEN():
     # セーブデータフォルダ内各ユーザー名取得
     files = os.listdir(datadir)
     exclude_dirs = {"locks", "logs"}
-    files_dir = [
+    user_dirs = [
         f
         for f in files
         if os.path.isdir(os.path.join(datadir, f)) and f not in exclude_dirs
@@ -441,17 +459,40 @@ def FUKUGEN():
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     ).strftime("%Y-%m-%d")
 
-    u_list = {}
+    new_userlist = {}
 
     def process_user_wrapper(in_name):
-        return process_user(in_name, bye_day)
+        try:
+            all_data = open_user_all(in_name)
+            user = all_data.get("user", {})
+            pt = all_data.get("party", [])
+            return {
+                "pass": user.get("pass", ""),
+                "host": "",
+                "bye": bye_day,
+                "m1_name": pt[0]["name"] if pt else "",
+                "m1_hai": pt[0]["hai"] if pt else 0,
+                "m1_lv": pt[0]["lv"] if pt else 0,
+                "m2_name": pt[1]["name"] if len(pt) > 1 else "",
+                "m2_hai": pt[1]["hai"] if len(pt) > 1 else "",
+                "m2_lv": pt[1]["lv"] if len(pt) > 1 else "",
+                "m3_name": pt[2]["name"] if len(pt) > 2 else "",
+                "m3_hai": pt[2]["hai"] if len(pt) > 2 else "",
+                "m3_lv": pt[2]["lv"] if len(pt) > 2 else "",
+                "key": user.get("key", 0),
+                "money": user.get("money", 0),
+                "getm": user.get("getm", "0／0匹(0％)"),
+                "mes": user.get("mes", ""),
+            }
+        except Exception as e:
+            return None  # エラー時はスキップ
 
     errors = process_batch(
-        files_dir,
+        user_dirs,
         process_user_wrapper,
-        result_collector=u_list,
+        result_collector=new_userlist,
     )
-    save_user_list(u_list)
+    save_user_list(new_userlist)
 
     msg = "ユーザー登録データ(user_list.pickle)を再構築しました。"
     if errors:
@@ -496,7 +537,9 @@ def MON_PRESENT_OK():
 
     present_monster_check(FORM)
 
-    party = open_party(target_name)
+    all_data = open_user_all(target_name)
+
+    party = all_data.get("party", [])
 
     if len(party) >= 10:
         error("パーティがいっぱいで追加することができません。", "kanri")
@@ -511,7 +554,8 @@ def MON_PRESENT_OK():
     for i, pt in enumerate(party, 1):
         pt["no"] = i
 
-    save_party(party, target_name)
+    all_data["party"] = party
+    save_user_all(all_data, target_name)
 
     result(f"{target_name}へモンスターを配布しました")
 
@@ -529,15 +573,17 @@ def PRESENT():
     key = int(FORM.get("key", 0))
 
     def haifu(name):
-        user = open_user(name)
-        user["money"] += money
-        user["medal"] += medal
-        user["key"] += key
-        save_user(user, name)
+        all_data = open_user_all(name)
+        user = all_data.get("user", {})
+        user["money"] = user.get("money", 0) + money
+        user["medal"] = user.get("medal", 0) + medal
+        user["key"] = user.get("key", 0) + key
+        all_data["user"] = user
+        save_user_all(all_data, name)
 
     if target_name == "全員":
         u_list = open_user_list()
-        errors = process_batch(u_list, haifu)
+        errors = process_batch(list(u_list.keys()), haifu)
 
         msg = "全員にプレゼントを送りました。"
         if errors:
@@ -591,7 +637,6 @@ def make_table(save_data, txt):
     if isinstance(save_data, dict) and all(
         isinstance(v, dict) for v in save_data.values()
     ):
-        # ネストされた辞書の場合
         rows = [{"name": k, **v} for k, v in save_data.items()]
     else:
         rows = save_data if isinstance(save_data, list) else [save_data]
@@ -614,57 +659,65 @@ def save_editer():
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
 
-    if not (target_name):
+    if not target_name:
         error("対象が選択されていません。", "kanri")
 
     match target_name:
         case "user_list":
             save_data = open_user_list()
-            if not (save_data):
+            if not save_data:
                 error("現在登録者はいないようです。<br>編集できません。", "kanri")
             save_data = [{"user_name": u} | v for u, v in save_data.items()]
             txt = "登録ユーザーリスト"
         case "omiai_list":
             save_data = open_omiai_list()
-            if not (save_data):
+            if not save_data:
                 error(
                     "現在お見合い登録者はいないようです。<br>編集できません。", "kanri"
                 )
             save_data = [{"user_name": u} | v for u, v in save_data.items()]
             txt = "お見合いリスト"
+        case _:
+            # 個別ユーザーデータの場合
+            all_data = open_user_all(target_name)
+            match target_data:
+                case "user_data":
+                    save_data = all_data.get("user", {})
+                    txt = "ユーザー情報"
+                case "party_data":
+                    save_data = all_data.get("party", [])
+                    txt = "パーティーデータ"
+                case "room_key_data":
+                    save_data = [
+                        {"name": k, **v}
+                        for k, v in all_data.get("room_key", {}).items()
+                    ]
+                    txt = "部屋の鍵データ"
+                case "waza_data":
+                    save_data = [
+                        {"name": k, **v} for k, v in all_data.get("waza", {}).items()
+                    ]
+                    txt = "習得特技データ"
+                case "zukan_data":
+                    save_data = [
+                        {"name": k, **v} for k, v in all_data.get("zukan", {}).items()
+                    ]
+                    txt = "図鑑データ"
+                case "park_data":
+                    save_data = all_data.get("park", [])
+                    txt = "モンスターパークデータ"
+                    if not save_data:
+                        error(
+                            "現在パーク内にモンスターはいないようです。<br>編集できません。",
+                            "kanri",
+                        )
+                case "vips_data":
+                    save_data = all_data.get("vips", {})
+                    txt = "その他データ"
+                case _:
+                    error("不明なtarget_dataです", "kanri")
 
-    match target_data:
-        case "user_data":
-            save_data = open_user(target_name)
-            txt = "ユーザー情報"
-        case "party_data":
-            save_data = open_party(target_name)
-            txt = "パーティーデータ"
-        case "room_key_data":
-            save_data = open_room_key(target_name)
-            save_data = [{"name": u} | v for u, v in save_data.items()]
-            txt = "部屋の鍵データ"
-        case "waza_data":
-            save_data = open_waza(target_name)
-            save_data = [{"name": u} | v for u, v in save_data.items()]
-            txt = "習得特技データ"
-        case "zukan_data":
-            save_data = open_zukan(target_name)
-            save_data = [{"name": u} | v for u, v in save_data.items()]
-            txt = "図鑑データ"
-        case "park_data":
-            save_data = open_park(target_name)
-            txt = "モンスターパークデータ"
-            if not (save_data):
-                error(
-                    "現在パーク内にモンスターはいないようです。<br>編集できません。",
-                    "kanri",
-                )
-        case "vips_data":
-            save_data = open_vips(target_name)
-            txt = "その他データ"
-
-    if type(save_data) == list:
+    if isinstance(save_data, list):
         make_table(save_data, txt)
     else:
         make_table([save_data], txt)
@@ -672,129 +725,147 @@ def save_editer():
 
 def save_edit_select():
     target_name = FORM.get("target_name")
-
-    if not (target_name):
+    if not target_name:
         error("対象が選択されていません。", "kanri")
 
     context = {"target_name": target_name, "token": FORM["token"], "Conf": Conf}
 
-    if target_name == "user_list":
-        save_editer()
-    elif target_name == "omiai_list":
+    if target_name in ("user_list", "omiai_list"):
         save_editer()
     else:
         print_html("kanri_saveedit_select_tmp.html", context)
-
-
-def save_data(open_func, save_func, form):
-    """共通のデータ保存処理."""
-    original_data = open_func()  # 元のデータを取得
-    updated_data = {}
-
-    for i in range(len(original_data)):
-        user_name = str(form.get(f"{i},user_name"))
-        if user_name and user_name in original_data:  # ユーザー名が存在するか確認
-            updated_data[user_name] = {
-                v: form.get(f"{i},{v}", original_data[user_name].get(v, ""))
-                for v in original_data[user_name].keys()
-            }
-        else:
-            error(
-                f"警告: インデックス {i} のユーザー名 '{user_name}' が original_data に存在しません。"
-            )
-
-    save_func(updated_data)
-
-
-def save_specific_data(target_name, open_func, save_func, form):
-    """target_dataに応じたデータ保存処理."""
-    save_data = open_func(target_name)  # 元データを取得
-    if isinstance(save_data, dict) and all(
-        isinstance(v, dict) for v in save_data.values()
-    ):
-        # ネストされた辞書の場合（zukan_data, waza_data, room_key_data など）
-        updated_data = {}
-        i = 0
-        while f"{i},name" in form:  # "name" フィールドが存在する限りループ
-            name = form[f"{i},name"]
-            # 元データのキー名を動的に取得（存在しない場合は空の辞書を使用）
-            original_keys = save_data.get(name, {}).keys()
-            updated_data[name] = {
-                k: form.get(f"{i},{k}", save_data.get(name, {}).get(k, ""))
-                for k in original_keys  # 元データのキー名を使用
-            }
-            # 数値変換
-            for k in updated_data[name]:
-                if str(updated_data[name][k]).isdecimal():
-                    updated_data[name][k] = int(updated_data[name][k])
-            i += 1
-        save_func(updated_data, target_name)
-    elif isinstance(save_data, list):
-        # リスト形式の場合（party_data, park_data など）
-        save_data = [
-            {
-                v: form.get(f"{i},{v}", save_data[i].get(v, ""))
-                for v in save_data[i].keys()
-            }
-            for i in range(len(save_data))
-        ]
-        save_func(save_data, target_name)
-    else:
-        # 単一辞書の場合（user_data, vips_data など）
-        save_data = {v: form.get(f"0,{v}", "") for v in save_data.keys()}
-        save_func(save_data, target_name)
 
 
 def save_edit_save():
     target_name = FORM["target_name"]
     target_data = FORM["target_data"]
 
-    # 数値変換
-    for key in FORM.keys():
+    # フォームの数値変換
+    for key in list(FORM.keys()):
         try:
             FORM[key] = int(FORM[key])
         except (ValueError, TypeError):
             pass
 
-    match target_name:
-        case "user_list":
-            txt = "ユーザーリストを更新しました。"
-            save_data(
-                open_user_list,
-                save_user_list,
-                FORM,
-            )
-        case "omiai_list":
-            txt = "お見合いリストを更新しました。"
-            save_data(open_omiai_list, save_omiai_list, FORM)
+    # user_list / omiai_list の場合（従来通り）
+    if target_name == "user_list":
+        txt = "ユーザーリストを更新しました。"
+        original = open_user_list()
+        updated = {}
+        for i in range(len(original)):
+            user_name = str(FORM.get(f"{i},user_name", ""))
+            if user_name and user_name in original:
+                updated[user_name] = {
+                    k: FORM.get(f"{i},{k}", original[user_name].get(k))
+                    for k in original[user_name].keys()
+                }
+        save_user_list(updated)
+        result(txt)
+        return
+
+    if target_name == "omiai_list":
+        txt = "お見合いリストを更新しました。"
+        original = open_omiai_list()
+        updated = {}
+        for i in range(len(original)):
+            user_name = str(FORM.get(f"{i},user_name", ""))
+            if user_name and user_name in original:
+                updated[user_name] = {
+                    k: FORM.get(f"{i},{k}", original[user_name].get(k))
+                    for k in original[user_name].keys()
+                }
+        save_omiai_list(updated)
+        result(txt)
+        return
+
+    # 個別ユーザーデータの場合（新型式対応）
+    all_data = open_user_all(target_name)
 
     match target_data:
         case "user_data":
             txt = "ユーザー情報"
-            save_specific_data(target_name, open_user, save_user, FORM)
+            user = all_data.get("user", {})
+            for k in list(user.keys()):
+                user[k] = FORM.get(f"0,{k}", user.get(k))
+            all_data["user"] = user
+
         case "vips_data":
             txt = "その他データ"
-            save_specific_data(target_name, open_vips, save_vips, FORM)
+            vips = all_data.get("vips", {})
+            for k in list(vips.keys()):
+                vips[k] = FORM.get(f"0,{k}", vips.get(k))
+            all_data["vips"] = vips
+
         case "room_key_data":
             txt = "部屋の鍵データ"
-            save_specific_data(
-                target_name,
-                open_room_key,
-                save_room_key,
-                FORM,
-            )
+            room_key = {}
+            i = 0
+            while f"{i},name" in FORM:
+                name = FORM[f"{i},name"]
+                if name:
+                    room_key[name] = {
+                        k: FORM.get(
+                            f"{i},{k}",
+                            all_data.get("room_key", {}).get(name, {}).get(k),
+                        )
+                        for k in all_data.get("room_key", {}).get(name, {})
+                    }
+                i += 1
+            all_data["room_key"] = room_key
+
         case "waza_data":
             txt = "習得特技データ"
-            save_specific_data(target_name, open_waza, save_waza, FORM)
+            waza = {}
+            i = 0
+            while f"{i},name" in FORM:
+                name = FORM[f"{i},name"]
+                if name:
+                    waza[name] = {
+                        k: FORM.get(
+                            f"{i},{k}", all_data.get("waza", {}).get(name, {}).get(k)
+                        )
+                        for k in all_data.get("waza", {}).get(name, {})
+                    }
+                i += 1
+            all_data["waza"] = waza
+
         case "zukan_data":
             txt = "図鑑データ"
-            save_specific_data(target_name, open_zukan, save_zukan, FORM)
+            zukan = {}
+            i = 0
+            while f"{i},name" in FORM:
+                name = FORM[f"{i},name"]
+                if name:
+                    zukan[name] = {
+                        k: FORM.get(
+                            f"{i},{k}", all_data.get("zukan", {}).get(name, {}).get(k)
+                        )
+                        for k in all_data.get("zukan", {}).get(name, {})
+                    }
+                i += 1
+            all_data["zukan"] = zukan
+
         case "party_data":
             txt = "パーティーデータ"
-            save_specific_data(target_name, open_party, save_party, FORM)
+            party = all_data.get("party", [])
+            for i in range(len(party)):
+                for k in list(party[i].keys()):
+                    party[i][k] = FORM.get(f"{i},{k}", party[i].get(k))
+            all_data["party"] = party
+
         case "park_data":
             txt = "モンスターパークデータ"
-            save_specific_data(target_name, open_park, save_park, FORM)
+            park = all_data.get("park", [])
+            for i in range(len(park)):
+                for k in list(park[i].keys()):
+                    park[i][k] = FORM.get(f"{i},{k}", park[i].get(k))
+            all_data["park"] = park
+
+        case _:
+            error("不明なtarget_dataです", "kanri")
+
+    # 一括保存
+    save_user_all(all_data, target_name)
 
     result(f"{target_name}の{txt}を更新しました。")
 
@@ -814,38 +885,42 @@ def update_isekai_limit(M_list):
 
 def dat_update_check(in_name, M_list, Tokugi_dat):
     """ユーザーの図鑑と技データを更新"""
-    user = open_user(in_name)
-    zukan = open_zukan(in_name)
-    waza = open_waza(in_name)
+    all_data = open_user_all(in_name)
+    user = all_data.get("user", {})
+    zukan = all_data.get("zukan", {})
+    waza = all_data.get("waza", {})
 
-    def update_data(new_data, existing_data, data_type, save_func):
-        # 新しいデータに既存の取得状態を反映
-        for name in new_data:
-            if name in existing_data:
-                new_data[name]["get"] = existing_data[name].get("get", 0)
-
-        save_func(new_data, in_name)
-
-        if data_type == "zukan":
-            get = sum(v.get("get") == 1 for v in new_data.values())
-            mleng = len(new_data)
-            user["getm"] = f"{get}／{mleng}匹 ({get / mleng * 100:.2f}％)"
-            save_user(user, in_name)
-
-    # 図鑑の更新チェック
+    # 図鑑更新
     new_zukan = {
-        name: {"no": mon["no"], "m_type": mon["m_type"], "get": 0}
+        name: {
+            "no": mon["no"],
+            "m_type": mon["m_type"],
+            "get": zukan.get(name, {}).get("get", 0),
+        }
         for name, mon in M_list.items()
     }
-    update_data(new_zukan, zukan, "zukan", save_zukan)
+    all_data["zukan"] = new_zukan
 
-    # 技の更新チェック
+    # 技更新
     if len(Tokugi_dat) != len(waza):
         new_waza = {
-            name: {"no": v["no"], "type": v["type"], "get": 0}
+            name: {
+                "no": v["no"],
+                "type": v["type"],
+                "get": waza.get(name, {}).get("get", 0),
+            }
             for name, v in Tokugi_dat.items()
         }
-        update_data(new_waza, waza, "waza", save_waza)
+        all_data["waza"] = new_waza
+
+    # getm 更新
+    get = sum(v.get("get") == 1 for v in new_zukan.values())
+    mleng = len(new_zukan)
+    user["getm"] = (
+        f"{get}／{mleng}匹 ({get / mleng * 100:.2f}％)" if mleng > 0 else "0／0匹(0％)"
+    )
+
+    save_user_all(all_data, in_name)
 
 
 def dat_update():

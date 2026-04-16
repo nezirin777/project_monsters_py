@@ -13,6 +13,8 @@ from sub_def.file_ops import (
     open_vips,
     open_room_key,
     open_waza,
+    open_zukan,
+    open_park,
     open_user_list,
 )
 from sub_def.file_ops import _atomic_pickle_save_unlocked, get_file_path, get_user_lock
@@ -29,6 +31,8 @@ def migrate_single_user(in_name):
             "vips": open_vips(in_name),
             "room_key": open_room_key(in_name),
             "waza": open_waza(in_name),
+            "park": open_park(in_name),
+            "zukan": open_zukan(in_name),
         }
         data["updated_at"] = datetime.datetime.now().isoformat()
 
