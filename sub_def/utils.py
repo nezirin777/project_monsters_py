@@ -5,16 +5,14 @@ import os
 import secrets
 import logging
 import json
-
 import html  # 追加: エラーメッセージのサニタイズ用
 from jinja2 import Environment, FileSystemLoader
 
-
 import conf
 
-sys.stdout.reconfigure(encoding="utf-8")
-
 Conf = conf.Conf
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 env = Environment(
     loader=FileSystemLoader("templates"), auto_reload=False, cache_size=100
@@ -53,13 +51,16 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
 
     token = secrets.token_hex(16)
 
-    if jump == "top":
-        # トップに戻る場合は、既存のセッションを維持しつつフラッシュだけ追加
-        session = get_session()  # 現在のセッションを読み込む
-        session["ref"] = "top"  # ログイン試行時に必要
-    else:
-        # その他のジャンプ（my_pageなど）は通常通り空 or 既存セッション
+    try:
+        # セッション取得は1回だけ。失敗しても空辞書で続行（再帰防止）
         session = get_session()
+    except Exception:
+        session = {}
+
+    # jump == "top" の場合も、既存セッションを無理に読まず安全に扱う
+    if jump == "top":
+        session = dict(session)  # コピーを作成
+        session["ref"] = "top"
 
     # ★ flash統一
     session |= {
@@ -71,7 +72,7 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
     set_session(session)
 
     sanitized_txt = html.escape(str(txt))
-    url, base_par = URL_MAP.get(jump, URL_MAP["my_page"])
+    url, base_par = URL_MAP.get("top", URL_MAP["my_page"])
     par = base_par | {"token": token} if jump != "top" else base_par
 
     logging.log(log_level, f"{msg_type.upper()}: {sanitized_txt}, Jump: {jump}")
@@ -86,17 +87,12 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
         )
         sys.exit()
 
-    if jump == "99":  # エラー専用の特例
+    if jump in ("99", "kanri"):
         print("Content-Type: text/plain; charset=utf-8\n")
         print(sanitized_txt)
         sys.exit()
 
-    if jump == "kanri":  # エラー専用の特例
-        print("Content-Type: text/plain; charset=utf-8\n")
-        print(sanitized_txt)
-        sys.exit()
-
-    if jump == "top":
+    if not jump == "":
         redirect_url = url
         if par:
             redirect_url += "?" + urllib.parse.urlencode(par)
