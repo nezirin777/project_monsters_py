@@ -258,8 +258,10 @@ def _create_global_pickle_accessor(file_name: str):
 # ======================#
 def pickle_load(file: str, user: str = "") -> Any:
     """ユーザー個別pickleのフルパスを返す。user未指定時はsessionのin_nameを参照"""
-    s = get_session()
-    user = user or s.get("in_name") or ""
+    if user == "":
+        s = get_session()
+        user = s.get("in_name") or ""
+
     file_path = get_file_path(file, user)
 
     try:

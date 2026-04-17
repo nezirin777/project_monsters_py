@@ -7,7 +7,13 @@ from typing import Dict, Optional
 import conf
 
 from .utils import error
-from .file_ops import *
+from .file_ops import (
+    open_monster_dat,
+    open_monster_boss_dat,
+    open_seikaku_dat,
+    open_user_all,
+    save_user_all,
+)
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -21,66 +27,53 @@ BASE_STAT = lambda stat, mon, haigou_hosei, floor_hosei: int(
 
 
 # ============#
-# 特技取得    #
+# 特技・図鑑登録（統合版）
 # ============#
-def waza_get(target: str, user_name: str = "") -> bool:
-    if not target:
-        return None
+def register_monster_progress(
+    waza_target: str = None, zukan_target: str = None, user_name: str = ""
+) -> dict:
+    """
+    特技取得と図鑑登録を1つの関数で処理。
+    両方とも新規の場合に True を返す。
+    戻り値: {"waza_new": bool, "zukan_new": bool}
+    """
+    result = {"waza_new": False, "zukan_new": False}
 
-    waza = open_waza(user_name)
+    all_data = open_user_all(user_name)
+    user = all_data.setdefault("user", {})
+    waza = all_data.setdefault("waza", {})
+    zukan = all_data.setdefault("zukan", {})
 
-    if target not in waza:
-        error(f"特技 {target} がデータに見つかりません。", 99)
-        return None
+    # --- 特技取得 ---
+    if waza_target:
+        if waza_target not in waza:
+            error(f"特技 {waza_target} がデータに見つかりません。", 99)
+        elif waza[waza_target].get("get", 0) == 0:
+            waza[waza_target]["get"] = 1
+            result["waza_new"] = True
 
-    # すでに取得済みなら何もしない
-    if waza[target].get("get", 0) == 1:
-        return False
+    # --- 図鑑登録 ---
+    if zukan_target:
+        if zukan_target not in zukan:
+            error(f"図鑑ターゲット {zukan_target} がデータに見つかりません。", 99)
+        elif zukan[zukan_target].get("get", 0) == 0:
+            zukan[zukan_target]["get"] = 1
+            result["zukan_new"] = True
 
-    # 新規取得
-    waza[target]["get"] = 1
-    save_waza(waza, user_name)
+            # 図鑑進捗率を更新
+            get_count = sum(1 for val in zukan.values() if val.get("get", 0) == 1)
+            total_count = len(zukan)
+            progress = (get_count / total_count) * 100
+            user["getm"] = f"{get_count}／{total_count}匹 ({progress:.2f}％)"
 
-    return True
+    # 保存（変更があった場合のみ）
+    if result["waza_new"] or result["zukan_new"]:
+        all_data["user"] = user
+        all_data["waza"] = waza
+        all_data["zukan"] = zukan
+        save_user_all(all_data, user_name)
 
-
-# ============#
-# 図鑑登録    #
-# ============#
-def zukan_get(target: str, user_name: str = "") -> bool:
-    try:
-        # ユーザー情報と図鑑データを取得
-        user = open_user(user_name)
-        zukan = open_zukan(user_name)
-
-        if target not in zukan:
-            error(f"ターゲット {target} が図鑑に見つかりません。", 99)
-            return None
-
-        # すでに登録済みなら何もしない
-        if zukan[target].get("get", 0) == 1:
-            return False
-
-        # 新規登録
-        zukan[target]["get"] = 1
-
-        # 取得数カウント
-        get_count = sum(1 for val in zukan.values() if val.get("get", 0) == 1)
-        total_count = len(zukan)
-
-        # 進捗率を計算
-        progress_percentage = (get_count / total_count) * 100
-        user["getm"] = f"{get_count}／{total_count}匹 ({progress_percentage:.2f}％)"
-
-        # 保存
-        save_zukan(zukan, user_name)
-        save_user(user, user_name)
-
-        return True
-
-    except Exception as e:
-        error(f"図鑑の更新中にエラーが発生しました: {e}", 99)
-        return None
+    return result
 
 
 # ==================#

@@ -6,9 +6,6 @@ import os
 import datetime
 import shutil
 import secrets
-import pickle
-import pandas as pd
-import glob
 import json
 import random
 import copy
@@ -28,20 +25,6 @@ from sub_def.file_ops import (
     save_omiai_list,
     open_user_all,
     save_user_all,
-    open_user,
-    open_party,
-    open_vips,
-    open_room_key,
-    open_waza,
-    open_zukan,
-    open_park,
-    save_user,
-    save_room_key,
-    save_party,
-    save_waza,
-    save_zukan,
-    save_park,
-    save_vips,
 )
 from sub_def.monster_ops import monster_select
 from sub_def.user_ops import delete_user, backup
@@ -90,7 +73,6 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
             try:
                 result = future.result()
                 if result_collector is not None and result is not None:
-                    # ★★★ ここを確実に修正 ★★★
                     user_name = (
                         user_info.get("user_name")
                         if isinstance(user_info, dict)
