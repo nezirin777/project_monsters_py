@@ -4,6 +4,7 @@ import json
 import os
 import conf
 
+# kanri.pyで使用する進捗情報の管理モジュール
 # 設定ファイルからデータディレクトリを取得
 Conf = conf.Conf
 datadir = Conf["savedir"]

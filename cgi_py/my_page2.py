@@ -7,8 +7,9 @@ def my_page2(FORM):
     in_name = FORM.get("username")
     fol = FORM.get("fol", "")
 
-    user = sub_def.open_user(in_name)
-    party = sub_def.open_party(in_name)
+    all_data = sub_def.open_user_all(in_name)
+    user = all_data["user"]
+    party = all_data["party"]
 
     user_v = sub_def.slim_number_with_cookie(user)
 
