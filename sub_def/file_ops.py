@@ -189,23 +189,19 @@ def _atomic_pickle_save_unlocked(data: Any, file_path: str) -> None:
         _handle_file_error("pickle", file_path, e)
 
 
-def get_csv_conf(file_name: str):
-    """CSV定義を統一取得"""
-    if file_name in CSV_DEFS_MASTER:
-        return CSV_DEFS_MASTER[file_name]
-    if file_name in CSV_DEFS_GLOBAL:
-        return CSV_DEFS_GLOBAL[file_name]
-    if file_name in CSV_DEFS_USER:
-        return CSV_DEFS_USER[file_name]
-    return None
-
-
 def get_file_path(file: str, user: str = "") -> str:
-    base_name = file.replace(".pickle", ".csv")
+    """
+    ファイルのパスを取得
+    - .pickle が付いている → pickle用パス
+    - .csv が付いている → CSV用パス
+    """
+    # 拡張子を取り除いてベースとなるキー名を取得 ("user_list.csv" -> "user_list")
+    base_name = file.replace(".pickle", "").replace(".csv", "")
+    is_pickle = file.endswith(".pickle")
 
     # MASTER
     if base_name in CSV_DEFS_MASTER:
-        if file.endswith(".pickle"):
+        if is_pickle:
             return os.path.join(Conf["datdir"], PICKLE_DIR, file)
         return os.path.join(Conf["datdir"], file)
 
@@ -214,17 +210,16 @@ def get_file_path(file: str, user: str = "") -> str:
         return os.path.join(Conf["savedir"], file)
 
     # USER
-    elif base_name in CSV_DEFS_USER:
+    elif base_name in CSV_DEFS_USER or base_name == "user_all":
         if not user:
-            error(f"ユーザー名必須: {file}", 99)
-
-        if file.endswith(".pickle"):
+            error(f"ユーザー名必須: {file}", "top")
+        if is_pickle:
             return os.path.join(Conf["savedir"], user, PICKLE_DIR, file)
         return os.path.join(Conf["savedir"], user, file)
 
     # fallback
     else:
-        error(f"未定義ファイル: {file}", 99)
+        error(f"未定義ファイル: {file}", "top")
 
 
 def _create_pickle_accessor(file_name: str):
@@ -281,7 +276,8 @@ def pickle_dump(data: Any, file: str, user: str = "") -> None:
 
     file_path = get_file_path(file, user)
 
-    base_name = file.replace(".pickle", ".csv")
+    # 拡張子を取り除いてベースとなるキー名を取得
+    base_name = file.replace(".pickle", "").replace(".csv", "")
 
     if base_name in CSV_DEFS_GLOBAL:
         lock = get_shared_lock(file)
@@ -363,78 +359,13 @@ def get_ranked_user_list(user_list: dict):
     return new_dict
 
 
-# ===============#
-# CSV操作        #
-# ===============#
-def open_csv_dict(file_name: str, name: str = "") -> Dict:
-    """CSVをindex付きdictとして読み込む"""
-    file_path = get_file_path(file_name, name)
-
-    conf_def = get_csv_conf(file_name)
-    index_col = conf_def.get("index", "name") if conf_def else "name"
-
-    # ソート制御（GLOBALだけ除外）
-    sort_val = file_name not in CSV_DEFS_GLOBAL
-
-    log(
-        f"[変換toDict] 対象: {file_name} ｜｜ パス: {file_path} ｜｜ インデックス: {index_col}"
-    )
-
-    try:
-        df = pd.read_csv(
-            file_path,
-            encoding="utf-8_sig",
-            index_col=index_col,
-            na_filter=False,
-        ).convert_dtypes()
-
-        if sort_val and "no" in df.columns:
-            df = df.sort_values("no")
-
-        return df.to_dict(orient="index")
-
-    except Exception as e:
-        _handle_file_error("CSV", file_path, e)
-        return {}
-
-
-def open_csv_list(file: str, name: str = "", single: bool = False) -> List | Dict:
-    """CSVをレコード配列として読み込む。single=Trueなら先頭1件のみ返す"""
-    file_path = get_file_path(file, name)
-    try:
-        df = (
-            pd.read_csv(file_path, encoding="utf-8_sig", na_filter=False)
-            .dropna(how="all")
-            .convert_dtypes()
-        )
-    except Exception as e:
-        _handle_file_error("CSV", file_path, e)
-        return [{}] if single else []
-
-    if df.empty:
-        return [{}] if single else []
-
-    string_cols = [col for col in df.columns if pd.api.types.is_string_dtype(df[col])]
-    nullable_cols = [
-        col for col in df.columns if df[col].isnull().any() and col not in string_cols
-    ]
-
-    if string_cols:
-        df[string_cols] = df[string_cols].fillna("")
-
-    if nullable_cols:
-        df[nullable_cols] = df[nullable_cols].where(df[nullable_cols].notna(), None)
-
-    records = df.to_dict(orient="records")
-    return records[0] if single else records
-
-
 # ====================================#
 # dat / 共通マスタ類読み込み          #
 # ====================================#
 def open_dat(file_name: str) -> Dict:
     """dat/pickle配下の共通マスタを読み込む"""
-    file_path = os.path.join(Conf["datdir"], PICKLE_DIR, f"{file_name}.pickle")
+    # 共通の get_file_path を通すように修正
+    file_path = get_file_path(f"{file_name}.pickle")
 
     try:
         with open(file_path, "rb") as f:
@@ -454,6 +385,9 @@ def _create_dat_opener(file_name: str):
 # ======================#
 def open_user_all(user: str = "") -> dict:
     """ユーザー個別全データを1ファイルで読み込み（安全版）"""
+    if not user:
+        error("open_user_all: ユーザー名が指定されていません", "top")
+
     file_name = "user_all.pickle"
     file_path = get_file_path(file_name, user)
 
@@ -462,7 +396,15 @@ def open_user_all(user: str = "") -> dict:
             data = pickle.load(f)
 
         # 後方互換性
-        default = {"user": {}, "party": [], "vips": {}, "room_key": {}, "waza": {}}
+        default = {
+            "user": {},
+            "party": [],
+            "vips": {},
+            "room_key": {},
+            "waza": {},
+            "park": [],
+            "zukan": {},
+        }
         for key in default:
             if key not in data:
                 data[key] = default[key]
@@ -470,7 +412,6 @@ def open_user_all(user: str = "") -> dict:
 
     except FileNotFoundError:
         # まだ user_all.pickle が存在しない場合のみ、従来方式で合成
-        # 注意：ここでは get_session() に頼らないよう直接 user を受け取る前提
         try:
             return {
                 "user": open_user(user),  # ここは従来のまま（一時的）
@@ -509,14 +450,7 @@ def open_user_all(user: str = "") -> dict:
 def save_user_all(data: dict, user: str = "") -> None:
     """1ファイルにまとめて保存（安全版）"""
     if not user:
-        # セッションから取得しようとせず、userが渡されなかったらエラーにする
-        from .crypto import get_session
-
-        s = get_session()
-        user = s.get("in_name") or ""
-
-    if not user:
-        error("save_user_all: user名が指定されていません", "top")
+        error("save_user_all: ユーザー名が指定されていません", "top")
 
     file_name = "user_all.pickle"
     file_path = get_file_path(file_name, user)

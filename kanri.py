@@ -12,8 +12,6 @@ import copy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from cgi_py import csv_to_pickle, pickle_to_csv, haigou_list_make
-
-# import sub_def
 from sub_def.crypto import hash_password, get_session, set_session
 from sub_def.file_ops import (
     open_key_dat,
@@ -907,8 +905,8 @@ def dat_update_check(in_name, M_list, Tokugi_dat):
 
 def dat_update():
     """データファイルを更新し、ユーザー情報を反映"""
-    for csv_name, conf_def in CSV_DEFS_MASTER.items():
-        csv_to_pickle.convert_csv_to_pickle(csv_name)
+    for target_key in CSV_DEFS_MASTER.keys():
+        csv_to_pickle.convert_csv_to_pickle(target_key)
 
     # 配合リスト2種を作り直す
     haigou_list_make.haigou_list_make()
@@ -923,7 +921,8 @@ def dat_update():
         dat_update_check(name, M_list, Tokugi_dat)
 
     u_list = open_user_list()
-    errors = process_batch(u_list.keys(), process_user)
+    # ★ process_batch に安全にリストとして渡すよう変更
+    errors = process_batch(list(u_list.keys()), process_user)
 
     msg = "datファイルの更新を反映しました。"
     if errors:

@@ -1,12 +1,10 @@
-# sub_def/validation.py
-
 import os
 import unicodedata
 import re
 import emoji
+import hmac
 from wtforms import Form, StringField, PasswordField, IntegerField, validators
 from wtforms.validators import ValidationError
-import hmac
 
 from sub_def.utils import error
 from sub_def.crypto import (
@@ -16,13 +14,16 @@ from sub_def.crypto import (
     get_cookie,
     set_cookie,
 )
-from sub_def.file_ops import open_user, save_user
+from sub_def.file_ops import (
+    open_user_all,
+    save_user_all,
+)
 
 import conf
 
 Conf = conf.Conf
 
-# Windows予約語（既存のNG_STRを前提）
+# Windows予約語
 NG_STR = [
     "logs",
     "lock_fol",
@@ -51,7 +52,9 @@ NG_STR = [
 ]
 
 
-# 既存のカスタムバリデータ
+# ======================#
+# カスタムバリデータ
+# ======================#
 class ZeroAllowedDataRequired:
     def __init__(self, message=None):
         self.message = message or "This field is required."
@@ -73,17 +76,14 @@ class ValidUsername:
     def __call__(self, form, field):
         username = unicodedata.normalize("NFKC", field.data.strip())
 
-        # 統合された禁止文字・条件チェック
         if re.search(r'[.<>:"/\\|?*\x00-\x1F\s]|[. ]$', username):
             raise ValidationError(
                 "ユーザー名に無効な文字（スペース、ドット、特殊文字）が含まれています"
             )
 
-        # 絵文字チェック
         if any(emoji.is_emoji(char) for char in username):
             raise ValidationError("ユーザー名に絵文字は使用できません")
 
-        # Shift-JISエンコーディングチェック
         try:
             encoded = username.encode("Shift-JIS", "replace")
             decoded = encoded.decode("Shift-JIS")
@@ -98,7 +98,6 @@ class ValidUsername:
                 "ユーザー名にShift-JISで表現できない文字が含まれています"
             )
 
-        # Windows予約語チェック
         if username.upper() in [name.upper() for name in NG_STR]:
             raise ValidationError(f"ユーザー名に予約語 '{username}' は使用できません")
 
@@ -106,9 +105,10 @@ class ValidUsername:
             raise ValidationError("ユーザー名に制御文字や特殊文字が含まれています")
 
 
+# ======================#
+# フォーム定義
+# ======================#
 class BaseUserForm(Form):
-    """ユーザー名とパスワードの共通バリデーション"""
-
     username = StringField(
         "Username",
         [
@@ -135,30 +135,21 @@ class BaseUserForm(Form):
 
 
 class RegisterForm(BaseUserForm):
-    """ユーザー名とパスワードが異なることを検証"""
-
     def validate_password(self, field):
         if self.username.data == field.data:
             raise ValidationError("名前とパスワードは違うものにして下さい")
 
 
 class LoginForm(BaseUserForm):
-    """ログインフォーム"""
-
-    # 親クラスのフィールドをそのまま継承
     pass
 
 
 class AdminForm(Form):
-    """管理者認証フォーム"""
-
     m_name = StringField("Master Name", [validators.DataRequired()])
     m_password = PasswordField("Master Password", [validators.DataRequired()])
 
 
 class PresentMonsterForm(Form):
-    """モンスタープレゼントフォーム"""
-
     mons_name = StringField("monster name", [validators.DataRequired()])
     sex = StringField("monster sex", [validators.DataRequired()])
     max_level = IntegerField(
@@ -172,20 +163,15 @@ class PresentMonsterForm(Form):
 
 
 class PresentForm(Form):
-    """プレゼントフォーム"""
-
     target_name = StringField("target_name", [validators.DataRequired()])
     money = IntegerField(
-        "money",
-        [ZeroAllowedDataRequired(), validators.NumberRange(0, 9999999999)],
+        "money", [ZeroAllowedDataRequired(), validators.NumberRange(0, 9999999999)]
     )
     medal = IntegerField(
-        "medal",
-        [ZeroAllowedDataRequired(), validators.NumberRange(0, 9999999999)],
+        "medal", [ZeroAllowedDataRequired(), validators.NumberRange(0, 9999999999)]
     )
     key = IntegerField(
-        "key",
-        [ZeroAllowedDataRequired(), validators.NumberRange(0, 9999999999)],
+        "key", [ZeroAllowedDataRequired(), validators.NumberRange(0, 9999999999)]
     )
 
 
@@ -204,6 +190,9 @@ class NewPassForm(Form):
     )
 
 
+# ======================#
+# バリデーション関数
+# ======================#
 def validate_form(form, error_context="top"):
     """共通のフォームバリデーション処理"""
     if not form.validate():
@@ -251,25 +240,29 @@ def newpass_check(FORM):
 
 
 def login_check(FORM):
+    """ログイン処理（user_all対応版）"""
     wtform = LoginForm(data=FORM)
     validate_form(wtform, "top")
 
-    name = wtform.username.data  # usernameに変更
+    name = wtform.username.data
     password = wtform.password.data
 
     user_path = os.path.join(Conf["savedir"], name)
     if not os.path.exists(user_path):
         error("あなたは未登録のようです。", "top")
 
-    user = open_user(name)
+    # 新形式：open_user_all を使用
+    all_data = open_user_all(name)
+    user = all_data.get("user", {})
 
     # 旧式パスワード → 新方式へ移行
-    if ":" not in user["pass"]:
-        if user["pass"] == pass_encode(password):
+    if ":" not in user.get("pass", ""):
+        if user.get("pass") == pass_encode(password):
             user["pass"] = hash_password(password)
-            save_user(user, name)
+            all_data["user"] = user
+            save_user_all(all_data, name)
 
-    if not verify_password(password, user["pass"]):
+    if not verify_password(password, user.get("pass", "")):
         error("パスワードが違います", "top")
 
     # Cookieはユーザー名だけ保持
@@ -278,7 +271,7 @@ def login_check(FORM):
     cookie["in_name"] = name
     set_cookie(cookie)
 
-    # my_page表示に必要な最小限を返す
+    # my_page表示に必要な最小限の情報を返す
     return {
         "in_name": name,
         "last_floor": user.get("last_floor", 1),
