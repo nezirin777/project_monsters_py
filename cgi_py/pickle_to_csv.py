@@ -1,8 +1,19 @@
+# pickle_to_csv.py -user_all.pickle から個別のCSVファイルに変換して保存するスクリプト
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import sub_def
-import conf
 import os
 import json
+import pandas as pd
+
+from sub_def.file_ops import (
+    open_user_all,
+    open_user_list,
+    open_omiai_list,
+    get_file_path,
+    log,
+)
+from sub_def.utils import error
+import conf
 
 Conf = conf.Conf
 datadir = Conf["savedir"]
@@ -10,112 +21,152 @@ progress_file = os.path.join(datadir, "progress.json")
 
 
 def delete_progress_file():
-    """進捗ファイルを削除"""
     try:
         if os.path.exists(progress_file):
             os.remove(progress_file)
     except Exception as e:
-        sub_def.error(f"進捗ファイルの削除に失敗しました: {e}")
+        print(f"[WARN] 進捗ファイル削除失敗: {e}", file=os.sys.stderr)
 
 
-def save_user_data(in_name):
-    """
-    指定したユーザーのデータを個別のCSVファイルに保存する。
-    """
+def save_csv(data, target_key: str, name: str = "", label: str = "name"):
+    """データをCSVとして保存"""
+    # ベース名（キー）に .csv をくっつけてパスを取得
+    csv_file_name = (
+        f"{target_key}.csv" if not target_key.endswith(".csv") else target_key
+    )
+    file_path = get_file_path(csv_file_name, name)
 
-    # 各データの保存
+    if data is None:
+        data = []
 
-    park_data = sub_def.open_park(in_name)
-    default_park_data = {
-        key: "-"
-        for key in [
-            "no",
-            "name",
-            "lv",
-            "mlv",
-            "hai",
-            "hp",
-            "mhp",
-            "mp",
-            "mmp",
-            "atk",
-            "def",
-            "agi",
-            "exp",
-            "n_exp",
-            "sei",
-            "sex",
-        ]
-    }
-    park_data = [default_park_data] if not park_data else park_data
+    if not data and not isinstance(data, (dict, list)):
+        error("対象のデータは空っぽのようです。<br>出力できませんでした。", 99)
+        return
 
-    sub_def.save_csv(park_data, "park.csv", in_name)
-    sub_def.save_csv(sub_def.open_room_key(in_name), "room_key.csv", in_name)
-    sub_def.save_csv(sub_def.open_party(in_name), "party.csv", in_name)
-    sub_def.save_csv(sub_def.open_user(in_name), "user.csv", in_name)
-    sub_def.save_csv(sub_def.open_vips(in_name), "vips.csv", in_name)
-    sub_def.save_csv(sub_def.open_waza(in_name), "waza.csv", in_name)
-    sub_def.save_csv(sub_def.open_zukan(in_name), "zukan.csv", in_name)
+    try:
+        if isinstance(data, pd.DataFrame):
+            df = data
+        elif isinstance(data, dict):
+            if any(isinstance(v, dict) for v in data.values()):  # dict of dict
+                df = pd.DataFrame.from_dict(data, orient="index")
+                df.index.name = label
+            else:  # single dict
+                df = pd.DataFrame([data])
+                df.index.name = label
+        elif isinstance(data, list) and data and isinstance(data[0], dict):
+            df = pd.DataFrame(data)
+        else:
+            df = pd.DataFrame(data)
+
+        df.to_csv(
+            file_path,
+            index=True,
+            index_label=label if getattr(df.index, "name", None) is None else None,
+            encoding="utf-8_sig",
+        )
+
+        log(f"[CSV出力] {csv_file_name} (user={name or 'GLOBAL'}) → {len(df)} 件")
+
+    except Exception as e:
+        error(f"CSV書き込みエラー: {target_key} | {e}", 99)
+
+
+def save_user_data(in_name: str):
+    """user_all から個別CSVを生成"""
+    try:
+        all_data = open_user_all(in_name)
+
+        user = all_data.get("user", {})
+        party = all_data.get("party", [])
+        vips = all_data.get("vips", {})
+        room_key = all_data.get("room_key", {})
+        waza = all_data.get("waza", {})
+        zukan = all_data.get("zukan", {})
+        park = all_data.get("park", [])
+
+        if not park:
+            default_park = {
+                key: "-"
+                for key in [
+                    "no",
+                    "name",
+                    "lv",
+                    "mlv",
+                    "hai",
+                    "hp",
+                    "mhp",
+                    "mp",
+                    "mmp",
+                    "atk",
+                    "def",
+                    "agi",
+                    "exp",
+                    "n_exp",
+                    "sei",
+                    "sex",
+                ]
+            }
+            park = [default_park]
+
+        # CSV出力 (ベース名で指定)
+        save_csv(park, "park", in_name)
+        save_csv(room_key, "room_key", in_name)
+        save_csv(party, "party", in_name)
+        save_csv(user, "user", in_name, label="name")
+        save_csv(vips, "vips", in_name, label="name")
+        save_csv(waza, "waza", in_name)
+        save_csv(zukan, "zukan", in_name)
+
+        log(f"[完了] {in_name}")
+
+    except Exception as e:
+        error(f"{in_name} のCSV出力失敗: {e}")
 
 
 def handle_all_users():
-    u_list = sub_def.open_user_list()
-    total_users = len(u_list)  # 全体のユーザー数
+    u_list = open_user_list()
+    total_users = len(u_list)
 
-    # 初期化
     progress = {"total": total_users, "completed": 0, "status": "running"}
-    with open(progress_file, mode="w", encoding="utf-8") as ff:
-        json.dump(progress, ff)
+    with open(progress_file, "w", encoding="utf-8") as f:
+        json.dump(progress, f)
 
     batch_size = 10
     completed = 0
-    # 並列処理
-    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-        future_to_user = {
+
+    with ThreadPoolExecutor(max_workers=min(32, os.cpu_count() or 4)) as executor:
+        futures = {
             executor.submit(save_user_data, name): name for name in u_list.keys()
         }
 
-        for future in as_completed(future_to_user):
-            name = future_to_user[future]
+        for future in as_completed(futures):
+            name = futures[future]
             try:
-                future.result()  # エラーが発生した場合はここでキャッチ
+                future.result()
             except Exception as e:
-                sub_def.error(f"{name} 変換失敗: {e}")
+                print(f"[ERROR] {name} CSV出力失敗: {e}", file=os.sys.stderr)
 
             completed += 1
             if completed % batch_size == 0 or completed == total_users:
                 progress["completed"] = completed
-                with open(progress_file, mode="w", encoding="utf-8") as ff:
-                    json.dump(progress, ff)
+                with open(progress_file, "w", encoding="utf-8") as f:
+                    json.dump(progress, f)
 
     delete_progress_file()
 
 
-def pickle_to_csv(target_name):
-    """
-    指定されたターゲット名に基づいてデータをCSVに変換し、ファイルとして保存する。
-    """
-    # user_listのCSV変換
+def pickle_to_csv(target_name: str):
+    """メインエントリポイント"""
     if target_name == "user_list":
-        sub_def.save_csv(
-            sub_def.open_user_list(),
-            "user_list.csv",
-            "",
-            "user_name",
-        )
+        # ベース名 "user_list" で指定
+        save_csv(open_user_list(), "user_list", "", label="user_name")
 
-    # omiai_listのCSV変換
     elif target_name == "omiai_list":
-        sub_def.save_csv(
-            sub_def.open_omiai_list(),
-            "omiai_list.csv",
-            "",
-            "user_name",
-        )
+        # ベース名 "omiai_list" で指定
+        save_csv(open_omiai_list(), "omiai_list", "", label="user_name")
 
-    # 全ユーザーデータのCSV変換
     elif target_name == "全員":
         handle_all_users()
-    # 個別ユーザーのデータ保存
+
     else:
         save_user_data(target_name)

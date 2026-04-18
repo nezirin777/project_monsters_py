@@ -7,3 +7,11 @@
 
 
 print(f"<!-- token_check: in_name = {session.get('in_name')} -->", file=sys.stderr)
+
+----------------------
+呼びだし元特定
+-------------------------
+    import traceback
+    print("<!-- yobidasi -->", file=sys.stderr)
+    traceback.print_stack(file=sys.stderr)   # 現在の呼び出しスタックをすべて出力
+    print("<!-- End of stack trace -->", file=sys.stderr)

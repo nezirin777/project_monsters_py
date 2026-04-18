@@ -45,7 +45,7 @@ def clear_flash():
         set_session(session)  # ← ここで即座にクッキー更新
 
 
-def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INFO):
+def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
     from .crypto import get_session, set_session
     import urllib.parse
 
@@ -92,7 +92,7 @@ def _flash_and_jump(txt, msg_type="error", jump="my_page", log_level=logging.INF
         print(sanitized_txt)
         sys.exit()
 
-    if not jump == "":
+    if jump == "top" or jump == "":
         redirect_url = url
         if par:
             redirect_url += "?" + urllib.parse.urlencode(par)

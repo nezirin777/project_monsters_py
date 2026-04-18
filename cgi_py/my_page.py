@@ -1,8 +1,15 @@
-# my_page.py
-
 import datetime
 
-import sub_def
+from sub_def.file_ops import (
+    open_omiai_list,
+    open_user_list,
+    save_user_list,
+    open_user_all,
+    save_user_all,
+)
+from sub_def.utils import print_html, slim_number_with_cookie
+from sub_def.user_ops import get_host
+
 import conf
 
 Conf = conf.Conf
@@ -40,44 +47,36 @@ def calculate_costs_and_options(party):
                 }
             )
 
-    return (
-        yadoya_cost,
-        kyoukai_cost,
-        haigou_options,
-        tenkan_options,
-    )
+    return yadoya_cost, kyoukai_cost, haigou_options, tenkan_options
 
 
-# 関数：ユーザーリストを更新
 def update_user_list(in_name, user, party):
-    u_list = sub_def.open_user_list()
+    """ユーザー一覧（グローバル）を更新"""
+    u_list = open_user_list()
     bye = datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     s = 3
 
+    # party を最大3体までに整形
     party = party[:s] + [{} for _ in range(s - len(party))]
+
     u_list[in_name] |= {
-        "host": sub_def.get_host(),
+        "host": get_host(),
         "bye": bye.strftime("%Y-%m-%d"),
-        "key": user["key"],
-        "money": user["money"],
-        "getm": user["getm"],
+        "key": user.get("key", 1),
+        "money": user.get("money", 0),
+        "getm": user.get("getm", "0／0匹(0％)"),
         **{
             f"m{i+1}_{attr}": party[i].get(attr, "")
             for i in range(s)
-            for attr in [
-                "name",
-                "lv",
-                "hai",
-            ]
+            for attr in ["name", "lv", "hai"]
         },
     }
-    sub_def.save_user_list(u_list)
+    save_user_list(u_list)
 
 
 def my_page(FORM):
+    """マイページ表示処理（user_all 完全対応版）"""
 
-    # ログイン→マイページからの処理ではpikkel読み込み時に更新されたセッションを読み込めない。
-    # よってin_name付与などが必須。
     session = FORM.get("s", {})
 
     in_name = session.get("in_name") or FORM.get("name")
@@ -91,9 +90,10 @@ def my_page(FORM):
     last_floor_isekai = int(session.get("last_floor_isekai", 0))
     next_t = float(session.get("next_t", 0))
 
-    omiai_list = sub_def.open_omiai_list()
+    omiai_list = open_omiai_list()
 
-    all_data = sub_def.open_user_all(in_name)
+    # === 新形式：user_all で一括取得 ===
+    all_data = open_user_all(in_name)
 
     user = all_data.get("user", {})
     party = all_data.get("party", [])
@@ -117,42 +117,43 @@ def my_page(FORM):
 
         if boost_until is not None:
             vips["boost"] = None
-            sub_def.save_vips(vips, in_name)
+            all_data["vips"] = vips
+            save_user_all(all_data, in_name)
 
     hours = boost_remain_sec // 3600
     minutes = (boost_remain_sec % 3600) // 60
     seconds = boost_remain_sec % 60
     boost_time = f"{hours}時間{minutes}分{seconds}秒"
 
-    # 追加情報を生成
+    # 追加情報生成
     isekai, isekai_next = (
         ("hidden", "")
         if not user.get("isekai_limit")
-        else ("", min(user["isekai_key"], user["isekai_limit"]))
+        else ("", min(user.get("isekai_key", 0), user.get("isekai_limit", 0)))
     )
     park_get = "" if vips.get("パーク") else "hidden"
 
-    # 表示用のパラメータを作成
-    # インデックスを付けたリストを生成
+    # 表示用データ準備
     option_list = list(range(1, len(party) + 1))
-    party_with_index = list(enumerate(sub_def.slim_number_with_cookie(party), 1))
-    user_v = sub_def.slim_number_with_cookie(user)
+    party_with_index = list(enumerate(slim_number_with_cookie(party), 1))
+    user_v = slim_number_with_cookie(user)
 
-    # 必要なデータの準備
-    # 鍵のテキストリスト
+    # 鍵の表示リスト
     room_key_display = [
         {
             "name": name,
-            "has_key": r_key["get"],
+            "has_key": r_key.get("get", 0),
             "selected": (last_room == name),
         }
         for name, r_key in room_key.items()
     ]
 
-    # 技のリスト
-    waza_display = [{"name": name if wa["get"] else "-"} for name, wa in waza.items()]
+    # 技の表示リスト
+    waza_display = [
+        {"name": name if wa.get("get", 0) else "-"} for name, wa in waza.items()
+    ]
 
-    # お見合い状況のチェック
+    # お見合い状況
     omiai_status = (
         "baby"
         if omiai_list.get(in_name, {}).get("baby")
@@ -163,14 +164,15 @@ def my_page(FORM):
         )
     )
 
+    # 宿屋・教会コスト計算
     yadoya_cost, kyoukai_cost, haigou_options, tenkan_options = (
         calculate_costs_and_options(party)
     )
 
-    yadoya_cost_v = sub_def.slim_number_with_cookie(yadoya_cost)
-    kyoukai_cost_v = sub_def.slim_number_with_cookie(kyoukai_cost)
+    yadoya_cost_v = slim_number_with_cookie(yadoya_cost)
+    kyoukai_cost_v = slim_number_with_cookie(kyoukai_cost)
 
-    # 必要な変数を辞書にまとめてテンプレートへ渡す
+    # テンプレートに渡すデータ
     content = {
         "my_page_flg": 1,
         "Conf": Conf,
@@ -201,4 +203,4 @@ def my_page(FORM):
         "flash_type": flash_type,
     }
 
-    sub_def.print_html("my_page_tmp.html", content)
+    print_html("my_page_tmp.html", content)
