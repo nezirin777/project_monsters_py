@@ -41,17 +41,46 @@ def get_csv_conf(target_key: str):
     return None
 
 
+def clean_dataframe(df, index_col=None):
+    """データフレームの型を整理し、安全にソートと欠損値処理を行う（自動修復機能）"""
+    if df.empty:
+        return df
+
+    # no列があれば強引に数値化して安全にソート
+    if "no" in df.columns:
+        df["no_temp"] = pd.to_numeric(df["no"], errors="coerce")
+        df = df.sort_values("no_temp").drop(columns=["no_temp"])
+
+    # 欠損値と型の正規化
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            df[col] = df[col].fillna(0)
+            # floatを可能ならintに変換（例: 10.0 -> 10）
+            try:
+                if (df[col] % 1 == 0).all():
+                    df[col] = df[col].astype(int)
+            except Exception:
+                pass
+        else:
+            df[col] = df[col].fillna("")
+
+    # インデックスが意図せず数値化されるのを防ぐ（dict用）
+    if index_col and df.index.name == index_col:
+        if not pd.api.types.is_string_dtype(df.index):
+            df.index = df.index.astype(str)
+
+    return df
+
+
 def open_csv_dict(target_key: str, name: str = "") -> Dict:
     """CSVをindex付きdictとして読み込む"""
     conf_def = get_csv_conf(target_key)
 
-    # 常にベース名 + .csv でパスを取得
     csv_file_name = f"{target_key}.csv"
     file_path = get_file_path(csv_file_name, name)
-
     index_col = conf_def.get("index", "name") if conf_def else "name"
 
-    # ソート制御（GLOBALだけ除外）
+    # GLOBALはソート除外
     sort_val = target_key not in CSV_DEFS_GLOBAL
 
     log(
@@ -59,16 +88,14 @@ def open_csv_dict(target_key: str, name: str = "") -> Dict:
     )
 
     try:
+        # na_filterを外し、標準の型推論に任せる
         df = pd.read_csv(
             file_path,
             encoding="utf-8_sig",
             index_col=index_col,
-            na_filter=False,
-        ).convert_dtypes()
+        )
 
-        if sort_val and "no" in df.columns:
-            df = df.sort_values("no")
-
+        df = clean_dataframe(df, index_col if sort_val else None)
         return df.to_dict(orient="index")
 
     except Exception as e:
@@ -82,31 +109,17 @@ def open_csv_list(target_key: str, name: str = "", single: bool = False) -> List
     file_path = get_file_path(csv_file_name, name)
 
     try:
-        df = (
-            pd.read_csv(file_path, encoding="utf-8_sig", na_filter=False)
-            .dropna(how="all")
-            .convert_dtypes()
-        )
+        df = pd.read_csv(file_path, encoding="utf-8_sig").dropna(how="all")
+        df = clean_dataframe(df)
+
+        records = df.to_dict(orient="records")
+        if single:
+            return records[0] if records else {}
+        return records
+
     except Exception as e:
         _handle_file_error("CSV", file_path, e)
         return [{}] if single else []
-
-    if df.empty:
-        return [{}] if single else []
-
-    string_cols = [col for col in df.columns if pd.api.types.is_string_dtype(df[col])]
-    nullable_cols = [
-        col for col in df.columns if df[col].isnull().any() and col not in string_cols
-    ]
-
-    if string_cols:
-        df[string_cols] = df[string_cols].fillna("")
-
-    if nullable_cols:
-        df[nullable_cols] = df[nullable_cols].where(df[nullable_cols].notna(), None)
-
-    records = df.to_dict(orient="records")
-    return records[0] if single else records
 
 
 def restore_empty_strings(obj):
@@ -267,6 +280,12 @@ def convert_user_to_user_all(user_name: str):
     try:
         pickle_dump(all_data, user_all_path)
         log(f"[DONE] USER_ALL | {user_name} → user_all.pickle")
+
+        # --- 変換成功後にCSVファイルを削除する処理を追加 ---
+        keys_to_delete = ["user", "party", "vips", "room_key", "waza", "zukan", "park"]
+        for k in keys_to_delete:
+            safe_remove(get_file_path(f"{k}.csv", user_name))
+
     except Exception as e:
         log(f"[ERROR] user_all保存失敗: {user_name} | {e}")
 
@@ -319,7 +338,7 @@ def process_batch(users, process_func, batch_size=10):
 
 
 # =============================
-# 全ユーザー処理
+# 全体処理
 # =============================
 def handle_all_users():
     u_list = open_user_list()
