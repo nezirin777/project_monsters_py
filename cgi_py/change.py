@@ -38,7 +38,7 @@ def change(FORM):
     token = FORM["token"]
 
     # 新形式で全データを取得
-    all_data = open_user_all()
+    all_data = open_user_all(FORM["s"]["in_name"])
     party = all_data.get("party", [])
 
     if not party:
@@ -74,6 +74,6 @@ def change(FORM):
 
     # 6. 保存（user_all経由）
     all_data["party"] = new_party
-    save_user_all(all_data)
+    save_user_all(all_data, FORM["s"]["in_name"])
 
     success("並べ替えが完了しました。")

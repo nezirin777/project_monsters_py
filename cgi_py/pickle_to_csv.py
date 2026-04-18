@@ -44,6 +44,7 @@ def save_csv(data, target_key: str, name: str = "", label: str = "name"):
         return
 
     try:
+        write_index = True
         if isinstance(data, pd.DataFrame):
             df = data
         elif isinstance(data, dict):
@@ -52,16 +53,22 @@ def save_csv(data, target_key: str, name: str = "", label: str = "name"):
                 df.index.name = label
             else:  # single dict
                 df = pd.DataFrame([data])
-                df.index.name = label
+                write_index = False  # 単一辞書なら行番号不要
         elif isinstance(data, list) and data and isinstance(data[0], dict):
             df = pd.DataFrame(data)
+            write_index = False  # リストなら行番号不要
         else:
             df = pd.DataFrame(data)
+            write_index = False
 
         df.to_csv(
             file_path,
-            index=True,
-            index_label=label if getattr(df.index, "name", None) is None else None,
+            index=write_index,
+            index_label=(
+                label
+                if (write_index and getattr(df.index, "name", None) is None)
+                else None
+            ),
             encoding="utf-8_sig",
         )
 
