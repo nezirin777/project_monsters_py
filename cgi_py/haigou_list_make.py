@@ -1,4 +1,4 @@
-# haigou_list_make.py
+# haigou_list_make.py - 配合モンスターリストの生成
 
 from jinja2 import Environment, FileSystemLoader
 

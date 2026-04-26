@@ -1,14 +1,22 @@
+# m_get.py - モンスターを仲間にする処理
+
 import datetime
-import sub_def
+
+from sub_def.file_ops import open_user_all, save_user_all, open_battle
+from sub_def.monster_ops import monster_select
+from sub_def.utils import error, success
 import conf
 
 
 def m_get(FORM):
     Conf = conf.Conf
     token = FORM["token"]
+    user_name = FORM["s"]["in_name"]
 
-    party = sub_def.open_party()
-    battle = sub_def.open_battle()
+    # user_all で全データを一括取得
+    all_data = open_user_all(user_name)
+    party = all_data["party"]
+    battle = open_battle()  # battleはまだ個別
 
     teki = battle["teki"][0]
     get_name, Asex = teki["name"], teki["sex"]
@@ -18,10 +26,10 @@ def m_get(FORM):
     next_t = float(FORM["c"]["next_t"])
     current_time = datetime.datetime.now().timestamp()
     if next_t + 30 < current_time:
-        sub_def.error("タイムオーバーのため さみしく帰っていった")
+        error("タイムオーバーのため さみしく帰っていった")
         return
 
-    new_mob = sub_def.monster_select(get_name)
+    new_mob = monster_select(get_name)
     new_mob["sex"] = Asex
 
     if len(party) < 10:
@@ -29,8 +37,10 @@ def m_get(FORM):
         for i, pt in enumerate(party, 1):
             pt["no"] = i
 
-        sub_def.save_party(party)
-        sub_def.print_result(f"<span>{get_name}</span>が仲間に加わりました", "", token)
+        all_data["party"] = party
+        save_user_all(all_data, user_name)
+        success(f"<span>{get_name}</span>が仲間に加わりました", jump="my_page")
+
     else:
         # モンスターリスト生成
         options = "".join(
@@ -52,8 +62,3 @@ def m_get(FORM):
                 <img name="img1" src="{Conf["imgpath"]}/{get_name}.gif">
             </form>
         """
-
-        sub_def.header()
-        sub_def.jscript(party, get_name)
-        print(html)
-        sub_def.footer()

@@ -16,11 +16,12 @@ SEIKAKU_MIN = 1  # 性格のパラメータ最小値
 def books(FORM):
     """本屋（性格変更）画面表示"""
     token = FORM["token"]
+    user_name = FORM["s"]["in_name"]
     flash_msg = FORM["s"].pop("flash_msg", None)
     flash_type = FORM["s"].pop("flash_type", "error")
 
     # 新形式でパーティを取得
-    all_data = open_user_all()
+    all_data = open_user_all(user_name)
     party = all_data.get("party", [])
 
     # モンスター表示用データ
@@ -66,7 +67,8 @@ def book_read(FORM):
         error("モンスターまたは本が選択されていません", jump="books")
 
     # === 新形式：user_all で一括取得 ===
-    all_data = open_user_all()
+    user_name = FORM["s"]["in_name"]
+    all_data = open_user_all(user_name)
     user = all_data.get("user", {})
     party = all_data.get("party", [])
 
@@ -110,7 +112,7 @@ def book_read(FORM):
     # 保存（すべて user_all にまとめて1回だけ）
     all_data["user"] = user
     all_data["party"] = party
-    save_user_all(all_data)
+    save_user_all(all_data, user_name)
 
     # 結果メッセージ
     if Msei != Newsei:

@@ -15,3 +15,11 @@ print(f"<!-- token_check: in_name = {session.get('in_name')} -->", file=sys.stde
     print("<!-- yobidasi -->", file=sys.stderr)
     traceback.print_stack(file=sys.stderr)   # 現在の呼び出しスタックをすべて出力
     print("<!-- End of stack trace -->", file=sys.stderr)
+
+
+-------------------------
+all_data = open_user_all(user_name)とsave_user_all(all_data, user_name)はユーザー名指定が必須。
+ユーザー名はuser_name = FORM["s"]["in_name"]から取れる。覚えておいて
+
+9月	オデン	11月	アマテラス	11月	オデン
+11月	ティターニア	12月	アザゼル	12月	オシリス

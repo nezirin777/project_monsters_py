@@ -74,21 +74,21 @@ class ValidUsername:
     """ユーザー名の詳細な検証"""
 
     def __call__(self, form, field):
-        username = unicodedata.normalize("NFKC", field.data.strip())
+        user_name = unicodedata.normalize("NFKC", field.data.strip())
 
-        if re.search(r'[.<>:"/\\|?*\x00-\x1F\s]|[. ]$', username):
+        if re.search(r'[.<>:"/\\|?*\x00-\x1F\s]|[. ]$', user_name):
             raise ValidationError(
                 "ユーザー名に無効な文字（スペース、ドット、特殊文字）が含まれています"
             )
 
-        if any(emoji.is_emoji(char) for char in username):
+        if any(emoji.is_emoji(char) for char in user_name):
             raise ValidationError("ユーザー名に絵文字は使用できません")
 
         try:
-            encoded = username.encode("Shift-JIS", "replace")
+            encoded = user_name.encode("Shift-JIS", "replace")
             decoded = encoded.decode("Shift-JIS")
-            if decoded != username:
-                invalid_chars = [c for c, d in zip(username, decoded) if d == "?"]
+            if decoded != user_name:
+                invalid_chars = [c for c, d in zip(user_name, decoded) if d == "?"]
                 invalid_char = invalid_chars[0] if invalid_chars else "不明な文字"
                 raise ValidationError(
                     f"ユーザー名にShift-JISで表現できない文字が含まれています: '{invalid_char}'"
@@ -98,10 +98,10 @@ class ValidUsername:
                 "ユーザー名にShift-JISで表現できない文字が含まれています"
             )
 
-        if username.upper() in [name.upper() for name in NG_STR]:
-            raise ValidationError(f"ユーザー名に予約語 '{username}' は使用できません")
+        if user_name.upper() in [name.upper() for name in NG_STR]:
+            raise ValidationError(f"ユーザー名に予約語 '{user_name}' は使用できません")
 
-        if any(ord(char) < 32 or ord(char) == 127 for char in username):
+        if any(ord(char) < 32 or ord(char) == 127 for char in user_name):
             raise ValidationError("ユーザー名に制御文字や特殊文字が含まれています")
 
 
@@ -109,7 +109,7 @@ class ValidUsername:
 # フォーム定義
 # ======================#
 class BaseUserForm(Form):
-    username = StringField(
+    user_name = StringField(
         "Username",
         [
             validators.DataRequired(message="ユーザー名を入力してください。"),
@@ -136,7 +136,7 @@ class BaseUserForm(Form):
 
 class RegisterForm(BaseUserForm):
     def validate_password(self, field):
-        if self.username.data == field.data:
+        if self.user_name.data == field.data:
             raise ValidationError("名前とパスワードは違うものにして下さい")
 
 
@@ -203,7 +203,7 @@ def validate_form(form, error_context="top"):
     return True
 
 
-def check_valid_username_password(FORM):
+def check_valid_user_name_password(FORM):
     form = RegisterForm(data=FORM)
     validate_form(form, "top")
     return form
@@ -244,7 +244,7 @@ def login_check(FORM):
     wtform = LoginForm(data=FORM)
     validate_form(wtform, "top")
 
-    name = wtform.username.data
+    name = wtform.user_name.data
     password = wtform.password.data
 
     user_path = os.path.join(Conf["savedir"], name)

@@ -1,7 +1,7 @@
 import html
 import re
 
-from sub_def.utils import error, print_html
+from sub_def.utils import error, success
 from sub_def.file_ops import (
     open_user_all,
     save_user_all,
@@ -14,9 +14,9 @@ import conf
 Conf = conf.Conf
 
 
-def validate_input(in_name, mes):
+def validate_input(user_name, mes):
     """入力検証: 名前とメッセージのバリデーション"""
-    if not in_name or not in_name.strip():
+    if not user_name or not user_name.strip():
         error("名前を入力してください。")
     if not (2 <= len(mes) <= 50):
         error("メッセージは2文字以上、50文字以下で入力してください。")
@@ -31,22 +31,21 @@ def sanitize_message(mes):
 
 def comment(FORM):
     """メッセージ（自己紹介文）更新処理（user_all対応版）"""
-    in_name = FORM.get("username")
+    user_name = FORM["s"].get("in_name")
     mes = FORM.get("message", "")
-    token = FORM.get("token")
 
     # 入力検証
-    validate_input(in_name, mes)
+    validate_input(user_name, mes)
 
     # 新形式でユーザー全データを取得
-    all_data = open_user_all(in_name)
+    all_data = open_user_all(user_name)
     user = all_data.get("user", {})
 
     # ユーザーリスト取得
     u_list = open_user_list()
 
     # 名前の存在確認
-    if in_name not in u_list:
+    if user_name not in u_list:
         error("指定された名前のユーザーは存在しません。")
 
     # メッセージのサニタイズと更新
@@ -56,18 +55,12 @@ def comment(FORM):
     user["mes"] = safe_mes
 
     # ユーザーリスト側のmesも更新（表示用）
-    if in_name in u_list:
-        u_list[in_name]["mes"] = safe_mes
+    if user_name in u_list:
+        u_list[user_name]["mes"] = safe_mes
 
     # 保存処理（user_all と user_list の両方を更新）
     all_data["user"] = user
-    save_user_all(all_data, in_name)
+    save_user_all(all_data, user_name)
     save_user_list(u_list)
 
-    content = {
-        "Conf": Conf,
-        "token": token,
-        "mes": "メッセージは更新されました",
-    }
-
-    print_html("result_tmp.html", content)
+    success("メッセージが更新されました。", "my_page")

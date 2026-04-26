@@ -35,10 +35,10 @@ def safe_int(val):
 
 def change(FORM):
     """パーティの並び替えを保存する関数（user_all対応版）"""
-    token = FORM["token"]
+    user_name = FORM["s"]["in_name"]
 
     # 新形式で全データを取得
-    all_data = open_user_all(FORM["s"]["in_name"])
+    all_data = open_user_all(user_name)
     party = all_data.get("party", [])
 
     if not party:
@@ -74,6 +74,6 @@ def change(FORM):
 
     # 6. 保存（user_all経由）
     all_data["party"] = new_party
-    save_user_all(all_data, FORM["s"]["in_name"])
+    save_user_all(all_data, user_name)
 
-    success("並べ替えが完了しました。")
+    success("並べ替えが完了しました。", "my_page")
