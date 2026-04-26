@@ -1,10 +1,7 @@
+# haigou_check.py - 配合チェック
+
 from sub_def.utils import error, print_html
-from sub_def.file_ops import (
-    open_monster_dat,
-    open_user,
-    open_party,
-    open_zukan,
-)
+from sub_def.file_ops import open_monster_dat, open_user_all
 from sub_def.crypto import set_session, get_session
 import conf
 
@@ -65,10 +62,12 @@ def haigou_sub(base, aite, flg=0):
 
 
 def haigou_check(FORM):
-    # 配列位置に合わせるため-1
+    """配合チェック処理（user_all 新形式完全対応）"""
+    # 配列位置に合わせ-1
     haigou1 = int(FORM["haigou1"]) - 1
     haigou2 = int(FORM["haigou2"]) - 1
 
+    user_name = FORM["s"]["in_name"]
     token = FORM["token"]
 
     if haigou1 < 0 or haigou2 < 0:
@@ -76,9 +75,11 @@ def haigou_check(FORM):
     if haigou1 == haigou2:
         error("正しく設定されていません-2")
 
-    user = open_user()
-    party = open_party()
-    zukan = open_zukan()
+    # 新形式：user_all で一括取得
+    all_data = open_user_all(user_name)
+    user = all_data["user"]
+    party = all_data["party"]
+    zukan = all_data["zukan"]
 
     hai_A = party[haigou1]
     hai_B = party[haigou2]
@@ -96,12 +97,14 @@ def haigou_check(FORM):
 
     new_mons, hint_flag = haigou_sub(hai_A["name"], hai_B["name"])
 
-    if new_mons in zukan and zukan[new_mons]["get"]:
+    # 図鑑登録済みかどうかチェック
+    if new_mons in zukan and zukan[new_mons].get("get", 0) == 1:
         new_mons_name = new_mons
         hint_flag = False
     else:
         new_mons_name = "？？？"
 
+    # セッションに配合情報を保存
     session = get_session()
     session.update(
         {

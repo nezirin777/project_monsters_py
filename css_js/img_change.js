@@ -1,36 +1,29 @@
+// img_change.js - プルダウン選択モンスター画像切り替え用
 
-// プルダウン選択モンスター画像切り替え用
-Images = []; // グローバルで配列を初期化
+// <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index }}: {{ haigou.name }} </option>
+//上記のように、option要素のdata-name属性にモンスター名をセットしておく必要があります。
 
-function main(imgpath, pt, m_name) {
-    if (!imgpath || !pt) {
-        return; // パスまたはパラメータが無効
-    }
-
-    pt = pt.split("/");
-    pt[0] = m_name || "0"; // m_nameがfalsyなら"0"
-
-    Images = []; // 配列をリセット
-    for (let i = 0; i < pt.length; i++) {
-        Images[i] = new Image();
-        Images[i].src = imgpath + pt[i] + ".gif";
-    }
-}
-
-function change_img(selectName, imgName, useValue = true) {
+function change_img(selectName, imgName) {
     const form = document.forms["img_change"];
     const select = form?.[selectName];
     const img = form?.[imgName];
+
     if (!form || !select || !img) {
         console.warn(`Form, select, or image missing: ${selectName}, ${imgName}`);
         return;
     }
-    const index = useValue ? select.options[select.selectedIndex]?.value : select.selectedIndex;
-    if (!index || !Images[index]) {
-        console.warn(`Image data not found for index: ${index}`);
-        img.src = `${form.querySelector('img').src.split('/').slice(0, -1).join('/')}/0.gif`; // デフォルト画像
-        return;
-    }
-    img.src = Images[index].src;
-    img.alt = select.options[select.selectedIndex]?.text || `${selectName} モンスター`;
+
+    // 選択されたオプション要素を取得
+    const selectedOption = select.options[select.selectedIndex];
+
+    // data-name属性からモンスター名を取得（未選択時は "0" にする）
+    const m_name = selectedOption.getAttribute("data-name") || "0";
+
+    // 現在のimg要素のsrcからディレクトリまでのパスを抽出
+    // (例: "http://.../img/0.gif" -> "http://.../img")
+    const basePath = img.src.substring(0, img.src.lastIndexOf('/'));
+
+    // 新しい画像のパスをセット
+    img.src = `${basePath}/${m_name}.gif`;
+    img.alt = selectedOption.text;
 }

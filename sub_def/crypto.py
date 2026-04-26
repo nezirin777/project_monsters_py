@@ -252,7 +252,7 @@ def token_check(FORM: dict, session: dict, login_data: dict | None = None) -> di
     if login_data:
         session.update(login_data)
     elif not session.get("in_name"):
-        session["in_name"] = FORM.get("username", "")
+        session["in_name"] = FORM.get("user_name", "")
 
     set_session(session)
     return session

@@ -2,70 +2,76 @@ $(function() {
     // 値取得用関数（data属性優先、なければ従来のclass検索）
     function getValue(el, rel) {
         var target = $(el).find('[data-' + rel + ']');
-
         if (target.length) {
             return target.data(rel);
         }
-
-        // fallback（旧構造用）
         return $(el).find('.' + rel).text();
     }
 
     // ソート関数
     function sortList(rel, order, isNumeric) {
-        $('.list2').html(
-            $('.list2_monster_table').sort(function(a, b) {
+        // No順（デフォルト）の場合は、ページをリロードして初期状態（種族ヘッダー付き）に戻すのが一番きれいです
+        if (rel === 'no') {
+            location.reload();
+            return;
+        }
 
-                var valueA = getValue(a, rel);
-                var valueB = getValue(b, rel);
+        // それ以外のソート時は、種族ごとのグループヘッダーは意味を持たないので非表示にする
+        $('.list2_group_header').hide();
 
-                // rel="upday" の場合、日付として比較
-                if (rel === 'upday') {
-                    // 日付文字列を Date オブジェクトに変換（例: "2024/12/25"）
-                    var dateA = new Date(valueA);
-                    var dateB = new Date(valueB);
+        // テーブル要素のソート
+        var sortedElements = $('.list2_monster_table').sort(function(a, b) {
+            var valueA = getValue(a, rel);
+            var valueB = getValue(b, rel);
 
+            // rel="upday" の場合、日付を安全に比較
+            if (rel === 'upday') {
+                // 有効な日付ならミリ秒に、無効なら0にする
+                var dateA = new Date(valueA).getTime() || 0;
+                var dateB = new Date(valueB).getTime() || 0;
+
+                if (dateA !== dateB) {
+                    return (order === 'asc') ? (dateA - dateB) : (dateB - dateA);
+                }
+            }
+            // 数値で比較する場合
+            else if (isNumeric) {
+                valueA = Number(valueA) || 0;
+                valueB = Number(valueB) || 0;
+
+                if (valueA !== valueB) {
+                    return (order === 'asc') ? (valueA - valueB) : (valueB - valueA);
+                }
+            }
+            // 文字列で比較する場合
+            else {
+                valueA = String(valueA);
+                valueB = String(valueB);
+
+                if (valueA !== valueB) {
                     if (order === 'asc') {
-                        // 古い順（昇順）
-                        if (dateA < dateB) return -1;
-                        if (dateA > dateB) return 1;
-                        return 0;
+                        return (valueA < valueB) ? -1 : 1;
                     } else {
-                        // 新しい順（降順）
-                        if (dateA > dateB) return -1;
-                        if (dateA < dateB) return 1;
-                        return 0;
+                        return (valueA > valueB) ? -1 : 1;
                     }
                 }
+            }
 
-                // 数値で比較する場合
-                if (isNumeric) {
-                    valueA = Number(valueA) || 0;
-                    valueB = Number(valueB) || 0;
-                } else {
-                    valueA = String(valueA);
-                    valueB = String(valueB);
-                }
+            // 【重要】値が同じだった場合は、必ず「No（図鑑番号など）」でサブソートして順序を安定させる
+            var noA = Number(getValue(a, 'no')) || 0;
+            var noB = Number(getValue(b, 'no')) || 0;
+            return noA - noB;
+        });
 
-                // 並び順の設定（文字列または数値比較）
-                if (order === 'asc') {
-                    if (valueA < valueB) return -1;
-                    if (valueA > valueB) return 1;
-                    return 0;
-                } else {
-                    if (valueA > valueB) return -1;
-                    if (valueA < valueB) return 1;
-                    return 0;
-                }
-            })
-        );
+        // .html()ではなく .append() を使うことで、要素に関連付けられたイベントなどを壊さずに移動できます
+        $('.list2').append(sortedElements);
     }
 
-    // ボタンクリックイベントを統一
+    // ボタンクリックイベント
     $('.sortBtn').on('click', function() {
-        var rel = $(this).attr('rel'); // ソート対象クラス or data属性
-        var order = $(this).data('order'); // 昇順 or 降順
-        var isNumeric = $(this).data('numeric'); // 数値比較かどうか
+        var rel = $(this).attr('rel');
+        var order = $(this).data('order');
+        var isNumeric = $(this).data('numeric');
         sortList(rel, order, isNumeric);
     });
 });

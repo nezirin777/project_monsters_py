@@ -1,3 +1,5 @@
+# haigou_hensin.py - 配合による新モンスター生成と表示
+
 from sub_def.utils import print_html
 from sub_def.file_ops import (
     open_user_all,
@@ -14,12 +16,14 @@ def haigou_hensin(FORM):
     """配合による新モンスター生成と表示"""
     new_m = FORM["s"]["new_mons"].replace("フィッシュル(制服)", "フィッシュル")
 
+    user_name = FORM["s"]["in_name"]
+
     # 配列位置に合わせ-1されたものを引き継いでいるのでそのままで大丈夫
     haigou1, haigou2 = int(FORM["s"]["haigou1"]), int(FORM["s"]["haigou2"])
     hint_flag = True if FORM["s"]["hint_flag"] == "True" else False
 
     # user_all で全データを一括取得
-    all_data = open_user_all()
+    all_data = open_user_all(user_name)
     user = all_data["user"]
     party = all_data["party"]
 
@@ -71,7 +75,7 @@ def haigou_hensin(FORM):
     # 保存（すべて user_all にまとめて1回だけ）
     all_data["user"] = user
     all_data["party"] = party
-    save_user_all(all_data)
+    save_user_all(all_data, user_name)
 
     content = {
         "Conf": Conf,

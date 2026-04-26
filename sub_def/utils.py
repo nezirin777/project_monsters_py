@@ -45,9 +45,32 @@ def clear_flash():
         set_session(session)  # ← ここで即座にクッキー更新
 
 
+# ★追加: 無限ループ検知用のグローバルフラグ
+_IN_FLASH_AND_JUMP = False
+
+
 def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
+    global _IN_FLASH_AND_JUMP
     from .crypto import get_session, set_session
     import urllib.parse
+
+    sanitized_txt = html.escape(str(txt))
+
+    # =========================================================
+    # ★安全装置1: 同一処理内での再帰呼び出しによる無限ループ防止
+    # =========================================================
+    if _IN_FLASH_AND_JUMP:
+        logging.log(
+            logging.CRITICAL,
+            f"無限ループ(再帰)を検知し強制停止しました: {sanitized_txt}",
+        )
+        print("Content-Type: text/plain; charset=utf-8\n")
+        print(
+            f"システムエラー: 処理の無限ループを検知しました。\nエラー内容: {sanitized_txt}"
+        )
+        sys.exit()
+
+    _IN_FLASH_AND_JUMP = True
 
     token = secrets.token_hex(16)
 
@@ -56,6 +79,18 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
         session = get_session()
     except Exception:
         session = {}
+
+    # =========================================================
+    # ★安全装置2: リダイレクトを跨いだ無限ループ防止
+    # =========================================================
+    # 前回のフラッシュメッセージが表示(clear_flash)される前に再びエラーになった場合
+    if session.get("flash_msg") and msg_type == "error":
+        logging.log(
+            logging.WARNING,
+            f"リダイレクトの無限ループを回避します。前エラー: {session.get('flash_msg')}",
+        )
+        # ループを断ち切るために、強制的に「画面遷移しないテキスト表示モード(99)」へ退避
+        jump = "99"
 
     # jump == "top" の場合も、既存セッションを無理に読まず安全に扱う
     if jump == "top":
@@ -71,8 +106,7 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
 
     set_session(session)
 
-    sanitized_txt = html.escape(str(txt))
-    url, base_par = URL_MAP.get("top", URL_MAP["my_page"])
+    url, base_par = URL_MAP.get(jump, URL_MAP["my_page"])
     par = base_par | {"token": token} if jump != "top" else base_par
 
     logging.log(log_level, f"{msg_type.upper()}: {sanitized_txt}, Jump: {jump}")
@@ -128,6 +162,8 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
         "par": par,
         "jump": jump,
     }
+
+    print(f"<!-- koko_ni_kitayo -->", file=sys.stderr)
 
     print_html("error_tmp.html", content)
 

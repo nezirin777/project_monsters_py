@@ -350,8 +350,8 @@
         <div class="kanri_menu">
             重複の対象のためエラーが出る人を新規登録します
             <form action="{{ Conf.kanri_url }}" method="post">
-                登録ユーザー名<input type=text name=new_username><br>
-                登録パスワード<input type=password name=new_password><br>
+                登録ユーザー名<input type=text name=user_name><br>
+                登録パスワード<input type=password name=password><br>
                 <button type="submit">管理登録</button>
                 <input type="hidden" name="mode" value="NEW">
                 <input type="hidden" name="token" value="{{ token }}">

@@ -46,7 +46,7 @@
 <div class="login">
     <form action="{{ Conf.cgi_url }}" method="post" id="login_form">
         <span>ユーザー名</span>
-        <input type="text" name="username" value="{{ in_name }}"><br>
+        <input type="text" name="user_name" value="{{ in_name }}"><br>
         <span>パスワード</span>
         <input type="password" name="password" value=""><br>
         <input type="hidden" name="mode" value="my_page">
@@ -105,7 +105,7 @@
         <div class="r_2 r_u2">
             <div>
                 ユーザー名:
-                <a href="{{ Conf.cgi_url  }}?mode=my_page2&username={{ user.user_name }}" target="_blank" rel="noopener">{{
+                <a href="{{ Conf.cgi_url  }}?mode=my_page2&user_name={{ user.user_name }}" target="_blank" rel="noopener">{{
                     user.user_name }}</a><br>
                 最深部: 地下<span>{{ user.key }}</span>階<br>
                 所持金: {{ user.money }}G<br>

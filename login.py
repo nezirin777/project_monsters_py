@@ -132,7 +132,7 @@ def process_form():
 
     is_login_attempt = (
         session.get("ref") == "top"
-        and bool(FORM.get("username"))
+        and bool(FORM.get("user_name"))
         and bool(FORM.get("password"))
     )
 

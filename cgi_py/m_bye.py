@@ -1,12 +1,18 @@
-import sub_def
+# m_bye.py - パーティからモンスターを削除し、新しいモンスターを追加する関数
+
+from sub_def.file_ops import open_user_all, save_user_all, open_battle
+from sub_def.monster_ops import monster_select
+from sub_def.utils import error, success
 
 
 def m_bye(FORM):
-    """パーティからモンスターを削除し、新しいモンスターを追加する関数"""
     Mno = int(FORM["Mno"])
+    user_name = FORM["s"]["in_name"]
 
-    party = sub_def.open_party()
-    battle = sub_def.open_battle()
+    # user_all で全データを一括取得
+    all_data = open_user_all(user_name)
+    party = all_data["party"]
+    battle = open_battle()  # battleはまだ個別
 
     teki = battle["teki"][0]
     get_name, Asex = teki["name"], teki["sex"]
@@ -22,7 +28,7 @@ def m_bye(FORM):
             party.pop(Mno)
 
             # 新しいモンスターを追加
-            new_mob = sub_def.monster_select(get_name)
+            new_mob = monster_select(get_name)
             new_mob["sex"] = Asex
             party.append(new_mob)
 
@@ -34,9 +40,11 @@ def m_bye(FORM):
                 f"<span>{get_name}</span>が加わり<span>{by_name}</span>はさっていった"
             )
         except IndexError:
-            sub_def.error("無効なモンスター番号が指定されました")
+            error("無効なモンスター番号が指定されました")
             return
 
-    # 更新と結果表示
-    sub_def.save_party(party)
-    sub_def.print_result(message, "", FORM["token"])
+    # 更新と結果表示（partyをuser_allに反映）
+    all_data["party"] = party
+    save_user_all(all_data, user_name)  # user_nameを明示的に渡す
+
+    success(message, jump="my_page")

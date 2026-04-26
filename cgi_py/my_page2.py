@@ -4,7 +4,7 @@ def my_page2(FORM):
 
     Conf = conf.Conf
 
-    in_name = FORM.get("username")
+    in_name = FORM.get("user_name")
     fol = FORM.get("fol", "")
 
     all_data = sub_def.open_user_all(in_name)
