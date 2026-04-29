@@ -1,16 +1,22 @@
+<!-- templates/park_tmp.html -->
+
 {% extends "base_tmp.html" %}
 
-{% block content %}
 
+{% block head %}
+  <script src="./css_js/img_change.js"></script>
+{% endblock %}
+
+{% block content %}
     <div id="result">
         <span>モンスターパーク<br>モンスターを預けたりパーティに加えたりできます<br>預かり状況：{{ azukari }}/{{ waku }}体。</span>
     </div>
 
-    <form name="form1" method="post">
-        <select name="Mno" onClick="change_img()">
-            <option value="0" hidden>預けるモンスターを選んでください</option>
+    <form name="form1" method="post" id="img_change" >
+        <select name="Mno" onchange="change_img('Mno', 'img1')">
+            <option value="0" hidden data-name="0">預けるモンスターを選んでください</option>
             {% for pt in party %}
-            <option value="{{ pt.no }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回</option>
+            <option value="{{ pt.no }}"  data-name="{{ pt.name }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回</option>
             {% endfor %}
         </select>
         <button type="submit">預ける</button>
@@ -20,11 +26,7 @@
         <img name="img1" src="{{ Conf.imgpath }}/0.gif">
     </form>
 
-    <form action="{{ Conf.cgi_url }}" method="post">
-        <input type="hidden" name="mode" value="my_page">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit">マイページへ</button>
-    </form>
+    {% include "my_page_button_tmp.html" %}
 
     <hr>
 
@@ -47,7 +49,7 @@
         <input type="hidden" name="page" value="1">
         <input type="hidden" name="sort_v" value="1">
         <input type="hidden" name="token" value="{{ token }}">
-        <input type="submit" value="名前でソート">
+        <button type="submit">名前でソート</button>
     </form>
 
     <form method="post" class="park_jump_form">
@@ -55,7 +57,7 @@
         <input type="hidden" name="page" value="1">
         <input type="hidden" name="sort_v" value="2">
         <input type="hidden" name="token" value="{{ token }}">
-        <input type="submit" value="図鑑順でソート">
+        <button type="submit">図鑑順でソート</button>
     </form>
 
     <div class="park_page">
@@ -64,7 +66,7 @@
             <input type="hidden" name="mode" value="park">
             <input type="hidden" name="page" value="{{ i }}">
             <input type="hidden" name="token" value="{{ token }}">
-            <input type="submit" value="{{ " %02d区" | format(i) }}">
+            <button type="submit">{{ " %02d区" | format(i) }}</button>
         </form>
         {% endfor %}
     </div>
@@ -111,11 +113,13 @@
             <input type="hidden" name="mode" value="park">
             <input type="hidden" name="page" value="{{ i }}">
             <input type="hidden" name="token" value="{{ token }}">
-            <input type="submit" value="{{ " %02d区" | format(i) }}">
+            <button type="submit">{{ " %02d区" | format(i) }}</button>
         </form>
         {% endfor %}
     </div>
 
     {% endif %}
+
+    {% include "my_page_button_tmp.html" %}
 
 {% endblock %}

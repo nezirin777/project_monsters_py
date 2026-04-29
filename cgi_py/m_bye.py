@@ -2,7 +2,7 @@
 
 from sub_def.file_ops import open_user_all, save_user_all, open_battle
 from sub_def.monster_ops import monster_select
-from sub_def.utils import error, success
+from sub_def.utils import error, success, info
 
 
 def m_bye(FORM):

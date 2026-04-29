@@ -1,3 +1,4 @@
+<!-- templates/medal_shop_tmp.html -->
 
 {% extends "base_tmp.html" %}
 
@@ -7,13 +8,16 @@
 
 {% block content %}
 
-
-    <div class="my_page_box">
-        <div class="my_page_user_st1">所持金<br>{{ user_v["money"] }}G</div>
-        <div class="my_page_user_st1">メダル<br>{{ user_v["medal"] }}枚</div>
+    <div id="result">
+      <span>{{ mes }}</span>
     </div>
 
-    <form action="" id="form_check" method="post">
+    <div class="my_page_box">
+        <div class="my_page_user_st1">所持金<br>{{ user_v.money }}G</div>
+        <div class="my_page_user_st1">メダル<br>{{ user_v.medal }}枚</div>
+    </div>
+
+    <form action="{{ Conf.cgi_url }}" id="form_check" method="post">
         {% for category, items in item_lists.items() %}
         <div class="medal_box">
             {% for item in items %}
@@ -29,6 +33,8 @@
         <input type="hidden" name="mode" value="{{ mode }}">
         <input type="hidden" name="token" value="{{ token }}">
     </form>
+
+    {% include "my_page_button_tmp.html" %}
 
 
 {% endblock %}

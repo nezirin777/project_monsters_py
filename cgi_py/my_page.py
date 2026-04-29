@@ -1,3 +1,5 @@
+# my_page.py - マイページ表示処理,ログイン後の基本画面。
+
 import datetime
 
 from sub_def.file_ops import (
@@ -7,7 +9,7 @@ from sub_def.file_ops import (
     open_user_all,
     save_user_all,
 )
-from sub_def.utils import print_html, slim_number_with_cookie
+from sub_def.utils import print_html, slim_number_with_cookie, get_and_clear_flash
 from sub_def.user_ops import get_host
 
 import conf
@@ -17,8 +19,10 @@ Conf = conf.Conf
 
 def calculate_costs_and_options(party):
     """宿屋・教会のコスト計算および配合・転換オプションを生成"""
-    yadoya_cost, kyoukai_cost = 0, 0
-    haigou_options, tenkan_options = [], []
+    yadoya_cost = 0
+    kyoukai_cost = 0
+    haigou_options = []
+    tenkan_options = []
 
     for i, pt in enumerate(party, 1):
         if pt["hp"] != 0:
@@ -57,7 +61,7 @@ def update_user_list(in_name, user, party):
     s = 3
 
     # party を最大3体までに整形
-    party = party[:s] + [{} for _ in range(s - len(party))]
+    display_party = party[:s] + [{} for _ in range(s - len(party))]
 
     u_list[in_name] |= {
         "host": get_host(),
@@ -66,7 +70,7 @@ def update_user_list(in_name, user, party):
         "money": user.get("money", 0),
         "getm": user.get("getm", "0／0匹(0％)"),
         **{
-            f"m{i+1}_{attr}": party[i].get(attr, "")
+            f"m{i+1}_{attr}": display_party[i].get(attr, "")
             for i in range(s)
             for attr in ["name", "lv", "hai"]
         },
@@ -79,11 +83,20 @@ def my_page(FORM):
 
     session = FORM.get("s", {})
 
-    in_name = session.get("in_name") or FORM.get("name")
+    # ユーザー名は FORM["s"] を優先して取得
+    in_name = session.get("in_name")
+    if not in_name:
+        in_name = FORM.get("name")
+    if not in_name:
+        # 念のためエラー処理（通常はここには来ないはず）
+        from sub_def.utils import error
+
+        error("ユーザー名が取得できませんでした。", jump="top")
+
     token = session.get("token")
 
-    flash_msg = session.pop("flash_msg", "")
-    flash_type = session.pop("flash_type", "error")
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
 
     last_floor = int(session.get("last_floor", 1))
     last_room = session.get("last_room", "")
@@ -108,17 +121,17 @@ def my_page(FORM):
     now_ts = datetime.datetime.now().timestamp()
     boost_until = vips.get("boost")
 
+    boost_flg = False
+    boost_remain_sec = 0
+
     if boost_until is not None and boost_until > now_ts:
         boost_flg = True
         boost_remain_sec = int(boost_until - now_ts)
-    else:
-        boost_flg = False
-        boost_remain_sec = 0
-
-        if boost_until is not None:
-            vips["boost"] = None
-            all_data["vips"] = vips
-            save_user_all(all_data, in_name)
+    elif boost_until is not None:
+        # 期限切れ → Noneにリセットして保存
+        vips["boost"] = None
+        all_data["vips"] = vips
+        save_user_all(all_data, in_name)
 
     hours = boost_remain_sec // 3600
     minutes = (boost_remain_sec % 3600) // 60
@@ -142,7 +155,7 @@ def my_page(FORM):
     room_key_display = [
         {
             "name": name,
-            "has_key": r_key.get("get", 0),
+            "has_key": r_key.get("get", 0) == 1,
             "selected": (last_room == name),
         }
         for name, r_key in room_key.items()
@@ -150,7 +163,7 @@ def my_page(FORM):
 
     # 技の表示リスト
     waza_display = [
-        {"name": name if wa.get("get", 0) else "-"} for name, wa in waza.items()
+        {"name": name if wa.get("get", 0) == 1 else "-"} for name, wa in waza.items()
     ]
 
     # お見合い状況

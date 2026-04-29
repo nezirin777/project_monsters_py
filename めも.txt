@@ -21,5 +21,13 @@ print(f"<!-- token_check: in_name = {session.get('in_name')} -->", file=sys.stde
 all_data = open_user_all(user_name)とsave_user_all(all_data, user_name)はユーザー名指定が必須。
 ユーザー名はuser_name = FORM["s"]["in_name"]から取れる。覚えておいて
 
-9月	オデン	11月	アマテラス	11月	オデン
-11月	ティターニア	12月	アザゼル	12月	オシリス
+
+-------------------------
+フラッシュメッセージ表示に必要なもの
+-------------------------
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
+
+
+  "flash_msg": flash_msg,
+  "flash_type": flash_type,

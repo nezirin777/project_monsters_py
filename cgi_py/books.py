@@ -1,4 +1,4 @@
-from sub_def.utils import error, success, print_html
+from sub_def.utils import error, success, print_html, get_and_clear_flash
 from sub_def.file_ops import (
     open_user_all,
     save_user_all,
@@ -17,8 +17,9 @@ def books(FORM):
     """本屋（性格変更）画面表示"""
     token = FORM["token"]
     user_name = FORM["s"]["in_name"]
-    flash_msg = FORM["s"].pop("flash_msg", None)
-    flash_type = FORM["s"].pop("flash_type", "error")
+
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
 
     # 新形式でパーティを取得
     all_data = open_user_all(user_name)

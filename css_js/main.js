@@ -132,7 +132,7 @@ function setOverlayMessage(text) {
 const toastQueue = [];
 let isShowingToast = false;
 
-function showToast(message, type = "info", duration = 2000) {
+function showToast(message, type = "info", duration = 4000) {
   toastQueue.push({ message, type, duration });
   processToastQueue();
 }

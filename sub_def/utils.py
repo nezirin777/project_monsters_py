@@ -24,7 +24,12 @@ URL_MAP = {
     "kanri": (Conf["kanri_url"], {"mode": "KANRI"}),
     "my_page": (Conf["cgi_url"], {"mode": "my_page"}),
     "books": (Conf["cgi_url"], {"mode": "books"}),
+    "medal_shop": (Conf["cgi_url"], {"mode": "medal_shop"}),
+    "park": (Conf["cgi_url"], {"mode": "park"}),
 }
+
+# ★追加: 無限ループ検知用のグローバルフラグ
+_IN_FLASH_AND_JUMP = False
 
 
 # ==========#
@@ -34,19 +39,31 @@ def is_ajax():
     return os.environ.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
 
 
-def clear_flash():
-    from .crypto import get_session, set_session
+def get_and_clear_flash(session):
+    """
+    セッションからフラッシュメッセージを取得し、即座に削除してクッキーを更新する。
+    表示関数で一番最初に呼ぶことを想定。
 
-    """表示済みのflashメッセージをセッションから削除する"""
-    session = get_session()
-    if "flash_msg" in session or "flash_type" in session:
-        session.pop("flash_msg", None)
-        session.pop("flash_type", None)
-        set_session(session)  # ← ここで即座にクッキー更新
+    Returns:
+        tuple: (flash_msg, flash_type)
+    """
+    if not isinstance(session, dict):
+        return None, "error"
 
+    flash_msg = session.pop("flash_msg", None)
+    flash_type = session.pop("flash_type", "error")
 
-# ★追加: 無限ループ検知用のグローバルフラグ
-_IN_FLASH_AND_JUMP = False
+    # フラッシュメッセージが存在した場合のみ、クッキーを1回更新
+    if flash_msg is not None:
+        try:
+            from .crypto import set_session
+
+            set_session(session)
+        except Exception as e:
+            # クッキー更新に失敗しても、メッセージ自体は表示させる
+            logging.warning(f"Flash message clear failed: {e}")
+
+    return flash_msg, flash_type
 
 
 def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
@@ -198,6 +215,13 @@ def success(txt, jump="my_page"):
     _flash_and_jump(txt=txt, msg_type="success", jump=jump, log_level=logging.INFO)
 
 
+# ==================================#
+# 情報/色付きテキスト表示したいとか    #
+# ==================================#
+def info(txt, jump="my_page"):
+    _flash_and_jump(txt=txt, msg_type="info", jump=jump, log_level=logging.INFO)
+
+
 # ==========#
 # リザルト #
 # ==========#
@@ -215,8 +239,6 @@ def print_result(content, kanri=False):
 # html出力  #
 # ==========#
 def print_html(tmp_name="", content={}, exit=True):
-    clear_flash()
-
     template = env.get_template(tmp_name)
 
     print("Content-Type: text/html; charset=utf-8\n")
