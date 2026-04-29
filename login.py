@@ -36,10 +36,8 @@ FUNCTION_MAP = {
     "medal_shop_ok": ("cgi_py.medal_shop", "medal_shop_ok"),
     # ユーザー名変更 #
     "name_change": ("cgi_py.name_change", "name_change"),
-    "name_change_check": ("cgi_py.name_change", "name_change_check"),
     "name_change_ok": ("cgi_py.name_change", "name_change_ok"),
     # 性転換所  #
-    "seitenkan": ("cgi_py.seitenkan", "seitenkan"),
     "seitenkan_ok": ("cgi_py.seitenkan", "seitenkan_ok"),
     # モンスターパーク	#
     "park": ("cgi_py.park", "park"),

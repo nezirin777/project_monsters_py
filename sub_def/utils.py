@@ -300,5 +300,10 @@ def slim_number_with_cookie(item):
     from .crypto import get_cookie
 
     cookie = get_cookie()
-    unit_type = cookie.get("unit_type", 0)
+    # 取得した値を確実に int 型に変換（失敗したら0にする）
+    try:
+        unit_type = int(cookie.get("unit_type", 0))
+    except (ValueError, TypeError):
+        unit_type = 0
+
     return slim_number(item, unit_type)

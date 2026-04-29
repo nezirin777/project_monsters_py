@@ -1,9 +1,12 @@
+# number_unit.py - 数値表記変換の処理
+
+
 def number_unit(FORM):
-    import sub_def
+    from sub_def.crypto import get_cookie, set_cookie
+    from sub_def.utils import success
 
-    cookie = sub_def.get_cookie()
+    cookie = get_cookie()
     cookie["unit_type"] = FORM["no"]
+    set_cookie(cookie)
 
-    sub_def.set_cookie(cookie)
-
-    sub_def.print_result("表記方を変更しました。", "", FORM["token"])
+    success("単位表記を変更しました。", jump="my_page")
