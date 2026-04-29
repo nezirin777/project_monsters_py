@@ -217,6 +217,7 @@ function showConfirm(message) {
 
 /************************************/
 /* API通信（UIは触らない） */
+/* 現在不使用） */
 /************************************/
 async function apiPost(url, params) {
   try {
@@ -246,6 +247,7 @@ async function apiPost(url, params) {
 
 /************************************/
 /* POST遷移 */
+/* error_tmp.htmlにて使用。のち廃止予定 */
 /************************************/
 function postNavigate(url, params) {
 

@@ -1,3 +1,5 @@
+# validation.py - フォームの定義とバリデーション処理
+
 import os
 import unicodedata
 import re
@@ -186,6 +188,21 @@ class NewPassForm(Form):
                 max=20,
                 message="パスワードは2文字以上20文字以下で入力してください。",
             ),
+        ],
+    )
+
+
+class NameChangeForm(Form):
+    """ユーザー名変更専用のシンプルなフォーム"""
+
+    new_name = StringField(
+        "新しいユーザー名",
+        [
+            validators.DataRequired(message="新しい名前を入力してください。"),
+            validators.Length(
+                max=20, message="新しい名前は20文字以下で入力してください。"
+            ),
+            ValidUsername(),
         ],
     )
 

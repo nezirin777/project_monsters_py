@@ -17,6 +17,9 @@ import conf
 
 Conf = conf.Conf
 
+_cookie_cache = None
+_session_cache = None
+
 
 # ------------------- ヘルパー関数（crypto.py などに置く） -------------------
 def _encrypt_cookie_value(data: str, secret_key: str) -> str:
@@ -128,14 +131,24 @@ def _set_cookie_common(
 
 
 def set_cookie(c_data: dict) -> None:
+    global _cookie_cache
+    c_data = dict(c_data)  # コピーを作成
+    c_data["expires_at"] = (
+        datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=46)
+    ).isoformat()
+
+    _cookie_cache = c_data
     _set_cookie_common("MONSTERS2", c_data, datetime.timedelta(days=60))
 
 
 def set_session(data: dict = None) -> None:
+    global _session_cache
     data = dict(data or {})
     data["expires_at"] = (
         datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30)
     ).isoformat()
+
+    _session_cache = data  # セット時にキャッシュを更新
     _set_cookie_common("session", data, datetime.timedelta(minutes=30))
 
 
@@ -195,27 +208,41 @@ def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str | int]:
 
 
 def get_cookie() -> Dict[str, str | int]:
+    global _cookie_cache
+    if _cookie_cache is not None:
+        return _cookie_cache
+
     cookie = _parse_cookie(_get_raw_cookies(), "MONSTERS2")
     if not cookie or "expires_at" not in cookie:
-        return {}
+        _cookie_cache = {}
+        return _cookie_cache
 
+    _cookie_cache = cookie
     return cookie
 
 
 def get_session() -> Dict[str, str | int]:
+    global _session_cache
+    if _session_cache is not None:
+        return _session_cache
+
     session = _parse_cookie(_get_raw_cookies(), "session")
 
     # セッションが明らかに壊れている場合は空で返す
     if not session or "expires_at" not in session:
-        return {}
+        _session_cache = {}
+        return _session_cache
 
     try:
         expires_at = datetime.datetime.fromisoformat(session["expires_at"])
         if expires_at < datetime.datetime.now(datetime.timezone.utc):
-            return {}
+            _session_cache = {}
+            return _session_cache
     except Exception:
-        return {}  # 期限切れ判定も失敗したら空で返す
+        _session_cache = {}
+        return _session_cache
 
+    _session_cache = session
     return session
 
 
