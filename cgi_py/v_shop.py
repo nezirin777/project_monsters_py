@@ -1,5 +1,7 @@
 # 100vips = 50メダル,10vips = 5メダル,1vips = 0.5メダル
-import sub_def
+from sub_def.file_ops import open_vips_shop_dat, open_user_all, save_user_all
+from sub_def.utils import print_html, get_and_clear_flash, error, success
+from sub_def.monster_ops import monster_select
 import conf
 
 Conf = conf.Conf
@@ -8,7 +10,7 @@ Conf = conf.Conf
 def add_monster_to_party(party, monster_name, m_name):
     """モンスターをパーティに追加"""
     if len(party) >= 10:
-        sub_def.error("モンスターが一杯です！")
+        error("モンスターが一杯です！", jump="my_page")
 
     # 特殊モンスターの初期値設定
     special_settings = {
@@ -16,7 +18,7 @@ def add_monster_to_party(party, monster_name, m_name):
         "スライム+1000": {"hai": 1000, "mlv": 1000},
     }
 
-    new_mob = sub_def.monster_select(monster_name)
+    new_mob = monster_select(monster_name)
     settings = special_settings.get(m_name, {})
     new_mob.update(settings)
     new_mob["lv"] = 1
@@ -27,15 +29,18 @@ def add_monster_to_party(party, monster_name, m_name):
 
 
 def v_shop_ok(FORM):
-    token = FORM["token"]
     if not (FORM.get("m_name")):
-        sub_def.error("対象が選択されていません。")
+        error("対象が選択されていません。", jump="v_shop")
 
     m_name = FORM["m_name"]
-    vshop_list = sub_def.open_vips_shop_dat()
-    user = sub_def.open_user()
-    party = sub_def.open_party()
-    vips = sub_def.open_vips()
+    user_name = FORM["s"]["in_name"]
+
+    user_all = open_user_all(user_name)
+    user = user_all.get("user", {})
+    party = user_all.get("party", [])
+    vips = user_all.get("vips", {})
+
+    vshop_list = open_vips_shop_dat()
 
     # 購入対象のデータ取得
     item = vshop_list[m_name]
@@ -45,7 +50,7 @@ def v_shop_ok(FORM):
     # 資金のチェックと引き落とし
     currency = "medal" if item["type"] == "メダル" else "money"
     if user[currency] < price:
-        sub_def.error(f"{item['type']}が足りません！")
+        error(f"{item['type']}が足りません！", jump="my_page")
         return
     user[currency] -= price
 
@@ -56,20 +61,9 @@ def v_shop_ok(FORM):
     vips[m_name] = vips.get(m_name, 0) + 1
 
     # 各データ保存
-    sub_def.save_user(user)
-    sub_def.save_party(party)
-    sub_def.save_vips(vips)
+    user_all["user"] = user
+    user_all["party"] = party
+    user_all["vips"] = vips
+    save_user_all(user_all, user_name)
 
-    html = f"""
-        <form action="{{ Conf.cgi_url }}" method="post">
-            <input type="hidden" name="mode" value="v_shop">
-            <input type="hidden" name="token" value="{token}">
-            <button type="submit">交換所に戻る</button>
-        </form>
-    """
-
-    sub_def.print_result(
-        f"""<img src="{Conf["imgpath"]}/{Aname}.gif"><span>{m_name}</span>が仲間に加わりました""",
-        html,
-        token,
-    )
+    success(f"【{Aname}】が仲間に加わりました！", jump="v_shop")

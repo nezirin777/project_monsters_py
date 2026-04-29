@@ -13,7 +13,6 @@ from sub_def.crypto import get_session, token_check
 from sub_def.utils import error
 from sub_def.validation import login_check
 
-
 FUNCTION_MAP = {
     # my_page画面 #
     "my_page": ("cgi_py.my_page", "my_page"),
@@ -28,7 +27,6 @@ FUNCTION_MAP = {
     "book_read": ("cgi_py.books", "book_read"),
     # 宿屋 #
     "yadoya": ("cgi_py.yadoya", "yadoya"),
-    "yadoya_ok": ("cgi_py.yadoya", "yadoya_ok"),
     # 教会     #
     "kyoukai": ("cgi_py.kyoukai", "kyoukai"),
     # メダル交換所 #

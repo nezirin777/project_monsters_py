@@ -11,7 +11,7 @@
 
     <div id="zukan_title">
         <div>
-            <span class="fsize">{{ in_name }}の魔物図鑑</span><br>入手したモンスターは{{ user.getm }}
+            <span class="fsize">{{ user_name }}の魔物図鑑</span><br>入手したモンスターは{{ user.getm }}
         </div>
     </div>
 
@@ -20,7 +20,7 @@
         "せいれい系", "らき☆すた", "まどマギ", "シンフォギア", "東方", "アイマス", "ボカロ", "シュタゲ", "とある", "ミルキィ", "ボイロ", "原神", "このすば", "ぼざろ", "フリーレン" ,"ドラクエ"]
         %}
         {% for category in categories %}
-        [<a href="{{ Conf.cgi_url }}?mode=zukan&name={{ in_name | urlencode }}&type={{ category | urlencode }}&fol={{ fol }}">{{ category }}</a>]
+        [<a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type={{ category | urlencode }}&fol={{ fol }}">{{ category }}</a>]
         {% if loop.index % 10 == 0 %}<br>{% endif %}
         {% endfor %}
     </div>
@@ -43,19 +43,20 @@
     </div>
 
     {% if ref %}
-    <!-- 共有ツールチップ -->
-    <div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
+      <!-- 共有ツールチップ -->
+      <div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
+      {% include "my_page_button_tmp.html" %}
     {% endif %}
 
     {% if not ref %}
-    <form action="" method="get">
-        <input type="hidden" name="mode" value="my_page2">
-        <input type="hidden" name="name" value="{{ in_name }}">
-        <button type="submit">ユーザーページへ</button>
-    </form>
-    <form action="{{ Conf.top_url }}" method="post">
-        <button type="submit">TOPへ</button>
-    </form>
+      <form action="" method="get">
+          <input type="hidden" name="mode" value="my_page2">
+          <input type="hidden" name="name" value="{{ user_name }}">
+          <button type="submit">ユーザーページへ</button>
+      </form>
+      <form action="{{ Conf.top_url }}" method="post">
+          <button type="submit">TOPへ</button>
+      </form>
     {% endif %}
 
 {% endblock %}

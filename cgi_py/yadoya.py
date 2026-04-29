@@ -1,38 +1,24 @@
-import sub_def
+# yadoya.py - 宿屋の処理
+
+from sub_def.file_ops import open_user_all, save_user_all
+from sub_def.utils import error, success
 
 
 def yadoya(FORM):
+    user_name = FORM["s"]["in_name"]
 
-    try:
-        yadodai = int(FORM["yadodai"])
-        money = int(FORM["money"])
-        token = FORM["token"]
-    except (KeyError, ValueError) as e:
-        sub_def.error("フォームデータに不備があります。")
-
-    if yadodai <= 0:
-        sub_def.error("現在宿泊する必要はありません。")
-    if money < yadodai:
-        sub_def.error("お金が足りません")
-
-    html = f"""
-        <form action="{{ Conf.cgi_url }}" method="post">
-            <button type="submit">宿泊する</button>
-            <input type="hidden" name="mode" value="yadoya_ok">
-            <input type="hidden" name="token" value="{token}">
-        </form>
-    """
-
-    sub_def.print_result("宿泊しますか？", html, FORM["token"])
-
-
-def yadoya_ok(FORM):
-    user = sub_def.open_user()
-    party = sub_def.open_party()
+    user_all = open_user_all(user_name)
+    user = user_all["user"]
+    party = user_all["party"]
 
     yadodai = sum(
         (pt["mhp"] - pt["hp"]) + (pt["mmp"] - pt["mp"]) for pt in party if pt["hp"] != 0
     )
+
+    if yadodai <= 0:
+        error("現在宿泊する必要はありません。", jump="my_page")
+    if user["money"] < yadodai:
+        error("お金が足りません", jump="my_page")
 
     for pt in party:
         if pt["hp"] != 0:
@@ -41,7 +27,8 @@ def yadoya_ok(FORM):
 
     user["money"] -= int(yadodai)
 
-    sub_def.save_user(user)
-    sub_def.save_party(party)
+    user_all["user"] = user
+    user_all["party"] = party
+    save_user_all(user_all, user_name)
 
-    sub_def.print_result("HP・MPが全回復しました", "", FORM["token"])
+    success("HP・MPが全回復しました", jump="my_page")
