@@ -80,7 +80,6 @@ def update_user_list(in_name, user, party):
 
 def my_page(FORM):
     """マイページ表示処理（user_all 完全対応版）"""
-
     session = FORM.get("s", {})
 
     # ユーザー名は FORM["s"] を優先して取得
