@@ -9,22 +9,12 @@
     <script src="./css_js/jquery.min.js"></script>
     <script src="./css_js/main.js"></script>
 
-    {% if script %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            main(
-                "{{ Conf.imgpath | e }}/",
-                "{{ script.party | e }}",
-            );
-        });
-    </script>
-    {% endif %}
     {% if flash_msg  %}
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        showToast({{ flash_msg | tojson }}, "{{ flash_type or 'error' }}");
-            });
-    </script>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          showToast({{ flash_msg | tojson }}, "{{ flash_type or 'error' }}");
+              });
+      </script>
     {% endif %}
 
     {% block head %}{% endblock %}
@@ -39,7 +29,7 @@
     </div>
 
     {% if battle_txt %}
-    {{ battle_txt }}
+      {{ battle_txt }}
     {% endif %}
 
 

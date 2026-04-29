@@ -1,19 +1,21 @@
-from jinja2 import Environment, FileSystemLoader
-import sub_def
+# shop_base.py - ショップ関連の共通関数と、メダルショップ・VIPショップの表示処理を定義
+
+from sub_def.file_ops import (
+    open_medal_shop_dat,
+    open_vips_shop_dat,
+    open_vips_shop2_dat,
+    open_user_all,
+)
+from sub_def.utils import get_and_clear_flash, slim_number_with_cookie, print_html
+
 import conf
 
-env = Environment(loader=FileSystemLoader("templates"), cache_size=100)
+Conf = conf.Conf
 
 categories = [
     {"name": "メダル", "val1": "メダル", "val2": "枚"},
-    {"name": "G", "val1": "", "val2": "ゴールド"},
+    {"name": "G", "val1": "", "val2": "G"},
 ]
-
-
-def render_shop(user_v, item_lists, mode, token):
-    """共通テンプレートをレンダリングする関数"""
-    template = env.get_template("medal_shop_tmp.html")
-    return template.render(user_v=user_v, item_lists=item_lists, mode=mode, token=token)
 
 
 def prepare_item_lists(
@@ -31,7 +33,7 @@ def prepare_item_lists(
         category["name"]: [
             {
                 "name": name,
-                "price": sub_def.slim_number_with_cookie(
+                "price": slim_number_with_cookie(
                     price_modifier(name, item) if price_modifier else item["price"]
                 ),
                 "val1": category["val1"],
@@ -46,22 +48,46 @@ def prepare_item_lists(
 
 
 def medal_shop(FORM):
-    Medal_list = sub_def.slim_number_with_cookie(sub_def.open_medal_shop_dat())
-    user_v = sub_def.slim_number_with_cookie(sub_def.open_user())
+    user_name = FORM["s"]["in_name"]
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
 
+    Medal_list = slim_number_with_cookie(open_medal_shop_dat())
+    user_all = open_user_all(user_name)
+
+    user_v = slim_number_with_cookie(user_all["user"])
     item_lists = prepare_item_lists(Medal_list, categories)
-    html = render_shop(user_v, item_lists, "medal_shop_ok", FORM["token"])
-    sub_def.print_result("交換したいモンスターを選んでください", html, FORM["token"])
+
+    content = {
+        "Conf": Conf,
+        "token": FORM["token"],
+        "mes": "交換したいモンスターを選んでください",
+        "user_v": user_v,
+        "item_lists": item_lists,
+        "mode": "medal_shop_ok",
+        "flash_msg": flash_msg,
+        "flash_type": flash_type,
+    }
+
+    print_html("medal_shop_tmp.html", content)
 
 
 def v_shop(FORM):
-    vips = sub_def.open_vips()
-    zukan = sub_def.open_zukan()
-    vshop_list = sub_def.open_vips_shop_dat()
-    user_v = sub_def.slim_number_with_cookie(sub_def.open_user())
+    user_name = FORM["s"]["in_name"]
+
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
+
+    vshop_list = open_vips_shop_dat()
+    user_all = open_user_all(user_name)
+
+    user_v = slim_number_with_cookie(user_all["user"])
+
+    vips = user_all["vips"]
+    zukan = user_all["zukan"]
 
     def additional_filter(name, item):
-        return zukan[item["b_name"]]["get"]
+        return zukan.get(item["b_name"], {}).get("get", 0) == 1
 
     def price_modifier(name, item):
         return item["price"] + item["price"] * vips.get(name, 0)
@@ -69,25 +95,51 @@ def v_shop(FORM):
     item_lists = prepare_item_lists(
         vshop_list, categories, additional_filter, price_modifier
     )
-    html = render_shop(user_v, item_lists, "v_shop_ok", FORM["token"])
-    sub_def.print_result(
-        "交換したいモンスターを選んでください<br>交換回数に応じて値段が上がっていきます",
-        html,
-        FORM["token"],
-    )
+
+    content = {
+        "Conf": Conf,
+        "token": FORM["token"],
+        "mes": "交換したいモンスターを選んでください<br>交換回数に応じて値段が上がっていきます",
+        "user_v": user_v,
+        "item_lists": item_lists,
+        "mode": "v_shop_ok",
+        "flash_msg": flash_msg,
+        "flash_type": flash_type,
+    }
+
+    print_html("medal_shop_tmp.html", content)
 
 
 def v_shop2(FORM):
-    vips = sub_def.open_vips()
-    vshop_list = sub_def.open_vips_shop2_dat()
-    user_v = sub_def.slim_number_with_cookie(sub_def.open_user())
+    user_name = FORM["s"]["in_name"]
+
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
+
+    vshop_list = open_vips_shop2_dat()
+    user_all = open_user_all(user_name)
+
+    user_v = slim_number_with_cookie(user_all["user"])
+    vips = user_all["vips"]
 
     # 条件に応じて表示するアイテムの絞り込み
+    vshop_list = dict(vshop_list)  # 元データをコピーして安全に操作
     if vips.get("パーク", 0):
         vshop_list.pop("モンスターパーク", None)
     else:
         vshop_list.pop("パーク拡大+5枠", None)
 
     item_lists = prepare_item_lists(vshop_list, categories)
-    html = render_shop(user_v, item_lists, "v_shop2_ok", FORM["token"])
-    sub_def.print_result("交換したいアイテムを選んでください", html, FORM["token"])
+
+    content = {
+        "Conf": Conf,
+        "token": FORM["token"],
+        "mes": "交換したいアイテムを選んでください",
+        "user_v": user_v,
+        "item_lists": item_lists,
+        "mode": "v_shop2_ok",
+        "flash_msg": flash_msg,
+        "flash_type": flash_type,
+    }
+
+    print_html("medal_shop_tmp.html", content)

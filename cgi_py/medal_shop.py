@@ -1,43 +1,48 @@
-import sub_def
+from sub_def.file_ops import open_medal_shop_dat, open_user_all, save_user_all
+from sub_def.monster_ops import monster_select
+from sub_def.utils import error, success, info
+
+
 import conf
+
+Conf = conf.Conf
 
 
 def medal_shop_ok(FORM):
     """メダル交換の処理を行う"""
-    Conf = conf.Conf
-
     if "m_name" not in FORM:
-        sub_def.error("対象が選択されていません。")
-        return
+        error("対象が選択されていません。", jump="medal_shop")
 
     m_name = FORM["m_name"]
+    user_name = FORM["s"]["in_name"]
 
-    Medal_lsit = sub_def.open_medal_shop_dat()
-    user = sub_def.open_user()
-    party = sub_def.open_party()
+    user_all = open_user_all(user_name)
+
+    Medal_lsit = open_medal_shop_dat()
+
+    user = user_all["user"]
+    party = user_all["party"]
 
     if len(party) >= 10:
-        sub_def.error("モンスターが一杯です！")
+        error("モンスターが一杯です！", jump="my_page")
 
     item = Medal_lsit[m_name]
     price = item["price"]
     currency = "medal" if item["type"] == "メダル" else "money"
 
     if user[currency] < price:
-        sub_def.error(f"{item['type']}が足りません！")
-        return
+        error(f"{item['type']}が足りません！", jump="my_page")
 
-    new_mob = sub_def.monster_select(m_name)
+    new_mob = monster_select(m_name)
     party.append(new_mob)
     for i, pt in enumerate(party, 1):
         pt["no"] = i
 
     user[currency] -= price
-    sub_def.save_user(user)
-    sub_def.save_party(party)
 
-    sub_def.print_result(
-        f"""<img src="{Conf["imgpath"]}/{m_name}.gif"><span>{m_name}</span>が仲間に加わりました""",
-        "",
-        FORM["token"],
-    )
+    user_all["user"] = user
+    user_all["party"] = party
+
+    save_user_all(user_all, user_name)
+
+    info(f"【{m_name}】が仲間に加わりました", jump="medal_shop")
