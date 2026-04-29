@@ -19,7 +19,7 @@
     </span>
   </form>
 
-  <form action="{{ Conf.cgi_url }}" method="post" class="form">
+  <form action="{{ Conf.cgi_url }}" method="post" class="form" data-confirm="宿屋に宿泊しますか？" data-loading="宿泊中...">
     <span data-msg="ｺﾞｰﾙﾄﾞを支払ってHP･MPを完全に回復させます。">
       <button type="submit">宿屋({{ yadoya_cost_v }}G)</button>
       <input type="hidden" name="mode" value="yadoya">

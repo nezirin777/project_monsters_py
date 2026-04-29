@@ -1,0 +1,31 @@
+<!-- templates/tournament_result_tmp.html -->
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title> MONSTER'S 改 {{ Conf.ver }}</title>
+  <link rel="stylesheet" href="./css_js/style.css">
+</head>
+<body>
+
+  <div class="my_page_topmenu">
+    [ <a href="{{ Conf.top_url }}">TOPへ</a> ]
+  </div>
+
+  <div class="tournament_result_box">
+    {{ tournament_html | safe }}
+  </div>
+
+  <br>
+  <form action="{{ Conf.top_url }}" method="post">
+    <button type="submit">TOPへ戻る</button>
+  </form>
+
+  {% include "footer_tmp.html" %}
+
+
+</body>
+
+</html>

@@ -1,8 +1,19 @@
+# tournament.py - トーナメント処理
+
 import random
 import os
 from concurrent.futures import ThreadPoolExecutor
 
-import sub_def
+from sub_def.file_ops import (
+    open_user_list,
+    open_tournament_time,
+    timesyori,
+    open_user_all,
+    save_user_all,
+)
+from sub_def.user_ops import backup
+from sub_def.utils import error
+
 import conf
 
 Conf = conf.Conf
@@ -10,9 +21,8 @@ Conf = conf.Conf
 
 class Tournament:
     def __init__(self):
-
         # メンバ
-        u_list = sub_def.open_user_list()
+        u_list = open_user_list()
         self.U_count = min(len(u_list), 64)
         self.fighters = [
             {"name": name, "key": u["key"]}
@@ -31,12 +41,15 @@ class Tournament:
         }
 
     def medal_get(self):
-        """並列処理でメダルを付与"""
+        """並列処理でメダルを付与（user_all対応版）"""
 
         def update_user(target, medal):
-            user = sub_def.open_user(target)
-            user["medal"] += medal
-            sub_def.save_user(user, target)
+            # 新形式でユーザーデータを取得・更新
+            all_data = open_user_all(target)
+            user = all_data.setdefault("user", {})
+            user["medal"] = user.get("medal", 0) + medal
+            all_data["user"] = user
+            save_user_all(all_data, target)
 
         with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             futures = [
@@ -100,7 +113,7 @@ class Tournament:
 
     def t_battle(self):
         """トーナメントの実行"""
-        tournament_log = f"<div class='medal_battle_title'>{sub_def.open_tournament_time()} のメダル獲得杯の結果！</div>"
+        tournament_log = f"<div class='medal_battle_title'>{open_tournament_time()} のメダル獲得杯の結果！</div>"
 
         if self.U_count < 2:
             tournament_log += "<div>規定人数未満につき中止になりました。</div>"
@@ -126,14 +139,14 @@ class Tournament:
             ) as f:
                 f.write(tournament_log)
         except IOError as e:
-            sub_def.error(f"トーナメント結果の保存中にエラーが発生しました: {e}")
+            error(f"トーナメント結果の保存中にエラーが発生しました: {e}", jump="top")
 
         self.medal_get()
-        sub_def.backup()
+        backup()
 
 
 def tournament():
     Tournament().t_battle()
 
     # 次の開催日時を記録
-    sub_def.timesyori()
+    timesyori()

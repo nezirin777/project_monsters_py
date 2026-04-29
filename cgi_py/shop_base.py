@@ -14,7 +14,7 @@ Conf = conf.Conf
 
 categories = [
     {"name": "メダル", "val1": "メダル", "val2": "枚"},
-    {"name": "G", "val1": "", "val2": "G"},
+    {"name": "G", "val1": "", "val2": "ゴールド"},
 ]
 
 
@@ -60,7 +60,7 @@ def medal_shop(FORM):
 
     content = {
         "Conf": Conf,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "mes": "交換したいモンスターを選んでください",
         "user_v": user_v,
         "item_lists": item_lists,
@@ -98,7 +98,7 @@ def v_shop(FORM):
 
     content = {
         "Conf": Conf,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "mes": "交換したいモンスターを選んでください<br>交換回数に応じて値段が上がっていきます",
         "user_v": user_v,
         "item_lists": item_lists,
@@ -133,7 +133,7 @@ def v_shop2(FORM):
 
     content = {
         "Conf": Conf,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "mes": "交換したいアイテムを選んでください",
         "user_v": user_v,
         "item_lists": item_lists,

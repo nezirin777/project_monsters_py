@@ -1,42 +1,42 @@
 # 100vips = 50メダル,10vips = 5メダル,1vips = 0.5メダル
-import sub_def
+from sub_def.file_ops import open_vips_shop2_dat, open_user_all, save_user_all
+from sub_def.utils import print_html, get_and_clear_flash, error, success
+from sub_def.monster_ops import monster_select
+import conf
+
+Conf = conf.Conf
 
 
 def v_shop2_ok(FORM):
+    user_name = FORM["s"]["in_name"]
     m_name = FORM["m_name"]
-    token = FORM["token"]
 
     if not (FORM.get("m_name")):
-        sub_def.error("対象が選択されていません。")
+        error("対象が選択されていません。", jump="v_shop2")
 
-    vips = sub_def.open_vips()
-    user = sub_def.open_user()
-    vshop_list = sub_def.open_vips_shop2_dat()
+    user_all = open_user_all(user_name)
+    user = user_all.get("user", {})
+    vips = user_all.get("vips", {})
+
+    vshop_list = open_vips_shop2_dat()
 
     item = vshop_list.get(m_name)
     if not item:
-        sub_def.error("指定されたアイテムが存在しません。")
+        error("指定されたアイテムが存在しません。", jump="my_page")
 
     price = item["price"]
 
     # メダル残高チェック
     if user["medal"] < price:
-        sub_def.error("メダルが足りません！")
+        error("メダルが足りません！", jump="my_page")
 
     user["medal"] -= price
 
     b_name = item["b_name"]
     vips[b_name] = int(vips.get(b_name, 0)) + 1
 
-    sub_def.save_user(user)
-    sub_def.save_vips(vips)
+    user_all["user"] = user
+    user_all["vips"] = vips
+    save_user_all(user_all, user_name)
 
-    html = f"""
-		<form action="{{ Conf.cgi_url }}" method="post">
-			<input type="hidden" name="mode" value="v_shop2">
-			<input type="hidden" name="token" value="{token}">
-			<button type="submit">交換所に戻る</button>
-		</form>
-	"""
-
-    sub_def.print_result(f"{m_name}を購入しました。", html, token)
+    success(f"【{m_name}】を購入しました！", jump="v_shop2")

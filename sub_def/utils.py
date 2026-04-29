@@ -25,6 +25,8 @@ URL_MAP = {
     "my_page": (Conf["cgi_url"], {"mode": "my_page"}),
     "books": (Conf["cgi_url"], {"mode": "books"}),
     "medal_shop": (Conf["cgi_url"], {"mode": "medal_shop"}),
+    "v_shop": (Conf["cgi_url"], {"mode": "v_shop"}),
+    "v_shop2": (Conf["cgi_url"], {"mode": "v_shop2"}),
     "park": (Conf["cgi_url"], {"mode": "park"}),
 }
 
@@ -254,7 +256,7 @@ def print_html(tmp_name="", content={}, exit=True):
 # 単位変換の定数
 UNITS = {
     1: {"threshold": "", "units": []},
-    2: {"threshold": 1000, "units": ["", "K", "M", "G", "T", "P"]},
+    2: {"threshold": 1000, "units": ["", "k", "M", "G", "T", "P"]},
     3: {"threshold": 10000, "units": ["", "万", "億", "兆", "京"]},
 }
 

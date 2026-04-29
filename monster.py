@@ -111,7 +111,6 @@ class TopPageRenderer:
 
 
 if __name__ == "__main__":
-
     client_ip = get_client_ip()  # クライアントIPを取得
 
     # IPアドレスが禁止リストに含まれている場合、エラーメッセージを表示

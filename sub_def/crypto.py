@@ -265,8 +265,7 @@ def token_check(FORM: dict, session: dict, login_data: dict | None = None) -> di
     session_token = session.get("token", "").strip()
 
     if not form_token or not secrets.compare_digest(session_token, form_token):
-        # error("無効なセッションです。再度お試しください", "")
-        f"無効なセッションです。再度お試しください {form_token}, セッション：{session_token} ",
+        error("無効なセッションです。再度お試しください", "")
 
     session.update(
         {

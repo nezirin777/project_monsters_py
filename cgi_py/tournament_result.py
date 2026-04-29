@@ -1,26 +1,36 @@
-def tournament_result(FORM):
-    import os
-    import sub_def
-    import conf
+# tournament_result.py - トーナメント結果表示
 
-    Conf = conf.Conf
-    log = os.path.join(Conf["savedir"], "tournament.log")
+import os
+from sub_def.utils import error, print_html
+import conf
+
+Conf = conf.Conf
+
+
+def tournament_result(FORM):
+    log_path = os.path.join(Conf["savedir"], "tournament.log")
 
     try:
         # トーナメントログファイルの確認と作成
-        if not os.path.exists(log):
-            with open(log, mode="w", encoding="utf-8") as f:
+        if not os.path.exists(log_path):
+            with open(log_path, mode="w", encoding="utf-8") as f:
                 f.write("""<div class="medal_battle_title">まだ未開催です</div>""")
 
         # ファイルの読み込み
-        with open(log, mode="r", encoding="utf-8") as f:
-            html = f.read()
+        with open(log_path, mode="r", encoding="utf-8") as f:
+            html_content = f.read()
 
     except IOError as e:
-        sub_def.error(
-            f"トーナメントログファイルの読み込み中にエラーが発生しました: {e}"
+        error(
+            f"トーナメントログファイルの読み込み中にエラーが発生しました: {e}",
+            jump="top",
         )
 
-    sub_def.header()
-    print(html)
-    sub_def.footer()
+    # テンプレートへ渡すデータ
+    content = {
+        "Conf": Conf,
+        "tournament_html": html_content,
+    }
+
+    # Jinja2テンプレートで描画
+    print_html("tournament_result_tmp.html", content)

@@ -45,4 +45,4 @@ def medal_shop_ok(FORM):
 
     save_user_all(user_all, user_name)
 
-    info(f"【{m_name}】が仲間に加わりました", jump="medal_shop")
+    success(f"【{m_name}】が仲間に加わりました", jump="medal_shop")
