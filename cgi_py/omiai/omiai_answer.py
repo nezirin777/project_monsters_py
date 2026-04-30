@@ -1,142 +1,144 @@
-from jinja2 import Environment, FileSystemLoader
-import sub_def
+# omiai_answer.py - お見合い依頼に対する処理
+
+from cgi_py.haigou_check import haigou_sub
+from sub_def.file_ops import open_omiai_list, save_omiai_list, open_user_all
+from sub_def.utils import print_html, slim_number_with_cookie, error, success
+from sub_def.monster_ops import monster_select
+
 import conf
-import cgi_py
 
 Conf = conf.Conf
-env = Environment(
-    loader=FileSystemLoader("templates"), cache_size=100
-)  # テンプレートディレクトリ
 
 
 def omiai_answer_no(FORM):
+    """お見合いをお断りする処理"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
+    target = FORM.get("target")
 
-    in_name = FORM["name"]
-    target = FORM["target"]
-    token = FORM["token"]
+    omiai_list = open_omiai_list()
 
-    omiai_list = sub_def.open_omiai_list()
+    # 相手の申請をキャンセル状態に更新
+    if target in omiai_list:
+        omiai_list[target]["request"] = ""
+        omiai_list[target][
+            "cancel"
+        ] = f"{user_name}さんへの依頼はお断りされてしまったようです・・・"
+        save_omiai_list(omiai_list)
 
-    omiai_list[target]["request"] = ""
-    omiai_list[target][
-        "cancel"
-    ] = f"{in_name}さんへの依頼はお断りされてしまったようです・・・"
-
-    sub_def.save_omiai_list(omiai_list)
-
-    html = f"""
-		<form action="{{ Conf.cgi_url }}" method="post">
-			<input type="hidden" name="mode" value="omiai_room">
-			<input type="hidden" name="token" value="{token}">
-			<button type="submit">お見合い所に戻る</button>
-		</form>
-	"""
-    sub_def.print_result(
-        f"{target}さんからの申し込みをお断りしました。", html, FORM["token"]
-    )
+    # 成功メッセージを出してマイページ等へリダイレクト（フラッシュメッセージ機能を利用）
+    success(f"{target}さんからの申し込みをお断りしました。", jump="omiai_room")
 
 
 def omiai_answer_ok(FORM):
+    """お見合いを受ける（確認画面表示）処理"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
+    target = FORM.get("target")
+    token = session.get("token")
 
-    in_name = FORM["name"]
-    target = FORM["target"]
-    token = FORM["token"]
+    omiai_list = open_omiai_list()
 
-    omiai_list = sub_def.open_omiai_list()
-
-    if omiai_list[in_name]["request"]:
-        sub_def.error(
-            "あなたは他の人に申請中です。<br>この人とお見合いするには申請を取り下げる必要があります。"
+    # 自分が他の人に申請中の場合は受けられない
+    if omiai_list.get(user_name, {}).get("request"):
+        error(
+            "あなたは他の人に申請中です。<br>この人とお見合いするには申請を取り下げる必要があります。",
+            jump="omiai_room",
         )
 
-    nameA = omiai_list[in_name]["name"]
+    nameA = omiai_list[user_name]["name"]
     nameB = omiai_list[target]["name"]
 
-    my_new_mons = cgi_py.haigou_check.haigou_sub(nameA, nameB, 1)
+    # 生まれるモンスターの判定 (フラグ=1: お見合い限定モンスターも許可)
+    # haigou_subはタプル(モンスター名, ヒントフラグ)を返す
+    my_new_mons, hint_flag = haigou_sub(nameA, nameB, 1)
 
-    zukan = sub_def.open_zukan()
-    if not (zukan[my_new_mons]["get"]):
+    # 新方式：user_allから図鑑データを取得して判明しているかチェック
+    user_all = open_user_all(user_name)
+    zukan = user_all.get("zukan", {})
+
+    if my_new_mons not in zukan or not zukan[my_new_mons].get("get"):
         my_new_mons = "？？？"
+    else:
+        hint_flag = False  # すでに知っているモンスターならヒントは出さない
 
-    # テンプレートの取得とレンダリング
-    template = env.get_template("haigou_check_tmp.html")
-    html = template.render(
-        Conf=Conf,
-        nameA=nameA,
-        nameB=nameB,
-        my_new_mons=my_new_mons,
-        target=target,
-        token=token,
-        mode="omiai_ans",
-    )
+    content = {
+        "Conf": Conf,
+        "nameA": nameA,
+        "nameB": nameB,
+        "my_new_mons": my_new_mons,
+        "target": target,
+        "token": token,
+        "mode": "omiai_ans",
+        "hint_flag": hint_flag,
+    }
 
-    sub_def.header()
-    print(html)
-    sub_def.footer()
+    # テンプレートに丸投げ
+    print_html("haigou_check_tmp.html", content)
 
 
 def omiai_get_monster(data, new_mons, user_name):
     """新しいモンスターを生成するヘルパー関数"""
-    mlv = data["lv"] + 10
-    new_hai = data["hai"] + 1
+    mlv = data.get("lv", 1) + 10
+    new_hai = data.get("hai", 0) + 1
     hosei = max(int(new_hai / 2), 1)
-    new_mob = sub_def.monster_select(new_mons, hosei, 1, user_name)
+
+    # monster_selectを使って基本ステータスを生成
+    new_mob = monster_select(new_mons, hosei, 1, user_name)
     new_mob.update({"lv": 1, "mlv": mlv, "hai": new_hai})
+
     return new_mob
 
 
 def omiai_answer_result(FORM):
-    in_name = FORM["name"]
-    target = FORM["target"]
-    token = FORM["token"]
+    """お見合いを確定させ、モンスターを更新する処理"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
+    target = FORM.get("target")
+    token = session.get("token")
 
-    omiai_list = sub_def.open_omiai_list()
+    omiai_list = open_omiai_list()
 
-    # 自分、相手への依頼を全キャンセル
-    # 既存のリクエストをキャンセル
+    # 自分、あるいは相手に対する他のリクエストをすべてキャンセル処理する
     for name, omiai in omiai_list.items():
-        if omiai["request"] in (in_name, target):
+        if omiai.get("request") in (user_name, target):
             omiai_list[name]["request"] = ""
             omiai_list[name][
                 "cancel"
-            ] = f"{omiai['request']}さんへの依頼はお断りされてしまったようです・・・"
+            ] = f"{omiai.get('request')}さんへの依頼はお断りされてしまったようです・・・"
 
-    # モンスター生成
-    my_data = omiai_list[in_name]
+    my_data = omiai_list[user_name]
     target_data = omiai_list[target]
 
-    my_new_mons_name = cgi_py.haigou_check.haigou_sub(
-        my_data["name"], target_data["name"], 1
-    )
-    target_new_mons_name = cgi_py.haigou_check.haigou_sub(
-        target_data["name"], my_data["name"], 1
-    )
+    # 双方が受け取るモンスター名を取得（hint_flagはここでは捨てる）
+    my_new_mons_name, _ = haigou_sub(my_data["name"], target_data["name"], 1)
+    target_new_mons_name, _ = haigou_sub(target_data["name"], my_data["name"], 1)
 
-    my_new_mons = omiai_get_monster(my_data, my_new_mons_name, in_name)
+    # モンスターデータの生成
+    my_new_mons = omiai_get_monster(my_data, my_new_mons_name, user_name)
     target_new_mons = omiai_get_monster(target_data, target_new_mons_name, target)
 
-    # データ更新
+    # 両者のデータを一気に更新
     for user_data, new_mons, partner_name in [
         (my_data, my_new_mons, target),
-        (target_data, target_new_mons, in_name),
+        (target_data, target_new_mons, user_name),
     ]:
         user_data.update(new_mons)
         user_data.update(
             {"mes": f"{partner_name}さんとのお見合いが成功しました。", "baby": 1}
         )
 
-    sub_def.save_omiai_list(omiai_list)
-    my_data = sub_def.slim_number_with_cookie(my_data)
+    # 保存
+    save_omiai_list(omiai_list)
 
-    # Jinja2の環境設定とテンプレートファイルの読み込み
-    template = env.get_template("new_monster_tmp.html")
-    html = template.render(
-        Conf=Conf,
-        my_data=my_data,
-        token=token,
-        mode=omiai,
-    )
+    # 表示用にフォーマット
+    my_data_v = slim_number_with_cookie(my_data)
 
-    sub_def.header()
-    print(html)
-    sub_def.my_page_button(token)
+    content = {
+        "Conf": Conf,
+        "my_data": my_data_v,
+        "token": token,
+        "mode": "omiai_room",
+    }
+
+    print_html("new_monster_tmp.html", content)

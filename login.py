@@ -53,7 +53,7 @@ FUNCTION_MAP = {
     #  戦闘  #
     "battle_type": ("cgi_py.battle_type", "battle_type"),
     "battle_type2": ("cgi_py.battle_type", "battle_type2"),
-    "battle_fight": ("cgi_py.battle_fight", "battle_fight"),
+    "battle_fight": ("cgi_py.battle.battle_fight", "battle_fight"),
     #  モンスタゲット   #
     "m_get": ("cgi_py.m_get", "m_get"),
     "m_bye": ("cgi_py.m_bye", "m_bye"),
@@ -62,16 +62,16 @@ FUNCTION_MAP = {
     # 	メダル獲得杯   #
     "tournament_result": ("cgi_py.tournament_result", "tournament_result"),
     # 	お見合い関係  #
-    "omiai_room": ("cgi_py.omiai_room", "omiai_room"),
-    "omiai_touroku": ("cgi_py.omiai_touroku", "omiai_touroku"),
-    "omiai_touroku_cancel": ("cgi_py.omiai_touroku", "omiai_touroku_cancel"),
-    "omiai_request": ("cgi_py.omiai_request", "omiai_request"),
-    "omiai_request_ok": ("cgi_py.omiai_request", "omiai_request_ok"),
-    "omiai_request_cancel": ("cgi_py.omiai_request", "omiai_request_cancel"),
-    "omiai_answer_no": ("cgi_py.omiai_answer", "omiai_answer_no"),
-    "omiai_answer_ok": ("cgi_py.omiai_answer", "omiai_answer_ok"),
-    "omiai_answer_result": ("cgi_py.omiai_answer", "omiai_answer_result"),
-    "omiai_baby_get": ("cgi_py.omiai_baby", "omiai_baby_get"),
+    "omiai_room": ("cgi_py.omiai.omiai_room", "omiai_room"),
+    "omiai_touroku": ("cgi_py.omiai.omiai_touroku", "omiai_touroku"),
+    "omiai_touroku_cancel": ("cgi_py.omiai.omiai_touroku", "omiai_touroku_cancel"),
+    "omiai_request": ("cgi_py.omiai.omiai_request", "omiai_request"),
+    "omiai_request_ok": ("cgi_py.omiai.omiai_request", "omiai_request_ok"),
+    "omiai_request_cancel": ("cgi_py.omiai.omiai_request", "omiai_request_cancel"),
+    "omiai_answer_no": ("cgi_py.omiai.omiai_answer", "omiai_answer_no"),
+    "omiai_answer_ok": ("cgi_py.omiai.omiai_answer", "omiai_answer_ok"),
+    "omiai_answer_result": ("cgi_py.omiai.omiai_answer", "omiai_answer_result"),
+    "omiai_baby_get": ("cgi_py.omiai.omiai_baby", "omiai_baby_get"),
     # 	数値表記法    #
     "number_unit": ("cgi_py.number_unit", "number_unit"),
 }

@@ -1,0 +1,104 @@
+<!-- templates/battle_layout_tmp.html -->
+{% extends "base_tmp.html" %}
+
+{% block content %}
+  <!-- 1. エンカウント時 -->
+  {% if encount_data %}
+    {% with target=encount_data.target, tekis=encount_data.tekis %}
+      {% include "battle_encount_tmp.html" %}
+    {% endwith %}
+  {% endif %}
+
+  <!-- 2. 戦闘アクションログ -->
+  {% if action_logs %}
+    {% for log in action_logs %}
+    <div class="battle_log_box">
+        <div class="battle_log_a">
+            <div><img src="{{ Conf.imgpath }}/{{ log.actor.name }}.gif"></div>
+            <div class="sky_blue">{{ log.actor.name }}</div>
+            <div>HP / MHP<br>{{ log.actor.hp }} / {{ log.actor.mhp }}</div>
+            <div>MP / MMP<br>{{ log.actor.mp }} / {{ log.actor.mmp }}</div>
+        </div>
+        {% if log.target %}
+        <div class="battle_R">{{ log.turn }}<span>R</span></div>
+        <div class="battle_log_b">
+            <div><img src="{{ Conf.imgpath }}/{{ log.target.name }}.gif"></div>
+            <div class="red">{{ log.target.name }}</div>
+            <div>HP / MHP<br>{{ log.target.hp }} / {{ log.target.mhp }}</div>
+            <div>MP / MMP<br>{{ log.target.mp }} / {{ log.target.mmp }}</div>
+        </div>
+        {% endif %}
+        <div class="battle_log">{{ log.text | safe }}</div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- 3. リザルト・システムログ (レベルアップ、ドロップ等) -->
+  {% if system_logs %}
+    {% for syslog in system_logs %}
+      {% if syslog.type == "message" %}
+        <div class="{{ syslog.css_class }}">{{ syslog.text | safe }}</div>
+
+      {% elif syslog.type == "lvup" %}
+        <div class="battle_log_Lvup">
+            <span class="yellow">レベルアップ！</span><br>
+            <span class="sky_blue">{{ syslog.name }}</span>は<span class="red">Lv{{ syslog.old_lv }}からLv{{ syslog.new_lv }}</span>になった！<br>
+            {% if syslog.is_max %}
+                <span class="red">成長の限界に達した。</span><br>年老いた為、力が激減した。
+            {% else %}
+                最大HPが<span class="sky_blue">{{ syslog.up_hp }}</span>上昇した。<br>
+                最大MPが<span class="sky_blue">{{ syslog.up_mp }}</span>上昇した。<br>
+                攻撃力が<span class="sky_blue">{{ syslog.up_atk }}</span>上昇した。<br>
+                守備力が<span class="sky_blue">{{ syslog.up_def }}</span>上昇した。<br>
+                素早さが<span class="sky_blue">{{ syslog.up_agi }}</span>上昇した。<br>
+            {% endif %}
+        </div>
+
+      {% elif syslog.type == "roomkey" %}
+        <div class="battle_roomkey_get">どのKEYを取得しますか？</div>
+        <form action="{{ Conf.cgi_url }}" method="post">
+            <select name="get_key">
+                {% for opt in syslog.options %}
+                <option value="{{ opt }}">{{ opt }}の部屋の鍵</option>
+                {% endfor %}
+            </select>
+            <button type="submit">取得する</button>
+            <input type="hidden" name="mode" value="roomkey_get">
+            <input type="hidden" name="token" value="{{ token }}">
+        </form>
+
+      {% elif syslog.type == "monget" %}
+        <div class="battle_monget">
+            <img src="{{ Conf.imgpath }}/{{ syslog.name }}.gif"><br>
+            <span class="red">{{ syslog.name }}</span>が仲間になりたがっています。<br>仲間にしますか？
+        </div>
+        <form action="{{ Conf.cgi_url }}" method="post">
+            <button type="submit">仲間にする</button>
+            <input type="hidden" name="mode" value="m_get">
+            <input type="hidden" name="token" value="{{ token }}">
+        </form>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <!-- 4. 戦闘メニュー (継続時) -->
+  {% if menu_data %}
+    <!-- 既存のbattle_menu_tmpをそのまま使えるように変数を展開 -->
+    {% set party = menu_data.party %}
+    {% set valid_enemies = menu_data.valid_enemies %}
+    {% set attack_skills = menu_data.attack_skills %}
+    {% set heal_skills = menu_data.heal_skills %}
+    {% set valid_party = menu_data.valid_party %}
+    {% set special_flag = menu_data.special_flag %}
+    {% include "battle_menu_tmp.html" %}
+  {% endif %}
+
+  <!-- 5. 終了ボタン (戦闘終了時) -->
+  {% if is_end %}
+    <form action="{{ Conf.cgi_url }}" method="post">
+        <input type="hidden" name="mode" value="my_page">
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="submit">マイページへ</button>
+    </form>
+  {% endif %}
+{% endblock %}

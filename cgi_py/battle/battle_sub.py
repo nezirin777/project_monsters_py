@@ -1,14 +1,15 @@
+# battle_sub.py
+
 import random
-import sub_def
 import conf
-import cgi_py
+from sub_def.file_ops import open_monster_dat
+from sub_def.utils import slim_number_with_cookie
 
 Conf = conf.Conf
 
 
 # LVup処理---------------------------------------------------------------------------
 def Lv_up(pt0):
-
     GROWTH_RATES = {
         "exp_rates": [
             (100, 1.15),
@@ -25,8 +26,8 @@ def Lv_up(pt0):
         "max_exp": 999999,
     }
 
-    pt0["lv"] += 1
-    pt0["exp"] -= int(pt0["n_exp"])
+    pt0["lv"] = pt0.get("lv", 1) + 1
+    pt0["exp"] = pt0.get("exp", 0) - int(pt0.get("n_exp", 0))
 
     for max_lv, rate in GROWTH_RATES["exp_rates"]:
         if pt0["lv"] <= max_lv:
@@ -36,7 +37,7 @@ def Lv_up(pt0):
         x = 1
 
     pt0["n_exp"] = min(
-        int(pt0["n_exp"] * x), int(pt0["lv"] * 1000), GROWTH_RATES["max_exp"]
+        int(pt0.get("n_exp", 0) * x), int(pt0["lv"] * 1000), GROWTH_RATES["max_exp"]
     )
 
     factors = {
@@ -46,109 +47,94 @@ def Lv_up(pt0):
         "def": [0.7, 0.8, 0.9, 1.0, 1.1],
         "agi": [0.7, 0.8, 0.9, 1.0, 1.1],
     }
-    hosei = pt0["hai"] * 0.1
+    hosei = pt0.get("hai", 0) * 0.1
 
     def calculate_growth(base_value, random_factors, level):
         lan = random.choice(random_factors)
         return int(lan * base_value / level)
 
     for stat, rand_factors in factors.items():
-        growth = calculate_growth(pt0[f"{stat}"], rand_factors, pt0["lv"])
-        if stat in ["mhp", "atk"]:  # HPとATKに条件を適用
-            if pt0[f"{stat}"] == 1:  # ステータスが1の場合
-                pt0[f"{stat}"] += 1  # 必ず1上昇
-            elif pt0[f"{stat}"] == 2:  # ステータスが2の場合
-                pt0[f"{stat}"] += random.choice([0, 1])  # 50%で1上昇
-            else:  # ステータスが3以上の場合
-                pt0[f"{stat}"] += int(growth + hosei)  # 従来通り
-        else:  # mmp, def, agiは従来通り
-            pt0[f"{stat}"] += int(growth + hosei)
+        base_val = pt0.get(stat, 1)
+        growth = calculate_growth(base_val, rand_factors, pt0["lv"])
 
-    """"
-        lan = random.choice([0.8, 0.9, 1.0, 1.1, 1.2])
-        hp = int(lan * pt0["mhp"] / pt0["lv"])
-        pt0["mhp"] += int(hp + hosei)
-    """
+        # HP/ATK：ステータスが1の時無条件で+1、2のときは50％で+1、3以上は従来の判定。
+        if stat in ["mhp", "atk"]:
+            if base_val == 1:
+                pt0[stat] += 1
+            elif base_val == 2:
+                pt0[stat] += random.choice([0, 1])
+            else:
+                pt0[stat] += int(growth + hosei)
+        else:
+            pt0[stat] += int(growth + hosei)
 
     return pt0
 
 
 def Lv_Max(pt0):
-    pt0["lv"] = pt0["mlv"]
-    pt0["mhp"] = pt0["hai"] + 15
-    pt0["mmp"] = pt0["hai"] + 14
-    pt0["atk"] = pt0["hai"] + 25
-    pt0["def"] = pt0["hai"] + 24
-    pt0["agi"] = pt0["hai"] + 24
+    hai = pt0.get("hai", 0)
+    pt0["lv"] = pt0.get("mlv", 1)
+    pt0["mhp"] = hai + 15
+    pt0["mmp"] = hai + 14
+    pt0["atk"] = hai + 25
+    pt0["def"] = hai + 24
+    pt0["agi"] = hai + 24
     pt0["exp"] = 0
     pt0["n_exp"] = 0
-    pt0["hp"] = min(pt0["hp"], pt0["mhp"])
-    pt0["mp"] = min(pt0["mp"], pt0["mmp"])
+    pt0["hp"] = min(pt0.get("hp", 0), pt0["mhp"])
+    pt0["mp"] = min(pt0.get("mp", 0), pt0["mmp"])
     return pt0
 
 
 # LVup出力処理---------------------------------------------------------------------------
 def pr_Lv_up(pt0, pt):
-
-    up_hp = sub_def.slim_number_with_cookie(pt0["mhp"] - pt["mhp"])
-    up_mp = sub_def.slim_number_with_cookie(pt0["mmp"] - pt["mmp"])
-    up_atk = sub_def.slim_number_with_cookie(pt0["atk"] - pt["atk"])
-    up_def = sub_def.slim_number_with_cookie(pt0["def"] - pt["def"])
-    up_agi = sub_def.slim_number_with_cookie(pt0["agi"] - pt["agi"])
-
-    html = f"""
-        <div class="battle_log_Lvup">
-            <span class="yellow">レベルアップ！</span><br>
-            <span class="sky_blue">{pt["name"]}</span>は<span class="red">Lv{pt["lv"]}からLv{pt0["lv"]}</span>になった！<br>
-            最大HPが<span class="sky_blue">{up_hp}</span>上昇した。<br>
-            最大MPが<span class="sky_blue">{up_mp}</span>上昇した。<br>
-            攻撃力が<span class="sky_blue">{up_atk}</span>上昇した。<br>
-            守備力が<span class="sky_blue">{up_def}</span>上昇した。<br>
-            素早さが<span class="sky_blue">{up_agi}</span>上昇した。<br>
-        </div>
-    """
-    print(html)
+    return {
+        "type": "lvup",
+        "name": pt.get("name", ""),
+        "old_lv": pt.get("lv", 1),
+        "new_lv": pt0.get("lv", 2),
+        "up_hp": slim_number_with_cookie(pt0.get("mhp", 0) - pt.get("mhp", 0)),
+        "up_mp": slim_number_with_cookie(pt0.get("mmp", 0) - pt.get("mmp", 0)),
+        "up_atk": slim_number_with_cookie(pt0.get("atk", 0) - pt.get("atk", 0)),
+        "up_def": slim_number_with_cookie(pt0.get("def", 0) - pt.get("def", 0)),
+        "up_agi": slim_number_with_cookie(pt0.get("agi", 0) - pt.get("agi", 0)),
+        "is_max": False,
+    }
 
 
 def pr_Lv_Max(pt0, pt):
-    html = f"""
-        <div class="battle_log_Lvup">
-            <span class="yellow">レベルアップ！</span><br>
-            <span class="sky_blue">{pt["name"]}</span>はLv{pt["lv"]}からLv{pt0["lv"]}になった！<br>
-            <span class="red">成長の限界に達した。</span><br>
-            年老いた為、<span class="sky_blue">{pt["name"]}</span>の力は激減した。
-        </div>
-    """
-
-    print(html)
+    return {
+        "type": "lvup",
+        "name": pt.get("name", ""),
+        "old_lv": pt.get("lv", 1),
+        "new_lv": pt0.get("lv", 99),
+        "is_max": True,
+    }
 
 
 # LVupチェック---------------------------------------------------------------------------
 def Lv_up_check(pt0, pt):
-    while pt0["exp"] >= pt0["n_exp"]:
+    logs = []
+    original_lv = pt.get("lv", 1)
+
+    while pt0.get("exp", 0) >= pt0.get("n_exp", 1):
         pt0 = Lv_up(pt0)
-
-        # 成長限界判定
-        if pt0["lv"] >= pt0["mlv"]:
+        if pt0["lv"] >= pt0.get("mlv", 99):
             pt0 = Lv_Max(pt0)
-            pr_Lv_Max(pt0, pt)
-            return pt0
+            logs.append(pr_Lv_Max(pt0, pt))
+            return pt0, logs
 
-    if pt0["lv"] > pt["lv"]:
-        pr_Lv_up(pt0, pt)
-    return pt0
+    if pt0["lv"] > original_lv:
+        logs.append(pr_Lv_up(pt0, pt))
+    return pt0, logs
 
 
-# 鍵獲得処理---------------------------------------------------------------------------
-def key_get(in_floor):
+# 報酬獲得処理群 -------------------------------------
+def key_get(in_floor, user, vips):
+    vip_boost = vips.get("boost")
+    event_boost = Conf.get("event_boost")
 
-    user = sub_def.open_user()
-    vips = sub_def.open_vips()
-
-    vip_boost = vips.get("boost", None)
-    event_boost = Conf["event_boost"]
-
-    if in_floor == user["key"]:
+    if in_floor == user.get("key", 1):
         key_sets = {
             0: 0,
             1: "普通の鍵+1",
@@ -168,91 +154,65 @@ def key_get(in_floor):
 
         get, txt = random.choices(list(key_sets.items()), weights=w)[0]
 
-        if get != 0:
-            user["key"] += get
-            html = f"""<div class="battle_keyget"><span class="yellow">{txt}</span>を拾った！ラッキー♪</div>"""
+    if get != 0:
+        user["key"] = user.get("key", 1) + get
+        return {
+            "type": "message",
+            "css_class": "battle_keyget",
+            "text": f"<span class='yellow'>{txt}</span>を拾った！ラッキー♪",
+        }
 
-            sub_def.save_user(user)
-            print(html)
+    return None
 
 
 # 部屋鍵獲得処理---------------------------------------------------------------------------
-def battle_roomkey_get(token):
-
-    room_key = sub_def.open_room_key()
-
-    # 未取得の部屋の鍵をリストに収集し、HTMLオプションとして整形
-    options = "".join(
-        [
-            f"""<option value="{name}">{name}の部屋の鍵</option>"""
-            for name, r_key in room_key.items()
-            if r_key["get"] == 0
-        ]
-    )
-
-    html = f"""
-        <div class="battle_roomkey_get">
-            どのKEYを取得しますか？
-        </div>
-        <form action="{{ Conf.cgi_url }}" method="post">
-            <select name=get_key>
-                {options}
-            </select>
-            <button type="submit">取得する</button>
-            <input type="hidden" name="mode" value="roomkey_get">
-            <input type="hidden" name="token" value="{token}">
-        </form>
-    """
-
-    print(html)
+def battle_roomkey_get(token, room_key_data):
+    options = [
+        name for name, r_key in room_key_data.items() if r_key.get("get", 0) == 0
+    ]
+    if not options:
+        return None
+    return {"type": "roomkey", "options": options}
 
 
 # 異世界鍵獲得処理---------------------------------------------------------------------------
-def battle_isekai_limit_get():
-
-    user = sub_def.open_user()
-    txt = ""
+def battle_isekai_limit_get(user):
     if user.get("isekai_limit", 0):
         user["isekai_limit"] += 10
         txt = "異世界をより深く探索できるようになった!"
     else:
         user["isekai_limit"] = 10
         txt = "異世界への扉の鍵をGetした!"
-    sub_def.save_user(user)
 
-    html = f"""
-        <div class="battle_keyget"><span class="yellow">{txt}</span></div>
-    """
-    print(html)
+    return {
+        "type": "message",
+        "css_class": "battle_keyget",
+        "text": f"<span class='yellow'>{txt}</span>",
+    }
 
 
-def battle_isekai_key_get(in_isekai):
-
-    user = sub_def.open_user()
-
-    html = ""
-    if in_isekai == user["isekai_key"]:
-        if user["isekai_limit"] == user["isekai_key"]:
-            html = f"""
-                <div class="battle_keyget"><span class="yellow">探索限界に到達した。</span></div>
-            """
+def battle_isekai_key_get(in_isekai, user):
+    txt = ""
+    if in_isekai == user.get("isekai_key", 0):
+        if user.get("isekai_limit", 0) == user.get("isekai_key", 0):
+            txt = f"探索限界に到達した。"
         else:
-            html = f"""
-                <div class="battle_keyget"><span class="yellow">次の階層の鍵を手に入れた。</span></div>
-            """
+            txt = f"次の階層の鍵を手に入れた。"
+            user["isekai_key"] += 1
 
-        user["isekai_key"] += 1
-        sub_def.save_user(user)
-
-    print(html)
+    return {
+        "type": "message",
+        "css_class": "battle_keyget",
+        "text": f"<span class='yellow'>{txt}</span>",
+    }
 
 
 # メダル獲得処理---------------------------------------------------------------------------
-def battle_medal_get(in_floor):
-    vips = sub_def.open_vips()
-    vip_boost = vips.get("boost", None)
 
-    event_boost = Conf["event_boost"]
+
+def battle_medal_get(in_floor, user, vips):
+    vip_boost = vips.get("boost")
+    event_boost = Conf.get("event_boost")
 
     if event_boost and vip_boost:
         arr = [10, 14, 20, 30]
@@ -270,23 +230,16 @@ def battle_medal_get(in_floor):
     else:
         get = arr[3]
 
-    user = sub_def.open_user()
-    user["medal"] += get
-    sub_def.save_user(user)
-
-    html = f"""
-        <div class=\"battle_keyget\"><span class="yellow">メダルを{get}枚ゲットした！ラッキー♪</span></div>
-    """
-    print(html)
+    user["medal"] = user.get("medal", 0) + get
+    return {
+        "type": "message",
+        "css_class": "battle_keyget",
+        "text": f"<span class='yellow'>メダルを{get}枚ゲットした！ラッキー♪</span>",
+    }
 
 
 # 勝利時モンスター獲得処理---------------------------------------------------------------------------
-def mon_get(FORM):
-    in_floor = int(FORM["c"]["last_floor"])
-    special = FORM["c"]["special"]
-
-    token = FORM["token"]
-
+def mon_get(in_floor, special, token, battle, zukan):
     if in_floor <= 150:
         get = random.randint(1, 3)
     elif 151 <= in_floor <= 200:
@@ -298,38 +251,29 @@ def mon_get(FORM):
         get = random.randint(1, 50)
 
     if get == 1:
-        M_list = sub_def.open_monster_dat()
-        battle = sub_def.open_battle()
-        get_name = battle["teki"][0]["name"]
+        M_list = open_monster_dat()
+        get_name = battle["teki"][0].get("name")
 
-        if M_list[get_name]["get"] == 1 and get == 1:
-            html = f"""
-                <div class="battle_monget">
-                    <img src="{Conf["imgpath"]}/{get_name}.gif"><br>
-                    <span class="red">{get_name}</span>が仲間になりたがっています。<br>
-                    仲間にしますか？
-                </div>
-                <form action="{{ Conf.cgi_url }}" method="post">
-                    <button type="submit">仲間にする</button>
-                    <input type="hidden" name="mode" value="m_get">
-                    <input type="hidden" name="token" value="{token}">
-                </form>
-            """
-            print(html)
+        if not get_name:
+            return None
+
+        # モンスターデータと図鑑情報を確認
+        if M_list.get(get_name, {}).get("get", 1) == 1:
+            return {"type": "monget", "name": get_name}
+
+    return None
 
 
 # 敗戦処理---------------------------------------------------------------------------
-def haisen():
-    user = sub_def.open_user()
+def haisen(user):
+    if user.get("key", 1) <= 10:
+        return ""
 
-    if 10 >= user["key"]:
-        return
-
+    u_key = user.get("key", 1)
     w = [100]
     key_sets = {1: "不幸の鍵-1"}
 
-    # w = 重み％
-    if 11 <= user["key"] <= 100:
+    if 11 <= u_key <= 100:
         key_sets = {
             1: "不幸の鍵-1",
             3: "不運な鍵-3",
@@ -337,7 +281,7 @@ def haisen():
             10: "危険な鍵-10",
         }
         w = [50, 30, 19, 1]
-    elif 101 <= user["key"] <= 1000:
+    elif 101 <= u_key <= 1000:
         key_sets = {
             1: "不幸の鍵-1",
             3: "不運な鍵-3",
@@ -347,7 +291,7 @@ def haisen():
             100: "絶対絶命の鍵-100",
         }
         w = [46, 21, 16, 11, 5, 1]
-    elif 1001 <= user["key"]:
+    elif 1001 <= u_key:
         key_sets = {
             1: "不幸の鍵-1",
             3: "不運な鍵-3",
@@ -362,37 +306,33 @@ def haisen():
     get, txt = random.choices(list(key_sets.items()), weights=w)[0]
 
     if get == 0:
-        get = int(user["key"] / 5)
+        get = int(u_key / 5)
         txt = f"終焉の鍵-{get}"
 
     user["key"] -= get
-    sub_def.save_user(user)
 
-    html = f"""
-        <div class="battle_keyget"><span class="red">{txt}</span>を拾ってしまった！</div>
-    """
-    print(html)
+    return {
+        "type": "message",
+        "css_class": "battle_keyget",
+        "text": f"<span class='red'>{txt}</span>を拾ってしまった！",
+    }
 
 
-# 戦闘後処理↓---------------
-def battle_end(Fend, s, special):
+# 戦闘終了メイン処理---------------------------------------------------------------------------
+def battle_end(Fend, s, special, all_data, battle):
+    user = all_data.get("user", {})
+    party = all_data.get("party", [])
+    vips = all_data.get("vips", {})
 
-    user = sub_def.open_user()
-    party = sub_def.open_party()
-    battle = sub_def.open_battle()
-    vips = sub_def.open_vips()
-
-    # パーティ人数の計算
     pt_num = 1 if special in ("わたぼう", "スライム") else min(len(party), 3)
 
-    # 経験値とお金の計算
-    base_exp = battle["teki"][0]["exp"]
-    base_money = battle["teki"][0]["money"]
+    base_exp = battle["teki"][0].get("exp", 0)
+    base_money = battle["teki"][0].get("money", 0)
     exp = max(int(base_exp * s / pt_num), 0)
     money = int(base_money * s)
 
-    vip_boost = vips.get("boost", None)
-    event_boost = Conf["event_boost"]
+    vip_boost = vips.get("boost")
+    event_boost = Conf.get("event_boost")
 
     if event_boost and vip_boost:
         exp *= 4
@@ -400,40 +340,41 @@ def battle_end(Fend, s, special):
     elif event_boost or vip_boost:
         exp *= 2
         money *= 2
-    else:
-        exp *= 1
-        money *= 1
 
-    exp2 = sub_def.slim_number_with_cookie(exp)
-    money2 = sub_def.slim_number_with_cookie(money)
+    exp2 = slim_number_with_cookie(exp)
+    money2 = slim_number_with_cookie(money)
 
-    html = f"""
-        <div class="battle_log_Lvup">
-            戦闘に<span class="red">{Fend}</span><br>
-            <span class="sky_blue"">{money2}</span>Gを得た。<br>
-            それぞれ<span class="sky_blue"">{exp2}</span>ポイントの経験値を得た。
-        </div>
-    """
-    print(html)
+    logs = [
+        {
+            "type": "message",
+            "css_class": "battle_log_Lvup",
+            "text": f"戦闘に<span class='red'>{Fend}</span><br><span class='sky_blue'>{money2}</span>Gを得た。<br>それぞれ<span class='sky_blue'>{exp2}</span>ポイントの経験値を得た。",
+        }
+    ]
 
     if s != 0:
-        # ユーザーの所持金更新（上限 99兆）
-        user["money"] = min(int(user["money"] + money), 99999999999999)
-        # パーティの経験値更新
+        user["money"] = min(int(user.get("money", 0) + money), 99999999999999)
+        # パーティの経験値更新とレベルアップチェック
         for i, pt in enumerate(battle["party"]):
-            if pt["hp"] <= 0:
+            if pt.get("hp", 0) <= 0:
                 continue
-            if pt["lv"] != pt["mlv"]:
-                pt0 = pt.copy()  # ステ退避
-                pt0["exp"] += exp
-                pt0 = cgi_py.battle_sub.Lv_up_check(pt0, pt)
-                battle["party"][i] = pt0.copy()  # ステ戻し
+            if pt.get("lv", 1) != pt.get("mlv", 99):
+                pt0 = pt.copy()
+                pt0["exp"] = pt0.get("exp", 0) + exp
 
+                pt0, lv_logs = Lv_up_check(pt0, pt)
+                logs.extend(lv_logs)  # リストを追加
+                battle["party"][i] = pt0.copy()
+
+    # battleに保存された最新のステータスを、大元のpartyに反映
     for i, pt in enumerate(battle["party"]):
         party[i] = pt
 
-    if party[0]["hp"] == 0:
+    if party[0].get("hp", 0) == 0:
         party[0]["hp"] = 1
 
-    sub_def.save_user(user)
-    sub_def.save_party(party)
+    # 変更を大元のall_dataに適用
+    all_data["user"] = user
+    all_data["party"] = party
+
+    return all_data, logs

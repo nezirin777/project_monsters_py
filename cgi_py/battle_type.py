@@ -1,51 +1,45 @@
+# battle_type.py - 戦闘種類分け
+
 import time
 import random
-import cgi_py
-import sub_def
+from cgi_py.battle.battle_encount import battle_encount
+from cgi_py.battle.battle_menu import battle_menu
+from sub_def.file_ops import open_user_all, save_user_all
+from sub_def.utils import error, print_html
+from sub_def.crypto import set_session
+
 import conf
 
 Conf = conf.Conf
 
 
-def validate_user_and_party(in_floor=None, in_isekai=None):
+def validate_user_and_party(user, party, in_floor=None, in_isekai=None):
     """ユーザーとパーティの状態をチェック"""
-    user = sub_def.open_user()
-    party = sub_def.open_party()
-
     if in_floor is not None:
-        if not (0 < in_floor <= user["key"]):
-            sub_def.error("階層指定がおかしいです")
+        if not (0 < in_floor <= user.get("key", 1)):
+            error("階層指定がおかしいです", jump="my_page")
 
     if in_isekai is not None:
-        if not (0 <= in_isekai <= user["isekai_key"]):
-            sub_def.error("異世界は1Fづつしか進めません。")
-        if in_isekai > user["isekai_limit"]:
-            sub_def.error("探索限界に達しています")
+        if not (0 <= in_isekai <= user.get("isekai_key", 0)):
+            error("異世界は1Fづつしか進めません。", jump="my_page")
+        if in_isekai > user.get("isekai_limit", 0):
+            error("探索限界に達しています", jump="my_page")
 
     if len(party) < 1:
-        sub_def.error("パーティがいません。最低1体は必要です。")
-    if party[0]["hp"] <= 0:
-        sub_def.error(
-            "先頭のモンスターのHPが0です。<br>回復するか他のモンスターにしてください。"
+        error("パーティがいません。最低1体は必要です。", jump="my_page")
+    if party[0].get("hp", 0) <= 0:
+        error(
+            "先頭のモンスターのHPが0です。<br>回復するか他のモンスターにしてください。",
+            jump="my_page",
         )
-    return user, party
 
 
-def determine_special_enemy(user, in_floor):
+def determine_special_enemy(user, vips, room_key, in_floor):
     """
     特殊敵を判定する。
-
-    Parameters:
-    - user (dict): ユーザー情報。
-    - in_floor (int): 現在の階層。
-
-    Returns:
-    - list: 出現する特殊敵のリスト。
     """
-    vips = sub_def.open_vips()
-    vip_boost = vips.get("boost", None)
-
-    event_boost = Conf["event_boost"]
+    vip_boost = vips.get("boost")
+    event_boost = Conf.get("event_boost")
 
     if event_boost and vip_boost:
         randam = 15
@@ -58,67 +52,114 @@ def determine_special_enemy(user, in_floor):
 
     # 特殊条件判定
     if "わたぼう" in special_enemies:
-        room_key = sub_def.open_room_key()
-        if any(r_key["get"] == 0 for r_key in room_key.values()):
+        if any(r_key.get("get", 0) == 0 for r_key in room_key.values()):
             special_enemies.append("スライム")
+
+        # 500階おきに次のエリアに進めるようになる
         if in_floor >= 1001 + 500 * (user.get("isekai_limit", 0) / 10):
-            # ↑500階おきに次のエリアに進めるようになる
             if user.get("isekai_limit", 0) < user.get("isekai_key", 0):
-                if user.get("isekai_limit", 0) != Conf["isekai_max_limit"]:
+                if user.get("isekai_limit", 0) != Conf.get("isekai_max_limit"):
                     special_enemies.append("vipsg")
 
-    return special_enemies or [0]  # デフォルト値として0を返す
+    return special_enemies or [0]  # デフォルト値として[0]を返す
 
 
-def process_battle(FORM, special, floor_key, floor_value):
+def process_battle(
+    FORM, user_name, session, all_data, special, floor_key, floor_value, room_value=None
+):
     """
     バトルの処理を共通化。
-
-    Parameters:
-    - FORM (dict): フォームデータ。
-    - special (str): 特殊敵の名前。
-    - floor_key (str): クッキーに保存するフロアのキー。
-    - floor_value (int): フロアの値。
     """
     next_t = time.time() + Conf["nextplay"]
+    user = all_data.get("user", {})
 
-    FORM["c"] |= {
-        floor_key: floor_value,
-        "special": special,
-        "next_t": next_t,
-        "turn": 1,
-    }
-    sub_def.set_cookie(FORM["c"])
+    # セッションおよびユーザーデータの更新
+    session[floor_key] = floor_value
+    user[floor_key] = floor_value
 
-    txt = cgi_py.battle_encount.battle_encount(FORM, special)
-    txt += cgi_py.battle_menu.battle_menu(FORM, special)
+    if room_value is not None:
+        session["last_room"] = room_value
+        user["last_room"] = room_value
 
-    sub_def.print_html(
-        "base_tmp.html",
+    session["special"] = special
+    session["next_t"] = next_t
+    session["turn"] = 1
+    user["next_t"] = next_t
+
+    # ユーザーデータを一括保存
+    all_data["user"] = user
+    save_user_all(all_data, user_name)
+
+    # セッションを保存してFORMに上書き（以降の戦闘モジュールで参照するため）
+    set_session(session)
+    FORM["s"] = session
+
+    encount_data = battle_encount(FORM, special)
+    menu_data = battle_menu(FORM, special)
+
+    print_html(
+        "battle_layout_tmp.html",
         {
-            "battle_txt": txt,
             "Conf": Conf,
+            "token": session.get("token", ""),
+            "encount_data": encount_data,
+            "menu_data": menu_data,
         },
     )
 
 
 def battle_type(FORM):
-    in_floor = int(FORM["in_floor"])
-    in_room = FORM["in_room"]
+    """通常のバトルエントリーポイント"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
-    user, _ = validate_user_and_party(in_floor=in_floor)
-    special_enemies = determine_special_enemy(user, in_floor)
+    if not user_name:
+        error("ユーザー名が取得できませんでした。", jump="top")
+
+    in_floor = int(FORM.get("in_floor", 1))
+    in_room = FORM.get("in_room", "")
+
+    # データを一括で読み込み
+    all_data = open_user_all(user_name)
+    user = all_data.get("user", {})
+    party = all_data.get("party", [])
+    vips = all_data.get("vips", {})
+    room_key = all_data.get("room_key", {})
+
+    validate_user_and_party(user, party, in_floor=in_floor)
+
+    special_enemies = determine_special_enemy(user, vips, room_key, in_floor)
     selected_enemy = random.choice(special_enemies)
 
-    FORM["c"] |= {
-        "last_room": in_room,
-    }
-
-    process_battle(FORM, selected_enemy, "last_floor", in_floor)
+    process_battle(
+        FORM,
+        user_name,
+        session,
+        all_data,
+        selected_enemy,
+        "last_floor",
+        in_floor,
+        room_value=in_room,
+    )
 
 
 def battle_type2(FORM):
-    in_isekai = int(FORM["in_isekai"])
+    """異世界のバトルエントリーポイント"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
-    validate_user_and_party(in_isekai=in_isekai)
-    process_battle(FORM, "異世界", "last_floor_isekai", in_isekai)
+    if not user_name:
+        error("ユーザー名が取得できませんでした。", jump="top")
+
+    in_isekai = int(FORM.get("in_isekai", 0))
+
+    # データを一括で読み込み
+    all_data = open_user_all(user_name)
+    user = all_data.get("user", {})
+    party = all_data.get("party", [])
+
+    validate_user_and_party(user, party, in_isekai=in_isekai)
+
+    process_battle(
+        FORM, user_name, session, all_data, "異世界", "last_floor_isekai", in_isekai
+    )
