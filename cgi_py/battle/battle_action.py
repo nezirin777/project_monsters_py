@@ -1,222 +1,206 @@
-# ========#
-# 戦闘用 #
-# ========#
+# battle_action.py - 戦闘各コマンド処理
+
 import random
-import sub_def
-import conf
-
-Conf = conf.Conf
-
-
-def pr(actor, target, txt):
-
-    c = sub_def.get_cookie()
-    turn = c["turn"]
-
-    actor2 = sub_def.slim_number_with_cookie(actor)
-    target2 = sub_def.slim_number_with_cookie(target)
-
-    html = f"""
-        <div class="battle_log_a">
-            <div><img src="{Conf["imgpath"]}/{actor2["name"]}.gif"></div>
-            <div class="sky_blue">{actor2["name"]}</div>
-            <div>HP / MHP<br>{actor2["hp"]} / {actor2["mhp"]}</div>
-            <div>MP / MMP<br>{actor2["mp"]} / {actor2["mmp"]}</div>
-        </div>
-    """
-    if target:
-        html += f"""
-            <div class="battle_R">{turn}<span>R</span></div>
-            <div class="battle_log_b">
-                <div><img src="{Conf["imgpath"]}/{target2["name"]}.gif"></div>
-                <div class="red">{target2["name"]}</div>
-                <div>HP / MHP<br>{target2["hp"]} / {target2["mhp"]}</div>
-                <div>MP / MMP<br>{target2["mp"]} / {target2["mmp"]}</div>
-            </div>
-    """
-
-    html += f"""<div class="battle_log">{txt}</div>"""
-    print(f"""<div class="battle_log_box">{html}</div>""")
+from sub_def.utils import slim_number_with_cookie
 
 
 def kaifuku(target, kairyou):
-    if target["hp"] == 0:
-        return f"""<span class="sky_blue">{target["name"]}</span>は既に力尽きていた"""
+    """回復ロジックとログ生成"""
+    if target.get("hp", 0) == 0:
+        return f"""<span class="sky_blue">{target.get("name", "味方")}</span>は既に力尽きていた"""
 
-    target["hp"] = min(target["hp"] + int(target["mhp"] * kairyou), target["mhp"])
-    log2 = kairyou * 100
-    return f"""<span class="sky_blue">{target["name"]}</span>のHPが約{log2}%回復した"""
+    target["hp"] = min(
+        target.get("hp", 0) + int(target.get("mhp", 1) * kairyou), target.get("mhp", 1)
+    )
+    log2 = int(kairyou * 100)
+    return f"""<span class="sky_blue">{target.get("name", "味方")}</span>のHPが約{log2}%回復した"""
 
 
 def sosei(target, kairyou, luk):
-    if target["hp"] != 0:
-        return f"""<span class="sky_blue">{target["name"]}</span>は生きています"""
+    """蘇生ロジックとログ生成"""
+    if target.get("hp", 0) != 0:
+        return f"""<span class="sky_blue">{target.get("name", "味方")}</span>は生きています"""
 
     if luk == 0:
-        return f"""<span class="sky_blue">{target["name"]}</span>は生きかえらなかった"""
+        return f"""<span class="sky_blue">{target.get("name", "味方")}</span>は生きかえらなかった"""
 
-    target["hp"] = int(target["mhp"] * kairyou)
+    target["hp"] = int(target.get("mhp", 1) * kairyou)
     target["休み"] = 1
-    return f"""<span class="sky_blue">{target["name"]}</span>は生きかえった"""
+    return (
+        f"""<span class="sky_blue">{target.get("name", "味方")}</span>は生きかえった"""
+    )
 
 
-def calculate_damage(attacker, defender, atk_modifier=1, def_modifier=1):
-    """攻撃ロジックを共通化"""
-    defe = defender["def"] * (
+def calculate_damage(attacker, defender, atk_modifier=1.0, def_modifier=1.0):
+    """ダメージ計算ロジック"""
+    defe = defender.get("def", 0) * (
         2 if defender.get("bt", {}).get("hit", "") == "防御" else 1
     )
-    dmg = max(
-        0,
-        int(
-            (attacker["atk"] * atk_modifier * random.choice([1.0, 1.1, 1.2, 1.3]))
-            - (defe * def_modifier * random.choice([0.9, 1.0, 1.1, 1.2]))
-        ),
+
+    atk_val = (
+        attacker.get("atk", 0) * atk_modifier * random.choice([1.0, 1.1, 1.2, 1.3])
     )
-    defender["hp"] = max(0, defender["hp"] - dmg)
+    def_val = defe * def_modifier * random.choice([0.9, 1.0, 1.1, 1.2])
+
+    dmg = max(0, int(atk_val - def_val))
+    defender["hp"] = max(0, defender.get("hp", 0) - dmg)
+
     return dmg
 
 
+def create_action_log(actor, target, txt, turn):
+    """HTMLではなく、テンプレートに渡すための純粋なデータ(辞書)を作成する"""
+    return {
+        "turn": turn,
+        "actor": slim_number_with_cookie(actor),
+        "target": slim_number_with_cookie(target) if target else None,
+        "text": txt,
+    }
+
+
 #############################################################################
-def teki_action(actor, battle, special, in_floor):
+def teki_action(actor, battle, special, in_floor, turn, Conf):
 
     lan = []
-    if battle["party"][0]["hp"] > 0:
+
+    if battle["party"][0].get("hp", 0) > 0:
         lan = [0]
-    elif battle["party"][1:2]:
-        if battle["party"][1]["hp"] > 0:
-            lan = [1]
-        elif battle["party"][2:3]:
-            if battle["party"][2]["hp"] > 0:
-                lan = [2]
+    elif len(battle["party"]) > 1 and battle["party"][1].get("hp", 0) > 0:
+        lan = [1]
+    elif len(battle["party"]) > 2 and battle["party"][2].get("hp", 0) > 0:
+        lan = [2]
 
     if in_floor > 500 or special == "異世界":
         lan = []
-        if battle["party"][0]["hp"] > 0:
-            lan += [0, 0, 0, 0, 0, 0]
-        if battle["party"][1:2]:
-            if battle["party"][1]["hp"] > 0:
-                lan += [1, 1, 1]
-        if battle["party"][2:3]:
-            if battle["party"][2]["hp"] > 0:
-                lan += [2]
+        if battle["party"][0].get("hp", 0) > 0:
+            lan += [0] * 6
+        if len(battle["party"]) > 1 and battle["party"][1].get("hp", 0) > 0:
+            lan += [1] * 3
+        if len(battle["party"]) > 2 and battle["party"][2].get("hp", 0) > 0:
+            lan += [2]
 
     if not lan:
-        return battle
+        return battle, None
 
-    target = battle["party"][random.choice(lan)]
+    target_idx = random.choice(lan)
     if special in ("わたぼう", "スライム"):
-        target = battle["party"][0]
+        target_idx = 0
 
+    target = battle["party"][target_idx]
     dmg = calculate_damage(actor, target)
-    dmg2 = sub_def.slim_number_with_cookie(dmg)
+    dmg2 = slim_number_with_cookie(dmg)
 
     if dmg == 0:
-        txt = f"""<span class="sky_blue">{target["name"]}</span>は<span class="red">{actor["name"]}</span>の攻撃をかわした！"""
+        txt = f"""<span class="sky_blue">{target.get("name")}</span>は<span class="red">{actor.get("name")}</span>の攻撃をかわした！"""
     else:
-        txt = f"""<span class="red">{actor["name"]}</span>は<span class="sky_blue">{target["name"]}</span>に<span class="red">{dmg2}</span>ポイントのダメージを与えた！"""
+        txt = f"""<span class="red">{actor.get("name")}</span>は<span class="sky_blue">{target.get("name")}</span>に<span class="red">{dmg2}</span>ポイントのダメージを与えた！"""
 
-    pr(target, actor, txt)
-    return battle
+    # 文字列の結合ではなく、辞書を返す
+    log_dict = create_action_log(actor, target, txt, turn)
+    return battle, log_dict
 
 
 #################################################################################################
-def mikata_action(actor, battle):
+def mikata_action(actor, battle, Tokugi_dat, Seikaku_dat, turn, Conf):
+    """味方の行動処理（戻り値として、battle辞書とログHTMLを返す）"""
 
-    def mikata_atk(txt):
-        if actor["mp"] < zyumon["mp"]:
+    def mikata_atk(txt_prefix, zyumon, target, kaisin):
+        if actor.get("mp", 0) < zyumon.get("mp", 0):
             return (
-                txt
-                + f"""<span class="red">{zyumon["name"]}</span>を唱えようとしたがMPが足りなかった！"""
+                txt_prefix
+                + f"""<span class="red">{zyumon.get("name", "技")}</span>を唱えようとしたがMPが足りなかった！"""
             )
-        actor["mp"] -= int(zyumon["mp"])
+
+        actor["mp"] -= int(zyumon.get("mp", 0))
+
         if target.get("hp", 0) == 0:
             return (
-                txt
-                + f"""<span class="red">{target["name"]}</span>に攻撃しようとしたが既に力尽きていた！"""
+                txt_prefix
+                + f"""<span class="red">{target.get("name", "敵")}</span>に攻撃しようとしたが既に力尽きていた！"""
             )
 
-        dmg = calculate_damage(actor, target, zyumon["damage"] * kaisin)
-        dmg2 = sub_def.slim_number_with_cookie(dmg)
+        dmg = calculate_damage(actor, target, zyumon.get("damage", 1) * kaisin)
+        dmg2 = slim_number_with_cookie(dmg)
 
         if kaisin == 2:
-            txt += "会心の一撃！<br>"
+            txt_prefix += "会心の一撃！<br>"
+
         if dmg == 0:
-            txt += f"""しかし<span class="red">{target["name"]}</span>にダメージを与えることができなかった！"""
+            txt_prefix += f"""しかし<span class="red">{target.get("name", "敵")}</span>にダメージを与えることができなかった！"""
         else:
-            txt += f"""<span class="yellow">{zyumon["name"]}</span>を繰り出し<br><span class="red">{target["name"]}</span>に<span class="red">{dmg2}</span>ポイントのダメージを与えた！"""
+            txt_prefix += f"""<span class="yellow">{zyumon.get("name", "技")}</span>を繰り出し<br><span class="red">{target.get("name", "敵")}</span>に<span class="red">{dmg2}</span>ポイントのダメージを与えた！"""
 
-            if target["hp"] == 0:
-                txt += f"""<br><span class="red">{target["name"]}</span>は倒れた"""
+            if target.get("hp", 0) == 0:
+                txt_prefix += f"""<br><span class="red">{target.get("name", "敵")}</span>は倒れた"""
 
-                battle["teki"][0]["name"] = target["name"]  # 起き上がり対象に
-                battle["teki"][0]["sex"] = target["sex"]
-                battle["teki"][0]["exp"] += target["exp"]
-                battle["teki"][0]["money"] += target["money"]
+                # 倒した敵の情報を戦利品プール（teki[0]）に加算
+                battle["teki"][0]["name"] = target.get("name", "")
+                battle["teki"][0]["sex"] = target.get("sex", "？")
+                battle["teki"][0]["exp"] += target.get("exp", 0)
+                battle["teki"][0]["money"] += target.get("money", 0)
                 battle["teki"][0]["down"] += 1
 
-        return txt
+        return txt_prefix
 
-    def mikata_kaifuku(txt):
-        if actor["mp"] < zyumon["mp"]:
+    def mikata_kaifuku(txt_prefix, zyumon, nakama_idx):
+        if actor.get("mp", 0) < zyumon.get("mp", 0):
             return (
-                txt
-                + f"""<span class="red">{zyumon["name"]}</span>を唱えようとしたがMPが足りなかった！"""
+                txt_prefix
+                + f"""<span class="red">{zyumon.get("name", "魔法")}</span>を唱えようとしたがMPが足りなかった！"""
             )
-        actor["mp"] -= int(zyumon["mp"])
-        if zyumon["type"] == 2:
-            # (対象味方,回復量)
-            m_log = kaifuku(battle["party"][bt["nakama"]], zyumon["damage"])
+
+        actor["mp"] -= int(zyumon.get("mp", 0))
+        target_ally = battle["party"][nakama_idx]
+
+        if zyumon.get("type") == 2:
+            m_log = kaifuku(target_ally, zyumon.get("damage", 0))
         else:
-            luk = random.randint(0, 1) if (zyumon["name"] == "ザオラル") else 1
-            # (対象味方,回復量,ザオラル判定)
-            m_log = sosei(battle["party"][bt["nakama"]], zyumon["damage"], luk)
+            luk = random.randint(0, 1) if zyumon.get("name") == "ザオラル" else 1
+            m_log = sosei(target_ally, zyumon.get("damage", 0), luk)
 
-        return txt + f"""<span class="red">{zyumon["name"]}</span>を唱えた<br>{m_log}"""
+        return (
+            txt_prefix
+            + f"""<span class="red">{zyumon.get("name", "魔法")}</span>を唱えた<br>{m_log}"""
+        )
 
-    bt = actor["bt"]
+    bt = actor.get("bt", {})
+    txt = f"""<span class="sky_blue">{actor.get("name", "味方")}</span>は"""
 
-    Tokugi_dat = sub_def.open_tokugi_dat()
-    Seikaku_dat = sub_def.open_seikaku_dat()
-
-    txt = f"""<span class="sky_blue">{actor["name"]}</span>は"""
-
-    ### 性格判定 ###
-    # 2 = 会心 ( "ねっけつかん","いのちしらず","いっぴきおおかみ","れいせいちんちゃく","きれもの","こうかつ","ちょとつもうしん")
-    # 0 = さぼり ( "きまぐれ","あわてもの","ひねくれもの","がんこもの","ゆうじゅうふだん","うっかりもの","のんきもの","おひとよし","おくびょうもの","なまけもの","わがまま","うぬぼれや")
-    # 1/4確率で会心もしくはさぼり=3/4で通常攻撃 kaisin=2→会心 kaisin=0→さぼり
+    # 性格判定による会心・サボり処理
     kaisin = 1
     if random.randint(0, 3) == 0:
-        s = Seikaku_dat[actor["sei"]]["行動"]
+        s = Seikaku_dat.get(actor.get("sei", ""), {}).get("行動", 1)
         if s == 2:
             kaisin = 2
         elif s == 0:
             txt += "命令を聞かずに踊っている～♪"
-            pr(actor, "", txt)
-            return battle
+            return battle, create_action_log(actor, None, txt, turn)
 
-    zyumon = {}
-    if bt["hit"] == "攻撃":
-        zyumon = {**{"name": bt["toku"]}, **Tokugi_dat[bt["toku"]]}
-        target = battle["teki"][bt["target"]]
-        txt = mikata_atk(txt)
+    # コマンドに応じた処理
+    target_obj = None
+    if bt.get("hit") == "攻撃":
+        toku_name = bt.get("toku", "通常攻撃")
+        zyumon = {
+            "name": toku_name,
+            **Tokugi_dat.get(toku_name, {"mp": 0, "damage": 1, "type": 1}),
+        }
+        target_idx = max(1, min(bt.get("target", 1), len(battle["teki"]) - 1))
+        target_obj = battle["teki"][target_idx]
+        txt = mikata_atk(txt, zyumon, target_obj, kaisin)
 
-    elif bt["hit"] == "回復" and bt["ktoku"] != "0":
-        zyumon = {**{"name": bt["ktoku"]}, **Tokugi_dat[bt["ktoku"]]}
-        target = ""
-        txt = mikata_kaifuku(txt)
+    elif bt.get("hit") == "回復" and bt.get("ktoku", "0") != "0":
+        toku_name = bt.get("ktoku")
+        zyumon = {
+            "name": toku_name,
+            **Tokugi_dat.get(toku_name, {"mp": 0, "damage": 0.5, "type": 2}),
+        }
+        nakama_idx = max(0, min(bt.get("nakama", 0), len(battle["party"]) - 1))
+        txt = mikata_kaifuku(txt, zyumon, nakama_idx)
 
-    elif bt["hit"] == "防御":
-        zyumon["mp"] = 0
-        target = ""
+    elif bt.get("hit") == "防御":
         txt += "防御している"
-
-    if not zyumon:
+    else:
         txt += "使用する魔法が選択されなかった！<br>"
 
-    target = target if "target" in locals() else 0
-
-    pr(actor, target, txt)
-    return battle
-
-
-#################################################################################################
+    log_dict = create_action_log(actor, target_obj, txt, turn)
+    return battle, log_dict

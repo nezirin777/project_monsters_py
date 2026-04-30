@@ -148,7 +148,7 @@ async function processToastQueue() {
 
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  toast.textContent = message;
+  toast.innerHTML = message;
 
   container.appendChild(toast);
 

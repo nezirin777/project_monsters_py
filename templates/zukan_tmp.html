@@ -1,5 +1,6 @@
-{% extends "base_tmp.html" %}
+<!-- templates/zukan_tmp.html -->
 
+{% extends "base_tmp.html" %}
 
 {% block head %}
     {% if ref %}
@@ -33,7 +34,7 @@
             <div class="zukan_no">{{ li.no }}</div>
                 <div class="zukan_img {{ li.m_type if li['get'] else '' }}" tabindex="0"
                     {% if ref and li['get'] and M_list[name] %}
-                    data-tooltip="{% for n in range(1, 4) %}{% if M_list[name]['血統' ~ n] %}<p>{{ M_list[name]['血統' ~ n] }} × {{ M_list[name]['相手' ~ n] }}</p>{% endif %}{% endfor %}"
+                    data-tooltip="{% for n in range(1, 4) %}{% if M_list[name].get('血統' ~ n) %}<p>{{ M_list[name].get('血統' ~ n) }} × {{ M_list[name].get('相手' ~ n) }}</p>{% endif %}{% endfor %}"
                     {% endif %}>
                     <img src="{{ Conf.imgpath }}/{{ name if li['get'] else '？？？' }}.gif">
                 </div>

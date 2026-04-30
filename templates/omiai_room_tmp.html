@@ -1,104 +1,136 @@
+<!-- templates/omiai_room_tmp.html -->
+
 {% extends "base_tmp.html" %}
+
+{% block head %}
+  <script src="./css_js/img_change.js"></script>
+{% endblock %}
 
 {% block content %}
 
-    <div id="result">
-        <span>お見合い所にモンスターを登録することができます<br>Lv{{ Conf.haigoulevel }}以上必要です<br>登録できるのは1体だけです</span>
-    </div>
+  <div id="result">
+    <span>お見合い所にモンスターを登録することができます<br>Lv{{ Conf.haigoulevel }}以上必要です<br>登録できるのは1体だけです</span>
+  </div>
 
-    {% if not txt2 and not txt6 %}
+  {% if not my_registered and not baby_ready %}
     <!-- 登録可能モンスター表示 -->
-    <form name="form1" method="post">
-        <select name="haigou1" onClick="change_img1()">
-            <option value="0" selected>登録するモンスターを選んでください</option>
-            {% for monster in selectable_monsters %}
-            <option value="{{ monster.index }}">
-                0{{ monster.index }}: {{ monster.name }} {{ monster.sex }} LV-{{ monster.lv }} 配合{{ monster.hai }}回
-            </option>
-            {% endfor %}
-        </select>
-        <br>
-        <img name="img1" src="{{ Conf.imgpath }}/0.gif">
-        <br>
-        <input type="text" name="mes" size="30" value="" placeholder="希望相手モンスターを入力">
-        <br>
-        <button type="submit">登録する</button>
-        <input type="hidden" name="mode" value="omiai_touroku">
-        <input type="hidden" name="token" value="{{ token }}">
-        <br>
+    <form name="img_change" method="post"  id="img_change">
+      <select name="omiai" onchange="change_img('omiai','img1')">
+        <option value="0" selected data-name="0">登録するモンスターを選んでください</option>
+        {% for monster in selectable_monsters %}
+          <option value="{{ monster.index }}" data-name="{{ monster.name }}">
+            0{{ monster.index }}: {{ monster.name }} {{ monster.sex }} LV-{{ monster.lv }} 配合{{ monster.hai }}回
+          </option>
+        {% endfor %}
+      </select>
+      <br>
+      <img name="img1" src="{{ Conf.imgpath }}/0.gif">
+      <br>
+      <input type="text" name="mes" size="30" value="" placeholder="希望相手モンスターを入力">
+      <br>
+      <button type="submit">登録する</button>
+      <input type="hidden" name="mode" value="omiai_touroku">
+      <input type="hidden" name="token" value="{{ token }}">
+      <br>
     </form>
-    <form action="{{ Conf.cgi_url }}" method="post">
-        <input type="hidden" name="mode" value="my_page">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit">マイページへ</button>
-    </form>
-    {% elif txt2 %}
+
+    {% include "my_page_button_tmp.html" %}
+
+
+  {% elif my_registered %}
     <hr>
     <div id="result">
-        <span>あなたが登録しているモンスター</span>
+      <span>あなたが登録しているモンスター</span>
     </div>
-    <div class="omiai_pt">{{ txt2 | safe }}</div>
+    <div class="omiai_pt">
+      {% with item=my_registered, btn_mode="omiai_touroku_cancel", btn_label="登録解除" %}
+      {% include "omiai_room_monster_list_tmp.html" %}
+      {% endwith %}
+    </div>
 
-    {% elif txt6 %}
+  {% elif baby_ready %}
     <hr>
     <div id="result">
-        <span>{{ mes }}<br>受け取るには配合回数×5000Gが必要です</span>
+      <span>{{ mes }}<br>受け取るには配合回数×5000Gが必要です</span>
     </div>
-    <div class="omiai_pt">{{ txt6 | safe }}</div>
-    {% endif %}
+    <div class="omiai_pt">
+      {% with item=baby_ready, btn_mode="omiai_baby_get", btn_label="受け取る" %}
+      {% include "omiai_room_monster_list_tmp.html" %}
+      {% endwith %}
+    </div>
+  {% endif %}
 
-    {% if txt3 %}
-    <div id="result">
-        <span>あなたとお見合いを望んでる相手</span>
-    </div>
-    <div class="omiai_pt">{{ txt3 | safe }}</div>
-    {% endif %}
 
-    {% if txt4 %}
+  {% if requests_to_me %}
     <div id="result">
-        <span>あなたがお見合い依頼している相手</span>
+      <span>あなたとお見合いを望んでる相手</span>
     </div>
-    <div class="omiai_pt">{{ txt4 | safe }}</div>
-    {% elif cancel %}
+    <div class="omiai_pt">
+      {% for item in requests_to_me %}
+        {% with item=item, btn_mode="omiai_answer_ok", btn_label="受け入れる", btn_mode2="omiai_answer_no", btn_label2="お断りする" %}
+        {% include "omiai_room_monster_list_tmp.html" %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+
+  {% if my_request_to_other %}
     <div id="result">
-        <span>あなたがお見合い依頼している相手</span>
+      <span>あなたがお見合い依頼している相手</span>
+    </div>
+    <div class="omiai_pt">
+      {% with item=my_request_to_other, btn_mode="omiai_request_cancel", btn_label="申請キャンセル" %}
+      {% include "omiai_room_monster_list_tmp.html" %}
+      {% endwith %}
+    </div>
+  {% elif cancel %}
+    <div id="result">
+      <span>あなたがお見合い依頼している相手</span>
     </div>
     <div class="omiai_mes">{{ cancel }}</div>
-    {% endif %}
+  {% endif %}
 
-    {% if txt5 %}
+
+  {% if other_monsters %}
     <hr>
     <div id="result">
-        <span>お見合い所に登録されているモンスター<br>{{ page }}ページ目</span>
+      <span>お見合い所に登録されているモンスター<br>{{ page }}ページ目</span>
     </div>
     <div class="park_page">
-        {% for page_button in tex_p %}
+      {% for page_button in tex_p %}
         <form action="{{ Conf.cgi_url }}" method="post">
-            <input type="hidden" name="mode" value="omiai_room">
-            <input type="hidden" name="page" value="{{ page_button.page }}">
-            <input type="hidden" name="token" value="{{ token }}">
-            <button type="submit">{{ page_button.label }}</button>
+          <input type="hidden" name="mode" value="omiai_room">
+          <input type="hidden" name="page" value="{{ page_button.page }}">
+          <input type="hidden" name="token" value="{{ token }}">
+          <button type="submit">{{ page_button.label }}</button>
         </form>
-        {% endfor %}
+      {% endfor %}
     </div>
-    <div class="omiai_pt">{{ txt5 }}</div>
+    <div class="omiai_pt">
+      {% for item in other_monsters %}
+        {% with item=item, btn_mode="omiai_request", btn_label="申し込む" %}
+        {% include "omiai_room_monster_list_tmp.html" %}
+        {% endwith %}
+      {% endfor %}
+    </div>
     <div class="park_page">
-        {% for page_button in tex_p %}
+      {% for page_button in tex_p %}
         <form action="{{ Conf.cgi_url }}" method="post">
-            <input type="hidden" name="mode" value="omiai_room">
-            <input type="hidden" name="page" value="{{ page_button.page }}">
-            <input type="hidden" name="token" value="{{ token }}">
-            <button type="submit">{{ page_button.label }}</button>
+          <input type="hidden" name="mode" value="omiai_room">
+          <input type="hidden" name="page" value="{{ page_button.page }}">
+          <input type="hidden" name="token" value="{{ token }}">
+          <button type="submit">{{ page_button.label }}</button>
         </form>
-        {% endfor %}
+      {% endfor %}
     </div>
-    {% else %}
+  {% else %}
     <hr>
     <div id="result">
-        <span>お見合い所に登録されているモンスター<br>他に登録されてるモンスターはいないようです･･･</span>
+      <span>お見合い所に登録されているモンスター<br>他に登録されてるモンスターはいないようです･･･</span>
     </div>
-    {% endif %}
+  {% endif %}
 
-
+  {% include "my_page_button_tmp.html" %}
 
 {% endblock %}

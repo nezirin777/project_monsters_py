@@ -12,7 +12,7 @@ Conf = conf.Conf
 def zukan(FORM):
 
     user_name = FORM.get("user_name")
-    m_type = FORM.get("type", "")
+    m_type = FORM.get("type", "スライム系")
     fol = FORM.get("fol", "")
 
     user_all = open_user_all(user_name)
@@ -36,7 +36,7 @@ def zukan(FORM):
         "M_list": M_list,
         "ref": ref,
         "fol": fol,
-        "token": FORM["s"]["token"],
+        "token": FORM.get("s", {}).get("token", ""),
     }
 
     print_html("zukan_tmp.html", content)

@@ -28,6 +28,7 @@ URL_MAP = {
     "v_shop": (Conf["cgi_url"], {"mode": "v_shop"}),
     "v_shop2": (Conf["cgi_url"], {"mode": "v_shop2"}),
     "park": (Conf["cgi_url"], {"mode": "park"}),
+    "omiai_room": (Conf["cgi_url"], {"mode": "omiai_room"}),
 }
 
 # ★追加: 無限ループ検知用のグローバルフラグ

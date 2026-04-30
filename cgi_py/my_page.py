@@ -54,7 +54,7 @@ def calculate_costs_and_options(party):
     return yadoya_cost, kyoukai_cost, haigou_options, tenkan_options
 
 
-def update_user_list(in_name, user, party):
+def update_user_list(user_name, user, party):
     """ユーザー一覧（グローバル）を更新"""
     u_list = open_user_list()
     bye = datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
@@ -63,7 +63,7 @@ def update_user_list(in_name, user, party):
     # party を最大3体までに整形
     display_party = party[:s] + [{} for _ in range(s - len(party))]
 
-    u_list[in_name] |= {
+    u_list[user_name] |= {
         "host": get_host(),
         "bye": bye.strftime("%Y-%m-%d"),
         "key": user.get("key", 1),
@@ -83,10 +83,10 @@ def my_page(FORM):
     session = FORM.get("s", {})
 
     # ユーザー名は FORM["s"] を優先して取得
-    in_name = session.get("in_name")
-    if not in_name:
-        in_name = FORM.get("name")
-    if not in_name:
+    user_name = session.get("in_name")
+    if not user_name:
+        user_name = FORM.get("name")
+    if not user_name:
         # 念のためエラー処理（通常はここには来ないはず）
         from sub_def.utils import error
 
@@ -105,7 +105,7 @@ def my_page(FORM):
     omiai_list = open_omiai_list()
 
     # === 新形式：user_all で一括取得 ===
-    all_data = open_user_all(in_name)
+    all_data = open_user_all(user_name)
 
     user = all_data.get("user", {})
     party = all_data.get("party", [])
@@ -114,7 +114,7 @@ def my_page(FORM):
     waza = all_data.get("waza", {})
 
     # ユーザーリスト更新
-    update_user_list(in_name, user, party)
+    update_user_list(user_name, user, party)
 
     # ブーストの有効期限チェック
     now_ts = datetime.datetime.now().timestamp()
@@ -130,7 +130,7 @@ def my_page(FORM):
         # 期限切れ → Noneにリセットして保存
         vips["boost"] = None
         all_data["vips"] = vips
-        save_user_all(all_data, in_name)
+        save_user_all(all_data, user_name)
 
     hours = boost_remain_sec // 3600
     minutes = (boost_remain_sec % 3600) // 60
@@ -168,10 +168,10 @@ def my_page(FORM):
     # お見合い状況
     omiai_status = (
         "baby"
-        if omiai_list.get(in_name, {}).get("baby")
+        if omiai_list.get(user_name, {}).get("baby")
         else (
             "request"
-            if any(in_name == omiai.get("request") for omiai in omiai_list.values())
+            if any(user_name == omiai.get("request") for omiai in omiai_list.values())
             else ""
         )
     )
@@ -188,7 +188,7 @@ def my_page(FORM):
     content = {
         "my_page_flg": 1,
         "Conf": Conf,
-        "in_name": in_name,
+        "user_name": user_name,
         "token": token,
         "next_t": next_t,
         "isekai": isekai,
