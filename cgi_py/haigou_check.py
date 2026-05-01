@@ -68,7 +68,7 @@ def haigou_check(FORM):
     haigou2 = int(FORM["haigou2"]) - 1
 
     user_name = FORM["s"]["in_name"]
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     if haigou1 < 0 or haigou2 < 0:
         error("正しく設定されていません-1")

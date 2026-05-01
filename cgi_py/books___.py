@@ -9,22 +9,17 @@ SEIKAKU_MIN = 1  # 性格のパラメータ最小値
 
 
 def books(FORM):
-    token = FORM["token"]
+    token = FORM["s"]["token"]
     party = sub_def.open_party()
 
     # モンスターの表示と選択肢
-    monster_boxes = "".join(
-        [
-            f"""
+    monster_boxes = "".join([f"""
         <div class="books_mbox1">
             <div class="books_no">{pt["no"]}</div>
             <div class="books_im"><img src="{Conf["imgpath"]}/{pt["name"]}.gif"></div>
             <div class="books_m">{pt["name"]}<br>-{pt["sex"]}-<br>{pt["sei"]}</div>
         </div>
-        """
-            for pt in party
-        ]
-    )
+        """ for pt in party])
     monster_options = "".join(
         [
             f"""<option value="{pt["no"]}">{pt["no"]}-{pt["name"]}</option>"""
@@ -66,7 +61,7 @@ def book_read(FORM):
     except (ValueError, KeyError):
         sub_def.error("モンスターまたは本が選択されていません")
 
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     user = sub_def.open_user()
     party = sub_def.open_party()

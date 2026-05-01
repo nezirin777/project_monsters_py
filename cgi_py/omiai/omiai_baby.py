@@ -1,4 +1,4 @@
-# omiai_baby.py - お見合い結果のモンスター受け取り処理。
+# omiai_baby.py お見合い結果のモンスター受け取り処理。
 
 
 from sub_def.file_ops import (

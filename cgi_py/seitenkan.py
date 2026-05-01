@@ -1,35 +1,3 @@
-def seitenkan(FORM):
-    import sub_def
-
-    # 配列位置に合わせるため-1
-    no = int(FORM["no"]) - 1
-    token = FORM["token"]
-
-    if no < 0:
-        sub_def.error("対象が選択されていません。")
-
-    user = sub_def.open_user()
-    party = sub_def.open_party()
-
-    # 配列範囲内か確認
-    if no < 0 or no >= len(party):
-        sub_def.error("選択された対象が無効です。")
-
-    if user["money"] < party[no]["hai"] * 100:
-        sub_def.error("お金が足りません")
-
-    html = f"""
-        <form action="{{ Conf.cgi_url }}" method="post">
-            <button type="submit">変換する</button>
-            <input type="hidden" name="mode" value="seitenkan_ok">
-            <input type="hidden" name="no" value="{no}">
-            <input type="hidden" name="token" value="{token}">
-        </form>
-    """
-
-    sub_def.print_result("性別変換しますか？", html, FORM["token"])
-
-
 from sub_def.file_ops import open_user_all, save_user_all
 from sub_def.utils import error, success
 import conf

@@ -12,47 +12,94 @@
   <!-- 2. 戦闘アクションログ -->
   {% if action_logs %}
     {% for log in action_logs %}
-    <div class="battle_log_box">
+      <div class="battle_log_box">
         <div class="battle_log_a">
-            <div><img src="{{ Conf.imgpath }}/{{ log.actor.name }}.gif"></div>
-            <div class="sky_blue">{{ log.actor.name }}</div>
-            <div>HP / MHP<br>{{ log.actor.hp }} / {{ log.actor.mhp }}</div>
-            <div>MP / MMP<br>{{ log.actor.mp }} / {{ log.actor.mmp }}</div>
+          <div><img src="{{ Conf.imgpath }}/{{ log.actor.name }}.gif"></div>
+          <div class="sky_blue">{{ log.actor.name }}</div>
+          <div>HP / MHP<br>{{ log.actor.hp }} / {{ log.actor.mhp }}</div>
+          <div>MP / MMP<br>{{ log.actor.mp }} / {{ log.actor.mmp }}</div>
         </div>
         {% if log.target %}
-        <div class="battle_R">{{ log.turn }}<span>R</span></div>
-        <div class="battle_log_b">
+          <div class="battle_R">{{ log.turn }}<span>R</span></div>
+          <div class="battle_log_b">
             <div><img src="{{ Conf.imgpath }}/{{ log.target.name }}.gif"></div>
             <div class="red">{{ log.target.name }}</div>
             <div>HP / MHP<br>{{ log.target.hp }} / {{ log.target.mhp }}</div>
             <div>MP / MMP<br>{{ log.target.mp }} / {{ log.target.mmp }}</div>
-        </div>
+          </div>
         {% endif %}
-        <div class="battle_log">{{ log.text | safe }}</div>
-    </div>
+        <div class="battle_log">
+          <!-- ★ここ！辞書(log.textにeventが入っている)を渡してテキストを構築する -->
+          {% set event = log.text %}
+          {% include "battle_log_text_tmp.html" %}
+        </div>
+      </div>
     {% endfor %}
   {% endif %}
 
   <!-- 3. リザルト・システムログ (レベルアップ、ドロップ等) -->
   {% if system_logs %}
     {% for syslog in system_logs %}
-      {% if syslog.type == "message" %}
-        <div class="{{ syslog.css_class }}">{{ syslog.text | safe }}</div>
+
+      {% if syslog.type == "battle_end" %}
+        <div class="battle_log_Lvup">
+          戦闘に<span class="red">{{ syslog.result }}</span><br>
+          <span class="sky_blue">{{ syslog.money }}</span>Gを得た。<br>
+          それぞれ<span class="sky_blue">{{ syslog.exp }}</span>ポイントの経験値を得た。
+        </div>
 
       {% elif syslog.type == "lvup" %}
         <div class="battle_log_Lvup">
-            <span class="yellow">レベルアップ！</span><br>
-            <span class="sky_blue">{{ syslog.name }}</span>は<span class="red">Lv{{ syslog.old_lv }}からLv{{ syslog.new_lv }}</span>になった！<br>
-            {% if syslog.is_max %}
-                <span class="red">成長の限界に達した。</span><br>年老いた為、力が激減した。
-            {% else %}
-                最大HPが<span class="sky_blue">{{ syslog.up_hp }}</span>上昇した。<br>
-                最大MPが<span class="sky_blue">{{ syslog.up_mp }}</span>上昇した。<br>
-                攻撃力が<span class="sky_blue">{{ syslog.up_atk }}</span>上昇した。<br>
-                守備力が<span class="sky_blue">{{ syslog.up_def }}</span>上昇した。<br>
-                素早さが<span class="sky_blue">{{ syslog.up_agi }}</span>上昇した。<br>
-            {% endif %}
+          <span class="yellow">レベルアップ！</span><br>
+          <span class="sky_blue">{{ syslog.name }}</span>は<span class="red">Lv{{ syslog.old_lv }}からLv{{ syslog.new_lv
+            }}</span>になった！<br>
+          {% if syslog.is_max %}
+            <span class="red">成長の限界に達した。</span><br>年老いた為、力が激減した。
+          {% else %}
+            最大HPが<span class="sky_blue">{{ syslog.up_hp }}</span>上昇した。<br>
+            最大MPが<span class="sky_blue">{{ syslog.up_mp }}</span>上昇した。<br>
+            攻撃力が<span class="sky_blue">{{ syslog.up_atk }}</span>上昇した。<br>
+            守備力が<span class="sky_blue">{{ syslog.up_def }}</span>上昇した。<br>
+            素早さが<span class="sky_blue">{{ syslog.up_agi }}</span>上昇した。<br>
+          {% endif %}
         </div>
+
+      <!-- ★鍵拾った -->
+      {% elif syslog.type == "key_get" %}
+        <div class="battle_keyget">
+          <span class="yellow">{{ syslog.item_name }}</span>を拾った！ラッキー♪
+        </div>
+
+      <!-- ★異世界リミット -->
+      {% elif syslog.type == "isekai_limit" %}
+        <div class="battle_keyget">
+          {% if syslog.isekai_limit_next %}
+            <span class="yellow">異世界をより深く探索できるようになった!</span>
+          {% else %}
+            <span class="yellow">異世界への扉の鍵をGetした!</span>
+        </div>
+      {% endif %}
+
+      <!-- ★異世界キー -->
+      {% elif syslog.type == "isekai_key" %}
+        <div class="battle_keyget">
+          <span class="yellow">
+            {% if syslog.is_limit %}探索限界に到達した。{% else %}次の階層の鍵を手に入れた。{% endif %}
+          </span>
+        </div>
+
+      <!-- ★メダルゲット -->
+      {% elif syslog.type == "medal_get" %}
+        <div class="battle_keyget">
+          <span class="yellow">メダルを{{ syslog.amount }}枚ゲットした！ラッキー♪</span>
+        </div>
+
+      <!-- ★敗戦ペナルティ -->
+      {% elif syslog.type == "haisen" %}
+        <div class="battle_keyget">
+          <span class="red">{{ syslog.item_name }}</span>を拾ってしまった！
+        </div>
+
 
       {% elif syslog.type == "roomkey" %}
         <div class="battle_roomkey_get">どのKEYを取得しますか？</div>
@@ -78,6 +125,7 @@
             <input type="hidden" name="token" value="{{ token }}">
         </form>
       {% endif %}
+
     {% endfor %}
   {% endif %}
 

@@ -1,4 +1,4 @@
-# omiai_touroku.py - お見合い所への登録処理
+# omiai_touroku.py お見合い所への登録処理
 
 
 from sub_def.file_ops import (

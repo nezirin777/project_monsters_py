@@ -80,7 +80,7 @@ def haigou_hensin(FORM):
     content = {
         "Conf": Conf,
         "my_data": new_mob,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "mode": "haigou",
         "is_waza": is_waza,
         "is_new": is_new,
