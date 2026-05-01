@@ -1,0 +1,66 @@
+<!-- templates/battle_log_text_tmp.html -->
+
+{% if event.is_enemy %}
+    <!-- 敵の行動 -->
+    {% if event.is_miss %}
+        <span class="sky_blue">{{ event.target_name }}</span>は<span class="red">{{ event.actor_name }}</span>の攻撃をかわした！
+    {% else %}
+        <span class="red">{{ event.actor_name }}</span>は<span class="sky_blue">{{ event.target_name }}</span>に<span class="red">{{ event.damage }}</span>ポイントのダメージを与えた！
+    {% endif %}
+
+{% else %}
+    <!-- 味方の行動 -->
+    <span class="sky_blue">{{ event.actor_name }}</span>は
+
+    {% if event.action_type == "sabori" %}
+        命令を聞かずに踊っている～♪
+
+    {% elif event.action_type == "defend" %}
+        防御している
+
+    {% elif event.action_type == "none" %}
+        使用する魔法が選択されなかった！<br>
+
+    {% elif event.action_type == "attack" %}
+        {% if event.no_mp %}
+            <span class="red">{{ event.skill_name }}</span>を唱えようとしたがMPが足りなかった！
+        {% elif event.is_dead and event.damage == 0 %}
+            <span class="red">{{ event.target_name }}</span>に攻撃しようとしたが既に力尽きていた！
+        {% else %}
+            {% if event.is_critical %}会心の一撃！<br>{% endif %}
+
+            {% if event.is_miss %}
+                しかし<span class="red">{{ event.target_name }}</span>にダメージを与えることができなかった！
+            {% else %}
+                <span class="yellow">{{ event.skill_name }}</span>を繰り出し<br>
+                <span class="red">{{ event.target_name }}</span>に<span class="red">{{ event.damage }}</span>ポイントのダメージを与えた！
+                {% if event.is_dead %}<br><span class="red">{{ event.target_name }}</span>は倒れた{% endif %}
+            {% endif %}
+        {% endif %}
+
+    {% elif event.action_type == "heal" %}
+        {% if event.no_mp %}
+            <span class="red">{{ event.skill_name }}</span>を唱えようとしたがMPが足りなかった！
+        {% else %}
+            <span class="red">{{ event.skill_name }}</span>を唱えた<br>
+
+            {% if event.heal_data.type == "kaifuku" %}
+                {% if not event.heal_data.success %}
+                    <span class="sky_blue">{{ event.target_name }}</span>は既に力尽きていた
+                {% else %}
+                    <span class="sky_blue">{{ event.target_name }}</span>のHPが約{{ event.heal_data.heal_percent }}%回復した
+                {% endif %}
+
+            {% elif event.heal_data.type == "sosei" %}
+                {% if event.heal_data.reason == "alive" %}
+                    <span class="sky_blue">{{ event.target_name }}</span>は生きています
+                {% elif not event.heal_data.success %}
+                    <span class="sky_blue">{{ event.target_name }}</span>は生きかえらなかった
+                {% else %}
+                    <span class="sky_blue">{{ event.target_name }}</span>は生きかえった
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+{% endif %}

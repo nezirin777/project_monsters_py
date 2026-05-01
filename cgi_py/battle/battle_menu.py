@@ -1,4 +1,4 @@
-# battle_menu.py - 戦闘メニュー作成
+# battle_menu.py 戦闘メニュー作成
 
 
 from sub_def.file_ops import open_battle, open_user_all, open_tokugi_dat

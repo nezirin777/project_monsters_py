@@ -1,4 +1,4 @@
-# battle_sub.py
+# battle_sub.py 戦闘後処理とか
 
 import random
 import conf
@@ -107,34 +107,33 @@ def pr_Lv_Max(pt0, pt):
         "type": "lvup",
         "name": pt.get("name", ""),
         "old_lv": pt.get("lv", 1),
-        "new_lv": pt0.get("lv", 99),
+        "new_lv": pt0.get("mlv", 99),
         "is_max": True,
     }
 
 
 # LVupチェック---------------------------------------------------------------------------
-def Lv_up_check(pt0, pt):
-    logs = []
+def Lv_up_check(pt0, pt, bm):
     original_lv = pt.get("lv", 1)
 
     while pt0.get("exp", 0) >= pt0.get("n_exp", 1):
         pt0 = Lv_up(pt0)
         if pt0["lv"] >= pt0.get("mlv", 99):
             pt0 = Lv_Max(pt0)
-            logs.append(pr_Lv_Max(pt0, pt))
-            return pt0, logs
+            bm.log_custom(pr_Lv_Max(pt0, pt))
+            return pt0
 
     if pt0["lv"] > original_lv:
-        logs.append(pr_Lv_up(pt0, pt))
-    return pt0, logs
+        bm.log_custom(pr_Lv_up(pt0, pt))
+    return pt0
 
 
 # 報酬獲得処理群 -------------------------------------
-def key_get(in_floor, user, vips):
-    vip_boost = vips.get("boost")
+def key_get(bm):
     event_boost = Conf.get("event_boost")
+    vip_boost = bm.vips.get("boost")
 
-    if in_floor == user.get("key", 1):
+    if bm.in_floor == bm.user.get("key", 1):
         key_sets = {
             0: 0,
             1: "普通の鍵+1",
@@ -153,66 +152,43 @@ def key_get(in_floor, user, vips):
             w = [12, 52, 15, 10, 6, 3, 2]
 
         get, txt = random.choices(list(key_sets.items()), weights=w)[0]
-
-    if get != 0:
-        user["key"] = user.get("key", 1) + get
-        return {
-            "type": "message",
-            "css_class": "battle_keyget",
-            "text": f"<span class='yellow'>{txt}</span>を拾った！ラッキー♪",
-        }
-
-    return None
+        if get != 0:
+            bm.user["key"] = bm.user.get("key", 1) + get
+            bm.log_custom({"type": "key_get", "item_name": txt})
 
 
 # 部屋鍵獲得処理---------------------------------------------------------------------------
-def battle_roomkey_get(token, room_key_data):
-    options = [
-        name for name, r_key in room_key_data.items() if r_key.get("get", 0) == 0
-    ]
-    if not options:
-        return None
-    return {"type": "roomkey", "options": options}
+def battle_roomkey_get(bm):
+    options = [name for name, r_key in bm.room_key.items() if r_key.get("get", 0) == 0]
+    if options:
+        bm.log_custom({"type": "roomkey", "options": options})
 
 
 # 異世界鍵獲得処理---------------------------------------------------------------------------
-def battle_isekai_limit_get(user):
-    if user.get("isekai_limit", 0):
-        user["isekai_limit"] += 10
-        txt = "異世界をより深く探索できるようになった!"
+def battle_isekai_limit_get(bm):
+    if bm.user.get("isekai_limit", 0):
+        bm.user["isekai_limit"] += 10
+        isekai_limit_next = True
     else:
-        user["isekai_limit"] = 10
-        txt = "異世界への扉の鍵をGetした!"
+        bm.user["isekai_limit"] = 10
+        isekai_limit_next = False
 
-    return {
-        "type": "message",
-        "css_class": "battle_keyget",
-        "text": f"<span class='yellow'>{txt}</span>",
-    }
+    bm.log_custom({"type": "isekai_limit", "isekai_limit_next": isekai_limit_next})
 
 
-def battle_isekai_key_get(in_isekai, user):
-    txt = ""
-    if in_isekai == user.get("isekai_key", 0):
-        if user.get("isekai_limit", 0) == user.get("isekai_key", 0):
-            txt = f"探索限界に到達した。"
-        else:
-            txt = f"次の階層の鍵を手に入れた。"
-            user["isekai_key"] += 1
+def battle_isekai_key_get(bm):
+    if bm.in_floor == bm.user.get("isekai_key", 0):
+        is_limit = bm.user.get("isekai_limit", 0) == bm.user.get("isekai_key", 0)
 
-    return {
-        "type": "message",
-        "css_class": "battle_keyget",
-        "text": f"<span class='yellow'>{txt}</span>",
-    }
+        if not is_limit:
+            bm.user["isekai_key"] += 1
+        bm.log_custom({"type": "isekai_key", "is_limit": is_limit})
 
 
 # メダル獲得処理---------------------------------------------------------------------------
-
-
-def battle_medal_get(in_floor, user, vips):
-    vip_boost = vips.get("boost")
+def battle_medal_get(bm):
     event_boost = Conf.get("event_boost")
+    vip_boost = bm.vips.get("boost")
 
     if event_boost and vip_boost:
         arr = [10, 14, 20, 30]
@@ -221,55 +197,46 @@ def battle_medal_get(in_floor, user, vips):
     else:
         arr = [3, 5, 7, 10]
 
-    if in_floor <= 500:
+    if bm.in_floor <= 500:
         get = arr[0]
-    elif 501 <= in_floor <= 1000:
+    elif 501 <= bm.in_floor <= 1000:
         get = arr[1]
-    elif 1001 <= in_floor <= 10000:
+    elif 1001 <= bm.in_floor <= 10000:
         get = arr[2]
     else:
         get = arr[3]
 
-    user["medal"] = user.get("medal", 0) + get
-    return {
-        "type": "message",
-        "css_class": "battle_keyget",
-        "text": f"<span class='yellow'>メダルを{get}枚ゲットした！ラッキー♪</span>",
-    }
+    bm.user["medal"] = bm.user.get("medal", 0) + get
+    bm.log_custom({"type": "medal_get", "amount": get})
 
 
 # 勝利時モンスター獲得処理---------------------------------------------------------------------------
-def mon_get(in_floor, special, token, battle, zukan):
-    if in_floor <= 150:
+def mon_get(bm):
+    if bm.in_floor <= 150:
         get = random.randint(1, 3)
-    elif 151 <= in_floor <= 200:
+    elif 151 <= bm.in_floor <= 200:
         get = random.randint(1, 4)
     else:
         get = random.randint(1, 5)
 
-    if special == "異世界":
+    if bm.special == "異世界":
         get = random.randint(1, 50)
 
     if get == 1:
         M_list = open_monster_dat()
-        get_name = battle["teki"][0].get("name")
-
-        if not get_name:
-            return None
+        get_name = bm.battle["teki"][0].get("name")
 
         # モンスターデータと図鑑情報を確認
-        if M_list.get(get_name, {}).get("get", 1) == 1:
-            return {"type": "monget", "name": get_name}
-
-    return None
+        if get_name and M_list.get(get_name, {}).get("get", 1) == 1:
+            bm.log_custom({"type": "monget", "name": get_name})
 
 
 # 敗戦処理---------------------------------------------------------------------------
-def haisen(user):
-    if user.get("key", 1) <= 10:
-        return ""
+def haisen(bm):
+    if bm.user.get("key", 1) <= 10:
+        return
 
-    u_key = user.get("key", 1)
+    u_key = bm.user.get("key", 1)
     w = [100]
     key_sets = {1: "不幸の鍵-1"}
 
@@ -309,72 +276,40 @@ def haisen(user):
         get = int(u_key / 5)
         txt = f"終焉の鍵-{get}"
 
-    user["key"] -= get
-
-    return {
-        "type": "message",
-        "css_class": "battle_keyget",
-        "text": f"<span class='red'>{txt}</span>を拾ってしまった！",
-    }
+    bm.user["key"] -= get
+    bm.log_custom({"type": "haisen", "item_name": txt})
 
 
 # 戦闘終了メイン処理---------------------------------------------------------------------------
-def battle_end(Fend, s, special, all_data, battle):
-    user = all_data.get("user", {})
-    party = all_data.get("party", [])
-    vips = all_data.get("vips", {})
-
-    pt_num = 1 if special in ("わたぼう", "スライム") else min(len(party), 3)
-
-    base_exp = battle["teki"][0].get("exp", 0)
-    base_money = battle["teki"][0].get("money", 0)
-    exp = max(int(base_exp * s / pt_num), 0)
+def battle_end(Fend, s, bm):
+    """戦闘終了のメイン処理"""
+    base_exp = bm.battle["teki"][0].get("exp", 0)
+    base_money = bm.battle["teki"][0].get("money", 0)
+    exp = max(int(base_exp * s / bm.pt_num), 0)
     money = int(base_money * s)
 
-    vip_boost = vips.get("boost")
-    event_boost = Conf.get("event_boost")
-
-    if event_boost and vip_boost:
+    if Conf.get("event_boost") and bm.vips.get("boost"):
         exp *= 4
         money *= 4
-    elif event_boost or vip_boost:
+    elif Conf.get("event_boost") or bm.vips.get("boost"):
         exp *= 2
         money *= 2
 
-    exp2 = slim_number_with_cookie(exp)
-    money2 = slim_number_with_cookie(money)
-
-    logs = [
+    # HTMLを一切含まず、データのみをマネージャーに送る
+    bm.log_custom(
         {
-            "type": "message",
-            "css_class": "battle_log_Lvup",
-            "text": f"戦闘に<span class='red'>{Fend}</span><br><span class='sky_blue'>{money2}</span>Gを得た。<br>それぞれ<span class='sky_blue'>{exp2}</span>ポイントの経験値を得た。",
+            "type": "battle_end",
+            "result": Fend,
+            "money": slim_number_with_cookie(money),
+            "exp": slim_number_with_cookie(exp),
         }
-    ]
+    )
 
     if s != 0:
-        user["money"] = min(int(user.get("money", 0) + money), 99999999999999)
+        bm.user["money"] = min(int(bm.user.get("money", 0) + money), 99999999999999)
+
         # パーティの経験値更新とレベルアップチェック
-        for i, pt in enumerate(battle["party"]):
-            if pt.get("hp", 0) <= 0:
-                continue
-            if pt.get("lv", 1) != pt.get("mlv", 99):
-                pt0 = pt.copy()
-                pt0["exp"] = pt0.get("exp", 0) + exp
-
-                pt0, lv_logs = Lv_up_check(pt0, pt)
-                logs.extend(lv_logs)  # リストを追加
-                battle["party"][i] = pt0.copy()
-
-    # battleに保存された最新のステータスを、大元のpartyに反映
-    for i, pt in enumerate(battle["party"]):
-        party[i] = pt
-
-    if party[0].get("hp", 0) == 0:
-        party[0]["hp"] = 1
-
-    # 変更を大元のall_dataに適用
-    all_data["user"] = user
-    all_data["party"] = party
-
-    return all_data, logs
+        for i, pt in enumerate(bm.battle["party"]):
+            if pt.get("hp", 0) > 0 and pt.get("lv", 1) != pt.get("mlv", 99):
+                pt["exp"] = pt.get("exp", 0) + exp
+                bm.battle["party"][i] = Lv_up_check(pt, pt.copy(), bm)

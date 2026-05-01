@@ -24,7 +24,7 @@ Conf = conf.Conf
 def name_change(FORM):
     """名前変更フォーム表示"""
     in_name = FORM.get("user_name") or FORM["s"].get("in_name")
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     if not in_name:
         error("ユーザー名が取得できませんでした。", jump="my_page")
@@ -49,7 +49,7 @@ def name_change_ok(FORM):
     in_name = FORM["name"]
     new_name = FORM.get("new_name", "").strip()
     in_pass = FORM.get("password", "")
-    token = FORM["token"]
+    token = FORM["s"]["token"]
 
     if not in_name or not new_name:
         error("必要なパラメータが不足しています。", jump="my_page")

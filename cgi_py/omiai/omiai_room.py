@@ -1,4 +1,4 @@
-# omiai_room.py - お見合い部屋表示処理
+# omiai_room.py お見合い部屋表示処理
 
 import conf
 from sub_def.file_ops import open_user_all, open_omiai_list

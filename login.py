@@ -51,8 +51,8 @@ FUNCTION_MAP = {
     "haigou_check": ("cgi_py.haigou_check", "haigou_check"),
     "haigou_hensin": ("cgi_py.haigou_hensin", "haigou_hensin"),
     #  戦闘  #
-    "battle_type": ("cgi_py.battle_type", "battle_type"),
-    "battle_type2": ("cgi_py.battle_type", "battle_type2"),
+    "battle_type": ("cgi_py.battle.battle_type", "battle_type"),
+    "battle_type2": ("cgi_py.battle.battle_type", "battle_type2"),
     "battle_fight": ("cgi_py.battle.battle_fight", "battle_fight"),
     #  モンスタゲット   #
     "m_get": ("cgi_py.m_get", "m_get"),

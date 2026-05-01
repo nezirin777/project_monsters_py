@@ -1,4 +1,4 @@
-# omiai_answer.py - お見合い依頼に対する処理
+# omiai_answer.py お見合い依頼に対する処理
 
 from cgi_py.haigou_check import haigou_sub
 from sub_def.file_ops import open_omiai_list, save_omiai_list, open_user_all

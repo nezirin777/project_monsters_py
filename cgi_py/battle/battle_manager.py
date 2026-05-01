@@ -1,4 +1,4 @@
-# battle_manager.py -戦闘処理管理
+# battle_manager.py 戦闘処理管理
 
 import time
 import conf
@@ -34,7 +34,13 @@ class BattleManager:
         self.room_key = self.all_data.get("room_key", {})
 
         # バトルデータ・マスタデータの読み込み
-        self.battle = open_battle(self.user_name) or {"party": [], "teki": []}
+        self.battle = open_battle(self.user_name)
+        if not self.battle or "teki" not in self.battle or not self.battle["teki"]:
+            error(
+                "バトルデータが消失しました。<br>マイページからやり直してください。",
+                "my_page",
+            )
+
         self.tokugi_dat = open_tokugi_dat()
         self.seikaku_dat = open_seikaku_dat()
 
@@ -77,27 +83,22 @@ class BattleManager:
 
         self.all_data["user"] = self.user
         self.all_data["party"] = self.party
+
         save_user_all(self.all_data, self.user_name)
         save_battle(self.battle, self.user_name)
 
     # ===============================
     # ログ記録用メソッド群
     # ===============================
-    def log_action(self, actor, target, text):
+    def log_action(self, actor, target, event_data):
         """行動ログの追加"""
         self.action_logs.append(
             {
                 "turn": self.turn,
                 "actor": slim_number_with_cookie(actor),
                 "target": slim_number_with_cookie(target) if target else None,
-                "text": text,
+                "text": event_data,
             }
-        )
-
-    def log_sys_msg(self, text, css_class="battle_keyget"):
-        """システムメッセージの追加（お金取得、鍵取得など）"""
-        self.system_logs.append(
-            {"type": "message", "css_class": css_class, "text": text}
         )
 
     def log_custom(self, log_dict):

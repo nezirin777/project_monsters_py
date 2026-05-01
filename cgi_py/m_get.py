@@ -11,7 +11,7 @@ import conf
 def m_get(FORM):
     Conf = conf.Conf
 
-    token = FORM["token"]
+    token = FORM["s"]["token"]
     user_name = FORM["s"]["in_name"]
 
     # user_all で全データを一括取得

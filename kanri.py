@@ -37,7 +37,6 @@ import register
 import exLock
 import conf
 
-
 Conf = conf.Conf
 datadir = Conf["savedir"]
 progress_file = os.path.join(datadir, "progress.json")
@@ -113,7 +112,7 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
 def result(mes=""):
     content = {
         "Conf": Conf,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "mes": mes,
         "kanri": True,
     }
@@ -146,11 +145,11 @@ def update_conf_value(key, value):
 # 	管理モード	#
 # ==============#
 def OPEN_K():
-    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["token"]})
+    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["s"]["token"]})
 
 
 def KANRI():
-    token = FORM["token"]
+    token = FORM["s"]["token"]
     u_list = open_user_list()
 
     mente_chek = True if os.path.exists("mente.mente") else None
@@ -498,7 +497,7 @@ def MON_PRESENT():
     context = {
         "target_name": target_name,
         "txt": txt,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "Conf": Conf,
     }
 
@@ -628,7 +627,7 @@ def make_table(save_data, txt):
         "no_edit": no_edit,
         "target_name": target_name,
         "target_data": target_data,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "Conf": Conf,
     }
 
@@ -708,7 +707,7 @@ def save_edit_select():
     if not target_name:
         error("対象が選択されていません。", "kanri")
 
-    context = {"target_name": target_name, "token": FORM["token"], "Conf": Conf}
+    context = {"target_name": target_name, "token": FORM["s"]["token"], "Conf": Conf}
 
     if target_name in ("user_list", "omiai_list"):
         save_editer()

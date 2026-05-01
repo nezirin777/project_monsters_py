@@ -263,9 +263,9 @@ def main():
         return error("参加人数上限を超えています。申し訳ありません。", "top")
 
     if "mode" not in FORM:
-        FORM["token"] = secrets.token_hex(16)
+        FORM["s"]["token"] = secrets.token_hex(16)
         set_session(FORM)
-        print_html("newgame_tmp.html", {"token": FORM["token"], "Conf": Conf})
+        print_html("newgame_tmp.html", {"token": FORM["s"]["token"], "Conf": Conf})
 
     elif FORM["mode"] == "sinki":
         FORM["s"] = token_check(FORM, get_session())
