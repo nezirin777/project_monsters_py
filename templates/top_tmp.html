@@ -1,8 +1,6 @@
-{% extends "base_tmp.html" %}
+<!-- templates/top_tmp.html -->
 
-{% block head %}
-<script src="./css_js/CountDown.js"></script>
-{% endblock %}
+{% extends "base_tmp.html" %}
 
 {% block content %}
     {% include "ui_extra_tmp.html" %}
@@ -62,10 +60,7 @@
 {{ content|safe }}
 
 <div>
-    <form action="{{ Conf.cgi_url }}" method="get">
-        <button type="submit">前大会の結果</button>
-        <input type="hidden" name="mode" value="tournament_result">
-    </form>
+  <button onclick="location.href='./html/tournament_result.html'">前大会の結果</button>
 </div>
 
 <div><iframe id="news" src="./html/news.html" title="お知らせ">エラー</iframe></div>
@@ -105,7 +100,7 @@
         <div class="r_2 r_u2">
             <div>
                 ユーザー名:
-                <a href="{{ Conf.cgi_url  }}?mode=my_page2&user_name={{ user.user_name }}" target="_blank" rel="noopener">{{
+                <a href="{{ Conf.cgi_url  }}?mode=my_page2&target_user={{ user.user_name }}" target="_blank" rel="noopener">{{
                     user.user_name }}</a><br>
                 最深部: 地下<span>{{ user.key }}</span>階<br>
                 所持金: {{ user.money }}G<br>

@@ -39,8 +39,9 @@ def save_csv(data, target_key: str, name: str = "", label: str = "name"):
     if data is None:
         data = []
 
+    # データが完全に空の場合のフェイルセーフ
     if not data and not isinstance(data, (dict, list)):
-        error("対象のデータは空っぽのようです。<br>出力できませんでした。", 99)
+        log(f"[WARN] 対象のデータ({target_key})は空っぽのようです。出力スキップ。")
         return
 
     try:
@@ -75,7 +76,8 @@ def save_csv(data, target_key: str, name: str = "", label: str = "name"):
         log(f"[CSV出力] {csv_file_name} (user={name or 'GLOBAL'}) → {len(df)} 件")
 
     except Exception as e:
-        error(f"CSV書き込みエラー: {target_key} | {e}", 99)
+        # スレッド内で sys.exit させないよう例外を投げる
+        raise RuntimeError(f"CSV書き込みエラー: {target_key} | {e}")
 
 
 def save_user_data(in_name: str):
@@ -91,6 +93,7 @@ def save_user_data(in_name: str):
         zukan = all_data.get("zukan", {})
         park = all_data.get("park", [])
 
+        # 空の配列だとCSVにヘッダーが書き込まれないため、ダミーの空枠を挿入
         if not park:
             default_park = {
                 key: "-"
@@ -127,7 +130,8 @@ def save_user_data(in_name: str):
         log(f"[完了] {in_name}")
 
     except Exception as e:
-        error(f"{in_name} のCSV出力失敗: {e}")
+        # スレッド内で error() を呼ばず、例外を投げて batch 側に回収させる
+        raise RuntimeError(f"{in_name} のCSV出力失敗: {e}")
 
 
 def handle_all_users():
@@ -135,8 +139,12 @@ def handle_all_users():
     total_users = len(u_list)
 
     progress = {"total": total_users, "completed": 0, "status": "running"}
-    with open(progress_file, "w", encoding="utf-8") as f:
+
+    # 初回の安全な書き込み
+    temp_file = progress_file + ".tmp"
+    with open(temp_file, "w", encoding="utf-8") as f:
         json.dump(progress, f)
+    os.replace(temp_file, progress_file)
 
     batch_size = 10
     completed = 0
@@ -149,31 +157,40 @@ def handle_all_users():
         for future in as_completed(futures):
             name = futures[future]
             try:
-                future.result()
+                future.result()  # エラーがあればここで例外としてキャッチされる
             except Exception as e:
                 print(f"[ERROR] {name} CSV出力失敗: {e}", file=os.sys.stderr)
 
             completed += 1
             if completed % batch_size == 0 or completed == total_users:
                 progress["completed"] = completed
-                with open(progress_file, "w", encoding="utf-8") as f:
-                    json.dump(progress, f)
+                try:
+                    # アトミックな書き込み（JSON破損防止）
+                    with open(temp_file, "w", encoding="utf-8") as f:
+                        json.dump(progress, f)
+                    os.replace(temp_file, progress_file)
+                except Exception as e:
+                    print(f"[WARN] 進捗書き込み失敗: {e}", file=os.sys.stderr)
 
     delete_progress_file()
 
 
 def pickle_to_csv(target_name: str):
     """メインエントリポイント"""
-    if target_name == "user_list":
-        # ベース名 "user_list" で指定
-        save_csv(open_user_list(), "user_list", "", label="user_name")
+    try:
+        if target_name == "user_list":
+            # ベース名 "user_list" で指定
+            save_csv(open_user_list(), "user_list", "", label="user_name")
 
-    elif target_name == "omiai_list":
-        # ベース名 "omiai_list" で指定
-        save_csv(open_omiai_list(), "omiai_list", "", label="user_name")
+        elif target_name == "omiai_list":
+            # ベース名 "omiai_list" で指定
+            save_csv(open_omiai_list(), "omiai_list", "", label="user_name")
 
-    elif target_name == "全員":
-        handle_all_users()
+        elif target_name == "全員":
+            handle_all_users()
 
-    else:
-        save_user_data(target_name)
+        else:
+            save_user_data(target_name)
+    except Exception as e:
+        # メインスレッドならCGIのerrorを呼んでも問題なし
+        error(f"CSV変換中にエラーが発生しました: {e}", jump="top")

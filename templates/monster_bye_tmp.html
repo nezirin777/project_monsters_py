@@ -2,8 +2,6 @@
 
 {% extends "base_tmp.html" %}
 
-
-
 {% block head %}
   <script src="./css_js/img_change.js"></script>
 {% endblock %}
@@ -12,26 +10,28 @@
 
 <div class="mget_text">モンスターが一杯です。<br>誰を仲間から外しますか？</div>
 
-<form name="img_change" method="post" id="img_change" >
-    <select name="Mno" onchange="change_img('Mno', 'img1')">
-        <option value="0"  data-name="{{ get_name }}" selected>
-            新しいモンスター : {{ get_name }} {{ Asex }}
-        </option>
+<form name="img_change" method="post" id="img_change">
+  <select name="Mno" onchange="change_img('Mno', 'img1')">
+    <!-- 仲間にしない（お別れする）場合は99を送信 -->
+    <option value="99" data-name="{{ get_name }}" selected>
+      新しいモンスター : {{ get_name }} {{ Asex }}
+    </option>
 
-        {% for pt in party %}
-        <option value="{{ loop.index }}" data-name="{{ pt.name }}">
-            0{{ loop.index }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回
-        </option>
-        {% endfor %}
-    </select>
+    {% for pt in party %}
+    <!-- Pythonの配列インデックスに合わせて loop.index0 (0始まり) に変更 -->
+    <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">
+      0{{ loop.index }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回
+    </option>
+    {% endfor %}
+  </select>
 
-    <button type="submit">仲間から外す</button>
+  <button type="submit">仲間から外す</button>
 
-    <input type="hidden" name="mode" value="m_bye">
-    <input type="hidden" name="token" value="{{ token }}">
+  <input type="hidden" name="mode" value="m_bye">
+  <input type="hidden" name="token" value="{{ token }}">
 
-    <br>
-    <img name="img1" src="{{ Conf.imgpath }}/{{ get_name }}.gif" alt="{{ get_name }}">
+  <br>
+  <img name="img1" src="{{ Conf.imgpath }}/{{ get_name }}.gif" alt="{{ get_name }}">
 </form>
 
 {% endblock %}

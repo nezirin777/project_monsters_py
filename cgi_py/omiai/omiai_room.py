@@ -92,7 +92,7 @@ def omiai_room(FORM):
             "lv": pt.get("lv", 1),
             "hai": pt.get("hai", 0),
         }
-        for i, pt in enumerate(party, 1)
+        for i, pt in enumerate(party, 0)
         if pt.get("lv", 0) >= Conf["haigoulevel"]
     ]
 

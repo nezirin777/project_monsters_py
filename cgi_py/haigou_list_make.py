@@ -14,6 +14,7 @@ env = Environment(loader=FileSystemLoader("templates"))
 
 
 def build_monster_view(name, data):
+    """list1用のモンスターデータ整形"""
     return {
         "name": name,
         "no": data.get("no", 0),
@@ -21,11 +22,12 @@ def build_monster_view(name, data):
         "blood": [data.get(f"血統{i}") for i in range(1, 4) if data.get(f"血統{i}")],
         "mate": [data.get(f"相手{i}") for i in range(1, 4) if data.get(f"相手{i}")],
         "floor": build_floor(data.get("階層A"), data.get("階層B")),
-        "get_text": "OK" if data.get("get") else "NO",
+        "get_text": "OK" if int(data.get("get") or 0) == 1 else "NO",  # 安全にint化
     }
 
 
 def build_floor(a, b):
+    """階層のテキストフォーマット作成"""
     if not a:
         return ""
     if b:
@@ -34,6 +36,7 @@ def build_floor(a, b):
 
 
 def normalize_monster(m):
+    """list2用のテンプレート渡し用データ整形"""
     return {
         "name": m["name"],
         "m_type": m.get("m_type", ""),
@@ -48,16 +51,19 @@ def normalize_monster(m):
     }
 
 
-# list2用（normalize前データ生成）
 def build_list2(M_list):
+    """list2用（特殊モンスター）のデータ抽出"""
     result = []
 
     for name, data in M_list.items():
         if int(data.get("list_type") or 0) == 2:
 
             is_hidden = int(data.get("name_hidden") or 0) == 1
+
+            # お見合い限定の場合は赤文字にするため<span>タグを追加
+            # ※テンプレート側で | safe フィルタを通す必要があります
             description_a = (
-                f"<span>{data.get('説明A', '')}</span>"
+                f"<span style='color:red;'>{data.get('説明A', '')}</span>"
                 if int(data.get("omiai_only") or 0) == 1
                 else data.get("説明A", "")
             )
@@ -87,28 +93,33 @@ def build_list2(M_list):
 
 
 def haigou_list_make():
+    """配合リストのHTMLファイルを2種類生成するメイン関数"""
     M_list = open_monster_dat()
 
     # =========================
-    # list1（通常モンスター）
+    # list1（通常モンスター）の生成
     # =========================
 
     filtered_M_list = {}
 
     for name, dat in M_list.items():
-        # 判定はこれだけ
+        # list_type が 2 (特殊モンスター) の場合は除外
         if int(dat.get("list_type") or 0) == 2:
             continue
 
         m_type = dat.get("m_type", "その他")
-
         monster = build_monster_view(name, dat)
 
-        # グループ初期化
+        # グループ初期化と追加
         if m_type not in filtered_M_list:
             filtered_M_list[m_type] = []
-
         filtered_M_list[m_type].append(monster)
+
+    # 各グループ内のモンスターを「no(図鑑番号)」順にソートして見た目を揃える
+    for m_type in filtered_M_list:
+        filtered_M_list[m_type] = sorted(
+            filtered_M_list[m_type], key=lambda x: int(x.get("no", 0) or 0)
+        )
 
     M_types = [
         "スライム系",
@@ -124,8 +135,12 @@ def haigou_list_make():
         "？？？系",
     ]
 
-    # リンク用のデータ作成
-    links = [{"id": m_type, "label": m_type} for m_type in M_types]
+    # リンク用のデータ作成（定義済みのM_types順を維持）
+    links = [
+        {"id": m_type, "label": m_type}
+        for m_type in M_types
+        if m_type in filtered_M_list
+    ]
 
     context1 = {
         "Conf": Conf,
@@ -134,18 +149,20 @@ def haigou_list_make():
     }
 
     template1 = env.get_template("haigou_list_tmp.html")
-
     html1 = template1.render(context1)
 
     with open("html/haigou_list.html", "w", encoding="utf-8") as file:
         file.write(html1)
 
     # =========================
-    # list2（特殊モンスター）
+    # list2（特殊モンスター）の生成
     # =========================
 
     monsters_raw = build_list2(M_list)
     monsters = [normalize_monster(m) for m in monsters_raw]
+
+    # こちらも no 順にソートしておく
+    monsters = sorted(monsters, key=lambda x: int(x.get("no", 0) or 0))
 
     seen = set()
     links2 = []
@@ -163,7 +180,6 @@ def haigou_list_make():
     }
 
     template2 = env.get_template("haigou_list2_tmp.html")
-
     html2 = template2.render(context2)
 
     with open("html/haigou_list2.html", "w", encoding="utf-8") as file:

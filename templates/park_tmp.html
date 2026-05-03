@@ -14,9 +14,11 @@
 
     <form name="form1" method="post" id="img_change" >
         <select name="Mno" onchange="change_img('Mno', 'img1')">
-            <option value="0" hidden data-name="0">預けるモンスターを選んでください</option>
+            <!-- 未選択のデフォルト値を99に -->
+            <option value="99" hidden data-name="0">預けるモンスターを選んでください</option>
             {% for pt in party %}
-            <option value="{{ pt.no }}"  data-name="{{ pt.name }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回</option>
+            <!-- pt.no(1始まり) ではなく loop.index0(0始まりの配列インデックス)を送信 -->
+            <option value="{{ loop.index0 }}"  data-name="{{ pt.name }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回</option>
             {% endfor %}
         </select>
         <button type="submit">預ける</button>
@@ -87,7 +89,8 @@
         <div class="park_mob">
             <div class="park_width">{{ ppt.no }}
                 <form action="{{ Conf.cgi_url }}" method="post">
-                    <input type="hidden" name="mob" value="{{ ppt.no }}">
+                    <!-- ★ppt.no(1始まり) ではなく、表示中のページ開始インデックス(p1) + ループインデックスで絶対位置を算出 -->
+                    <input type="hidden" name="mob" value="{{ p1 + loop.index0 }}">
                     <input type="hidden" name="mode" value="park_2">
                     <input type="hidden" name="token" value="{{ token }}">
                     <button type="submit">連れていく</button>

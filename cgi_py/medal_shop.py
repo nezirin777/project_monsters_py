@@ -1,7 +1,8 @@
+# medal_shop.py -モンスター交換処理
+
 from sub_def.file_ops import open_medal_shop_dat, open_user_all, save_user_all
 from sub_def.monster_ops import monster_select
-from sub_def.utils import error, success, info
-
+from sub_def.utils import error, success
 
 import conf
 
@@ -10,35 +11,41 @@ Conf = conf.Conf
 
 def medal_shop_ok(FORM):
     """メダル交換の処理を行う"""
-    if "m_name" not in FORM:
+    m_name = FORM.get("m_name")
+
+    if not m_name:
         error("対象が選択されていません。", jump="medal_shop")
 
-    m_name = FORM["m_name"]
-    user_name = FORM["s"]["in_name"]
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     user_all = open_user_all(user_name)
+    user = user_all.get("user", {})
+    party = user_all.get("party", [])
 
-    Medal_lsit = open_medal_shop_dat()
-
-    user = user_all["user"]
-    party = user_all["party"]
+    Medal_list = open_medal_shop_dat()
 
     if len(party) >= 10:
         error("モンスターが一杯です！", jump="my_page")
 
-    item = Medal_lsit[m_name]
-    price = item["price"]
-    currency = "medal" if item["type"] == "メダル" else "money"
+    # 不正なm_name対策
+    item = Medal_list.get(m_name)
+    if not item:
+        error("指定されたモンスターが存在しません。", jump="medal_shop")
 
-    if user[currency] < price:
-        error(f"{item['type']}が足りません！", jump="my_page")
+    price = int(item.get("price", 0))
+    currency = "medal" if item.get("type") == "メダル" else "money"
+
+    if int(user.get(currency, 0)) < price:
+        error(f"{item.get('type', '資金')}が足りません！", jump="my_page")
 
     new_mob = monster_select(m_name)
     party.append(new_mob)
+
     for i, pt in enumerate(party, 1):
         pt["no"] = i
 
-    user[currency] -= price
+    user[currency] = int(user.get(currency, 0)) - price
 
     user_all["user"] = user
     user_all["party"] = party

@@ -1,4 +1,4 @@
-// bbs.js
+// loadbbs.js
 
 const IS_AJAX = 'true';
 let csrfToken = '';
@@ -26,17 +26,18 @@ async function refreshLog(fol = '') {
         const data = await postFormData('./bbs.py', formData);
 
         if (data.error) {
-            alert(data.error);
+            // ★ alert() の代わりにトーストを使う
+            if (typeof showToast === 'function') showToast(data.error, 'error');
+            else alert(data.error);
         } else {
             document.querySelector('#log-area').innerHTML = data.log;
             csrfToken = data.csrf_token;
         }
     } catch (error) {
         console.error('ログ更新エラー:', error);
-        const logArea = document.querySelector('#log-area');
-        if (logArea) {
-            logArea.insertAdjacentHTML('beforeend', '<p style="color:red;">ログの更新に失敗しました</p>');
-        }
+        // ★ 画面の最下部に追加するのではなく、トーストで目立たせる
+        if (typeof showToast === 'function') showToast('ログの更新に失敗しました', 'error');
+        else alert('ログの更新に失敗しました');
     }
 }
 
@@ -84,7 +85,9 @@ async function handlePostMode(fetchUrl) {
             const data = await postFormData(form.action, formData);
 
             if (data.error) {
-                alert(data.error);
+                // ★ alert() の代わりにトーストを使う
+                if (typeof showToast === 'function') showToast(data.error, 'error');
+                else alert(data.error);
             } else {
                 bbsDiv.querySelector('#log-area').innerHTML = data.log;
                 form.querySelector('input[name="csrf_token"]').value = data.csrf_token;
@@ -93,7 +96,9 @@ async function handlePostMode(fetchUrl) {
             }
         } catch (error) {
             console.error('投稿エラー:', error);
-            bbsDiv.insertAdjacentHTML('beforeend', '<p style="color:red;">投稿に失敗しました</p>');
+            // ★ 画面の最下部に追加するのではなく、トーストで目立たせる
+            if (typeof showToast === 'function') showToast('通信エラーが発生しました', 'error');
+            else alert('通信エラーが発生しました');
         } finally {
             if (submitButton) submitButton.disabled = false;
         }

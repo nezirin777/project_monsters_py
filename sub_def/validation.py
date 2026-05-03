@@ -257,7 +257,7 @@ def newpass_check(FORM):
 
 
 def login_check(FORM):
-    """ログイン処理（user_all対応版）"""
+    """ログイン処理"""
     wtform = LoginForm(data=FORM)
     validate_form(wtform, "top")
 

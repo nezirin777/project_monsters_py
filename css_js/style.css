@@ -1972,6 +1972,8 @@ img[name=img1] {
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   animation: toastIn 0.25s ease;
+  white-space: pre-wrap;
+  /* \n などの改行コードを実際の改行として表示する */
 }
 
 /* 色アクセント */

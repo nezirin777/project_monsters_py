@@ -14,7 +14,8 @@
 <br>
 
 <div class="my_page">
-  <form action="{{ Conf.cgi_url }}" method="post" class="form" id="nameChangeForm" data-confirm="ユーザー名を変更します。本当によろしいですか？" data-loading="名前を変更中...">
+  <form action="{{ Conf.cgi_url }}" method="post" class="form" id="nameChangeForm"
+    data-confirm="ユーザー名を変更します。本当によろしいですか？" data-loading="名前を変更中...">
     <div class="form_row">
       現在の名前：
       <input type="text" size="20" value="{{ current_name }}" disabled>
@@ -23,6 +24,11 @@
     <div class="form_row">
       新しい名前：
       <input type="text" size="20" name="new_name" id="newNameInput" value="" maxlength="20" required>
+    </div>
+
+    <div class="form_row">
+      パスワード：
+      <input type="password" size="20" name="password" required>
     </div>
 
     <input type="hidden" name="mode" value="name_change_ok">
@@ -51,5 +57,7 @@
     });
   });
 </script>
+
+{% include "my_page_button_tmp.html" %}
 
 {% endblock %}

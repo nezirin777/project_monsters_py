@@ -7,14 +7,14 @@
 <div class="my_page_menu4">
   <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="form">
     <select name="haigou1" onchange="change_img('haigou1', 'img1')">
-      <option value="0" data-name="0" hidden>選 択 -ベース-</option>
+      <option value="99" data-name="0" hidden>選 択 -ベース-</option>
       {% for haigou in haigou_options %}
       <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index }}: {{ haigou.name }} {{
         haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
       {% endfor %}
     </select>
     <select name="haigou2" onchange="change_img('haigou2', 'img2')">
-      <option value="0" data-name="0" hidden>選 択 -素材-</option>
+      <option value="99" data-name="0" hidden>選 択 -素材-</option>
       {% for haigou in haigou_options %}
       <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index }}: {{ haigou.name }} {{
         haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
@@ -36,7 +36,7 @@
 <div class="my_page_menu4">
   <form action="{{ Conf.cgi_url }}" method="post" class="form" data-confirm="選択したモンスターの陰陽変換を実行します。よろしいですか？" data-loading="変換中...">
     <select name=no>
-      <option value="0" hidden>選 択</option>
+      <option value="99" hidden>選 択</option>
       {% for tenkan in tenkan_options %}
       <option value="{{ tenkan.index }}" data-name="{{ tenkan.name }}">{{ tenkan.index }}:{{ tenkan.name }} {{ tenkan.sex }} {{ tenkan.cost }}G
       </option>

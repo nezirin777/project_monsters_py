@@ -38,12 +38,9 @@
 
   <div class="books_text3">本を選択して下さい</div>
   <select name="Bname">
-    <option value="ぼうけんたん">ぼうけんたん</option>
-    <option value="こわいはなしのほん">こわいはなしのほん</option>
-    <option value="やさしくなれるほん">やさしくなれるほん</option>
-    <option value="ずるっこのほん">ずるっこのほん</option>
-    <option value="あたまがさえるほん">あたまがさえるほん</option>
-    <option value="ユーモアのほん">ユーモアのほん</option>
+  {% for b_name in book_options %}
+    <option value="{{ b_name }}">{{ b_name }}</option>
+  {% endfor %}
   </select>
 
   <br>

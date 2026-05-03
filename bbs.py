@@ -1,5 +1,7 @@
 #!D:\Python\Python314\python.exe
 
+# bbs.py - 1行掲示板
+
 import sys, cgi, datetime, html, json
 import conf
 
@@ -23,45 +25,49 @@ MESSAGE_COLORS = Conf["message_colors"]
 def handle_refresh(form, session):
     submitted_token = form.get("csrf_token")
     if not verify_csrf_token(submitted_token, session):
-        error("不正なリクエストです", exit_code=1 if form.get("ajax") == "true" else 0)
+        error(
+            "不正なリクエストです",
+        )
 
-    print("Content-Type: application/json\r\n\r\n")
+    # 修正: 余分な改行を防ぐ
+    print("Content-Type: application/json\n")
     print(json.dumps({"log": read_log(), "csrf_token": session["csrf_token"]}))
     sys.exit()
 
 
 def handle_post(form, session):
     submitted_token = form.get("csrf_token")
-    exit_code = 1 if form.get("ajax") == "true" else 0
+    raw_txt = form.get("bbs_txt", "")
 
     if not verify_csrf_token(submitted_token, session):
-        error("不正なリクエストです", exit_code)
+        error("不正なリクエストです", jump="my_page")
 
-    if "bbs_txt" not in form or not form["bbs_txt"]:
-        error("発言を入力してください", exit_code)
+    if "bbs_txt" not in form or not raw_txt:
+        error("発言を入力してください", jump="my_page")
 
-    raw_txt = form["bbs_txt"]
-
-    if not isinstance(raw_txt, str):
-        error("不正な入力です", exit_code)
+    if not isinstance(raw_txt, str) or not raw_txt.strip():
+        error("発言内容がありません", jump="my_page")
 
     if len(raw_txt) > 60:
-        error("60文字以下でお願いします", exit_code)
+        error("60文字以下でお願いします", jump="my_page")
 
-    txt = html.escape(raw_txt[:60])
+    # 発言テキストの無毒化（空白を詰めてから60文字制限）
+    txt = html.escape(raw_txt.strip()[:60])
 
     color = form.get("color", "#000000")
     if not isinstance(color, str) or color not in MESSAGE_COLORS:
         color = "#000000"
 
     if not session.get("in_name"):
-        error("ユーザー名が設定されていません", exit_code)
+        error("ユーザー名が設定されていません", jump="top")
+
+    safe_name = html.escape(session["in_name"])
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     newlog = (
-        f'<hr><font color="{color}"><b>{session["in_name"]}</b> > '
-        f'{txt} <font size="1">--{timestamp}</font></font>\n'
+        f'<hr><span style="color: {color};"><b>{safe_name}</b> &gt; '
+        f'{txt} <span style="font-size: 0.8em;">--{timestamp}</span></span>\n'
     )
 
     append_log(newlog)
@@ -70,7 +76,7 @@ def handle_post(form, session):
 
     if form.get("ajax") == "true":
         response = {"log": read_log(), "csrf_token": csrf_token}
-        print("Content-Type: application/json\r\n\r\n")
+        print("Content-Type: application/json\n")
         print(json.dumps(response))
         sys.exit()
 
