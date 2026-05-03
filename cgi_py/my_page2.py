@@ -10,14 +10,14 @@ def my_page2(FORM):
 
     Conf = conf.Conf
 
-    in_name = FORM.get("user_name")
+    user_name = FORM.get("target_user")
     fol = FORM.get("fol", "")
 
-    if not in_name:
+    if not user_name:
         error("ユーザー名が指定されていません。", jump="top")
 
     # user_all で一括取得
-    all_data = open_user_all(in_name)
+    all_data = open_user_all(user_name)
     user = all_data["user"]
     party = all_data["party"]
     vips = all_data.get("vips", {})  # 将来的に使用する可能性があるため取得
@@ -34,7 +34,7 @@ def my_page2(FORM):
     # テンプレートに渡す内容
     content = {
         "Conf": Conf,
-        "in_name": in_name,
+        "user_name": user_name,
         "token": "",  # 閲覧専用なので空でOK
         "isekai": isekai,
         "user": user,

@@ -1,3 +1,5 @@
+# coment.py 1行コメント更新
+
 import html
 import re
 
@@ -18,13 +20,16 @@ def validate_input(user_name, mes):
     """入力検証: 名前とメッセージのバリデーション"""
     if not user_name or not user_name.strip():
         error("名前を入力してください。")
-    if not (2 <= len(mes) <= 50):
+
+    # 空白スペースだけの入力や、前後の余白を除外した「純粋な文字数」で判定する
+    if not (2 <= len(mes.strip()) <= 50):
         error("メッセージは2文字以上、50文字以下で入力してください。")
 
 
 def sanitize_message(mes):
     """メッセージのフィルタリングとエスケープ処理"""
     mes = re.sub(r"[\r\n]", " ", mes)  # 改行コードをスペースに置換
+    mes = mes.strip()  # 前後の余分な空白を削除しておく
     mes = html.escape(mes)
     return mes
 
@@ -44,9 +49,13 @@ def comment(FORM):
     # ユーザーリスト取得
     u_list = open_user_list()
 
-    # 名前の存在確認
+    # 名前の存在確認（データ整合性チェック）
     if user_name not in u_list:
-        error("指定された名前のユーザーは存在しません。")
+        error("指定された名前のユーザーは存在しません。", jump="top")
+
+    # 万が一、本体のユーザーデータ自体が破損・消失している場合のフェイルセーフ
+    if not user:
+        error("ユーザーデータが存在しません。", jump="top")
 
     # メッセージのサニタイズと更新
     safe_mes = sanitize_message(mes)
@@ -55,8 +64,8 @@ def comment(FORM):
     user["mes"] = safe_mes
 
     # ユーザーリスト側のmesも更新（表示用）
-    if user_name in u_list:
-        u_list[user_name]["mes"] = safe_mes
+    # ※上部で not in u_list の場合は弾いているため、存在は確定している
+    u_list[user_name]["mes"] = safe_mes
 
     # 保存処理（user_all と user_list の両方を更新）
     all_data["user"] = user

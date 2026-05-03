@@ -6,25 +6,53 @@
 <head>
   <meta charset="UTF-8">
   <title> MONSTER'S 改 {{ Conf.ver }}</title>
-  <link rel="stylesheet" href="./css_js/style.css">
+  <link rel="stylesheet" href="../css_js/style.css">
 </head>
+
 <body>
 
   <div class="my_page_topmenu">
-    [ <a href="{{ Conf.top_url }}">TOPへ</a> ]
+    [ <a href="../monster.py">TOPへ</a> ]
   </div>
 
   <div class="tournament_result_box">
-    {{ tournament_html | safe }}
+
+    <div class="medal_battle_title">{{ log_data.title }}</div>
+
+    {% if log_data.status == "cancel" %}
+    <div>規定人数未満につき中止になりました。</div>
+    {% else %}
+
+    {% for round in log_data.rounds %}
+    <div>
+      <div class="medal_battle_data">{{ round.name }}</div>
+
+      {% for match in round.matches %}
+      {% if match.num %}
+      <div class="medal_battle_sub">第{{ match.num }}試合</div>
+      {% endif %}
+      <div class="medal_battle_result">
+        {{ match.fighter1 }} vs {{ match.fighter2 }} は {{ match.winner }} さんが勝利しました
+      </div>
+      {{ match.loser }} さんにメダル {{ match.medal }} 枚が与えられました<br>
+      {% endfor %}
+    </div>
+    {% endfor %}
+
+    {% if log_data.champion %}
+    <div class="red">優勝の {{ log_data.champion }} さんにメダル {{ log_data.champ_medal }} 枚が与えられました</div>
+    {% endif %}
+
+    {% endif %}
+
   </div>
 
   <br>
-  <form action="{{ Conf.top_url }}" method="post">
+  <form action="../{{ Conf.cgi_url }}" method="post">
     <button type="submit">TOPへ戻る</button>
   </form>
 
   {% include "footer_tmp.html" %}
-
 
 </body>
 

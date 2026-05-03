@@ -17,8 +17,8 @@ SEIKAKU_MIN = 1  # 性格のパラメータ最小値
 
 def books(FORM):
     """本屋（性格変更）画面表示"""
-    token = FORM["s"]["token"]
     user_name = FORM["s"]["in_name"]
+    token = FORM["s"]["token"]
 
     # Flashメッセージの取得とクリア（一番最初に呼ぶ）
     flash_msg, flash_type = get_and_clear_flash(FORM["s"])
@@ -42,17 +42,21 @@ def books(FORM):
     # セレクトボックス用
     monster_options = [
         {
-            "value": pt["no"],
+            "value": i,
             "label": f'{pt["no"]}-{pt["name"]}',
         }
-        for pt in party
+        for i, pt in enumerate(party)
     ]
+
+    Book_dat = open_book_dat()
+    book_options = list(Book_dat.keys())
 
     content = {
         "Conf": Conf,
         "token": token,
         "monster_data": monster_data,
         "monster_options": monster_options,
+        "book_options": book_options,
         "book_price": BOOK_PRICE,
         "flash_msg": flash_msg,
         "flash_type": flash_type,
@@ -64,13 +68,13 @@ def books(FORM):
 def book_read(FORM):
     """本を読み、性格を変更する処理"""
     try:
-        Mno = int(FORM["Mno"]) - 1  # 配列位置に合わせるため -1
+        Mno = int(FORM["Mno"])
         Bname = FORM["Bname"]
     except (ValueError, KeyError):
         error("モンスターまたは本が選択されていません", jump="books")
 
-    # === 新形式：user_all で一括取得 ===
     user_name = FORM["s"]["in_name"]
+
     all_data = open_user_all(user_name)
     user = all_data.get("user", {})
     party = all_data.get("party", [])
@@ -78,8 +82,12 @@ def book_read(FORM):
     Book_dat = open_book_dat()
     seikaku = open_seikaku_dat()
 
+    # ★安全対策: 念のため送られてきたインデックスが範囲内かチェック
+    if not (0 <= Mno < len(party)):
+        error("不正なモンスターが選択されました", jump="books")
+
     if user.get("money", 0) < BOOK_PRICE:
-        error("お金が足りません")
+        error("お金が足りません", jump="my_page")
 
     # お金消費
     user["money"] -= BOOK_PRICE
@@ -119,8 +127,8 @@ def book_read(FORM):
 
     # 結果メッセージ
     if Msei != Newsei:
-        mes = f"{party[Mno]['name']}の性格が【{Msei}】から【{Newsei}】に変わった"
+        mes = f"{party[Mno]['name']}の性格が<br>【{Msei}】から【{Newsei}】に変わった"
     else:
-        mes = f"{party[Mno]['name']}モンスターの性格は変わらなかった"
+        mes = f"{party[Mno]['name']}の性格は変わらなかった"
 
     success(mes, jump="books")

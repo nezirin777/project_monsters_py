@@ -24,30 +24,38 @@ def calculate_costs_and_options(party):
     haigou_options = []
     tenkan_options = []
 
-    for i, pt in enumerate(party, 1):
-        if pt["hp"] != 0:
-            yadoya_cost += (pt["mhp"] - pt["hp"]) + (pt["mmp"] - pt["mp"])
-        else:
-            kyoukai_cost += (pt["mhp"] + pt["mmp"]) * 2
+    for i, pt in enumerate(party, 0):
+        # 文字列の "0" などを考慮し、全て安全に数値化して扱う
+        hp = int(pt.get("hp", 0))
+        mhp = int(pt.get("mhp", 1))
+        mp = int(pt.get("mp", 0))
+        mmp = int(pt.get("mmp", 0))
+        lv = int(pt.get("lv", 1))
+        hai = int(pt.get("hai", 0))
 
-        if pt["lv"] >= Conf["haigoulevel"]:
+        if hp != 0:
+            yadoya_cost += (mhp - hp) + (mmp - mp)
+        else:
+            kyoukai_cost += (mhp + mmp) * 2
+
+        if lv >= Conf["haigoulevel"]:
             haigou_options.append(
                 {
                     "index": i,
-                    "name": pt["name"],
-                    "sex": pt["sex"],
-                    "lv": pt["lv"],
-                    "hai": pt["hai"],
+                    "name": pt.get("name", "不明"),
+                    "sex": pt.get("sex", "不明"),
+                    "lv": lv,
+                    "hai": hai,
                 }
             )
 
-        if pt["lv"] == 1:
+        if lv == 1:
             tenkan_options.append(
                 {
                     "index": i,
-                    "name": pt["name"],
-                    "sex": pt["sex"],
-                    "cost": pt["hai"] * 100,
+                    "name": pt.get("name", "不明"),
+                    "sex": pt.get("sex", "不明"),
+                    "cost": hai * 100,
                 }
             )
 
@@ -63,11 +71,15 @@ def update_user_list(user_name, user, party):
     # party を最大3体までに整形
     display_party = party[:s] + [{} for _ in range(s - len(party))]
 
+    # ユーザーがまだリストに存在しない場合の KeyError 対策
+    if user_name not in u_list:
+        u_list[user_name] = {}
+
     u_list[user_name] |= {
         "host": get_host(),
         "bye": bye.strftime("%Y-%m-%d"),
-        "key": user.get("key", 1),
-        "money": user.get("money", 0),
+        "key": int(user.get("key") or 1),
+        "money": int(user.get("money") or 0),
         "getm": user.get("getm", "0／0匹(0％)"),
         **{
             f"m{i+1}_{attr}": display_party[i].get(attr, "")
@@ -97,10 +109,17 @@ def my_page(FORM):
     # Flashメッセージの取得とクリア（一番最初に呼ぶ）
     flash_msg, flash_type = get_and_clear_flash(FORM["s"])
 
-    last_floor = int(session.get("last_floor", 1))
+    # 空文字が来た場合の ValueError を防ぐため `or default` を使用
+    try:
+        last_floor = int(session.get("last_floor") or 1)
+        last_floor_isekai = int(session.get("last_floor_isekai") or 0)
+        next_t = float(session.get("next_t") or 0)
+    except ValueError:
+        last_floor = 1
+        last_floor_isekai = 0
+        next_t = 0.0
+
     last_room = session.get("last_room", "")
-    last_floor_isekai = int(session.get("last_floor_isekai", 0))
-    next_t = float(session.get("next_t", 0))
 
     omiai_list = open_omiai_list()
 
@@ -137,12 +156,13 @@ def my_page(FORM):
     seconds = boost_remain_sec % 60
     boost_time = f"{hours}時間{minutes}分{seconds}秒"
 
-    # 追加情報生成
+    # 追加情報生成 (ここも古いデータの空文字を考慮して int 化)
+    isekai_limit = int(user.get("isekai_limit") or 0)
+    isekai_key = int(user.get("isekai_key") or 0)
     isekai, isekai_next = (
-        ("hidden", "")
-        if not user.get("isekai_limit")
-        else ("", min(user.get("isekai_key", 0), user.get("isekai_limit", 0)))
+        ("hidden", "") if not isekai_limit else ("", min(isekai_key, isekai_limit))
     )
+
     park_get = "" if vips.get("パーク") else "hidden"
 
     # 表示用データ準備
@@ -154,7 +174,7 @@ def my_page(FORM):
     room_key_display = [
         {
             "name": name,
-            "has_key": r_key.get("get", 0) == 1,
+            "has_key": int(r_key.get("get") or 0) == 1,
             "selected": (last_room == name),
         }
         for name, r_key in room_key.items()
@@ -162,7 +182,8 @@ def my_page(FORM):
 
     # 技の表示リスト
     waza_display = [
-        {"name": name if wa.get("get", 0) == 1 else "-"} for name, wa in waza.items()
+        {"name": name if int(wa.get("get") or 0) == 1 else "-"}
+        for name, wa in waza.items()
     ]
 
     # お見合い状況

@@ -1,6 +1,7 @@
+# v_shop.py - モンスター交換処理
 # 100vips = 50メダル,10vips = 5メダル,1vips = 0.5メダル
 from sub_def.file_ops import open_vips_shop_dat, open_user_all, save_user_all
-from sub_def.utils import print_html, get_and_clear_flash, error, success
+from sub_def.utils import error, success
 from sub_def.monster_ops import monster_select
 import conf
 
@@ -29,11 +30,13 @@ def add_monster_to_party(party, monster_name, m_name):
 
 
 def v_shop_ok(FORM):
-    if not (FORM.get("m_name")):
+    m_name = FORM.get("m_name")
+
+    if not m_name:
         error("対象が選択されていません。", jump="v_shop")
 
-    m_name = FORM["m_name"]
-    user_name = FORM["s"]["in_name"]
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     user_all = open_user_all(user_name)
     user = user_all.get("user", {})
@@ -42,23 +45,29 @@ def v_shop_ok(FORM):
 
     vshop_list = open_vips_shop_dat()
 
-    # 購入対象のデータ取得
-    item = vshop_list[m_name]
-    Aname = item["b_name"]
-    price = item["price"] + item["price"] * vips.get(m_name, 0)
+    # 購入対象のデータ取得（不正なm_name対策）
+    item = vshop_list.get(m_name)
+    if not item:
+        error("指定されたモンスターが存在しません。", jump="v_shop")
+
+    Aname = item.get("b_name", m_name)
+    base_price = int(item.get("price", 0))
+    price = base_price + base_price * int(vips.get(m_name, 0))
 
     # 資金のチェックと引き落とし
-    currency = "medal" if item["type"] == "メダル" else "money"
-    if user[currency] < price:
-        error(f"{item['type']}が足りません！", jump="my_page")
+    currency = "medal" if item.get("type") == "メダル" else "money"
+
+    if int(user.get(currency, 0)) < price:
+        error(f"{item.get('type', '資金')}が足りません！", jump="my_page")
         return
-    user[currency] -= price
+
+    user[currency] = int(user.get(currency, 0)) - price
 
     # パーティに追加
     add_monster_to_party(party, Aname, m_name)
 
     # 購入回数更新
-    vips[m_name] = vips.get(m_name, 0) + 1
+    vips[m_name] = int(vips.get(m_name, 0)) + 1
 
     # 各データ保存
     user_all["user"] = user

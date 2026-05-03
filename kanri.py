@@ -1,5 +1,7 @@
 #!D:\Python\Python314\python.exe
 
+# kanri.py - 管理ページあれこれ
+
 import sys
 import cgi
 import os
@@ -26,7 +28,7 @@ from sub_def.file_ops import (
 )
 from sub_def.monster_ops import monster_select
 from sub_def.user_ops import delete_user, backup
-from sub_def.utils import error, print_html
+from sub_def.utils import error, print_html, success
 from sub_def.validation import (
     newpass_check,
     present_monster_check,
@@ -68,15 +70,15 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
             user_info = futures[future]  # 辞書全体
 
             try:
-                result = future.result()
-                if result_collector is not None and result is not None:
+                result_data = future.result()
+                if result_collector is not None and result_data is not None:
                     user_name = (
                         user_info.get("user_name")
                         if isinstance(user_info, dict)
                         else str(user_info)
                     )
                     if user_name:
-                        result_collector[user_name] = result
+                        result_collector[user_name] = result_data
             except Exception as e:
                 user_name = (
                     user_info.get("user_name")
@@ -106,20 +108,6 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
     return errors
 
 
-# ==========#
-# リザルト #
-# ==========#
-def result(mes=""):
-    content = {
-        "Conf": Conf,
-        "token": FORM["s"]["token"],
-        "mes": mes,
-        "kanri": True,
-    }
-
-    print_html("result_tmp.html", content)
-
-
 # ==================#
 # confオーバーライド #
 # ==================#
@@ -145,11 +133,11 @@ def update_conf_value(key, value):
 # 	管理モード	#
 # ==============#
 def OPEN_K():
-    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["s"]["token"]})
+    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["token"]})
 
 
 def KANRI():
-    token = FORM["s"]["token"]
+    token = FORM["token"]
     u_list = open_user_list()
 
     mente_chek = True if os.path.exists("mente.mente") else None
@@ -182,14 +170,13 @@ def MENTE():
         MAINTENANCE_MODE = False
         txt = "メンテナンスモードを終了しました。"
 
-    result(txt)
+    success(txt, jump="kanri")
 
 
 # ========================#
 # イベントブーストモード   #
 # ========================#
 def event_boost():
-
     if FORM["event_boost"] == "start":
         val = 1
         txt = "イベントブーストモードに入りました。"
@@ -198,8 +185,7 @@ def event_boost():
         txt = "イベントブーストモードを終了しました。"
 
     update_conf_value("event_boost", val)
-
-    result(txt)
+    success(txt, jump="kanri")
 
 
 # =========#
@@ -214,6 +200,10 @@ def NEW():
 # ================#
 def NEWPASS():
     target_name = FORM.get("target_name")
+
+    if not target_name:
+        error("対象ユーザーが選択されていません。", "kanri")
+
     newpass = FORM.get("newpass")
 
     newpass_check(FORM)
@@ -221,7 +211,8 @@ def NEWPASS():
     crypted = hash_password(newpass)
 
     all_data = open_user_all(target_name)
-    all_data["user"]["pass"] = crypted
+    user = all_data.setdefault("user", {})
+    user["pass"] = crypted
 
     save_user_all(all_data, target_name)
 
@@ -230,7 +221,10 @@ def NEWPASS():
         u_list[target_name]["pass"] = crypted
         save_user_list(u_list)
 
-    result(f"管理モードで<span>{target_name}</span>のパスワードを変更しました")
+    success(
+        f"管理モードで<span>{target_name}</span>のパスワードを変更しました",
+        jump="kanri",
+    )
 
 
 # =============#
@@ -241,7 +235,7 @@ def DEL():
 
     if FORM.get("Del_ck") != "on":
         error("確認チェックがONになっていません。", "kanri")
-    if not (target_name):
+    if not target_name:
         error("対象ユーザーが選択されていません。", "kanri")
 
     delete_user(target_name)
@@ -250,7 +244,7 @@ def DEL():
     u_list.pop(target_name, None)
     save_user_list(u_list)
 
-    result(f"<span>{target_name}</span>を管理モードで強制削除しました")
+    success(f"<span>{target_name}</span>を管理モードで強制削除しました", jump="kanri")
 
 
 # =================#
@@ -261,11 +255,6 @@ def data_del():
 
     shutil.rmtree(datadir)
     os.makedirs(datadir)
-
-    with open(datadir + "/tournament.log", mode="w", encoding="utf-8") as f:
-        f.write(
-            """<div class="medal_battle_title">まだ大会は一度も開かれていません</div><br><br><br>"""
-        )
 
     with open(datadir + "/bbslog.log", mode="w", encoding="utf-8_sig") as f:
         f.write("")
@@ -358,7 +347,6 @@ def RESTART():
 
             save_user_all(all_data, user_name)
 
-            # user_list 用データ
             return {
                 "pass": crypted,
                 "host": "",
@@ -385,9 +373,6 @@ def RESTART():
             )
             return None
 
-    # ======================
-    # メイン
-    # ======================
     u_list = open_user_list()
     users = [
         {"user_name": name, "crypted": info.get("pass", "")}
@@ -395,7 +380,6 @@ def RESTART():
     ]
 
     new_userlist = {}
-
     errors = process_batch(users, re_start_sub, result_collector=new_userlist)
 
     save_user_list(new_userlist)
@@ -405,7 +389,7 @@ def RESTART():
     if errors:
         msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
 
-    result(msg)
+    success(msg, jump="kanri")
 
 
 # =======#
@@ -416,8 +400,7 @@ def ALLDEL():
         error("確認チェックがONになっていません。", "kanri")
 
     data_del()
-
-    result("全データを削除しました。")
+    success("全データを削除しました。", jump="kanri")
 
 
 # ====================#
@@ -425,7 +408,6 @@ def ALLDEL():
 # user_list.pickle    #
 # ====================#
 def FUKUGEN():
-    # セーブデータフォルダ内各ユーザー名取得
     files = os.listdir(datadir)
     exclude_dirs = {"locks", "logs"}
     user_dirs = [
@@ -464,7 +446,7 @@ def FUKUGEN():
                 "mes": user.get("mes", ""),
             }
         except Exception as e:
-            return None  # エラー時はスキップ
+            return None
 
     errors = process_batch(
         user_dirs,
@@ -477,7 +459,7 @@ def FUKUGEN():
     if errors:
         msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
 
-    result(msg)
+    success(msg, jump="kanri")
 
 
 # ====================#
@@ -491,13 +473,13 @@ def MON_PRESENT():
 
     M_list = open_monster_dat()
     txt = "".join(
-        [f"""<option value={name}>{name}</option>\n""" for name in M_list.keys()]
+        [f'<option value="{name}">{name}</option>\n' for name in M_list.keys()]
     )
 
     context = {
         "target_name": target_name,
         "txt": txt,
-        "token": FORM["s"]["token"],
+        "token": FORM["token"],
         "Conf": Conf,
     }
 
@@ -517,7 +499,6 @@ def MON_PRESENT_OK():
     present_monster_check(FORM)
 
     all_data = open_user_all(target_name)
-
     party = all_data.get("party", [])
 
     if len(party) >= 10:
@@ -536,7 +517,7 @@ def MON_PRESENT_OK():
     all_data["party"] = party
     save_user_all(all_data, target_name)
 
-    result(f"{target_name}へモンスターを配布しました")
+    success(f"{target_name}へモンスターを配布しました", jump="kanri")
 
 
 # ====================#
@@ -568,26 +549,24 @@ def PRESENT():
         if errors:
             msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
 
-        result(msg)
+        success(msg, jump="kanri")
 
     else:
         haifu(target_name)
-        result(f"{target_name}にプレゼントを送りました。")
+        success(f"{target_name}にプレゼントを送りました。", jump="kanri")
 
 
 # ====================#
 # csv → pickle       #
 # ====================#
 def csv_to():
-    # user_listや各種ユーザーデータはpickle変換後csvは削除される
     target_name = FORM.get("target_name")
 
-    if not (target_name):
+    if not target_name:
         error("対象が選択されていません。", "kanri")
 
     csv_to_pickle.csv_to_pickle(target_name)
-
-    result(f"{target_name}のcsv→pickle変換が完了しました。")
+    success(f"{target_name}のcsv→pickle変換が完了しました。", jump="kanri")
 
 
 # ====================#
@@ -596,13 +575,12 @@ def csv_to():
 def pickle_to():
     target_name = FORM.get("target_name")
 
-    if not (target_name):
+    if not target_name:
         error("対象が選択されていません。", "kanri")
 
     backup()
     pickle_to_csv.pickle_to_csv(target_name)
-
-    result(f"{target_name}のpickle→csv変換が完了しました。")
+    success(f"{target_name}のpickle→csv変換が完了しました。", jump="kanri")
 
 
 # ================#
@@ -627,7 +605,7 @@ def make_table(save_data, txt):
         "no_edit": no_edit,
         "target_name": target_name,
         "target_data": target_data,
-        "token": FORM["s"]["token"],
+        "token": FORM["token"],
         "Conf": Conf,
     }
 
@@ -635,6 +613,7 @@ def make_table(save_data, txt):
 
 
 def save_editer():
+
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
 
@@ -657,7 +636,6 @@ def save_editer():
             save_data = [{"user_name": u} | v for u, v in save_data.items()]
             txt = "お見合いリスト"
         case _:
-            # 個別ユーザーデータの場合
             all_data = open_user_all(target_name)
             match target_data:
                 case "user_data":
@@ -707,7 +685,7 @@ def save_edit_select():
     if not target_name:
         error("対象が選択されていません。", "kanri")
 
-    context = {"target_name": target_name, "token": FORM["s"]["token"], "Conf": Conf}
+    context = {"target_name": target_name, "token": FORM["token"], "Conf": Conf}
 
     if target_name in ("user_list", "omiai_list"):
         save_editer()
@@ -719,14 +697,17 @@ def save_edit_save():
     target_name = FORM["target_name"]
     target_data = FORM["target_data"]
 
-    # フォームの数値変換
-    for key in list(FORM.keys()):
-        try:
-            FORM[key] = int(FORM[key])
-        except (ValueError, TypeError):
-            pass
+    def get_typed_val(form_val, old_val):
+        """元のデータの型(intかstrか)に合わせて安全にキャストするヘルパー"""
+        if form_val is None:
+            return old_val
+        if isinstance(old_val, int):
+            try:
+                return int(form_val)
+            except ValueError:
+                return form_val
+        return form_val
 
-    # user_list / omiai_list の場合（従来通り）
     if target_name == "user_list":
         txt = "ユーザーリストを更新しました。"
         original = open_user_list()
@@ -735,11 +716,11 @@ def save_edit_save():
             user_name = str(FORM.get(f"{i},user_name", ""))
             if user_name and user_name in original:
                 updated[user_name] = {
-                    k: FORM.get(f"{i},{k}", original[user_name].get(k))
+                    k: get_typed_val(FORM.get(f"{i},{k}"), original[user_name].get(k))
                     for k in original[user_name].keys()
                 }
         save_user_list(updated)
-        result(txt)
+        success(txt, jump="kanri")
         return
 
     if target_name == "omiai_list":
@@ -750,14 +731,13 @@ def save_edit_save():
             user_name = str(FORM.get(f"{i},user_name", ""))
             if user_name and user_name in original:
                 updated[user_name] = {
-                    k: FORM.get(f"{i},{k}", original[user_name].get(k))
+                    k: get_typed_val(FORM.get(f"{i},{k}"), original[user_name].get(k))
                     for k in original[user_name].keys()
                 }
         save_omiai_list(updated)
-        result(txt)
+        success(txt, jump="kanri")
         return
 
-    # 個別ユーザーデータの場合（新型式対応）
     all_data = open_user_all(target_name)
 
     match target_data:
@@ -765,14 +745,14 @@ def save_edit_save():
             txt = "ユーザー情報"
             user = all_data.get("user", {})
             for k in list(user.keys()):
-                user[k] = FORM.get(f"0,{k}", user.get(k))
+                user[k] = get_typed_val(FORM.get(f"0,{k}"), user.get(k))
             all_data["user"] = user
 
         case "vips_data":
             txt = "その他データ"
             vips = all_data.get("vips", {})
             for k in list(vips.keys()):
-                vips[k] = FORM.get(f"0,{k}", vips.get(k))
+                vips[k] = get_typed_val(FORM.get(f"0,{k}"), vips.get(k))
             all_data["vips"] = vips
 
         case "room_key_data":
@@ -782,12 +762,10 @@ def save_edit_save():
             while f"{i},name" in FORM:
                 name = FORM[f"{i},name"]
                 if name:
+                    old_data = all_data.get("room_key", {}).get(name, {})
                     room_key[name] = {
-                        k: FORM.get(
-                            f"{i},{k}",
-                            all_data.get("room_key", {}).get(name, {}).get(k),
-                        )
-                        for k in all_data.get("room_key", {}).get(name, {})
+                        k: get_typed_val(FORM.get(f"{i},{k}"), old_data.get(k))
+                        for k in old_data.keys()
                     }
                 i += 1
             all_data["room_key"] = room_key
@@ -799,11 +777,10 @@ def save_edit_save():
             while f"{i},name" in FORM:
                 name = FORM[f"{i},name"]
                 if name:
+                    old_data = all_data.get("waza", {}).get(name, {})
                     waza[name] = {
-                        k: FORM.get(
-                            f"{i},{k}", all_data.get("waza", {}).get(name, {}).get(k)
-                        )
-                        for k in all_data.get("waza", {}).get(name, {})
+                        k: get_typed_val(FORM.get(f"{i},{k}"), old_data.get(k))
+                        for k in old_data.keys()
                     }
                 i += 1
             all_data["waza"] = waza
@@ -815,11 +792,10 @@ def save_edit_save():
             while f"{i},name" in FORM:
                 name = FORM[f"{i},name"]
                 if name:
+                    old_data = all_data.get("zukan", {}).get(name, {})
                     zukan[name] = {
-                        k: FORM.get(
-                            f"{i},{k}", all_data.get("zukan", {}).get(name, {}).get(k)
-                        )
-                        for k in all_data.get("zukan", {}).get(name, {})
+                        k: get_typed_val(FORM.get(f"{i},{k}"), old_data.get(k))
+                        for k in old_data.keys()
                     }
                 i += 1
             all_data["zukan"] = zukan
@@ -829,7 +805,7 @@ def save_edit_save():
             party = all_data.get("party", [])
             for i in range(len(party)):
                 for k in list(party[i].keys()):
-                    party[i][k] = FORM.get(f"{i},{k}", party[i].get(k))
+                    party[i][k] = get_typed_val(FORM.get(f"{i},{k}"), party[i].get(k))
             all_data["party"] = party
 
         case "park_data":
@@ -837,16 +813,14 @@ def save_edit_save():
             park = all_data.get("park", [])
             for i in range(len(park)):
                 for k in list(park[i].keys()):
-                    park[i][k] = FORM.get(f"{i},{k}", park[i].get(k))
+                    park[i][k] = get_typed_val(FORM.get(f"{i},{k}"), park[i].get(k))
             all_data["park"] = park
 
         case _:
             error("不明なtarget_dataです", "kanri")
 
-    # 一括保存
     save_user_all(all_data, target_name)
-
-    result(f"{target_name}の{txt}を更新しました。")
+    success(f"{target_name}の{txt}を更新しました。", jump="kanri")
 
 
 # ================#
@@ -927,7 +901,7 @@ def dat_update():
     if errors:
         msg += "<br><br>一部エラーが発生しました。<br>" + "<br>".join(errors)
 
-    result(msg)
+    success(msg, jump="kanri")
 
 
 # ================#
@@ -937,7 +911,7 @@ def make_haigou_list():
     # 配合リスト2種を作り直す
     haigou_list_make.haigou_list_make()
 
-    result("配合リストHTMLを作成しました。")
+    success("配合リストHTMLを作成しました。", jump="kanri")
 
 
 # ============================================================#
@@ -947,7 +921,6 @@ def token_check():
     session_token = session.get("token", "")
 
     if not form_token or not secrets.compare_digest(session_token, form_token):
-        # pass
         error("トークンが一致しないです", "kanri")
 
     token = secrets.token_hex(16)

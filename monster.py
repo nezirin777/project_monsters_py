@@ -17,7 +17,6 @@ from sub_def.user_ops import (
 )
 from sub_def.utils import print_html, error
 
-
 Conf = conf.Conf
 
 

@@ -59,8 +59,6 @@ FUNCTION_MAP = {
     "m_bye": ("cgi_py.m_bye", "m_bye"),
     #  部屋鍵get  #
     "roomkey_get": ("cgi_py.roomkey_get", "roomkey_get"),
-    # 	メダル獲得杯   #
-    "tournament_result": ("cgi_py.tournament_result", "tournament_result"),
     # 	お見合い関係  #
     "omiai_room": ("cgi_py.omiai.omiai_room", "omiai_room"),
     "omiai_touroku": ("cgi_py.omiai.omiai_touroku", "omiai_touroku"),
@@ -113,7 +111,7 @@ def process_form():
 
     mode = FORM.get("mode", "")
     request_method = os.environ.get("REQUEST_METHOD", "GET")
-    allowed_get_modes = {"tournament_result", "my_page2", "zukan"}
+    allowed_get_modes = {"my_page2", "zukan"}
 
     # GETは例外モードだけ許可
     if request_method != "POST":

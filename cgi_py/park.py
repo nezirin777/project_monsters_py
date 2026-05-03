@@ -45,18 +45,19 @@ def sort_park(all_data, sort_v, user_name):
 def park(FORM):
 
     user_name = FORM["s"]["in_name"]
+    token = FORM["s"]["token"]
+
     page = int(FORM.get("page", 1))
     sort_v = int(FORM.get("sort_v", 0))
-    token = FORM["s"]["token"]
 
     # Flashメッセージの取得とクリア（一番最初に呼ぶ）
     flash_msg, flash_type = get_and_clear_flash(FORM["s"])
 
     # user_all で一括取得
     all_data = open_user_all(user_name)
-    party = all_data["party"]
-    park = all_data["park"]
-    vips = all_data["vips"]
+    party = all_data.get("party", [])
+    park = all_data.get("park", [])
+    vips = all_data.get("vips", {})
 
     if not vips.get("パーク", 0):
         error("モンスターパークを所有していません。")
@@ -102,15 +103,21 @@ def park(FORM):
 def park_1(FORM):
     user_name = FORM["s"]["in_name"]
 
-    # 配列位置を合わせるため-1
-    Mno = int(FORM["Mno"]) - 1
+    try:
+        # HTML側から配列のインデックスを直接受け取る
+        Mno = int(FORM.get("Mno", 99))
+    except ValueError:
+        error("モンスターが正しく選択されていません", jump="park")
+
+    if Mno == 99:
+        error("預けるモンスターを選択してください", jump="park")
 
     all_data = open_user_all(user_name)
-    party = all_data["party"]
-    park = all_data["park"]
-    vips = all_data["vips"]
+    party = all_data.get("party", [])
+    park = all_data.get("park", [])
+    vips = all_data.get("vips", {})
 
-    waku = vips["パーク"] * 5
+    waku = vips.get("パーク", 0) * 5
 
     if len(park) >= waku:
         error("パークがいっぱいで預けることができませんでした。", jump="park")
@@ -121,8 +128,12 @@ def park_1(FORM):
             jump="park",
         )
 
+    # 不正なインデックスが指定された場合のクラッシュ防止
+    if Mno < 0 or Mno >= len(party):
+        error("無効なモンスターが指定されました", jump="park")
+
     # 先に文字列作っておかないと、預ける処理でpartyから消えてしまうため
-    mes = f"""【{party[Mno]["name"]}】を預けました。"""
+    mes = f"""【{party[Mno].get("name", "不明")}】を預けました。"""
 
     # 預ける処理
     park.append(party.pop(Mno))
@@ -147,20 +158,27 @@ def park_1(FORM):
 def park_2(FORM):
 
     user_name = FORM["s"]["in_name"]
-    # 配列位置を合わせるため-1
-    Mno = int(FORM["mob"]) - 1
+
+    try:
+        # HTML側から配列の絶対インデックスを直接受け取る
+        Mno = int(FORM.get("mob", -1))
+    except ValueError:
+        error("モンスターが正しく選択されていません", jump="park")
 
     all_data = open_user_all(user_name)
-    party = all_data["party"]
-    park = all_data["park"]
+    party = all_data.get("party", [])
+    park = all_data.get("park", [])
 
     # パーティーが満杯かどうか確認
     if len(party) >= 10:
         error("パーティがいっぱいで連れていくことができませんでした。", jump="park")
-        return
+
+    # 不正なインデックスが指定された場合のクラッシュ防止
+    if Mno < 0 or Mno >= len(park):
+        error("無効なモンスターが指定されました", jump="park")
 
     # 先に文字列作っておかないと、連れていく処理でparkから消えてしまうため
-    mes = f"""【{park[Mno]["name"]}】をパーティに加えました。"""
+    mes = f"""【{park[Mno].get("name", "不明")}】をパーティに加えました。"""
 
     # 連れていく処理
     party.append(park.pop(Mno))
