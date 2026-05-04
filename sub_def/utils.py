@@ -77,115 +77,97 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
     sanitized_txt = html.escape(str(txt))
 
     # =========================================================
-    # ★安全装置1: 同一処理内での再帰呼び出しによる無限ループ防止
+    # 1. 無限ループ防止（安全装置）
     # =========================================================
     if _IN_FLASH_AND_JUMP:
-        logging.log(
-            logging.CRITICAL,
-            f"無限ループ(再帰)を検知し強制停止しました: {sanitized_txt}",
-        )
+        logging.critical(f"無限ループ検知: {sanitized_txt}")
         print("Content-Type: text/plain; charset=utf-8\n")
-        print(
-            f"システムエラー: 処理の無限ループを検知しました。\nエラー内容: {sanitized_txt}"
-        )
+        print(f"システムエラー: 無限ループ検知\n{sanitized_txt}")
         sys.exit()
 
     _IN_FLASH_AND_JUMP = True
 
-    token = secrets.token_hex(16)
-
+    # =========================================================
+    # 2. セッションの取得と更新
+    # =========================================================
     try:
-        # セッション取得は1回だけ。失敗しても空辞書で続行（再帰防止）
         session = get_session()
     except Exception:
         session = {}
 
-    # =========================================================
-    # ★安全装置2: リダイレクトを跨いだ無限ループ防止
-    # =========================================================
-    # 前回のフラッシュメッセージが表示(clear_flash)される前に再びエラーになった場合
     if session.get("flash_msg") and msg_type == "error":
-        logging.log(
-            logging.WARNING,
-            f"リダイレクトの無限ループを回避します。前エラー: {session.get('flash_msg')}",
-        )
-        # ループを断ち切るために、強制的に「画面遷移しないテキスト表示モード(99)」へ退避
+        logging.warning(f"リダイレクト無限ループ回避: {session.get('flash_msg')}")
         jump = "99"
 
-    # jump == "top" の場合も、既存セッションを無理に読まず安全に扱う
-    if jump == "top":
-        session = dict(session)  # コピーを作成
+    token = secrets.token_hex(16)
+
+    if jump in ("top", ""):
+        session = dict(session)
         session["ref"] = "top"
 
-    # ★ flash統一
-    session |= {
-        "token": token,
-        "flash_msg": str(txt),
-        "flash_type": msg_type,
-    }
-
+    session.update(
+        {
+            "token": token,
+            "flash_msg": str(txt),
+            "flash_type": msg_type,
+        }
+    )
     set_session(session)
 
     url, base_par = URL_MAP.get(jump, URL_MAP["my_page"])
-    par = base_par | {"token": token} if jump != "top" else base_par
-
     logging.log(log_level, f"{msg_type.upper()}: {sanitized_txt}, Jump: {jump}")
 
-    # AJAX
+    # =========================================================
+    # 3. 画面遷移（出力フェーズ）
+    # =========================================================
     if is_ajax():
+        # AJAX応答
         print("Content-Type: application/json\r\n\r\n")
         print(
             json.dumps(
                 {"ok": msg_type == "success", "msg": sanitized_txt, "type": msg_type}
             )
         )
-        sys.exit()
 
-    if jump in ("99", "kanri"):
+    elif jump == "99":
+        # 緊急テキスト表示モード
         print("Content-Type: text/plain; charset=utf-8\n")
         print(sanitized_txt)
-        sys.exit()
 
-    if jump == "top" or jump == "":
-        redirect_url = url
-        if par:
-            redirect_url += "?" + urllib.parse.urlencode(par)
-
-        if sanitized_txt:
-            separator = "&" if "?" in redirect_url else "?"
-            redirect_url += f"{separator}msg={urllib.parse.quote_plus(sanitized_txt)}"
-
+    elif jump in ("top", ""):
+        # GETリダイレクト（トップページへ）
+        query = "?" + urllib.parse.urlencode(base_par) if base_par else ""
         print("Status: 302 Found")
-        print(f"Location: {redirect_url}")
+        print(f"Location: {url}{query}")
         print("Content-Type: text/html; charset=utf-8\n")
         print(
-            f'<html><head><meta http-equiv="refresh" content="0; url={redirect_url}"></head><body></body></html>'
+            f'<html><head><meta http-equiv="refresh" content="0; url={url}{query}"></head><body></body></html>'
         )
-        sys.exit()
 
-    # 指定されたモードに移行
-    if not jump == "":
-        from login import dispatch_function
+    else:
+        # 内部ディスパッチ（kanri または login へ）
+        # ※ FORMの構造は同じなので共通化
+        FORM = {"s": session, "mode": base_par.get("mode", ""), "token": token}
 
-        FORM = {
-            "s": session,
-            "mode": base_par.get("mode", ""),
-            "token": session.get("token"),
-        }
-        dispatch_function(FORM)
-        sys.exit()
+        if jump == "kanri":
+            import kanri
 
-    content = {
-        "Conf": Conf,
-        "txt": sanitized_txt,
-        "url": url,
-        "par": par,
-        "jump": jump,
-    }
+            # kanri.py のグローバル変数 FORM を直接上書きして最新のセッションを伝える
+            if hasattr(kanri, "FORM"):
+                kanri.FORM["s"] = session
+                kanri.FORM["token"] = token
+            else:
+                kanri.FORM = {"s": session, "token": token, "mode": "KANRI"}
 
-    print(f"<!-- koko_ni_kitayo -->", file=sys.stderr)
+            # 引数なしで呼ぶ
+            kanri.KANRI()
+        else:
+            from login import dispatch_function
 
-    print_html("error_tmp.html", content)
+            dispatch_function(FORM)
+
+    # どのルートを通っても最後はここで終了
+    sys.exit()
 
 
 # ==============#
@@ -218,24 +200,11 @@ def success(txt, jump="my_page"):
     _flash_and_jump(txt=txt, msg_type="success", jump=jump, log_level=logging.INFO)
 
 
-# ==================================#
-# 情報/色付きテキスト表示したいとか    #
-# ==================================#
+# ========#
+# 情報    #
+# ========#
 def info(txt, jump="my_page"):
     _flash_and_jump(txt=txt, msg_type="info", jump=jump, log_level=logging.INFO)
-
-
-# ==========#
-# リザルト #
-# ==========#
-def print_result(content, kanri=False):
-    content.update(
-        {
-            "kanri": kanri,
-        }
-    )
-
-    print_html("result_tmp.html", content)
 
 
 # ==========#

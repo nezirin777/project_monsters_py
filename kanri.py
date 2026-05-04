@@ -28,7 +28,8 @@ from sub_def.file_ops import (
 )
 from sub_def.monster_ops import monster_select
 from sub_def.user_ops import delete_user, backup
-from sub_def.utils import error, print_html, success
+
+from sub_def.utils import error, print_html, success, get_and_clear_flash
 from sub_def.validation import (
     newpass_check,
     present_monster_check,
@@ -56,12 +57,13 @@ CSV_DEFS_USER = Conf.get("csv_defs_user", {})
 # 	進捗状況表示 #
 # ==============#
 def process_batch(users, process_func, result_collector=None, batch_size=10):
-    # 進捗バッチ処理
+    # 進捗バッチ処理（全員への配布やデータ更新など、重い処理でサーバーがフリーズしないよう並列化する）
     total_users = len(users)
     progress = {"total": total_users, "completed": 0, "status": "running"}
     last_written = 0  # 最後に進捗を書き込んだ完了数
     errors = []
 
+    # CPUコア数に合わせてスレッドを展開（負荷分散）
     with ThreadPoolExecutor(max_workers=min(6, os.cpu_count() or 4)) as executor:
         futures = {executor.submit(process_func, user): user for user in users}
         completed = 0
@@ -80,6 +82,7 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
                     if user_name:
                         result_collector[user_name] = result_data
             except Exception as e:
+                # 誰か1人のデータ破損で全体の処理が止まらないようエラーを記録して続行
                 user_name = (
                     user_info.get("user_name")
                     if isinstance(user_info, dict)
@@ -90,6 +93,7 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
                 )
             finally:
                 completed += 1
+                # バッチサイズごとに進捗ファイル(JSON)を更新し、Ajaxのプログレスバーに反映させる
                 if completed - last_written >= batch_size or completed == total_users:
                     progress["completed"] = completed
                     try:
@@ -99,6 +103,7 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
                     except Exception as e:
                         errors.append(f"進捗ファイル書き込みエラー: {e}")
 
+    # 処理完了後は進捗ファイルを削除
     try:
         if os.path.exists(progress_file):
             os.remove(progress_file)
@@ -112,6 +117,7 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
 # confオーバーライド #
 # ==================#
 def update_conf_value(key, value):
+    # 設定ファイル(JSON)を動的に書き換える処理（イベントブースト等で使用）
     path = Conf["override_file"]
 
     if os.path.exists(path):
@@ -122,28 +128,42 @@ def update_conf_value(key, value):
 
     data[key] = value
 
+    # 安全なファイル更新（一時ファイルを作ってからリネーム上書きし、破損を防ぐ）
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     os.replace(tmp, path)
 
+    # ファイルだけでなく、現在動いているメモリ上の「Conf」も即座に同期させる！
+    Conf[key] = value
+
 
 # ==============#
 # 	管理モード	#
 # ==============#
 def OPEN_K():
-    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["token"]})
+    print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["s"]["token"]})
 
 
 def KANRI():
-    token = FORM["token"]
+    token = FORM["s"]["token"]
     u_list = open_user_list()
+
+    # Flashメッセージの取得とクリア（一番最初に呼ぶ）
+    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
 
     mente_chek = True if os.path.exists("mente.mente") else None
 
     # テンプレートに渡すデータ
-    data = {"mente_chek": mente_chek, "users": u_list, "token": token, "Conf": Conf}
+    data = {
+        "mente_chek": mente_chek,
+        "users": u_list,
+        "token": token,
+        "Conf": Conf,
+        "flash_msg": flash_msg,
+        "flash_type": flash_type,
+    }
 
     print_html("kanri_tmp.html", data)
 
@@ -156,6 +176,7 @@ def MENTE():
 
     mente_path = "mente.mente"
 
+    # mente.mente という空ファイルの有無でメンテナンス状態を判定するフラグ管理
     if FORM["mente"] == "start":
         if not os.path.exists(mente_path):
             os.makedirs(mente_path, exist_ok=True)
@@ -201,21 +222,23 @@ def NEW():
 def NEWPASS():
     target_name = FORM.get("target_name")
 
+    # 未選択時のクラッシュ防止
     if not target_name:
         error("対象ユーザーが選択されていません。", "kanri")
 
     newpass = FORM.get("newpass")
-
     newpass_check(FORM)
 
     crypted = hash_password(newpass)
 
     all_data = open_user_all(target_name)
+    # セーブデータが空だった場合のKeyError防止（setdefault）
     user = all_data.setdefault("user", {})
     user["pass"] = crypted
 
     save_user_all(all_data, target_name)
 
+    # ログイン判定に使われる user_list 側も同期して書き換える
     u_list = open_user_list()
     if target_name in u_list:
         u_list[target_name]["pass"] = crypted
@@ -240,6 +263,7 @@ def DEL():
 
     delete_user(target_name)
 
+    # user_list.pickle からも対象者を消去
     u_list = open_user_list()
     u_list.pop(target_name, None)
     save_user_list(u_list)
@@ -251,6 +275,7 @@ def DEL():
 # saveフォルダ削除 #
 # =================#
 def data_del():
+    # 削除前に念のためバックアップを実行
     backup()
 
     shutil.rmtree(datadir)
@@ -274,6 +299,7 @@ def RESTART():
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     ).strftime("%Y-%m-%d")
 
+    # 初期配布モンスターの候補
     monset = [
         "スライム",
         "ドラゴンキッズ",
@@ -286,6 +312,7 @@ def RESTART():
         "トーテムキラー",
     ]
 
+    # デフォルトの空データを生成
     default_key_base = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
     default_waza_base = {
         name: {"no": v["no"], "type": v["type"], "get": 0}
@@ -305,6 +332,7 @@ def RESTART():
 
             m_name = random.choice(monset)
 
+            # ユーザーの全データを初期状態にリセット
             all_data = {
                 "user": {
                     "name": user_name,
@@ -379,6 +407,7 @@ def RESTART():
         for name, info in u_list.items()
     ]
 
+    # 並列処理で全ユーザーデータを再生成
     new_userlist = {}
     errors = process_batch(users, re_start_sub, result_collector=new_userlist)
 
@@ -408,6 +437,7 @@ def ALLDEL():
 # user_list.pickle    #
 # ====================#
 def FUKUGEN():
+    # 各ユーザーのフォルダからデータを読み込み、全体のリスト(user_list.pickle)を作り直す
     files = os.listdir(datadir)
     exclude_dirs = {"locks", "logs"}
     user_dirs = [
@@ -427,19 +457,26 @@ def FUKUGEN():
             all_data = open_user_all(in_name)
             user = all_data.get("user", {})
             pt = all_data.get("party", [])
+
+            # リストの範囲外アクセスや、キーが存在しない場合（データ破損時）のKeyErrorを防ぐ安全な取得関数
+            def get_pt_val(index, key, default=""):
+                if len(pt) > index and isinstance(pt[index], dict):
+                    return pt[index].get(key, default)
+                return default
+
             return {
                 "pass": user.get("pass", ""),
                 "host": "",
                 "bye": bye_day,
-                "m1_name": pt[0]["name"] if pt else "",
-                "m1_hai": pt[0]["hai"] if pt else 0,
-                "m1_lv": pt[0]["lv"] if pt else 0,
-                "m2_name": pt[1]["name"] if len(pt) > 1 else "",
-                "m2_hai": pt[1]["hai"] if len(pt) > 1 else "",
-                "m2_lv": pt[1]["lv"] if len(pt) > 1 else "",
-                "m3_name": pt[2]["name"] if len(pt) > 2 else "",
-                "m3_hai": pt[2]["hai"] if len(pt) > 2 else "",
-                "m3_lv": pt[2]["lv"] if len(pt) > 2 else "",
+                "m1_name": get_pt_val(0, "name"),
+                "m1_hai": get_pt_val(0, "hai", 0),
+                "m1_lv": get_pt_val(0, "lv", 0),
+                "m2_name": get_pt_val(1, "name"),
+                "m2_hai": get_pt_val(1, "hai", ""),
+                "m2_lv": get_pt_val(1, "lv", ""),
+                "m3_name": get_pt_val(2, "name"),
+                "m3_hai": get_pt_val(2, "hai", ""),
+                "m3_lv": get_pt_val(2, "lv", ""),
                 "key": user.get("key", 0),
                 "money": user.get("money", 0),
                 "getm": user.get("getm", "0／0匹(0％)"),
@@ -472,14 +509,15 @@ def MON_PRESENT():
         error("対象ユーザーが選択されていません。", "kanri")
 
     M_list = open_monster_dat()
-    txt = "".join(
-        [f'<option value="{name}">{name}</option>\n' for name in M_list.keys()]
-    )
+
+    # Python側でHTMLタグを作らず、モンスター名のリスト（配列）だけをHTMLへ渡す。
+    # こうすることでMVCモデルの独立性が保たれ、Jinja2によるエスケープ漏れ（表示バグ）も防げる
+    monster_names = list(M_list.keys())
 
     context = {
         "target_name": target_name,
-        "txt": txt,
-        "token": FORM["token"],
+        "monster_names": monster_names,
+        "token": FORM["s"]["token"],
         "Conf": Conf,
     }
 
@@ -504,6 +542,7 @@ def MON_PRESENT_OK():
     if len(party) >= 10:
         error("パーティがいっぱいで追加することができません。", "kanri")
 
+    # 指定されたステータスで新しいモンスターのデータフレームを生成
     new_mob = monster_select(mons_name, haigou)
     new_mob["lv"] = 1
     new_mob["mlv"] = max_level
@@ -511,6 +550,8 @@ def MON_PRESENT_OK():
     new_mob["hai"] = haigou
 
     party.append(new_mob)
+
+    # パーティの並び順(no)を再採番する
     for i, pt in enumerate(party, 1):
         pt["no"] = i
 
@@ -532,6 +573,7 @@ def PRESENT():
     medal = int(FORM.get("medal", 0))
     key = int(FORM.get("key", 0))
 
+    # 配布用のヘルパー関数
     def haifu(name):
         all_data = open_user_all(name)
         user = all_data.get("user", {})
@@ -541,6 +583,7 @@ def PRESENT():
         all_data["user"] = user
         save_user_all(all_data, name)
 
+    # 「全員」が選択された場合は並列バッチ処理で一斉配布する
     if target_name == "全員":
         u_list = open_user_list()
         errors = process_batch(list(u_list.keys()), haifu)
@@ -589,14 +632,24 @@ def pickle_to():
 def make_table(save_data, txt):
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
+
+    # フォーム上で編集不可（表示のみ）にするカラムの設定
     no_edit = ("no", "user_name", "pass", "type", "m_type", "host", "rank", "getm")
 
+    # データ構造の統一（辞書形式の場合はリスト形式に変換してHTMLの表で扱いやすくする）
     if isinstance(save_data, dict) and all(
         isinstance(v, dict) for v in save_data.values()
     ):
         rows = [{"name": k, **v} for k, v in save_data.items()]
     else:
         rows = save_data if isinstance(save_data, list) else [save_data]
+
+    # データが空っぽ（[]）だった場合、アクセスエラー(IndexError)になる前に弾く安全対策
+    if not rows:
+        error(
+            f"{target_name}の「{txt}」は現在空っぽです。<br>編集するデータがありません。",
+            "kanri",
+        )
 
     context = {
         "txt": txt,
@@ -605,7 +658,7 @@ def make_table(save_data, txt):
         "no_edit": no_edit,
         "target_name": target_name,
         "target_data": target_data,
-        "token": FORM["token"],
+        "token": FORM["s"]["token"],
         "Conf": Conf,
     }
 
@@ -613,13 +666,13 @@ def make_table(save_data, txt):
 
 
 def save_editer():
-
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
 
     if not target_name:
         error("対象が選択されていません。", "kanri")
 
+    # 対象の種類によって読み込むデータソースを分岐
     match target_name:
         case "user_list":
             save_data = open_user_list()
@@ -685,7 +738,7 @@ def save_edit_select():
     if not target_name:
         error("対象が選択されていません。", "kanri")
 
-    context = {"target_name": target_name, "token": FORM["token"], "Conf": Conf}
+    context = {"target_name": target_name, "token": FORM["s"]["token"], "Conf": Conf}
 
     if target_name in ("user_list", "omiai_list"):
         save_editer()
@@ -698,7 +751,11 @@ def save_edit_save():
     target_data = FORM["target_data"]
 
     def get_typed_val(form_val, old_val):
-        """元のデータの型(intかstrか)に合わせて安全にキャストするヘルパー"""
+        """
+        元のデータの型(intかstrか)に合わせて安全にキャストするヘルパー関数。
+        すべてを盲目的にint()にキャストしてしまうと、パスワードや文字列のユーザー名が
+        数値化されてしまい、データが完全に破損して二度とログインできなくなるのを防ぐ。
+        """
         if form_val is None:
             return old_val
         if isinstance(old_val, int):
@@ -708,6 +765,7 @@ def save_edit_save():
                 return form_val
         return form_val
 
+    # 各種セーブデータの保存処理（get_typed_val を使って型を維持したまま上書きする）
     if target_name == "user_list":
         txt = "ユーザーリストを更新しました。"
         original = open_user_list()
@@ -828,7 +886,7 @@ def save_edit_save():
 # ================#
 def update_isekai_limit(M_list):
     """異世界最深部設定を更新"""
-    # confオーバーライドファイルに異世界最深部の最大階層を保存
+    # マスターデータから一番深い階層を調べ、confオーバーライドファイルに保存する
     isekai_max_limit = max(
         [mon["階層B"] for mon in M_list.values() if (mon["room"] in ("異世界"))]
     )
@@ -837,13 +895,13 @@ def update_isekai_limit(M_list):
 
 
 def dat_update_check(in_name, M_list, Tokugi_dat):
-    """ユーザーの図鑑と技データを更新"""
+    """ユーザーの図鑑と技データをマスターデータに沿って更新（枠の追加など）"""
     all_data = open_user_all(in_name)
     user = all_data.get("user", {})
     zukan = all_data.get("zukan", {})
     waza = all_data.get("waza", {})
 
-    # 図鑑更新
+    # 新モンスターが追加された場合など、図鑑の枠データを再構築
     new_zukan = {
         name: {
             "no": mon["no"],
@@ -854,7 +912,7 @@ def dat_update_check(in_name, M_list, Tokugi_dat):
     }
     all_data["zukan"] = new_zukan
 
-    # 技更新
+    # 特技数が変化した場合に技データを再構築
     if len(Tokugi_dat) != len(waza):
         new_waza = {
             name: {
@@ -866,7 +924,7 @@ def dat_update_check(in_name, M_list, Tokugi_dat):
         }
         all_data["waza"] = new_waza
 
-    # getm 更新
+    # 取得率(getm)の再計算と更新
     get = sum(v.get("get") == 1 for v in new_zukan.values())
     mleng = len(new_zukan)
     user["getm"] = (
@@ -877,7 +935,8 @@ def dat_update_check(in_name, M_list, Tokugi_dat):
 
 
 def dat_update():
-    """データファイルを更新し、ユーザー情報を反映"""
+    """データファイルを更新し、全ユーザー情報へ反映"""
+    # CSVからpickleへマスターデータを変換
     for target_key in CSV_DEFS_MASTER.keys():
         csv_to_pickle.convert_csv_to_pickle(target_key)
 
@@ -887,14 +946,14 @@ def dat_update():
     M_list = open_monster_dat()
     Tokugi_dat = open_tokugi_dat()
 
-    # 異世界最深部設定
+    # 異世界最深部設定の更新
     update_isekai_limit(M_list)
 
     def process_user(name):
         dat_update_check(name, M_list, Tokugi_dat)
 
     u_list = open_user_list()
-    # ★ process_batch に安全にリストとして渡すよう変更
+    # ユーザー全員のデータを並列バッチ処理で高速に更新
     errors = process_batch(list(u_list.keys()), process_user)
 
     msg = "datファイルの更新を反映しました。"
@@ -908,14 +967,14 @@ def dat_update():
 # cgi_python     #
 # ================#
 def make_haigou_list():
-    # 配合リスト2種を作り直す
+    # 手動で配合リスト2種を作り直す
     haigou_list_make.haigou_list_make()
-
     success("配合リストHTMLを作成しました。", jump="kanri")
 
 
 # ============================================================#
 def token_check():
+    # CSRF攻撃や二重送信を防ぐためのワンタイムトークン照合処理
     session = get_session()
     form_token = FORM.get("token", "")
     session_token = session.get("token", "")
@@ -923,6 +982,7 @@ def token_check():
     if not form_token or not secrets.compare_digest(session_token, form_token):
         error("トークンが一致しないです", "kanri")
 
+    # 新しいトークンを発行してセッションを更新
     token = secrets.token_hex(16)
     session.update(
         {
@@ -967,9 +1027,11 @@ if __name__ == "__main__":
     FORM = {key: form.getvalue(key) for key in form.keys()}
 
     if "mode" not in FORM:
-        set_session(FORM := {"token": secrets.token_hex(16)})
+        FORM["s"] = {"token": secrets.token_hex(16)}
+        set_session(FORM["s"])
         OPEN_K()
 
+    # 直接URLを叩かれた場合のブロック
     if os.environ["REQUEST_METHOD"] != "POST":
         error("不正ですか？by管理モード", "top")
 
@@ -977,8 +1039,9 @@ if __name__ == "__main__":
     if not func:
         error(f"無効なモード [{FORM['mode']}] です。", "top")
 
-    FORM |= token_check()
-    admin_check(FORM)
+    # セキュリティチェックを通してから該当関数を実行
+    FORM["s"] = token_check()
+    admin_check(FORM["s"])
     func()
 
     error("あっれれ～？おっかしぃぞぉ～by管理モード")

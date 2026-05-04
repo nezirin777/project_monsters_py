@@ -1,6 +1,6 @@
 #!D:\Python\Python314\python.exe
 
-# migrate_user_all.py - 最終修正版（user=None対策込み）
+# migrate_user_all.py
 
 import sys
 import os
@@ -25,6 +25,7 @@ def migrate_single_user(in_name):
         return f"スキップ: 不正なユーザー名 ({in_name})"
 
     try:
+        # 古いファイル群からデータをかき集める
         data = {
             "user": open_user(in_name),
             "party": open_party(in_name),
@@ -36,6 +37,7 @@ def migrate_single_user(in_name):
         }
         data["updated_at"] = datetime.datetime.now().isoformat()
 
+        # 新しい保存先パス
         file_path = get_file_path("user_all.pickle", in_name)
 
         lock = get_user_lock(in_name)
@@ -43,7 +45,35 @@ def migrate_single_user(in_name):
             return f"ロック取得失敗: {in_name}"
 
         try:
+            # 新ファイル(user_all.pickle)への書き込み
             _atomic_pickle_save_unlocked(data, file_path)
+
+            # --- ここから追加：不要になった古いpickleファイルの削除 ---
+            # 新しいファイルへの保存が成功した時だけ削除を実行する
+            old_files = [
+                "user.pickle",
+                "party.pickle",
+                "vips.pickle",
+                "room_key.pickle",
+                "waza.pickle",
+                "zukan.pickle",
+                "park.pickle",
+            ]
+
+            for old_filename in old_files:
+                old_filepath = get_file_path(old_filename, in_name)
+                # ファイルが存在する場合のみ削除
+                if os.path.exists(old_filepath):
+                    try:
+                        os.remove(old_filepath)
+                    except OSError as e:
+                        # 万が一削除に失敗しても、移行自体は成功しているので続行させる
+                        print(
+                            f"削除警告: {in_name} の {old_filename} を削除できませんでした ({e})",
+                            file=sys.stderr,
+                        )
+            # ----------------------------------------------------
+
             return None  # 成功
         finally:
             lock.unlock()
@@ -94,7 +124,7 @@ def migrate_all_users():
         if len(errors) > 30:
             print(f"... 他 {len(errors)-30} 件")
     else:
-        print("全ユーザー移行が正常に完了しました！")
+        print("全ユーザー移行および旧ファイルの削除が正常に完了しました！")
 
     print(f"完了時刻: {datetime.datetime.now()}")
 

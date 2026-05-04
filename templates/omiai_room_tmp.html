@@ -2,10 +2,6 @@
 
 {% extends "base_tmp.html" %}
 
-{% block head %}
-  <script src="./css_js/img_change.js"></script>
-{% endblock %}
-
 {% block content %}
 
   <div id="result">
@@ -15,7 +11,7 @@
   {% if not my_registered and not baby_ready %}
     <!-- 登録可能モンスター表示 -->
     <form name="img_change" method="post"  id="img_change">
-      <select name="omiai" onchange="change_img('omiai','img1')">
+      <select name="omiai" class="monster-select" data-target="img1">
         <option value="0" selected data-name="0">登録するモンスターを選んでください</option>
         {% for monster in selectable_monsters %}
           <option value="{{ monster.index }}" data-name="{{ monster.name }}">

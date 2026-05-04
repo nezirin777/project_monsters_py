@@ -615,6 +615,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_4 .my_page_st_1 {
   width: 15%;
@@ -631,6 +632,12 @@ button {
 .my_page_chara_4 .my_page_st_4 {
   display: none;
 }
+.my_page_chara_4 * {
+  pointer-events: none;
+}
+.my_page_chara_4 select {
+  pointer-events: auto;
+}
 
 .my_page_chara_5 {
   display: flex;
@@ -640,6 +647,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_5 .my_page_st_1 {
   width: 15%;
@@ -656,6 +664,12 @@ button {
 .my_page_chara_5 .my_page_st_4 {
   display: none;
 }
+.my_page_chara_5 * {
+  pointer-events: none;
+}
+.my_page_chara_5 select {
+  pointer-events: auto;
+}
 
 .my_page_chara_6 {
   display: flex;
@@ -665,6 +679,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_6 .my_page_st_1 {
   width: 15%;
@@ -681,6 +696,12 @@ button {
 .my_page_chara_6 .my_page_st_4 {
   display: none;
 }
+.my_page_chara_6 * {
+  pointer-events: none;
+}
+.my_page_chara_6 select {
+  pointer-events: auto;
+}
 
 .my_page_chara_7 {
   display: flex;
@@ -690,6 +711,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_7 .my_page_st_1 {
   width: 15%;
@@ -706,6 +728,12 @@ button {
 .my_page_chara_7 .my_page_st_4 {
   display: none;
 }
+.my_page_chara_7 * {
+  pointer-events: none;
+}
+.my_page_chara_7 select {
+  pointer-events: auto;
+}
 
 .my_page_chara_8 {
   display: flex;
@@ -715,6 +743,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_8 .my_page_st_1 {
   width: 15%;
@@ -731,6 +760,12 @@ button {
 .my_page_chara_8 .my_page_st_4 {
   display: none;
 }
+.my_page_chara_8 * {
+  pointer-events: none;
+}
+.my_page_chara_8 select {
+  pointer-events: auto;
+}
 
 .my_page_chara_9 {
   display: flex;
@@ -740,6 +775,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_9 .my_page_st_1 {
   width: 15%;
@@ -756,6 +792,12 @@ button {
 .my_page_chara_9 .my_page_st_4 {
   display: none;
 }
+.my_page_chara_9 * {
+  pointer-events: none;
+}
+.my_page_chara_9 select {
+  pointer-events: auto;
+}
 
 .my_page_chara_10 {
   display: flex;
@@ -765,6 +807,7 @@ button {
   max-height: 180px;
   width: 333px;
   height: 180px;
+  box-sizing: border-box;
 }
 .my_page_chara_10 .my_page_st_1 {
   width: 15%;
@@ -780,6 +823,16 @@ button {
 }
 .my_page_chara_10 .my_page_st_4 {
   display: none;
+}
+.my_page_chara_10 * {
+  pointer-events: none;
+}
+.my_page_chara_10 select {
+  pointer-events: auto;
+}
+
+.is-dragging [class^=my_page_chara_] select {
+  pointer-events: none !important;
 }
 
 .my_page_charabox {
@@ -844,6 +897,15 @@ button {
 }
 .my_page_st_val span {
   color: #FF0000;
+}
+
+.drag-over {
+  outline: 3px dashed #ff9800 !important;
+  outline-offset: -3px;
+  /* 線を内側に描画してはみ出しを防ぐ */
+  background-color: rgba(255, 152, 0, 0.2) !important;
+  /* transform: scale(1.02); は隣を押し退けるので削除 */
+  transition: background-color 0.2s ease;
 }
 
 /* 並び替えのボタン強調 */

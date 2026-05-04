@@ -1,3 +1,5 @@
+<!-- templates/kanri_mon_present_tmp.html -->
+
 {% extends "base_tmp.html" %}
 
 {% block head %}
@@ -31,7 +33,9 @@
                     配布モンスター<br>
                     <select name="mons_name" class="select2-user">
                         <option value="" hidden>選択してください</option>
-                        {{ txt }}
+                        {% for name in monster_names %}
+                          <option value="{{ name }}">{{ name }}</option>
+                        {% endfor %}
                     </select>
                     <br>
                     性別

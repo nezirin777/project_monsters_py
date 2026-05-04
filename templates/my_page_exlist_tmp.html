@@ -6,14 +6,14 @@
 <div class="my_page_menu3">【配合可能のみ表示】</div>
 <div class="my_page_menu4">
   <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="form">
-    <select name="haigou1" onchange="change_img('haigou1', 'img1')">
+    <select name="haigou1" class="monster-select" data-target="img1">
       <option value="99" data-name="0" hidden>選 択 -ベース-</option>
       {% for haigou in haigou_options %}
-      <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index }}: {{ haigou.name }} {{
-        haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
+      <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index }}: {{ haigou.name }} {{ haigou.sex
+        }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
       {% endfor %}
     </select>
-    <select name="haigou2" onchange="change_img('haigou2', 'img2')">
+    <select name="haigou2" class="monster-select" data-target="img2">
       <option value="99" data-name="0" hidden>選 択 -素材-</option>
       {% for haigou in haigou_options %}
       <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index }}: {{ haigou.name }} {{

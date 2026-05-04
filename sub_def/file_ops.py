@@ -571,8 +571,9 @@ open_vips, save_vips = _create_pickle_accessor("vips")
 open_zukan, save_zukan = _create_pickle_accessor("zukan")
 open_waza, save_waza = _create_pickle_accessor("waza")
 open_room_key, save_room_key = _create_pickle_accessor("room_key")
-open_battle, save_battle = _create_pickle_accessor("battle")
 open_park, save_park = _create_pickle_accessor("park")
+
+open_battle, save_battle = _create_pickle_accessor("battle")
 
 # ===============#
 # dat系          #

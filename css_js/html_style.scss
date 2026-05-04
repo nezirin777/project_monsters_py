@@ -118,6 +118,15 @@ body {
     list-style-position: inside;
 }
 
+/* 現在アクティブなソートボタン */
+.sortBtn.active-sort {
+  background-color: #ff9800;
+  /* オレンジ色に光る */
+  color: white;
+  font-weight: bold;
+  border: 2px solid #e65100;
+}
+
 .list2_group_header {
     @include margin();
     text-align: center;

@@ -1,5 +1,7 @@
 #!D:\Python\Python314\python.exe
 
+# monster.py - トップページの処理
+
 import cgi
 import secrets
 import os
@@ -8,14 +10,14 @@ from itertools import islice
 import conf
 from cgi_py.tournament import tournament
 from sub_def.file_ops import open_user_list, get_ranked_user_list, get_tournament_status
-from sub_def.crypto import get_cookie, set_session
+from sub_def.crypto import set_session, get_session
 from sub_def.user_ops import (
     get_del_day,
     get_client_ip,
     run_daily_delete_check,
     is_ip_banned,
 )
-from sub_def.utils import print_html, error
+from sub_def.utils import print_html, error, get_and_clear_flash
 
 Conf = conf.Conf
 
@@ -59,8 +61,10 @@ class TopPageRenderer:
     MAINTENANCE_MODE = os.path.exists("mente.mente")
 
     def __init__(self):
-        cookie = get_cookie()
-        self.in_name = cookie.get("in_name", "")
+        # キャッシュ事故を防ぐため、Cookieからの in_name の強制埋め込みを廃止
+        session = get_session()
+        self.flash_msg, self.flash_type = get_and_clear_flash(session)
+
         self.token = secrets.token_hex(16)
         set_session({"token": self.token, "ref": "top"})
 
@@ -94,7 +98,6 @@ class TopPageRenderer:
         content = {
             "Conf": Conf,
             "token": self.token,
-            "in_name": self.in_name,
             "maintenance": self.MAINTENANCE_MODE,
             "rank_text": rank_text,
             "users": users,
@@ -102,7 +105,11 @@ class TopPageRenderer:
             "t_time": self.t_time,
             "u_count": user_list_manager.u_count,
             "fol": FORM.get("fol", ""),
+            "flash_msg": self.flash_msg,
+            "flash_type": self.flash_type,
         }
+
+        # URLのパラメータ(GET)で view モードが指定された場合はログ画面を出す
         if FORM.get("mode", "") == "view":
             print_html("top_eventlog_tmp.html", content)
         else:
@@ -116,9 +123,10 @@ if __name__ == "__main__":
     if is_ip_banned(client_ip):
         error("あなたのIPは禁止されています", 99)
 
-    # フォームを辞書化
+    # フォームを辞書化 (GET通信のクエリパラメータも取得可能)
     form = cgi.FieldStorage()
     FORM = {key: form.getfirst(key) for key in form}
+
     # パラメーターによるセーブデータフォルダ分岐処理
     conf.apply_fol(FORM)
 
