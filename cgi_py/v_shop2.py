@@ -1,7 +1,7 @@
 # v_shop2 - アイテム(パーク)購入処理
 # 100vips = 50メダル,10vips = 5メダル,1vips = 0.5メダル
 from sub_def.file_ops import open_vips_shop2_dat, open_user_all, save_user_all
-from sub_def.utils import print_html, get_and_clear_flash, error, success
+from sub_def.utils import error, success
 import conf
 
 Conf = conf.Conf

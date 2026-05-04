@@ -84,7 +84,7 @@ def omiai_get_monster(data, new_mons, user_name):
     hosei = max(int(new_hai / 2), 1)
 
     # monster_selectを使って基本ステータスを生成
-    new_mob = monster_select(new_mons, hosei, 1, user_name)
+    new_mob = monster_select(new_mons, hosei)
     new_mob.update({"lv": 1, "mlv": mlv, "hai": new_hai})
 
     return new_mob

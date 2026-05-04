@@ -5,7 +5,7 @@ import os
 import secrets
 import logging
 import json
-import html  # 追加: エラーメッセージのサニタイズ用
+import html
 from jinja2 import Environment, FileSystemLoader
 
 import conf
@@ -31,7 +31,7 @@ URL_MAP = {
     "omiai_room": (Conf["cgi_url"], {"mode": "omiai_room"}),
 }
 
-# ★追加: 無限ループ検知用のグローバルフラグ
+# 無限ループ検知用のグローバルフラグ
 _IN_FLASH_AND_JUMP = False
 
 
@@ -46,9 +46,6 @@ def get_and_clear_flash(session):
     """
     セッションからフラッシュメッセージを取得し、即座に削除してクッキーを更新する。
     表示関数で一番最初に呼ぶことを想定。
-
-    Returns:
-        tuple: (flash_msg, flash_type)
     """
     if not isinstance(session, dict):
         return None, "error"
@@ -63,7 +60,6 @@ def get_and_clear_flash(session):
 
             set_session(session)
         except Exception as e:
-            # クッキー更新に失敗しても、メッセージ自体は表示させる
             logging.warning(f"Flash message clear failed: {e}")
 
     return flash_msg, flash_type
@@ -74,7 +70,22 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
     from .crypto import get_session, set_session
     import urllib.parse
 
+    # =========================================================
+    # 0. サニタイズと安全なタグの復元
+    # =========================================================
     sanitized_txt = html.escape(str(txt))
+    # 許可する特定のタグだけ元に戻す（セキュリティと装飾の両立）
+    allowed_tags = [
+        "&lt;br&gt;",
+        "&lt;span&gt;",
+        "&lt;/span&gt;",
+        "&lt;b&gt;",
+        "&lt;/b&gt;",
+    ]
+    for tag in allowed_tags:
+        sanitized_txt = sanitized_txt.replace(
+            tag, tag.replace("&lt;", "<").replace("&gt;", ">")
+        )
 
     # =========================================================
     # 1. 無限ループ防止（安全装置）
@@ -108,7 +119,7 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
     session.update(
         {
             "token": token,
-            "flash_msg": str(txt),
+            "flash_msg": sanitized_txt,  # サニタイズ済みの文字列を渡す
             "flash_type": msg_type,
         }
     )
@@ -121,8 +132,8 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
     # 3. 画面遷移（出力フェーズ）
     # =========================================================
     if is_ajax():
-        # AJAX応答
-        print("Content-Type: application/json\r\n\r\n")
+        # AJAX応答 (printの自動改行を考慮して \n は1つだけにする)
+        print("Content-Type: application/json\n")
         print(
             json.dumps(
                 {"ok": msg_type == "success", "msg": sanitized_txt, "type": msg_type}
@@ -146,27 +157,23 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
 
     else:
         # 内部ディスパッチ（kanri または login へ）
-        # ※ FORMの構造は同じなので共通化
         FORM = {"s": session, "mode": base_par.get("mode", ""), "token": token}
 
         if jump == "kanri":
             import kanri
 
-            # kanri.py のグローバル変数 FORM を直接上書きして最新のセッションを伝える
             if hasattr(kanri, "FORM"):
                 kanri.FORM["s"] = session
                 kanri.FORM["token"] = token
             else:
                 kanri.FORM = {"s": session, "token": token, "mode": "KANRI"}
 
-            # 引数なしで呼ぶ
             kanri.KANRI()
         else:
             from login import dispatch_function
 
             dispatch_function(FORM)
 
-    # どのルートを通っても最後はここで終了
     sys.exit()
 
 
@@ -182,7 +189,6 @@ def configure_logging(level=logging.ERROR):
     )
 
 
-# 初期化時にデフォルトでERRORレベルを設定
 configure_logging()
 
 
@@ -210,20 +216,18 @@ def info(txt, jump="my_page"):
 # ==========#
 # html出力  #
 # ==========#
-def print_html(tmp_name="", content={}, exit=True):
+def print_html(tmp_name="", content={}):
     template = env.get_template(tmp_name)
 
     print("Content-Type: text/html; charset=utf-8\n")
     print(template.render(content))
 
-    if exit:
-        sys.exit()
+    sys.exit()
 
 
 # =============#
 # 数値表記変換#
 # =============#
-# 単位変換の定数
 UNITS = {
     1: {"threshold": "", "units": []},
     2: {"threshold": 1000, "units": ["", "k", "M", "G", "T", "P"]},
@@ -232,14 +236,13 @@ UNITS = {
 
 
 def format_number(value, unit_type):
-    """数値を指定された単位形式に変換"""
     if unit_type not in UNITS:
         return str(value)
 
     threshold = UNITS[unit_type]["threshold"]
     units = UNITS[unit_type]["units"]
 
-    if unit_type == 1:  # カンマ区切り
+    if unit_type == 1:
         return f"{value:,}"
 
     value = float(value)
@@ -251,7 +254,6 @@ def format_number(value, unit_type):
 
 
 def slim_number(item, unit_type=0):
-    """数値やデータ構造を指定された形式に変換"""
     if unit_type == 0:
         return item
 
@@ -268,11 +270,9 @@ def slim_number(item, unit_type=0):
 
 
 def slim_number_with_cookie(item):
-    """クッキーから単位タイプを取得してslim_numberを適用"""
     from .crypto import get_cookie
 
     cookie = get_cookie()
-    # 取得した値を確実に int 型に変換（失敗したら0にする）
     try:
         unit_type = int(cookie.get("unit_type", 0))
     except (ValueError, TypeError):

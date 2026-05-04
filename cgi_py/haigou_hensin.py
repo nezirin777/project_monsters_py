@@ -1,7 +1,7 @@
 # haigou_hensin.py - 配合による新モンスター生成と表示
 
 from sub_def.utils import print_html, error
-from sub_def.file_ops import open_user_all, save_user_all
+from sub_def.file_ops import open_user_all, save_user_all, open_monster_dat
 from sub_def.monster_ops import monster_select, register_monster_progress
 
 import conf
@@ -55,24 +55,28 @@ def haigou_hensin(FORM):
     # 新モンスターデータの生成
     new_mob = monster_select(new_m, hosei)
 
+    # 技の判定が必要になったら、その場でマスターデータを引く
+    Mons = open_monster_dat()
+    new_mob_name = new_mob["name"]
+    mon_master = Mons.get(new_mob_name, {})
+    waza_target = mon_master.get("waza", "")
+
     # 特技・図鑑登録を統合関数で処理
     progress = register_monster_progress(
-        waza_target=new_mob.pop("waza", None),
-        zukan_target=new_mob.get("name", new_m),
+        waza_target=waza_target,
+        zukan_target=new_mob_name,
         user_name=user_name,
     )
+
     is_waza = progress["waza_new"]
     is_new = progress["zukan_new"]
 
-    is_rare = new_mob.get("room") == "異世界"
-
-    # room情報が無くてもKeyErrorで落ちないように pop(key, default) を使用
-    new_mob.pop("room", None)
+    is_rare = Mons.get(mon_master["room"], {}) == "異世界"
 
     # 配合後モンスターに引き継ぐステータスを上書き
     new_mob.update(
         {
-            "name": FORM["s"].get("new_mons", new_m),
+            "name": FORM["s"].get("new_mons", new_mob_name),
             "hai": new_hai,
             "lv": 1,
             "mlv": mlv,
