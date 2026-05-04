@@ -1,4 +1,5 @@
 #!D:\Python\Python314\python.exe
+# register.py - 新規登録処理
 
 import sys
 import cgi
@@ -40,13 +41,12 @@ from sub_def.validation import RegisterForm
 def log_registration(in_name):
     """新規登録をBBSログに追加"""
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    newlog = f"""<hr><font color="red">{html.escape(in_name)}</font>さんが参加しました！。 <font size="1">--{time}</font>\n"""
+    newlog = f"""<hr><span style="color: red;">{html.escape(in_name)}</span>さんが参加しました！。 <span style="font-size: 0.8em;">--{time}</span>\n"""
     append_log(newlog)
 
 
 def make_user_all_data(in_name: str, crypted: str, m_name: str) -> dict:
     """user_all.pickle 用の初期データを一括作成"""
-    # 1. 基本ユーザー情報
     user = {
         "name": in_name,
         "pass": crypted,
@@ -59,12 +59,11 @@ def make_user_all_data(in_name: str, crypted: str, m_name: str) -> dict:
         "getm": "0／0匹(0％)",
     }
 
-    # 2. パーティー初期データ
     party = [
         {
             "no": 1,
             "name": m_name,
-            "lv": 1,
+            "lv": 1,  # ★初期レベルは1
             "mlv": 10,
             "hai": 0,
             "hp": 5,
@@ -81,10 +80,8 @@ def make_user_all_data(in_name: str, crypted: str, m_name: str) -> dict:
         }
     ]
 
-    # 3. room_key
     room_key = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
 
-    # 4. waza（特技）
     Tokugi_dat = open_tokugi_dat()
     waza = {
         name: {"no": v["no"], "type": v["type"], "get": 0}
@@ -92,17 +89,14 @@ def make_user_all_data(in_name: str, crypted: str, m_name: str) -> dict:
     }
     waza["通常攻撃"]["get"] = 1
 
-    # 5. zukan（図鑑）
     zukan = {
         k: {"no": v["no"], "m_type": v["m_type"], "get": 0}
         for k, v in open_monster_dat().items()
     }
 
-    # 6. その他
     vips = {"パーク": 0}
     park = []
 
-    # すべてをまとめる
     return {
         "user": user,
         "party": party,
@@ -122,12 +116,9 @@ def create_new_user(in_name: str, crypted: str, m_name: str):
 
     try:
         os.makedirs(pickle_dir, exist_ok=True)
-
         all_data = make_user_all_data(in_name, crypted, m_name)
         save_user_all(all_data, in_name)
-
         return user_dir
-
     except Exception as e:
         if os.path.exists(user_dir):
             shutil.rmtree(user_dir, ignore_errors=True)
@@ -147,7 +138,7 @@ def update_user_list(in_name: str, crypted: str, m_name: str):
             "key": 1,
             "m1_name": m_name,
             "m1_hai": 0,
-            "m1_lv": 5,
+            "m1_lv": 1,
             "m2_name": "",
             "m2_hai": "",
             "m2_lv": "",
@@ -156,7 +147,7 @@ def update_user_list(in_name: str, crypted: str, m_name: str):
             "m3_lv": "",
             "money": 150,
             "mes": "未登録",
-            "getm": 0,  # 数値のまま（表示時はフォーマットする）
+            "getm": "0／0匹(0％)",
         }
         save_user_list(u_list)
     except Exception as e:
@@ -191,10 +182,7 @@ def make_user_data(in_name: str = "", in_pass: str = "", crypted: str = ""):
 
 
 def sinki(FORM, kanri=False):
-    # 引数は管理画面からの強制登録用
     """新規ユーザー登録のメイン処理"""
-
-    # フォーム検証（validation.py の関数を直接使用）
     form = RegisterForm(data=FORM)
     if not form.validate():
         error_msg = "; ".join(
@@ -202,7 +190,6 @@ def sinki(FORM, kanri=False):
         )
         error(f"入力情報の検証に失敗しました: {error_msg}", "top")
 
-    # 検証済みのデータを取得
     in_name = form.user_name.data
     in_pass = form.password.data
 
@@ -211,13 +198,11 @@ def sinki(FORM, kanri=False):
         error("その名前は既に登録されています", "top")
 
     u_list = open_user_list()
-
-    # 大文字・小文字を無視した重複名チェック
     lower_names = {u.casefold() for u in u_list}
     if in_name.casefold() in lower_names:
         error("その名前は使用できません", "top")
 
-    if Conf["iplog"] == 1 and not kanri:  # 管理モードの強制登録では重複判定スルー
+    if Conf["iplog"] == 1 and not kanri:
         host = get_host()
         if any(u["host"] == host for u in u_list.values()):
             error("重複登録の可能性があります。現在の設定では参加出来ません。", "top")
@@ -225,16 +210,13 @@ def sinki(FORM, kanri=False):
     make_user_data(in_name, in_pass)
     backup()
 
-    # 登録完了後のクッキーと表示処理
     set_cookie({"in_name": in_name, "last_floor": 1, "last_room": ""})
 
-    # 新形式でパーティを取得
     all_data = open_user_all(in_name)
     party = all_data["party"]
 
     k_txt = "管理モードで登録しました" if kanri else "登録が完了しました"
 
-    # テンプレートに渡すデータ
     context = {
         "Conf": Conf,
         "k_txt": k_txt,
@@ -245,6 +227,7 @@ def sinki(FORM, kanri=False):
         "monster": party[0],
         "kanri": kanri,
     }
+    # 完了画面のテンプレートを呼び出し
     print_html("newgame_result_tmp.html", context)
 
 
@@ -257,15 +240,16 @@ def main():
         )
 
     form = cgi.FieldStorage()
-    FORM = {key: form.getvalue(key) for key in form.keys()}
+
+    FORM = {key: form.getfirst(key) for key in form.keys()}
 
     if len(open_user_list()) >= Conf["sankaMAX"]:
         return error("参加人数上限を超えています。申し訳ありません。", "top")
 
     if "mode" not in FORM:
-        FORM["s"]["token"] = secrets.token_hex(16)
-        set_session(FORM)
-        print_html("newgame_tmp.html", {"token": FORM["s"]["token"], "Conf": Conf})
+        new_session = {"token": secrets.token_hex(16)}
+        set_session(new_session)
+        print_html("newgame_tmp.html", {"token": new_session["token"], "Conf": Conf})
 
     elif FORM["mode"] == "sinki":
         FORM["s"] = token_check(FORM, get_session())

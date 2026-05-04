@@ -481,7 +481,7 @@ button {
 		max-height: 180px;
 		width: 333px;
 		height: 180px;
-
+    box-sizing: border-box;
 		.my_page_st_1 {
 			width: 15%;
 		}
@@ -497,7 +497,17 @@ button {
 		.my_page_st_4 {
 			display: none;
 		}
+    * {
+      pointer-events: none;
+    }
+    select {
+      pointer-events: auto;
+    }
 	}
+}
+
+.is-dragging [class^="my_page_chara_"] select {
+  pointer-events: none !important;
 }
 
 .my_page_charabox {
@@ -549,6 +559,15 @@ button {
 	span {
 		color : $red;
 	}
+}
+
+.drag-over {
+  outline: 3px dashed #ff9800 !important;
+  outline-offset: -3px;
+  /* 線を内側に描画してはみ出しを防ぐ */
+  background-color: rgba(255, 152, 0, 0.2) !important;
+  /* transform: scale(1.02); は隣を押し退けるので削除 */
+  transition: background-color 0.2s ease;
 }
 
 /* 並び替えのボタン強調 */

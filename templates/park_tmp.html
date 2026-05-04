@@ -3,17 +3,13 @@
 {% extends "base_tmp.html" %}
 
 
-{% block head %}
-  <script src="./css_js/img_change.js"></script>
-{% endblock %}
-
 {% block content %}
     <div id="result">
         <span>モンスターパーク<br>モンスターを預けたりパーティに加えたりできます<br>預かり状況：{{ azukari }}/{{ waku }}体。</span>
     </div>
 
     <form name="form1" method="post" id="img_change" >
-        <select name="Mno" onchange="change_img('Mno', 'img1')">
+      <select name="Mno" class="monster-select" data-target="img1">
             <!-- 未選択のデフォルト値を99に -->
             <option value="99" hidden data-name="0">預けるモンスターを選んでください</option>
             {% for pt in party %}
