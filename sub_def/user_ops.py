@@ -139,7 +139,6 @@ def get_client_ip() -> str:
 
 
 def get_host() -> str:
-    return get_client_ip()
     """
     クライアントのリモートアドレスからホスト名を取得する。
     - X-Forwarded-For ヘッダーを優先的に確認する。

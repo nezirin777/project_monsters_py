@@ -11,7 +11,6 @@ import tempfile
 import conf
 import exLock
 
-
 from .utils import error
 from .crypto import get_session
 
@@ -68,9 +67,7 @@ def append_log(newlog: str) -> None:
 
     try:
         ensure_logfile()
-
         lines = LOGFILE.read_text(encoding="utf-8").splitlines()
-
         new_lines = newlog.splitlines()
         lines.extend(new_lines)
 
@@ -210,7 +207,7 @@ def get_file_path(file: str, user: str = "") -> str:
         return os.path.join(Conf["savedir"], file)
 
     # USER
-    elif base_name in CSV_DEFS_USER or base_name == "user_all":
+    elif base_name in CSV_DEFS_USER or base_name == "user_all" or base_name == "battle":
         if not user:
             error(f"ユーザー名必須: {file}", "top")
         if is_pickle:
@@ -220,19 +217,6 @@ def get_file_path(file: str, user: str = "") -> str:
     # fallback
     else:
         error(f"未定義ファイル: {file}", "top")
-
-
-def _create_pickle_accessor(file_name: str):
-    """open_xxx / save_xxx 用の簡易アクセサを生成"""
-    file_name = f"{file_name}.pickle"
-
-    def load(user: str = ""):
-        return pickle_load(file_name, user)
-
-    def dump(data: Any, user: str = ""):
-        pickle_dump(data, file_name, user)
-
-    return load, dump
 
 
 def _create_global_pickle_accessor(file_name: str):
@@ -246,51 +230,6 @@ def _create_global_pickle_accessor(file_name: str):
         _save_pickle_list(data, file_name)
 
     return load, dump
-
-
-# ======================#
-# pickle(ユーザー系)操作 #
-# ======================#
-def pickle_load(file: str, user: str = "") -> Any:
-    """ユーザー個別pickleのフルパスを返す。user未指定時はsessionのin_nameを参照"""
-    if user == "":
-        s = get_session()
-        user = s.get("in_name") or ""
-
-    file_path = get_file_path(file, user)
-
-    try:
-        with open(file_path, mode="rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        error(f"pickleファイルが見つかりません: {file_path}", 99)
-    except pickle.UnpicklingError:
-        error(f"pickleファイルの読み込みに失敗しました: {file_path}", 99)
-    except Exception as e:
-        error(f"pickleファイルの読み込み中にエラーが発生しました: {e}", 99)
-
-
-def pickle_dump(data: Any, file: str, user: str = "") -> None:
-    s = get_session()
-    user = user or s.get("in_name") or ""
-
-    file_path = get_file_path(file, user)
-
-    # 拡張子を取り除いてベースとなるキー名を取得
-    base_name = file.replace(".pickle", "").replace(".csv", "")
-
-    if base_name in CSV_DEFS_GLOBAL:
-        lock = get_shared_lock(file)
-    else:
-        lock = get_user_lock(user)
-
-    if not lock.lock():
-        error("現在サーバーが込み合っています。", "top")
-
-    try:
-        _atomic_pickle_save_unlocked(data, file_path)
-    finally:
-        lock.unlock()
 
 
 # =============================#
@@ -315,7 +254,6 @@ def initialize_pickle(file_name: str, initial_data: Any = None) -> None:
 
 def _load_pickle_list(file: str) -> Dict:
     """共有pickle(dict前提)を読み込む。無ければ初期化する"""
-
     file_path = get_file_path(file)
 
     if not os.path.exists(file_path):
@@ -364,7 +302,6 @@ def get_ranked_user_list(user_list: dict):
 # ====================================#
 def open_dat(file_name: str) -> Dict:
     """dat/pickle配下の共通マスタを読み込む"""
-    # 共通の get_file_path を通すように修正
     file_path = get_file_path(f"{file_name}.pickle")
 
     try:
@@ -381,12 +318,15 @@ def _create_dat_opener(file_name: str):
 
 
 # ======================#
-# 完全移行用：ユーザー全データ1ファイル
+# ユーザー全データ (1ファイル化)
 # ======================#
 def open_user_all(user: str = "") -> dict:
-    """ユーザー個別全データを1ファイルで読み込み（安全版）"""
+    """ユーザー個別全データを1ファイルで読み込み"""
     if not user:
-        error("open_user_all: ユーザー名が指定されていません", "top")
+        s = get_session()
+        user = s.get("in_name") or ""
+        if not user:
+            error("open_user_all: ユーザー名が指定されていません", "top")
 
     file_name = "user_all.pickle"
     file_path = get_file_path(file_name, user)
@@ -395,7 +335,7 @@ def open_user_all(user: str = "") -> dict:
         with open(file_path, mode="rb") as f:
             data = pickle.load(f)
 
-        # 後方互換性
+        # デフォルト値の保証（万が一データが欠損していてもここで補う）
         default = {
             "user": {},
             "party": [],
@@ -410,31 +350,8 @@ def open_user_all(user: str = "") -> dict:
                 data[key] = default[key]
         return data
 
-    except FileNotFoundError:
-        # まだ user_all.pickle が存在しない場合のみ、従来方式で合成
-        try:
-            return {
-                "user": open_user(user),  # ここは従来のまま（一時的）
-                "party": open_party(user),
-                "vips": open_vips(user),
-                "room_key": open_room_key(user),
-                "waza": open_waza(user),
-                "park": open_park(user),
-                "zukan": open_zukan(user),
-            }
-        except Exception as e:
-            print(f"フォールバック失敗 ({user}): {e}", file=sys.stderr)
-            return {
-                "user": {},
-                "party": [],
-                "vips": {},
-                "room_key": {},
-                "waza": {},
-                "park": [],
-                "zukan": {},
-            }
-
     except Exception as e:
+        # 古いフォールバック処理は削除し、明確にエラーとして処理する
         _handle_file_error("user_all", file_path, e)
         return {
             "user": {},
@@ -448,15 +365,60 @@ def open_user_all(user: str = "") -> dict:
 
 
 def save_user_all(data: dict, user: str = "") -> None:
-    """1ファイルにまとめて保存（安全版）"""
+    """1ファイルにまとめて保存"""
     if not user:
-        error("save_user_all: ユーザー名が指定されていません", "top")
+        s = get_session()
+        user = s.get("in_name") or ""
+        if not user:
+            error("save_user_all: ユーザー名が指定されていません", "top")
 
     file_name = "user_all.pickle"
     file_path = get_file_path(file_name, user)
 
-    data = dict(data)  # コピー
+    data = dict(data)
     data["updated_at"] = datetime.datetime.now().isoformat()
+
+    lock = get_user_lock(user)
+    if not lock.lock():
+        error("現在サーバーが込み合っています。", "top")
+
+    try:
+        _atomic_pickle_save_unlocked(data, file_path)
+    finally:
+        lock.unlock()
+
+
+# ======================#
+# バトル専用の一時ファイル
+# ======================#
+def open_battle(user: str = "") -> Any:
+    """戦闘中の一時データを読み込む"""
+    if not user:
+        s = get_session()
+        user = s.get("in_name") or ""
+        if not user:
+            error("open_battle: ユーザー名が指定されていません", "top")
+
+    file_path = get_file_path("battle.pickle", user)
+    try:
+        with open(file_path, mode="rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return None  # バトルデータが無いのはエラーではない（非戦闘時）
+    except Exception as e:
+        _handle_file_error("battle", file_path, e)
+        return None
+
+
+def save_battle(data: Any, user: str = "") -> None:
+    """戦闘中の一時データを書き込む"""
+    if not user:
+        s = get_session()
+        user = s.get("in_name") or ""
+        if not user:
+            error("save_battle: ユーザー名が指定されていません", "top")
+
+    file_path = get_file_path("battle.pickle", user)
 
     lock = get_user_lock(user)
     if not lock.lock():
@@ -562,18 +524,6 @@ def get_tournament_status() -> Dict:
 open_user_list, save_user_list = _create_global_pickle_accessor("user_list")
 open_omiai_list, save_omiai_list = _create_global_pickle_accessor("omiai_list")
 
-# ===============#
-# user個別pickle #
-# ===============#
-open_user, save_user = _create_pickle_accessor("user")
-open_party, save_party = _create_pickle_accessor("party")
-open_vips, save_vips = _create_pickle_accessor("vips")
-open_zukan, save_zukan = _create_pickle_accessor("zukan")
-open_waza, save_waza = _create_pickle_accessor("waza")
-open_room_key, save_room_key = _create_pickle_accessor("room_key")
-open_park, save_park = _create_pickle_accessor("park")
-
-open_battle, save_battle = _create_pickle_accessor("battle")
 
 # ===============#
 # dat系          #

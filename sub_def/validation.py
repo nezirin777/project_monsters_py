@@ -76,7 +76,9 @@ class ValidUsername:
     """ユーザー名の詳細な検証"""
 
     def __call__(self, form, field):
+        # ★修正: 正規化した値を field.data に書き戻し、システム全体で統一された値を使うようにする
         user_name = unicodedata.normalize("NFKC", field.data.strip())
+        field.data = user_name
 
         if re.search(r'[.<>:"/\\|?*\x00-\x1F\s]|[. ]$', user_name):
             raise ValidationError(
@@ -230,9 +232,16 @@ def admin_check(FORM):
     form = AdminForm(data=FORM)
     validate_form(form, "kanri")
 
-    if not hmac.compare_digest(form.m_name.data, Conf["master_name"]):
+    # 非ASCII文字によるTypeErrorクラッシュを防ぐため、バイト列にエンコードして比較
+    m_name_bytes = form.m_name.data.encode("utf-8")
+    conf_name_bytes = Conf["master_name"].encode("utf-8")
+
+    m_pass_bytes = form.m_password.data.encode("utf-8")
+    conf_pass_bytes = Conf["master_password"].encode("utf-8")
+
+    if not hmac.compare_digest(m_name_bytes, conf_name_bytes):
         error("MASTER_NAMEが違います", "kanri")
-    if not hmac.compare_digest(form.m_password.data, Conf["master_password"]):
+    if not hmac.compare_digest(m_pass_bytes, conf_pass_bytes):
         error("MASTER_PASSWORDが違います", "kanri")
 
     return form

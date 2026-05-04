@@ -19,11 +19,14 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 Conf = conf.Conf
 
-SEX_OPTIONS = Conf["sex"]
+SEX_OPTIONS = Conf.get("sex", ["陰", "陽"])
 
-BASE_STAT = lambda stat, mon, haigou_hosei, floor_hosei: int(
-    (mon.get(stat, 0) + haigou_hosei) * floor_hosei
-)
+
+# lambdaの代入をやめ、通常の関数として定義（PEP 8準拠）
+def _calc_base_stat(
+    stat_name: str, mon: dict, haigou_hosei: float, floor_hosei: float
+) -> int:
+    return int((mon.get(stat_name, 0) + haigou_hosei) * floor_hosei)
 
 
 # ============#
@@ -60,10 +63,10 @@ def register_monster_progress(
             zukan[zukan_target]["get"] = 1
             result["zukan_new"] = True
 
-            # 図鑑進捗率を更新
+            # ゼロ除算を完全に防止
             get_count = sum(1 for val in zukan.values() if val.get("get", 0) == 1)
             total_count = len(zukan)
-            progress = (get_count / total_count) * 100
+            progress = (get_count / total_count * 100) if total_count > 0 else 0.0
             user["getm"] = f"{get_count}／{total_count}匹 ({progress:.2f}％)"
 
     # 保存（変更があった場合のみ）
@@ -89,22 +92,17 @@ def create_monster_base(
 ) -> dict:
     """
     モンスターの基本情報を生成する共通関数。
-
-    Parameters:
-    mon (dict): モンスターの元データ。
-    haigou_hosei (float): ステータス補正値。
-    exp_modifier (float): 経験値や報酬の倍率調整。
     """
     SEIKAKU_KEYS = list(open_seikaku_dat().keys())
     base = {
         "name": name,
-        "hp": BASE_STAT("hp", mon, haigou_hosei, floor_hosei),
-        "mhp": BASE_STAT("hp", mon, haigou_hosei, floor_hosei),
-        "mp": BASE_STAT("mp", mon, haigou_hosei, floor_hosei),
-        "mmp": BASE_STAT("mp", mon, haigou_hosei, floor_hosei),
-        "atk": BASE_STAT("atk", mon, haigou_hosei, floor_hosei),
-        "def": BASE_STAT("def", mon, haigou_hosei, floor_hosei),
-        "agi": BASE_STAT("agi", mon, haigou_hosei, floor_hosei),
+        "hp": _calc_base_stat("hp", mon, haigou_hosei, floor_hosei),
+        "mhp": _calc_base_stat("hp", mon, haigou_hosei, floor_hosei),
+        "mp": _calc_base_stat("mp", mon, haigou_hosei, floor_hosei),
+        "mmp": _calc_base_stat("mp", mon, haigou_hosei, floor_hosei),
+        "atk": _calc_base_stat("atk", mon, haigou_hosei, floor_hosei),
+        "def": _calc_base_stat("def", mon, haigou_hosei, floor_hosei),
+        "agi": _calc_base_stat("agi", mon, haigou_hosei, floor_hosei),
         "exp": int(mon.get("exp", 0) * exp_modifier),
         "money": int(mon.get("money", 0) * exp_modifier),
         "sex": random.choice(SEX_OPTIONS),
@@ -116,20 +114,10 @@ def create_monster_base(
     return base
 
 
-def monster_select(
-    target: str, hosei: float = 0, get: int = 0, user_name: str = ""
-) -> dict:
+def monster_select(target: str, hosei: float = 0) -> dict:
     """
     ユーザーが取得するモンスターを生成。
-
-    Parameters:
-    target (str): モンスターの名前。
-    hosei (float): 補正値。
-    get (int): 図鑑への登録フラグ。
-    user_name (str): ユーザー名。
-
-    Returns:
-    dict: 新しいモンスターの情報。
+    （※図鑑登録は呼び出し側で register_monster_progress を使用すること）
     """
     Mons = open_monster_dat()
     mon = Mons.get(target)
@@ -148,8 +136,6 @@ def monster_select(
             "hai": 0,
             "exp": 0,
             "n_exp": int(Conf["nextup"]),
-            "waza": mon.get("waza", ""),
-            "room": mon.get("room", ""),
         },
     )
 
@@ -161,15 +147,6 @@ def battle_monster_select(
 ) -> dict:
     """
     バトル用のモンスター（通常またはボス）を生成
-
-    Parameters:
-        target (str): モンスターの名前
-        hosei (float): ステータス補正値
-        in_floor (float): フロアによる補正値
-        is_boss (bool): ボスモンスターかどうか（デフォルトはFalse）
-
-    Returns:
-        dict: 生成されたモンスター情報
     """
     Mons = open_monster_boss_dat() if is_boss else open_monster_dat()
 
@@ -181,8 +158,8 @@ def battle_monster_select(
     new_mob = create_monster_base(
         mon,
         name=target,
-        floor_hosei=hosei,
-        exp_modifier=in_floor,
+        floor_hosei=hosei,  # 敵の場合はhoseiが階層(floor)のステータス倍率になる
+        exp_modifier=in_floor,  # in_floorは経験値・お金の倍率
     )
     new_mob["name2"] = target
     return new_mob
