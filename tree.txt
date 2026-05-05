@@ -1,0 +1,276 @@
+フォルダー パスの一覧:  ボリューム 物置
+ボリューム シリアル番号は 000000B6 64B6:B850 です
+D:.
+│  .gitignore
+│  bbs.py
+│  conf.py
+│  conf.py.bak
+│  exLock.py
+│  index.html
+│  kanri.py
+│  login.py
+│  migrate_user_all.py
+│  monster.py
+│  progress.py
+│  register.py
+│  tree.txt
+│  めも.txt
+│  
+├─.vscode
+│      launch.json
+│      
+├─cgi_py
+│  │  books.py
+│  │  change.py
+│  │  comment.py
+│  │  csv_to_pickle.py
+│  │  haigou_check.py
+│  │  haigou_hensin.py
+│  │  haigou_list_make.py
+│  │  kyoukai.py
+│  │  medal_shop.py
+│  │  my_page.py
+│  │  my_page2.py
+│  │  m_bye.py
+│  │  m_get.py
+│  │  name_change.py
+│  │  number_unit.py
+│  │  park.py
+│  │  pickle_to_csv.py
+│  │  roomkey_get.py
+│  │  seitenkan.py
+│  │  shop_base.py
+│  │  tournament.py
+│  │  v_shop.py
+│  │  v_shop2.py
+│  │  yadoya.py
+│  │  zukan.py
+│  │  
+│  ├─battle
+│  │  │  battle_action.py
+│  │  │  battle_fight.py
+│  │  │  battle_manager.py
+│  │  │  battle_menu.py
+│  │  │  battle_sub.py
+│  │  │  battle_type.py
+│  │  │  
+│  │  └─__pycache__
+│  │          battle_action.cpython-312.pyc
+│  │          battle_action.cpython-314.pyc
+│  │          battle_encount.cpython-312.pyc
+│  │          battle_encount.cpython-314.pyc
+│  │          battle_fight.cpython-312.pyc
+│  │          battle_fight.cpython-314.pyc
+│  │          battle_manager.cpython-314.pyc
+│  │          battle_menu.cpython-312.pyc
+│  │          battle_menu.cpython-314.pyc
+│  │          battle_sub.cpython-312.pyc
+│  │          battle_sub.cpython-314.pyc
+│  │          battle_type.cpython-314.pyc
+│  │          __init__.cpython-312.pyc
+│  │          __init__.cpython-314.pyc
+│  │          
+│  ├─omiai
+│  │  │  omiai_answer.py
+│  │  │  omiai_baby.py
+│  │  │  omiai_request.py
+│  │  │  omiai_room.py
+│  │  │  omiai_touroku.py
+│  │  │  
+│  │  └─__pycache__
+│  │          omiai_answer.cpython-312.pyc
+│  │          omiai_answer.cpython-314.pyc
+│  │          omiai_baby.cpython-312.pyc
+│  │          omiai_baby.cpython-314.pyc
+│  │          omiai_request.cpython-312.pyc
+│  │          omiai_request.cpython-314.pyc
+│  │          omiai_room.cpython-312.pyc
+│  │          omiai_room.cpython-314.pyc
+│  │          omiai_touroku.cpython-312.pyc
+│  │          omiai_touroku.cpython-314.pyc
+│  │          __init__.cpython-312.pyc
+│  │          __init__.cpython-314.pyc
+│  │          
+│  └─__pycache__
+│          battle_type.cpython-312.pyc
+│          battle_type.cpython-314.pyc
+│          books.cpython-312.pyc
+│          books.cpython-314.pyc
+│          change.cpython-312.pyc
+│          change.cpython-314.pyc
+│          comment.cpython-312.pyc
+│          comment.cpython-314.pyc
+│          csv_to_pickle.cpython-312.pyc
+│          csv_to_pickle.cpython-314.pyc
+│          haigou_check.cpython-312.pyc
+│          haigou_check.cpython-314.pyc
+│          haigou_hensin.cpython-312.pyc
+│          haigou_hensin.cpython-314.pyc
+│          haigou_list_make.cpython-312.pyc
+│          haigou_list_make.cpython-314.pyc
+│          kakin_item.cpython-312.pyc
+│          kakin_item.cpython-314.pyc
+│          kyoukai.cpython-312.pyc
+│          kyoukai.cpython-314.pyc
+│          medal_shop.cpython-312.pyc
+│          medal_shop.cpython-314.pyc
+│          my_page.cpython-312.pyc
+│          my_page.cpython-314.pyc
+│          my_page2.cpython-312.pyc
+│          my_page2.cpython-314.pyc
+│          m_bye.cpython-312.pyc
+│          m_bye.cpython-314.pyc
+│          m_get.cpython-312.pyc
+│          m_get.cpython-314.pyc
+│          name_change.cpython-312.pyc
+│          name_change.cpython-314.pyc
+│          number_unit.cpython-312.pyc
+│          number_unit.cpython-314.pyc
+│          park.cpython-312.pyc
+│          park.cpython-314.pyc
+│          pickle_to_csv.cpython-312.pyc
+│          pickle_to_csv.cpython-314.pyc
+│          roomkey_get.cpython-312.pyc
+│          roomkey_get.cpython-314.pyc
+│          seitenkan.cpython-312.pyc
+│          seitenkan.cpython-314.pyc
+│          shop_base.cpython-312.pyc
+│          shop_base.cpython-314.pyc
+│          tournament.cpython-312.pyc
+│          tournament.cpython-314.pyc
+│          tournament_result.cpython-312.pyc
+│          tournament_result.cpython-314.pyc
+│          v_shop.cpython-312.pyc
+│          v_shop.cpython-314.pyc
+│          v_shop2.cpython-312.pyc
+│          v_shop2.cpython-314.pyc
+│          v_shop3.cpython-312.pyc
+│          v_shop3.cpython-314.pyc
+│          yadoya.cpython-312.pyc
+│          yadoya.cpython-314.pyc
+│          zukan.cpython-312.pyc
+│          zukan.cpython-314.pyc
+│          __init__.cpython-312.pyc
+│          __init__.cpython-314.pyc
+│          
+├─css_js
+│      admin.css
+│      common.css
+│      CountDown.js
+│      game.css
+│      html_style.css
+│      html_style.scss
+│      img_change.js
+│      loardbbs.js
+│      main.js
+│      mobile.css
+│      my_page.js
+│      slimselect.css
+│      slimselect.js
+│      style.css
+│      table_sort.js
+│      zukan_tooltip.js
+│      
+├─dat
+│  │  monster_dat.xlsx
+│  │  
+│  └─pickle
+│          book_dat.pickle
+│          key_dat.pickle
+│          medal_shop_dat.pickle
+│          monster_boss_dat.pickle
+│          monster_dat.pickle
+│          seikaku_dat.pickle
+│          tokugi_dat.pickle
+│          vips_shop2_dat.pickle
+│          vips_shop3_dat.pickle
+│          vips_shop_dat.pickle
+│          
+├─html
+│      event.html
+│      event_base.html
+│      haigou_list.html
+│      haigou_list2.html
+│      manual.html
+│      mokuteki.html
+│      news.html
+│      PLAYMANUAL copy.html
+│      readme.html
+│      tournament_result.html
+│      
+├─img
+├─save
+│      bbslog.log
+│      omiai_list.pickle
+│      tournament.log
+│      tournament_time.txt
+│      user_list.pickle
+│      
+├─sub_def
+│  │  crypto.py
+│  │  file_ops.py
+│  │  monster_ops.py
+│  │  user_ops.py
+│  │  utils.py
+│  │  validation.py
+│  │  
+│  └─__pycache__
+│          crypto.cpython-312.pyc
+│          crypto.cpython-314.pyc
+│          file_ops.cpython-312.pyc
+│          file_ops.cpython-314.pyc
+│          monster_ops.cpython-312.pyc
+│          monster_ops.cpython-314.pyc
+│          user_ops.cpython-312.pyc
+│          user_ops.cpython-314.pyc
+│          utils.cpython-312.pyc
+│          utils.cpython-314.pyc
+│          validation.cpython-312.pyc
+│          validation.cpython-314.pyc
+│          __init__.cpython-312.pyc
+│          __init__.cpython-314.pyc
+│          
+└─templates
+    │  base_tmp.html
+    │  battle_encount_tmp.html
+    │  battle_layout_tmp.html
+    │  battle_log_text_tmp.html
+    │  battle_menu_tmp.html
+    │  bbs_tmp.html
+    │  bbs_view_tmp.html
+    │  book_tmp.html
+    │  error_tmp.html
+    │  footer_tmp.html
+    │  haigou_check_tmp.html
+    │  haigou_list2_tmp.html
+    │  haigou_list_tmp.html
+    │  kanri_login_tmp.html
+    │  kanri_mon_present_tmp.html
+    │  kanri_page_button_tmp.html
+    │  kanri_saveedit_select_tmp.html
+    │  kanri_saveedit_table_tmp.html
+    │  kanri_tmp.html
+    │  medal_shop_tmp.html
+    │  monster_bye_tmp.html
+    │  my_page_battleselect_tmp.html
+    │  my_page_button_tmp.html
+    │  my_page_exlist_tmp.html
+    │  my_page_myparty_tmp.html
+    │  my_page_shoplist_tmp.html
+    │  my_page_tmp.html
+    │  name_change_tmp.html
+    │  newgame_result_tmp.html
+    │  newgame_tmp.html
+    │  new_monster_tmp.html
+    │  omiai_room_monster_list_tmp.html
+    │  omiai_room_tmp.html
+    │  park_tmp.html
+    │  top_eventlog_tmp.html
+    │  top_tmp.html
+    │  tournament_result_tmp.html
+    │  ui_extra_tmp.html
+    │  zukan_tmp.html
+    │  
+    └─ev
+            ev_log1.html
+            

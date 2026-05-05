@@ -3,13 +3,18 @@
 /* ==================================== */
 
 :root {
-  --sky-blue: #00CCCC;
+  --sky-blue: #3ccccc;
   --blue: #0000CC;
   --red: #FF0000;
   --yellow: #f7e371;
   --black: #000000;
   --white: #FFFFFF;
   --gray: #CCCCCC;
+  --main: #00CCCC;
+    /* 既存のsky-blue */
+    --main-dark: #009999;
+    --bg-dark: #1e1e1e;
+    --bg-light: #f5f5f5;
 }
 
 body {
@@ -117,27 +122,7 @@ button {
   color: var(--black);
 }
 
-/* スマホ向け（画面幅768px以下） */
-@media screen and (max-width: 768px) {
-  .site-footer {
-    text-align: center;
-    /* スマホでは中央寄せ */
-  }
 
-  .footer-credits {
-    font-size: 85%;
-  }
-
-  .credit-row {
-    justify-content: center;
-    /* 項目を中央に集める */
-  }
-
-  .credit-label {
-    width: auto;
-    margin-right: 5px;
-  }
-}
 /* 共通UI部品（メッセージ、モーダル、トースト等） */
 #result, #error {
   display: flex;
