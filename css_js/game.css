@@ -23,34 +23,62 @@
 }
 
 .toptitle, .rank_t {
-  margin: 10px auto;
-  color: var(--white); font-size: 140%; font-weight: bold;
-  box-sizing: border-box; border: solid 3px #FF00FF;
-  background-color: #660066; width: 1000px;
+  margin: 14px auto;
+  padding: 12px 16px;
+  color: var(--white);
+  font-size: 140%;
+  font-weight: bold;
+  line-height: 1.45;
+  box-sizing: border-box;
+  border: 2px solid #4d2f63;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #5a2b75 0%, #3f1f56 100%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  width: 1000px;
 
-  & span { color: var(--red); font-size: 80%; font-weight: bold; }
+  & span { color: #ffd166; font-size: 80%; font-weight: bold; }
 }
 
 .event_txt {
-  margin: 10px auto;
-  color: var(--white); font-size: 140%; font-weight: bold;
-  box-sizing: border-box; border: solid 3px #FF00FF;
-  background-color: #660066; width: 300px;
+  margin: 12px auto;
+  padding: 8px 14px;
+  color: #fff7d6;
+  font-size: 130%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: 2px solid #8e6a00;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #9b7612 0%, #7c5d0c 100%);
+  width: 300px;
 }
 
 .t_menu { font-size: 80%; }
 
 .t_txt {
-  margin: 10px auto;
-  background-color: var(--sky-blue); font-weight: bold; width: 680px;
-  & span { color: var(--red); }
+  margin: 12px auto;
+  padding: 12px 14px;
+  background-color: #dff5f9;
+  border: 1px solid #79b5bf;
+  border-radius: 8px;
+  color: #132f36;
+  font-weight: bold;
+  line-height: 1.6;
+  width: 680px;
+
+  & span { color: #b00020; }
 }
 
 
 #login_form input { width: 8em; }
 
 #medaltime {
-  margin: 5px auto; background-color: var(--white); width: 350px;
+  margin: 12px auto 8px;
+  padding: 8px 12px;
+  background-color: #f8f8ff;
+  border: 1px solid #b8bfd1;
+  border-radius: 8px;
+  color: #1d2b45;
+  width: 350px;
 }
 
 #news {
@@ -95,24 +123,26 @@
 
 .menu-btn {
   display: inline-block;
-  padding: 8px 12px;
-  background-color: var(--black);
+  padding: 8px 14px;
+  background-color: #16263b;
   color: var(--white) !important;
-  border: 1px solid var(--sky-blue);
-  border-radius: 4px;
+  border: 1px solid #4b80a8;
+  border-radius: 6px;
   text-decoration: none;
-  font-weight: normal;
-  transition: all 0.2s;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
 }
 
 .menu-btn:hover {
-  background-color: var(--sky-blue);
-  color: var(--black) !important;
+  background-color: #4b80a8;
+  color: #ffffff !important;
+  border-color: #86b8da;
 }
 
 .menu-btn.new-reg {
-  background-color: var(--red);
-  border-color: var(--white);
+  background-color: #b00020;
+  border-color: #ffd1dc;
 }
 
 .menu-btn.disabled {
@@ -126,14 +156,15 @@
 /* ログインフォーム (タイトに修正)           */
 /* ========================================= */
 .login-card {
-  background-color: var(--gray);
-  border: 2px solid var(--blue);
-  border-radius: 8px;
-  padding: 15px 20px;
+  background-color: #f4f6fb;
+  border: 2px solid #315a8f;
+  border-radius: 10px;
+  padding: 16px 20px;
   width: 90%;
-  max-width: 320px;
-  margin: 15px auto;
+  max-width: 340px;
+  margin: 18px auto;
   box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .login-card .form-group {
