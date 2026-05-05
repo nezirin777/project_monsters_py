@@ -42,6 +42,7 @@ def calculate_costs_and_options(party):
             haigou_options.append(
                 {
                     "index": i,
+                    "index_view": i + 1,
                     "name": pt.get("name", "不明"),
                     "sex": pt.get("sex", "不明"),
                     "lv": lv,
@@ -53,6 +54,7 @@ def calculate_costs_and_options(party):
             tenkan_options.append(
                 {
                     "index": i,
+                    "index_view": i + 1,
                     "name": pt.get("name", "不明"),
                     "sex": pt.get("sex", "不明"),
                     "cost": hai * 100,

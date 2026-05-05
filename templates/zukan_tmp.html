@@ -10,53 +10,58 @@
 
 {% block content %}
 
-<div id="zukan_title">
-  <div>
-    <span class="fsize">{{ user_name }}の魔物図鑑</span><br>入手したモンスターは{{ user.getm }}
+<!-- タイトルカード -->
+<div class="action-card zukan-header-card">
+  <div class="zukan-title-text">
+    <span class="zukan-user-name">{{ user_name }}の魔物図鑑</span><br>
+    <span class="zukan-count">入手したモンスターは {{ user.getm }}</span>
   </div>
 </div>
 
-<div id="zukan_link">
+<!-- 系統別ナビゲーション（タップしやすいピルボタン型） -->
+<div class="zukan-category-nav">
   {% for category in categories %}
-  [<a
-    href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type={{ category | urlencode }}&fol={{ fol }}">{{
-    category }}</a>]
-  {% if loop.index % 10 == 0 %}<br>{% endif %}
+  <a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type={{ category | urlencode }}&fol={{ fol }}"
+    class="zukan-category-btn">{{ category }}</a>
   {% endfor %}
 </div>
 
-<div id="zukan_type">{{m_type}}</div>
+<!-- 現在表示中の系統 -->
+<div class="zukan-current-type">【 {{ m_type }} 】</div>
 
-<div id="zukan_box">
+<!-- 図鑑グリッド（レスポンシブ対応） -->
+<div class="zukan-grid">
   {% for name, li in zukan_list.items() %}
-  <div class="zukan">
-    <div class="zukan_no">{{ li.no }}</div>
-    <div class="zukan_img {{ li.display_class }}" tabindex="0"
-      {% if li.show_tooltip %}
-        data-tooltip="{% for recipe in li.recipes %}<p>{{ recipe }}</p>{% endfor %}"
-      {% endif %}>
-      <img src="{{ Conf.imgpath }}/{{ li.display_name }}.gif">
+  <div class="zukan-item-card">
+    <div class="zukan-no">No.{{ li.no }}</div>
+    <div class="zukan-img-wrapper {{ li.display_class }}" tabindex="0" {% if li.show_tooltip %}
+      data-tooltip="{% for recipe in li.recipes %}<p>{{ recipe }}</p>{% endfor %}" {% endif %}>
+      <img src="{{ Conf.imgpath }}/{{ li.display_name }}.gif" alt="{{ li.display_name }}">
     </div>
-    <div class="zukan_name">{{ li.display_name }}</div>
+    <div class="zukan-name">{{ li.display_name }}</div>
   </div>
   {% endfor %}
 </div>
 
 {% if ref %}
-  <!-- 共有ツールチップ -->
-  <div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
+<!-- 共有ツールチップ -->
+<div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
+
   {% include "my_page_button_tmp.html" %}
+
 {% endif %}
 
 {% if not ref %}
-<form action="{{ Conf.cgi_url }}" method="get">
-  <input type="hidden" name="mode" value="my_page2">
-  <input type="hidden" name="name" value="{{ user_name }}">
-  <button type="submit">ユーザーページへ</button>
-</form>
-<form action="{{ Conf.top_url }}" method="post">
-  <button type="submit">TOPへ</button>
-</form>
+<div class="zukan-footer-actions">
+  <form action="{{ Conf.cgi_url }}" method="get" class="flex-form">
+    <input type="hidden" name="mode" value="my_page2">
+    <input type="hidden" name="name" value="{{ user_name }}">
+    <button type="submit" class="submit-btn slim-btn">ユーザーページへ</button>
+  </form>
+  <form action="{{ Conf.top_url }}" method="post" class="flex-form">
+    <button type="submit" class="submit-btn slim-btn">TOPへ</button>
+  </form>
+</div>
 {% endif %}
 
 {% endblock %}

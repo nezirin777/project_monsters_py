@@ -120,7 +120,8 @@ def process_form():
         if mode in allowed_get_modes:
             dispatch_function(FORM)
             sys.exit()
-        error("無効なリクエストです (POST通信が必要です)", "top")
+
+        # error("無効なリクエストです (POST通信が必要です)", "top")
 
     # 認証とトークンチェック
     session = get_session()

@@ -1,36 +1,53 @@
 <!-- templates/medal_shop_tmp.html -->
-
 {% extends "base_tmp.html" %}
 
 {% block content %}
 
-    <div id="result">
-      <span>{{ mes }}</span>
+    <!-- メッセージ表示 -->
+    <div class="action-card shop-msg-card">
+      <div class="action-card-header">交換所</div>
+      <div class="action-card-desc">{{ mes }}</div>
     </div>
 
-    <div class="my_page_box">
-        <div class="my_page_user_st1">所持金<br>{{ user_v.money }}G</div>
-        <div class="my_page_user_st1">メダル<br>{{ user_v.medal }}枚</div>
+    <!-- 所持状況バッジ -->
+    <div class="shop-status-container">
+        <div class="shop-status-badge">
+            <span class="shop-status-label">所持金</span>
+            <span class="shop-status-val">{{ user_v.money }}G</span>
+        </div>
+        <div class="shop-status-badge">
+            <span class="shop-status-label">メダル</span>
+            <span class="shop-status-val">{{ user_v.medal }}枚</span>
+        </div>
     </div>
 
-    <form action="{{ Conf.cgi_url }}" id="form_check" method="post">
+    <!-- 交換アイテム選択フォーム -->
+    <form action="{{ Conf.cgi_url }}" id="form_check" method="post" class="shop-trade-form">
         {% for category, items in item_lists.items() %}
-          <div class="medal_box">
+          <div class="shop-item-grid">
             {% for item in items %}
-            <div class="medal_box1">
-              <input type="radio" name="m_name" value="{{ item.name }}" required>
-              <div class="medal_name">{{ item.name }}</div>
-              <div class="medal_val">{{ item.val1 }}{{ item.price }}{{ item.val2 }}</div>
-            </div>
+            <label class="shop-item-card">
+              <input type="radio" name="m_name" value="{{ item.name }}" class="shop-item-radio" required>
+              <div class="shop-item-content">
+                <div class="shop-item-name">{{ item.name }}</div>
+                <div class="shop-item-price">
+                  <span class="price-prefix">{{ item.val1 }}</span>
+                  <span class="price-num">{{ item.price }}</span>
+                  <span class="price-unit">{{ item.val2 }}</span>
+                </div>
+              </div>
+            </label>
             {% endfor %}
           </div>
         {% endfor %}
-        <button type="submit">交換する</button>
-        <input type="hidden" name="mode" value="{{ mode }}">
-        <input type="hidden" name="token" value="{{ token }}">
+
+        <div class="shop-action-area">
+          <button type="submit" class="submit-btn trade-btn">交換する</button>
+          <input type="hidden" name="mode" value="{{ mode }}">
+          <input type="hidden" name="token" value="{{ token }}">
+        </div>
     </form>
 
     {% include "my_page_button_tmp.html" %}
-
 
 {% endblock %}

@@ -4,52 +4,60 @@
 
 {% block content %}
 
-<div id="result">
-  <span>
+<!-- 説明カード -->
+<div class="action-card book-info-card">
+  <div class="action-card-header">本　屋</div>
+  <div class="action-card-desc">
     モンスターに本を読ませると性格が変わります。<br>
-    現在の性格によっては変わらない場合もあります。<br>
-    1冊{{ book_price }}G。
-  </span>
+    <small>※現在の性格によっては変わらない場合もあります。 1冊: {{ book_price }}G</small>
+  </div>
 </div>
 
-<div id="books_mbox">
+<!-- パーティモンスター一覧（レスポンシブグリッド） -->
+<div class="book-monster-grid">
   {% for monster in monster_data %}
-  <div class="books_mbox1">
-    <div class="books_no">{{ monster.no }}</div>
-    <div class="books_im">
-      <img src="{{ monster.img }}">
+  <div class="book-monster-card">
+    <div class="book-no">No.{{ monster.no }}</div>
+    <div class="book-img-wrapper">
+      <img src="{{ monster.img }}" alt="{{ monster.name }}">
     </div>
-    <div class="books_m">
-      {{ monster.name }}<br>
-      -{{ monster.sex }}-<br>
-      {{ monster.sei }}
+    <div class="book-monster-info">
+      <div class="book-m-name">{{ monster.name }}</div>
+      <div class="book-m-meta">-{{ monster.sex }}-</div>
+      <div class="book-m-sei">{{ monster.sei }}</div>
     </div>
   </div>
   {% endfor %}
 </div>
 
-<form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" >
-  <div class="books_text3">モンスターを選択して下さい</div>
-  <select name="Mno">
-    {% for option in monster_options %}
-    <option value="{{ option.value }}">{{ option.label }}</option>
-    {% endfor %}
-  </select>
+<!-- 実行フォーム -->
+<div class="action-card book-form-card">
+  <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="ex-form">
 
-  <div class="books_text3">本を選択して下さい</div>
-  <select name="Bname">
-  {% for b_name in book_options %}
-    <option value="{{ b_name }}">{{ b_name }}</option>
-  {% endfor %}
-  </select>
+    <div class="ex-select-group">
+      <div class="action-subtitle">モンスターを選択</div>
+      <select name="Mno" class="ex-select">
+        {% for option in monster_options %}
+        <option value="{{ option.value }}">{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-  <br>
-  <br>
-  <button type="submit">本を読む</button>
-  <input type="hidden" name="mode" value="book_read">
-  <input type="hidden" name="token" value="{{ token }}">
-</form>
+    <div class="ex-select-group">
+      <div class="action-subtitle">本を選択</div>
+      <select name="Bname" class="ex-select">
+      {% for b_name in book_options %}
+        <option value="{{ b_name }}">{{ b_name }}</option>
+      {% endfor %}
+      </select>
+    </div>
 
-{% include "my_page_button_tmp.html" %}
+    <button type="submit" class="submit-btn ex-btn">本を読む</button>
+    <input type="hidden" name="mode" value="book_read">
+    <input type="hidden" name="token" value="{{ token }}">
+  </form>
+</div>
+
+  {% include "my_page_button_tmp.html" %}
 
 {% endblock %}

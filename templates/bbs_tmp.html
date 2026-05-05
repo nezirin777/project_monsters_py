@@ -2,26 +2,33 @@
 
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="utf-8">
   <title>一行掲示板</title>
 </head>
-
 <body>
-  <!-- ★ data-no-lock="true" を追加して main.js のロックを除外 -->
-  <form method="post" action="{{ Conf.bbs_url }}" data-no-lock="true">
+  <!-- data-no-lock="true" を追加して main.js のロックを除外 -->
+  <form method="post" action="{{ Conf.bbs_url }}" data-no-lock="true" class="bbs-form-card">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <input placeholder="発言" name="bbs_txt" size="40" autocomplete="off" required>
-    <button type="submit">送信</button>
-    <button type="button" onclick="refreshLog()">更新</button>
-    <br>
-    {% for color in colors %}
-    <input type="radio" name="color" value="{{ color }}" {% if color==selected_color %}checked{% endif %}>
-    <font color="{{ color }}">●</font>
-    {% endfor %}
-  </form>
-  <div id="log-area">{{ log | safe }}</div>
-</body>
 
+    <div class="bbs-input-group">
+      <input type="text" placeholder="発言" name="bbs_txt" class="bbs-input" autocomplete="off" required>
+      <button type="submit" class="submit-btn bbs-btn">送信</button>
+      <button type="button" class="submit-btn bbs-btn refresh-btn">更新</button>
+    </div>
+
+    <div class="bbs-color-palette">
+      {% for color in colors %}
+      <label class="color-radio">
+        <input type="radio" name="color" value="{{ color }}" {% if color==selected_color %}checked{% endif %}>
+        <span class="color-swatch" style="background-color: {{ color }};"></span>
+      </label>
+      {% endfor %}
+    </div>
+  </form>
+
+  <div id="log-area" class="bbs-log-container">
+    {{ log | safe }}
+  </div>
+</body>
 </html>

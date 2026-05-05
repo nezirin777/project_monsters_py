@@ -1,0 +1,243 @@
+/* ==================================== */
+/* common.css - 全ページ共通のベーススタイル */
+/* ==================================== */
+
+:root {
+  --sky-blue: #00CCCC;
+  --blue: #0000CC;
+  --red: #FF0000;
+  --yellow: #f7e371;
+  --black: #000000;
+  --white: #FFFFFF;
+  --gray: #CCCCCC;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  text-align: center;
+  background-color: #DEB887;
+  -webkit-text-size-adjust: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &.modal-open {
+    overflow: hidden;
+  }
+}
+
+A {
+  &:link, &:visited {
+    color: var(--white);
+    text-decoration: none;
+  }
+  &:hover {
+    color: crimson;
+    text-decoration: none;
+  }
+}
+
+input:invalid {
+  border: solid 2px red;
+}
+
+button {
+  margin: 10px 1px;
+}
+
+.form { display: inline; }
+.input { border-radius: 0px; }
+.hidden { display: none !important; }
+
+/* テキストカラーのユーティリティ */
+.sky_blue { color: var(--sky-blue); font-size: 100%; font-weight: bold; }
+.blue { color: var(--blue); font-size: 100%; font-weight: bold; }
+.red { color: var(--red); font-size: 100%; font-weight: bold; }
+.yellow { color: var(--yellow); font-size: 100%; font-weight: bold; }
+
+/* 共通レイアウト */
+.wrapper {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex {
+  display: inline-flex;
+}
+
+/* ==================================== */
+/* フッター (レスポンシブ対応)          */
+/* ==================================== */
+.site-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  /* コンテンツが少なくても常に最下部へ押しやる */
+  padding: 20px 10px;
+  text-align: right;
+  /* PCでは右寄せ */
+}
+
+.footer-credits {
+  display: inline-flex;
+  flex-direction: column;
+  text-align: left;
+  font-weight: bold;
+  font-size: 90%;
+  gap: 4px;
+  /* 行間を少し開ける */
+}
+
+.credit-title {
+  color: var(--red);
+  font-size: 110%;
+  margin-bottom: 5px;
+}
+
+.credit-row {
+  display: flex;
+}
+
+.credit-label {
+  width: 120px;
+  flex-shrink: 0;
+  color: var(--black);
+}
+
+.credit-copyright {
+  margin-top: 10px;
+  font-size: 85%;
+  color: var(--black);
+}
+
+/* スマホ向け（画面幅768px以下） */
+@media screen and (max-width: 768px) {
+  .site-footer {
+    text-align: center;
+    /* スマホでは中央寄せ */
+  }
+
+  .footer-credits {
+    font-size: 85%;
+  }
+
+  .credit-row {
+    justify-content: center;
+    /* 項目を中央に集める */
+  }
+
+  .credit-label {
+    width: auto;
+    margin-right: 5px;
+  }
+}
+/* 共通UI部品（メッセージ、モーダル、トースト等） */
+#result, #error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px auto;
+  color: var(--black);
+  font-size: 150%;
+  font-weight: bold;
+  max-width: 600px;
+  min-height: 80px;
+  max-height: 250px;
+  background-color: var(--black);
+
+  & > span {
+    padding: 5px 5px;
+    align-self: center;
+    width: 100%;
+    height: 100%;
+    border-top: 2px gray solid;
+    border-bottom: 2px gray solid;
+  }
+}
+
+#result span {
+  color: var(--sky-blue);
+  & span { color: var(--red); }
+}
+
+#error span {
+  color: var(--red);
+}
+
+
+/* === UI周り（トースト・モーダル・スピナー） === */
+#toast-container {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  min-width: 260px; max-width: 480px; padding: 14px 18px;
+  background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(6px);
+  border-radius: 12px; color: #fff; font-size: 20px; text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  animation: toastIn 0.25s ease; white-space: pre-wrap;
+
+  &.success { background: rgba(0, 180, 0, 0.9); }
+  &.error { background: rgba(200, 0, 0, 0.9); }
+  &.info { background: white; }
+  &.fade-out { opacity: 0; transform: translateY(-10px) scale(0.95); transition: all 0.2s ease; }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+#overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+  z-index: 9998; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+
+  & .overlay-content { text-align: center; }
+  & .overlay-text { margin-top: 10px; color: #fff; font-size: 14px; }
+}
+
+.spinner {
+  width: 50px; height: 50px; border: 5px solid #ccc;
+  border-top: 5px solid #4af; border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.modal {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+
+  &.hidden { display: none; }
+  & .modal-bg { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); }
+  & .modal-box {
+    position: relative; z-index: 1;
+    background: linear-gradient(145deg, #1e1e1e, #2a2a2a); color: #fff;
+    padding: 24px 28px; border-radius: 14px;
+    min-width: 280px; max-width: 90%; text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    animation: modalIn 0.2s ease;
+  }
+}
+
+@keyframes modalIn {
+  from { transform: translateY(10px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-buttons {
+  display: flex; gap: 10px; justify-content: center;
+  & button { min-width: 90px; padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; }
+  & #confirm-ok { background: linear-gradient(135deg, #4caf50, #43a047); color: #fff; }
+  & #confirm-cancel { background: #444; color: #ddd; }
+}

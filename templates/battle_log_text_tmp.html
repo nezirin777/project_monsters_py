@@ -5,7 +5,7 @@
     {% if event.is_miss %}
         <span class="sky_blue">{{ event.target_name }}</span>は<span class="red">{{ event.actor_name }}</span>の攻撃をかわした！
     {% else %}
-        <span class="red">{{ event.actor_name }}</span>は<span class="sky_blue">{{ event.target_name }}</span>に<span class="red">{{ event.damage }}</span>ポイントのダメージを与えた！
+        <span class="red">{{ event.actor_name }}</span>は<span class="sky_blue">{{ event.target_name }}</span>に<span class="red dmg-text">{{ event.damage }}</span>ポイントのダメージを与えた！
     {% endif %}
 
 {% else %}
@@ -27,13 +27,13 @@
         {% elif event.is_dead and event.damage == 0 %}
             <span class="red">{{ event.target_name }}</span>に攻撃しようとしたが既に力尽きていた！
         {% else %}
-            {% if event.is_critical %}会心の一撃！<br>{% endif %}
+            {% if event.is_critical %}<span class="critical-text">会心の一撃！</span><br>{% endif %}
 
             {% if event.is_miss %}
                 しかし<span class="red">{{ event.target_name }}</span>にダメージを与えることができなかった！
             {% else %}
                 <span class="yellow">{{ event.skill_name }}</span>を繰り出し<br>
-                <span class="red">{{ event.target_name }}</span>に<span class="red">{{ event.damage }}</span>ポイントのダメージを与えた！
+                <span class="red">{{ event.target_name }}</span>に<span class="red dmg-text">{{ event.damage }}</span>ポイントのダメージを与えた！
                 {% if event.is_dead %}<br><span class="red">{{ event.target_name }}</span>は倒れた{% endif %}
             {% endif %}
         {% endif %}

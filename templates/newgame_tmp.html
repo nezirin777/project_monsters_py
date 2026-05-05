@@ -3,19 +3,29 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="new_title">新規ユーザー登録</div>
-<div class="new_txt">
-  ユーザー名・パスワードを設定してください<br>
-  (20文字以内。ユーザー名はひらがな等もOK<br>パスワードは英数字のみ。)
-</div>
-<form action="{{ Conf.reg_url }}" method="post" class="new_form">
-  <div>
+<div class="new-reg-card">
+  <div class="new-reg-header">新規ユーザー登録</div>
+  <div class="new-reg-desc">
+    ユーザー名・パスワードを設定してください<br>
+    <small>(20文字以内。ユーザー名はひらがな等もOK。パスワードは英数字のみ)</small>
+  </div>
 
-    ユーザー名: <input type="text" size="14" name="user_name" maxlength="20" autocomplete="username" required><br>
-    パスワード: <input type="password" size="14" name="password" maxlength="20" autocomplete="new-password" required><br>
-    <input type="submit" value="　登　録　">
+  <form action="{{ Conf.reg_url }}" method="post" class="new-reg-form">
+    <div class="form-group">
+      <label>ユーザー名</label>
+      <input type="text" name="new_user_name" maxlength="20" autocomplete="username" required>
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" name="new_password" maxlength="20" autocomplete="new-password" required>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="submit-btn">登 録</button>
+    </div>
+
     <input type="hidden" name="mode" value="sinki">
     <input type="hidden" name="token" value="{{ token }}">
-  </div>
-</form>
+  </form>
+</div>
 {% endblock %}

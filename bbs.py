@@ -65,11 +65,13 @@ def handle_post(form, session):
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # モダンなクラス構造でログを生成
     newlog = (
-        f'<hr><span style="color: {color};"><b>{safe_name}</b> &gt; '
-        f'{txt} <span style="font-size: 0.8em;">--{timestamp}</span></span>\n'
+        f'<div class="bbs-line">'
+        f'<span style="color: {color}; font-weight: bold;">{safe_name}</span> &gt; '
+        f'{txt} <span class="bbs-time">--{timestamp}</span>'
+        f"</div>\n"
     )
-
     append_log(newlog)
 
     csrf_token = generate_csrf_token(session)

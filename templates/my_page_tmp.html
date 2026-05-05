@@ -3,79 +3,89 @@
 {% extends "base_tmp.html" %}
 
 {% block head %}
-  <script src="./css_js/my_page.js?202605042"></script>
-  <script src="./css_js/loardbbs.js?20260503"></script>
-  <script src="./css_js/CountDown.js"></script>
+<script src="./css_js/my_page.js?20260506"></script>
+<script src="./css_js/loardbbs.js?20260503"></script>
+<script src="./css_js/CountDown.js"></script>
 {% endblock %}
-
-
 
 {% block content %}
 
-<div class="my_page_topmenu">
-  [ <a href="{{ Conf.top_url }}">TOPへ</a> ]
-  [ <a href="./html/manual.html" target="_blank" rel="noopener">ぷれいまにゅある</a> ]
-  [ <a href="./html/haigou_list.html" target="_blank" rel="noopener">配合表</a> ]
-  [ <a href="./html/haigou_list2.html" target="_blank" rel="noopener">配合表2</a> ]
-  [ <a href="{{ Conf.homepage }}">{{ Conf.home_title }}</a> ]
-</div>
+<!-- トップページに合わせたモダンなボタンナビゲーション -->
+<nav class="t_menu top-nav-margin">
+  <a href="{{ Conf.top_url }}" class="menu-btn">TOPへ</a>
+  <a href="./html/manual.html" target="_blank" rel="noopener" class="menu-btn">ぷれいまにゅある</a>
+  <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="menu-btn">配合表</a>
+  <a href="./html/haigou_list2.html" target="_blank" rel="noopener" class="menu-btn">配合表2</a>
+  <a href="{{ Conf.homepage }}" class="menu-btn">{{ Conf.home_title }}</a>
+</nav>
 
 {% if Conf.event_boost %}
-<div class="event_txt">!!現在ブースト期間中!!</div>
+  <div class="event_txt">!!現在ブースト期間中!!</div>
 {% endif %}
+
 {% if boost_flg %}
-<div class="event_txt">!!現在課金ブースト期間中!!<br>残り{{ boost_time }}</div>
+  <div class="event_txt">!!現在課金ブースト期間中!!<br>残り{{ boost_time }}</div>
 {% endif %}
 
 {% include "my_page_myparty_tmp.html" %}
 
 {% if my_page_flg %}
 
-<!-- 鍵の一覧 -->
-<div class="my_page_keylist">
-  <a href="#" class="toggle-menu" data-show="u2" data-hide="u3">▼取得系統の鍵一覧▼</a>
-  <div id="u2">
-    {%- for item in room_key_display -%}
-    <div class="my_page_list_item">{{ item.name | escape if item.has_key else "なし" }}の鍵</div>
-    {%- endfor -%}
+<!-- 鍵と技の一覧：カード型のアコーディオンへ -->
+<div class="info-card-container">
+  <div class="info-card">
+    <button class="toggle-menu block-btn" data-show="u2" data-hide="u3">▼ 取得系統の鍵一覧 ▼</button>
+    <div id="u2" class="toggle-content">
+      <div class="item-grid">
+        {%- for item in room_key_display -%}
+        <div class="item-badge">{{ item.name | escape if item.has_key else "なし" }}の鍵</div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <button class="toggle-menu block-btn" data-show="u3" data-hide="u2">▼ 取得特技一覧 ▼</button>
+    <div id="u3" class="toggle-content">
+      <div class="item-grid">
+        {%- for item in waza_display -%}
+        <div class="item-badge">{{ item.name | escape }}</div>
+        {%- endfor -%}
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- 技の一覧 -->
-<div class="my_page_keylist">
-  <a href="#" class="toggle-menu" data-show="u3" data-hide="u2">▼取得特技一覧▼</a>
-  <div id="u3">
-    {%- for item in waza_display -%}
-    <div class="my_page_list_item">{{ item.name | escape }}</div>
-    {%- endfor -%}
-  </div>
+<!-- コメント変更：カード型インラインフォーム -->
+<div class="comment-card">
+  <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
+    <input type="text" name="message" value="{{ user.mes | escape }}" class="full-width-input" placeholder="ひとことコメント">
+    <input type="hidden" name="mode" value="comment">
+    <input type="hidden" name="token" value="{{ token }}">
+    <button type="submit" class="submit-btn slim-btn">コメント変更</button>
+  </form>
 </div>
-
-<form action="{{ Conf.cgi_url }}" method="post" class="form">
-  <input class="input" size="40" type="text" name="message" value="{{ user.mes | escape }}">
-  <input type="hidden" name="mode" value="comment">
-  <input type="hidden" name="token" value="{{ token }}">
-  <button type="submit">コメント変更</button>
-</form>
-<br>
 
 <div id="bbs"></div>
 
 <div id="b_count_txt" hidden>{{ next_t | escape }}</div>
-<div id="b_count"></div>
+<div id="b_count" class="timer-badge"></div>
 
-<div class="my_page_menu_box">
+<!-- 各種機能群（戦闘・ショップ・配合等）を並べるモダンコンテナ -->
+<div class="action-grid-container">
   {% include "my_page_battleselect_tmp.html" %}
-
   {% include "my_page_shoplist_tmp.html" %}
-
   {% include "my_page_exlist_tmp.html" %}
 </div>
-{% include "my_page_button_tmp.html" %}
 
-{% else %}
-<form action="{{ Conf.top_url }}" method="post">
-  <button type="submit">TOPへ</button>
+<div class="action-buttons">
+  {% include "my_page_button_tmp.html" %}
+</div>
+{% endif %}
+
+{% if not my_page_flg %}
+<form action="{{ Conf.top_url }}" method="post" class="action-buttons">
+  <button type="submit" class="submit-btn" style="max-width: 250px;">TOPへ</button>
 </form>
 {% endif %}
 

@@ -1,0 +1,133 @@
+/* ======================================================
+   mobile.css - スマートフォン向けレイアウト調整 (max-width: 768px)
+   ====================================================== */
+
+/* --- 全般・共通パーツ --- */
+.desktop-only { display: none !important; }
+
+.my-page-back-form { gap: 10px; }
+.my-page-back-form .slim-btn { padding: 12px 10px; font-size: 90%; }
+
+.flex-form { flex-direction: column; }
+.full-width-input { width: 100%; box-sizing: border-box; }
+.slim-btn { width: 100%; }
+
+/* --- TOPページ・ランキング --- */
+.rank-card {
+  flex-direction: column;
+  border: 2px solid var(--blue);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+.rank-badge {
+  width: 100%;
+  font-size: 150%;
+  padding: 10px 0;
+  border-right: none;
+  border-bottom: 1px solid var(--black);
+}
+.rank-top-row { flex-direction: column; }
+.rank-user-info {
+  width: 100%;
+  border-right: none;
+  border-bottom: 1px solid var(--black);
+}
+.rank-monsters { padding: 10px; }
+.monster-item { width: 45%; }
+.rank-comment-label { width: 80px; font-size: 90%; }
+
+/* --- 新規登録・ユーザー設定 --- */
+.stats-grid { grid-template-columns: 1fr 1fr; }
+.result-monster-header { flex-direction: column; gap: 10px; }
+.monster-info-text { text-align: center; }
+
+.name-change-card { width: 95%; }
+.form-action-area .submit-btn { width: 100%; padding: 15px; }
+
+/* --- マイページメイン --- */
+.party-grid { grid-template-columns: 1fr; max-width: 450px; }
+.card-body { flex-direction: row; align-items: center; padding: 10px 5px; }
+.monster-image-wrapper { width: 35%; margin-bottom: 0; min-height: auto; }
+.monster-image-wrapper img { max-height: 100px; }
+.monster-stats-grid { width: 65%; }
+.m-label { font-size: 85%; width: 35%; }
+.m-val { font-size: 95%; }
+
+.battle-options-grid { grid-template-columns: 1fr; padding: 10px; }
+.battle-inputs { flex-direction: column; align-items: stretch; }
+.battle-select, .battle-number { width: 100%; box-sizing: border-box; }
+.battle-text { text-align: center; margin: 2px 0; }
+
+.shop-button-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; }
+.shop-btn { font-size: 90%; padding: 15px 5px; }
+
+.ex-select, .ex-btn { width: 100%; box-sizing: border-box; }
+
+.bbs-input-group { flex-wrap: wrap; }
+.bbs-input { width: 100%; min-width: 100%; }
+.bbs-btn { flex: 1; }
+
+/* --- 戦闘・ログ --- */
+.enemy-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
+.enemy-image-wrapper { min-height: 100px; }
+.enemy-image-wrapper img { max-height: 80px; }
+.enemy-name { font-size: 95%; }
+
+.battle-cmd-grid { grid-template-columns: 1fr; }
+.cmd-member-header { padding: 8px; }
+.cmd-member-img { width: 60px; height: 60px; margin-right: 10px; }
+.cmd-member-img img { max-height: 50px; }
+.cmd-name { font-size: 100%; }
+
+.log-actors-area { align-items: flex-start; }
+.log-actor { flex-direction: column; text-align: center; }
+.log-attacker, .log-defender { justify-content: center; text-align: center; }
+.log-defender .log-actor-img { order: unset; margin-left: 0; margin-right: 0; margin-bottom: 5px; }
+.log-defender .log-actor-stats { order: unset; }
+.log-actor-img { margin-right: 0; margin-bottom: 5px; }
+
+/* --- 図鑑・本屋・交換所 --- */
+.zukan-category-btn { padding: 8px 10px; font-size: 85%; }
+.zukan-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; }
+.zukan-img-wrapper { height: 90px; }
+.zukan-img-wrapper img { max-height: 75px; }
+.zukan-name { font-size: 80%; }
+.tooltip { max-width: 85%; }
+
+.book-monster-grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.book-img-wrapper { height: 80px; }
+.book-img-wrapper img { max-height: 70px; }
+.book-m-name { font-size: 85%; }
+
+.shop-item-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 5px; }
+.shop-item-content { padding: 12px 5px; }
+.shop-item-name { font-size: 95%; }
+.shop-item-price { font-size: 85%; }
+
+/* --- 配合・お見合い・パーク --- */
+.haigou-img-area { gap: 10px; }
+.haigou-img-box { width: 110px; height: 110px; }
+.haigou-img-box img { max-height: 90px; }
+.haigou-plus { font-size: 150%; }
+
+.haigou-pair-grid { gap: 5px; padding: 10px; }
+.haigou-mons-card { width: 110px; }
+.haigou-img { height: 100px; }
+.born-img-container { width: 160px; height: 160px; }
+.born-img { max-height: 130px; }
+.born-stats-grid { grid-template-columns: 1fr; }
+
+.omiai-grid { grid-template-columns: 1fr; }
+.omiai-card-top { flex-direction: column; gap: 10px; align-items: flex-start; }
+.omiai-touroku-card { width: 95%; max-width: none; }
+.omiai-action-btns { width: 100%; }
+.omiai-action-btns .submit-btn { flex: 1; text-align: center; }
+
+.park-grid { grid-template-columns: 1fr; }
+.park-sort-btns { flex-direction: column; }
+.park-sort-btns .page-btn { width: 100%; }
+.park-card-stats { grid-template-columns: repeat(2, 1fr); }
+
+.bye-card { margin-top: 10px; }
+.bye-btn { width: 100%; padding: 15px; }

@@ -3,31 +3,46 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
+<div class="action-card bye-card">
+  <div class="action-card-header bye-header">パーティがいっぱいです！</div>
 
-<div class="mget_text">モンスターが一杯です。<br>誰を仲間から外しますか？</div>
+  <div class="action-card-body">
+    <div class="action-card-desc">
+      新しく仲間になりたがっているモンスターがいますが、<br>パーティの枠が足りません。<br>
+      <span class="red">誰か一人と、お別れする必要があります。</span>
+    </div>
 
-<form name="img_change" method="post" id="img_change">
-  <select name="Mno" class="monster-select" data-target="img1">
-    <!-- 仲間にしない（お別れする）場合は99を送信 -->
-    <option value="99" data-name="{{ get_name }}" selected>
-      新しいモンスター : {{ get_name }} {{ Asex }}
-    </option>
+    <form name="img_change" method="post" id="img_change" class="ex-form">
+      <div class="ex-select-group">
+        <div class="action-subtitle">お別れするモンスターを選択</div>
+        <select name="Mno" class="monster-select ex-select" data-target="img1">
+          <!-- 仲間にしない（お別れする）場合は99を送信 -->
+          <option value="99" data-name="{{ get_name }}" selected>
+            新しいモンスター : {{ get_name }} {{ Asex }}
+          </option>
 
-    {% for pt in party %}
-    <!-- Pythonの配列インデックスに合わせて loop.index0 (0始まり) に変更 -->
-    <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">
-      0{{ loop.index }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回
-    </option>
-    {% endfor %}
-  </select>
+          {% for pt in party %}
+          <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">
+            {{ loop.index }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回
+          </option>
+          {% endfor %}
+        </select>
+      </div>
 
-  <button type="submit">仲間から外す</button>
+      <!-- 選択中のモンスタープレビュー -->
+      <div class="haigou-img-box bye-preview-img">
+        <img name="img1" src="{{ Conf.imgpath }}/{{ get_name }}.gif" alt="{{ get_name }}">
+      </div>
 
-  <input type="hidden" name="mode" value="m_bye">
-  <input type="hidden" name="token" value="{{ token }}">
+      <div class="bye-action-area">
+        <button type="submit" class="submit-btn bye-btn" data-confirm="本当にお別れしてもよろしいですか？">
+          選択したモンスターと別れる
+        </button>
+      </div>
 
-  <br>
-  <img name="img1" src="{{ Conf.imgpath }}/{{ get_name }}.gif" alt="{{ get_name }}">
-</form>
-
+      <input type="hidden" name="mode" value="m_bye">
+      <input type="hidden" name="token" value="{{ token }}">
+    </form>
+  </div>
+</div>
 {% endblock %}

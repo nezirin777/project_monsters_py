@@ -76,7 +76,7 @@ class ValidUsername:
     """ユーザー名の詳細な検証"""
 
     def __call__(self, form, field):
-        # ★修正: 正規化した値を field.data に書き戻し、システム全体で統一された値を使うようにする
+        # 正規化した値を field.data に書き戻し、システム全体で統一された値を使うようにする
         user_name = unicodedata.normalize("NFKC", field.data.strip())
         field.data = user_name
 
@@ -113,6 +113,8 @@ class ValidUsername:
 # フォーム定義
 # ======================#
 class BaseUserForm(Form):
+    """ログイン等で使用する従来のフォーム"""
+
     user_name = StringField(
         "Username",
         [
@@ -138,14 +140,41 @@ class BaseUserForm(Form):
     )
 
 
-class RegisterForm(BaseUserForm):
-    def validate_password(self, field):
-        if self.user_name.data == field.data:
-            raise ValidationError("名前とパスワードは違うものにして下さい")
-
-
 class LoginForm(BaseUserForm):
     pass
+
+
+class RegisterForm(Form):
+    """新規登録専用のフォーム（属性名を new_user_name, new_password に変更）"""
+
+    new_user_name = StringField(
+        "Username",
+        [
+            validators.DataRequired(message="ユーザー名を入力してください。"),
+            validators.Length(
+                min=2,
+                max=20,
+                message="ユーザー名は2文字以上20文字以下で入力してください。",
+            ),
+            ValidUsername(),
+        ],
+    )
+    new_password = PasswordField(
+        "Password",
+        [
+            validators.DataRequired(message="パスワードを入力してください。"),
+            validators.Length(
+                min=2,
+                max=20,
+                message="パスワードは2文字以上20文字以下で入力してください。",
+            ),
+        ],
+    )
+
+    # WTFormsは "validate_フィールド名" という命名規則でカスタム関数を動かすため変更
+    def validate_new_password(self, field):
+        if self.new_user_name.data == field.data:
+            raise ValidationError("名前とパスワードは違うものにして下さい")
 
 
 class AdminForm(Form):

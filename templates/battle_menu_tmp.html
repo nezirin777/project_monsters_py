@@ -1,70 +1,96 @@
 <!-- templates/battle_menu_tmp.html -->
 
-<div class="battle_start">行動を選択して下さい！</div>
-<form action="{{ Conf.cgi_url }}" method="post">
-    <div class="battle_pt_box">
-        {% for pt in party %}
-        {% if pt.hp != 0 and pt.hp != "0" %}
-        <div class="battle_pt_box1">
-            <div class="battle_pt_name">
-                <img src="{{ Conf.imgpath }}/{{ pt.name }}.gif"><br>
-                <span>{{ pt.name }}</span>
-            </div>
-            <div class="battle_pt_box2">
-                <div class="battle_pt_1">レベル</div>
-                <div class="battle_pt_2"><span>{{ pt.lv }}</span></div>
-                <div class="battle_pt_1">HP</div>
-                <div class="battle_pt_2">{{ pt.hp }}/{{ pt.mhp }}</div>
-                <div class="battle_pt_1">MP</div>
-                <div class="battle_pt_2">{{ pt.mp }}/{{ pt.mmp }}</div>
+<div class="action-card battle-menu-card">
+  <div class="action-card-header">行動を選択して下さい！</div>
 
-                <div class="battle_pt_3">行動選択</div>
-                <select name="hit{{ pt.no }}" class="battle_pt_4">
+  <div class="action-card-body">
+    <form action="{{ Conf.cgi_url }}" method="post" class="battle-cmd-form">
+      <div class="battle-cmd-grid">
+
+        {% for pt in party %}
+          {% if pt.hp != 0 and pt.hp != "0" %}
+            <div class="cmd-member-card">
+              <!-- 上段：キャラ情報とステータス -->
+              <div class="cmd-member-header">
+                <div class="cmd-member-img">
+                  <img src="{{ Conf.imgpath }}/{{ pt.name }}.gif" alt="{{ pt.name }}">
+                </div>
+                <div class="cmd-member-info">
+                  <div class="cmd-name">{{ pt.name }}</div>
+                  <div class="cmd-stats">
+                    <div class="c-stat"><span class="c-label">LV</span> {{ pt.lv }}</div>
+                    <div class="c-stat"><span class="c-label">HP</span> {{ pt.hp }} / {{ pt.mhp }}</div>
+                    <div class="c-stat"><span class="c-label">MP</span> {{ pt.mp }} / {{ pt.mmp }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 下段：コマンド選択セレクトボックス -->
+              <div class="cmd-actions">
+                <div class="cmd-row">
+                  <div class="cmd-label">行動選択</div>
+                  <select name="hit{{ pt.no }}" class="cmd-select">
                     <option value="攻撃">攻撃</option>
                     {% if not special_flag %}
                     <option value="防御">防御する</option>
                     <option value="回復">回復魔法使用</option>
                     {% endif %}
-                </select>
+                  </select>
+                </div>
 
-                <div class="battle_pt_3">攻撃相手</div>
-                <select name="target{{ pt.no }}" class="battle_pt_4">
+                <div class="cmd-row">
+                  <div class="cmd-label">攻撃相手</div>
+                  <select name="target{{ pt.no }}" class="cmd-select">
                     {% for enemy in valid_enemies %}
                     <option value="{{ enemy.index }}">{{ enemy.name2 }}</option>
                     {% endfor %}
-                </select>
+                  </select>
+                </div>
 
-                <div class="battle_pt_3">特技</div>
-                <select name="toku{{ pt.no }}" class="battle_pt_4">
+                <div class="cmd-row">
+                  <div class="cmd-label">特技</div>
+                  <select name="toku{{ pt.no }}" class="cmd-select">
                     {% for skill in attack_skills %}
                     <option value="{{ skill.name }}" {% if skill.selected %}selected{% endif %}>
-                        {{ skill.name }} {% if not special_flag %}({{ skill.mp }} MP){% endif %}
+                      {{ skill.name }} {% if not special_flag %}({{ skill.mp }} MP){% endif %}
                     </option>
                     {% endfor %}
-                </select>
+                  </select>
+                </div>
 
                 {% if not special_flag %}
-                <div class="battle_pt_3">回復魔法相手</div>
-                <select name="nakama{{ pt.no }}" class="battle_pt_4">
+                <div class="cmd-row">
+                  <div class="cmd-label">回復相手</div>
+                  <select name="nakama{{ pt.no }}" class="cmd-select">
                     {% for member in valid_party %}
                     <option value="{{ member.index }}">{{ member.name }}</option>
                     {% endfor %}
-                </select>
-                <div class="battle_pt_3">回復魔法</div>
-                <select name="ktoku{{ pt.no }}" class="battle_pt_4">
+                  </select>
+                </div>
+
+                <div class="cmd-row">
+                  <div class="cmd-label">回復魔法</div>
+                  <select name="ktoku{{ pt.no }}" class="cmd-select">
                     <option value="0">使用しない</option>
                     {% for skill in heal_skills %}
                     <option value="{{ skill.name }}">{{ skill.name }} ({{ skill.mp }} MP)</option>
                     {% endfor %}
-                </select>
+                  </select>
+                </div>
                 {% endif %}
+              </div>
             </div>
-        </div>
-        {% endif %}
+          {% endif %}
         {% endfor %}
-    </div>
-    <br>
-    <input type="submit" name="monok" value="決定">
-    <input type="hidden" name="mode" value="battle_fight">
-    <input type="hidden" name="token" value="{{ token }}">
-</form>
+
+      </div>
+
+      <!-- 決定ボタン -->
+      <div class="battle-cmd-submit">
+        <button type="submit" name="monok" value="決定" class="submit-btn battle-btn">決　定</button>
+        <input type="hidden" name="mode" value="battle_fight">
+        <input type="hidden" name="token" value="{{ token }}">
+      </div>
+    </form>
+  </div>
+</div>
