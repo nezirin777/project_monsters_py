@@ -24,33 +24,61 @@
 
 .toptitle, .rank_t {
   margin: 10px auto;
-  color: var(--white); font-size: 140%; font-weight: bold;
-  box-sizing: border-box; border: solid 3px #FF00FF;
-  background-color: #660066; width: 1000px;
+  padding: 8px 12px;
+  color: var(--white);
+  font-size: 140%;
+  font-weight: 600;
+  line-height: 1.45;
+  box-sizing: border-box;
+  border: 2px solid #4d2f63;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #4f5870 0%, #3f475e 100%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  width: 1000px;
 
-  & span { color: var(--red); font-size: 80%; font-weight: bold; }
+  & span { color: #d7c9a0; font-size: 80%; font-weight: bold; }
 }
 
 .event_txt {
-  margin: 10px auto;
-  color: var(--white); font-size: 140%; font-weight: bold;
-  box-sizing: border-box; border: solid 3px #FF00FF;
-  background-color: #660066; width: 300px;
+  margin: 8px auto;
+  padding: 6px 10px;
+  color: #f1eee4;
+  font-size: 130%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: 1px solid #6f6753;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #6c6a63 0%, #5b5952 100%);
+  width: 300px;
 }
 
 .t_menu { font-size: 80%; }
 
 .t_txt {
-  margin: 10px auto;
-  background-color: var(--sky-blue); font-weight: bold; width: 680px;
-  & span { color: var(--red); }
+  margin: 8px auto;
+  padding: 8px 10px;
+  background-color: #e6ebef;
+  border: 1px solid #a1acb5;
+  border-radius: 6px;
+  color: #263238;
+  font-weight: bold;
+  line-height: 1.6;
+  width: 680px;
+
+  & span { color: #7b3b46; }
 }
 
 
 #login_form input { width: 8em; }
 
 #medaltime {
-  margin: 5px auto; background-color: var(--white); width: 350px;
+  margin: 8px auto 6px;
+  padding: 6px 10px;
+  background-color: #f8f8ff;
+  border: 1px solid #b8bfd1;
+  border-radius: 8px;
+  color: #1d2b45;
+  width: 350px;
 }
 
 #news {
@@ -89,30 +117,32 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-top: 15px;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .menu-btn {
   display: inline-block;
-  padding: 8px 12px;
-  background-color: var(--black);
+  padding: 7px 11px;
+  background-color: #3f4a59;
   color: var(--white) !important;
-  border: 1px solid var(--sky-blue);
-  border-radius: 4px;
+  border: 1px solid #69788a;
+  border-radius: 6px;
   text-decoration: none;
-  font-weight: normal;
-  transition: all 0.2s;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
 }
 
 .menu-btn:hover {
-  background-color: var(--sky-blue);
-  color: var(--black) !important;
+  background-color: #566579;
+  color: #ffffff !important;
+  border-color: #7c8b9b;
 }
 
 .menu-btn.new-reg {
-  background-color: var(--red);
-  border-color: var(--white);
+  background-color: #7b4b56;
+  border-color: #a38a91;
 }
 
 .menu-btn.disabled {
@@ -126,14 +156,15 @@
 /* ログインフォーム (タイトに修正)           */
 /* ========================================= */
 .login-card {
-  background-color: var(--gray);
-  border: 2px solid var(--blue);
-  border-radius: 8px;
-  padding: 15px 20px;
+  background-color: #eef1f4;
+  border: 1px solid #7a8794;
+  border-radius: 6px;
+  padding: 12px 14px;
   width: 90%;
-  max-width: 320px;
-  margin: 15px auto;
+  max-width: 340px;
+  margin: 10px auto;
   box-sizing: border-box;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .login-card .form-group {
