@@ -367,3 +367,29 @@ body {
 .manual_form {
   text-align: center;
 }
+
+/* === メダル杯 === */
+.medal_battle_title {
+  color: var(--blue);
+  font-size: 150%;
+  font-weight: bold;
+}
+
+.medal_battle_data {
+  margin: 10px auto 0 auto;
+  color: var(--red);
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.medal_battle_sub {
+  color: var(--black);
+  font-size: 110%;
+  font-weight: bold;
+}
+
+.medal_battle_result {
+  color: var(--black);
+  font-size: 100%;
+  font-weight: bold;
+}

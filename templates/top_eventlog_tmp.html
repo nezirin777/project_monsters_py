@@ -1,31 +1,29 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!-- templates/top_tmp.html -->
 
-<head>
-    <title> MONSTER'S 改 </title>
-    <link rel="stylesheet" href="./css_js/style.css" type="text/css">
-    <link rel="stylesheet" href="./css_js/html_style.css" type="text/css">
+{% extends "base_tmp.html" %}
 
-    <script src="./css_js/main.js"></script>
-    <script src="./css_js/loardbbs.js"></script>
-</head>
+{% block head %}
+<script src="./css_js/loardbbs.js?20260503"></script>
+{% endblock %}
 
-<body>
-    <div class="toptitle">
-        MONSTER'S 改 <span>{{ Conf.ver }}</span>
-        <div class="t_menu">
-            {% if u_count < Conf.sankaMAX %} [ <a href='./{{Conf.reg_url}}'>新規登録</a> ]
-                {% else %}
-                [<del title='参加者上限につき登録停止中'>新規登録</del>]
-                {% endif %}
-                [ <a href="./html/manual.html" target="_blank">ぷれいまにゅある</a> ]
-                [ <a href="./html/event.html" target="_blank">イベントについて</a> ]
-                [ <a href="./html/haigou_list.html" target="_blank">配合表</a> ]
-                [ <a href="./html/haigou_list2.html" target="_blank">配合表2</a> ]
-                [ <a href="./{{ Conf.kanri_url }}" target="_blank">管理モード</a> ]
-                [ <a href="{{ Conf.homepage }}">{{ Conf.home_title }}</a> ]
-        </div>
-    </div>
+{% block content %}
+
+<div class="toptitle">
+  MONSTER'S 改 <span>{{ Conf.ver }}</span>
+  <nav class="t_menu">
+    {% if u_count < Conf.sankaMAX %} <a href="./{{ Conf.reg_url }}" class="menu-btn new-reg">新規登録</a>
+      {% else %}
+      <span class="menu-btn disabled" title="参加者上限につき登録停止中">新規登録</span>
+      {% endif %}
+      <a href="./html/manual.html" target="_blank" rel="noopener" class="menu-btn">ぷれいまにゅある</a>
+      <a href="./html/event.html" target="_blank" class="menu-btn">イベントについて</a>
+      <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="menu-btn">配合表</a>
+      <a href="./html/haigou_list2.html" target="_blank" rel="noopener" class="menu-btn">配合表2</a>
+      <a href="./{{ Conf.kanri_url }}" target="_blank" rel="noopener" class="menu-btn">管理モード</a>
+      <a href="{{ Conf.homepage }}" class="menu-btn">{{ Conf.home_title }}</a>
+  </nav>
+</div>
+
 
     {% set template_path = "ev/"+ fol +".html" %}
     {% include template_path %}
@@ -33,67 +31,69 @@
     <p></p>
     <div id="bbs"></div>
 
-    <div class="rank_t">{{ rank_text }}</div>
+{% if users %}
+{% macro ptxt(buttons) %}
+<div style="text-align:center">
+  {% for button in buttons %}
+  <a href="{{ Conf.top_url }}?page={{ button.value }}" class="rank_pagination_link">
+    <button type="button">{{ button.label }}</button>
+  </a>
+  {% endfor %}
+</div>
+{% endmacro %}
 
-    {% macro ptxt(buttons) %}
-    <div style="text-align:center">
-        {% for button in buttons %}
-        <form method="post" style="display:inline-block">
-            <button>{{ button.label }}</button>
-            <input type="hidden" name="menu" value="{{ button.value }}">
-        </form>
-        {% endfor %}
-    </div>
-    {% endmacro %}
+<div class="rank_t">{{ rank_text }}</div>
 
-    {{ ptxt([
-    {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
-    {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
-    ]) }}
+<!-- PC用見出し（スマホでは消えます） -->
+<div class="rank-header desktop-only">
+  <div class="rh-rank">Rank</div>
+  <div class="rh-user">User</div>
+  <div class="rh-party">手持ち</div>
+</div>
 
-    <div class="rank_m">
-        <div class=r_1>Rank</div>
-        <div class=r_2>User</div>
-        <div class=r_3>手持ち</div>
-    </div>
-
-    {% for user in users %}
-    <div class="rank">
-        <div class="r_1 r_u1">{{ user.rank }}</div>
-        <div class="r_ubox">
-            <div class="r_2 r_u2">
-                <div>
-                    ユーザー名:
-                    <a href="{{ Conf.cgi_url }}?mode=my_page2&name={{ user.user_name }}&fol={{ fol }}" target="_blank">{{
-                        user.user_name
-                        }}</a><br>
-                    最深部: 地下<span>{{ user.key }}</span>階<br>
-                    所持金: {{ user.money }}G<br>
-                    図鑑: {{ user.getm }}<br>
-                    データ保存期間: あと<span>{{ user.delday }}</span>日
-                </div>
-            </div>
-            <div class="r_3 r_u3">
-                {% for monster in user.monsters %}
-                <div class="r_m">
-                    <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" /><br>
-                    {{ monster.name }}<br>
-                    Lv<span>{{ monster.lv }}</span><br>
-                    配合<span>{{ monster.hai }}</span>回
-                </div>
-                {% endfor %}
-            </div>
-            <div class="r_u4">コメント</div>
-            <div class="r_u5">{{ user.mes }}</div>
+{% for user in users %}
+<div class="rank-card">
+  <div class="rank-badge">{{ user.rank }}</div>
+  <div class="rank-body">
+    <!-- 上段：ユーザー情報と手持ち -->
+    <div class="rank-top-row">
+      <div class="rank-user-info">
+        ユーザー名: <a href="{{ Conf.cgi_url }}?mode=my_page2&target_user={{ user.user_name | urlencode }}" target="_blank"
+          rel="noopener">{{ user.user_name }}</a><br>
+        最深部: 地下<span>{{ user.key }}</span>階<br>
+        所持金: {{ user.money }}G<br>
+        図鑑: {{ user.getm }}<br>
+        保存期間: あと<span>{{ user.delday }}</span>日
+      </div>
+      <div class="rank-monsters">
+        {% for monster in user.monsters %}
+        <div class="monster-item">
+          <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}" /><br>
+          {{ monster.name }}<br>
+          Lv<span>{{ monster.lv }}</span><br>
+          配合<span>{{ monster.hai }}</span>回
         </div>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
+    <!-- 下段：コメント -->
+    <div class="rank-bottom-row">
+      <div class="rank-comment-label">コメント</div>
+      <div class="rank-comment-text">{{ user.mes | escape }}</div>
+    </div>
+  </div>
+</div>
+{% endfor %}
 
-    {{ ptxt([
-    {'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
-    {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 0}
-    ]) }}
-    {{ footer|safe }}
-</body>
+{% if u_count > Conf.maxshow %}
+{{ ptxt([
+{'label': '1位~' ~ (Conf.maxshow | string) ~ '位', 'value': 1},
+{'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 2}
+]) }}
+{% endif %}
 
-</html>
+{% else %}
+<div class="rank_t">現在登録者はいません。</div>
+{% endif %}
+
+{% endblock %}

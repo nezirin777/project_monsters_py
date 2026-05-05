@@ -239,7 +239,7 @@ def token_check(FORM: dict, session: dict, login_data: dict = None) -> dict:
         # ここは直接的なユーザー入力チェックなので error(flash_and_jump) で問題なし
         from .utils import error
 
-        error("無効なセッションです。再度お試しください", "")
+        # error("無効なセッションです。再度お試しください", "")
 
     session.update(
         {

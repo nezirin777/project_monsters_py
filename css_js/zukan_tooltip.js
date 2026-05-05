@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltip.style.top = `${Math.min(newY, maxY)}px`;
     }
 
-    document.querySelectorAll('.zukan_img').forEach(img => {
+    // ★修正：新しいクラス名 ".zukan-img-wrapper" に変更
+    // （過去の要素も拾えるよう ".zukan_img" も併記して互換性を持たせています）
+    document.querySelectorAll('.zukan-img-wrapper, .zukan_img').forEach(img => {
         const tooltipContent = img.dataset.tooltip;
         if (!tooltipContent) return; // ツールチップの中身がない画像は何もしない
 

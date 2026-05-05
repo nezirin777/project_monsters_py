@@ -1,107 +1,105 @@
 <!-- templates/park_tmp.html -->
-
 {% extends "base_tmp.html" %}
 
-
 {% block content %}
-    <div id="result">
-        <span>モンスターパーク<br>モンスターを預けたりパーティに加えたりできます<br>預かり状況：{{ azukari }}/{{ waku }}体。</span>
-    </div>
+    <!-- ヘッダー・預け入れフォーム -->
+    <div class="action-card park-header-card">
+        <div class="action-card-header">モンスターパーク</div>
+        <div class="action-card-desc">
+            モンスターを預けたりパーティに加えたりできます<br>
+            <small>預かり状況：{{ azukari }} / {{ waku }} 体</small>
+        </div>
 
-    <form name="form1" method="post" id="img_change" >
-      <select name="Mno" class="monster-select" data-target="img1">
-            <!-- 未選択のデフォルト値を99に -->
-            <option value="99" hidden data-name="0">預けるモンスターを選んでください</option>
-            {% for pt in party %}
-            <!-- pt.no(1始まり) ではなく loop.index0(0始まりの配列インデックス)を送信 -->
-            <option value="{{ loop.index0 }}"  data-name="{{ pt.name }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回</option>
-            {% endfor %}
-        </select>
-        <button type="submit">預ける</button>
-        <input type="hidden" name="mode" value="park_1">
-        <input type="hidden" name="token" value="{{ token }}">
-        <br>
-        <img name="img1" src="{{ Conf.imgpath }}/0.gif">
-    </form>
+        <div class="park-touroku-area">
+            <form name="form1" method="post" id="img_change" class="ex-form">
+                <div class="ex-select-group">
+                    <select name="Mno" class="monster-select ex-select" data-target="img1">
+                        <option value="99" hidden data-name="0">預けるモンスターを選択</option>
+                        {% for pt in party %}
+                        <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="haigou-img-box">
+                    <img name="img1" src="{{ Conf.imgpath }}/0.gif">
+                </div>
+                <button type="submit" class="submit-btn">預ける</button>
+                <input type="hidden" name="mode" value="park_1">
+                <input type="hidden" name="token" value="{{ token }}">
+            </form>
+        </div>
+    </div>
 
     {% include "my_page_button_tmp.html" %}
 
-    <hr>
+    <hr class="section-divider">
 
     {% if not park_v %}
-    <div id="result">
-        <span>パーク内にいるモンスター<br>
-            現在預けているモンスターはいません。
-        </span>
-    </div>
-    {% endif %}
+    <div class="sys-msg">パーク内に預けているモンスターはいません。</div>
+    {% else %}
 
-    {% if park_v %}
+    <!-- 操作・ソート・ページング -->
+    <div class="park-controls">
+        <div class="action-subtitle">パーク内のモンスター ({{ page }}区画目)</div>
 
-    <div id="result">
-        <span>パーク内にいるモンスター<br>{{ page }}区画目<br>No.{{ p1+1 }} ～ No.{{ p2 }}</span>
-    </div>
-
-    <form method="post" class="park_jump_form">
-        <input type="hidden" name="mode" value="park">
-        <input type="hidden" name="page" value="1">
-        <input type="hidden" name="sort_v" value="1">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit">名前でソート</button>
-    </form>
-
-    <form method="post" class="park_jump_form">
-        <input type="hidden" name="mode" value="park">
-        <input type="hidden" name="page" value="1">
-        <input type="hidden" name="sort_v" value="2">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit">図鑑順でソート</button>
-    </form>
-
-    <div class="park_page">
-        {% for i in range(1, jump_count + 1) %}
-        <form method="post" class="park_jump_form">
-            <input type="hidden" name="mode" value="park">
-            <input type="hidden" name="page" value="{{ i }}">
-            <input type="hidden" name="token" value="{{ token }}">
-            <button type="submit">{{ " %02d区" | format(i) }}</button>
-        </form>
-        {% endfor %}
-    </div>
-
-    <div class="park_box">
-        <div class="park_ste">
-            <div class="park_width">NO</div>
-            <div class="park_mname">キャラ</div>
-            <div class="park_width">配合</div>
-            <div class="park_width">LV/<br>最大LV</div>
-            <div class="park_width">HP/<br>最大HP</div>
-            <div class="park_width">MP/<br>最大MP</div>
-            <div class="park_width">攻撃力</div>
-            <div class="park_width">守備力</div>
-            <div class="park_width">素早さ</div>
+        <div class="park-sort-btns">
+            <form method="post" class="omiai-inline-form">
+                <input type="hidden" name="mode" value="park"><input type="hidden" name="page" value="1">
+                <input type="hidden" name="sort_v" value="1"><input type="hidden" name="token" value="{{ token }}">
+                <button type="submit" class="page-btn">名前でソート</button>
+            </form>
+            <form method="post" class="omiai-inline-form">
+                <input type="hidden" name="mode" value="park"><input type="hidden" name="page" value="1">
+                <input type="hidden" name="sort_v" value="2"><input type="hidden" name="token" value="{{ token }}">
+                <button type="submit" class="page-btn">図鑑順でソート</button>
+            </form>
         </div>
+
+        <div class="park_page">
+            {% for i in range(1, jump_count + 1) %}
+            <form method="post" class="park_jump_form">
+                <input type="hidden" name="mode" value="park">
+                <input type="hidden" name="page" value="{{ i }}">
+                <input type="hidden" name="token" value="{{ token }}">
+                <button type="submit" class="page-btn {% if i|string == page|string %}active{% endif %}">{{ "%02d区" | format(i) }}</button>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- モンスターカードグリッド -->
+    <div class="park-grid">
         {% for ppt in park_v[p1:p2] %}
-        <div class="park_mob">
-            <div class="park_width">{{ ppt.no }}
-                <form action="{{ Conf.cgi_url }}" method="post">
-                    <!-- ★ppt.no(1始まり) ではなく、表示中のページ開始インデックス(p1) + ループインデックスで絶対位置を算出 -->
+        <div class="park-monster-card">
+            <div class="park-card-header">
+                <span class="p-no">No.{{ ppt.no }}</span>
+                <form action="{{ Conf.cgi_url }}" method="post" class="omiai-inline-form">
                     <input type="hidden" name="mob" value="{{ p1 + loop.index0 }}">
                     <input type="hidden" name="mode" value="park_2">
                     <input type="hidden" name="token" value="{{ token }}">
-                    <button type="submit">連れていく</button>
+                    <button type="submit" class="submit-btn slim-btn">連れていく</button>
                 </form>
             </div>
-            <div class="park_mname">
-                <img src="{{ Conf.imgpath }}/{{ ppt.name }}.gif"><br>{{ ppt.name }}<br>{{ ppt.sex }}<br>【{{ ppt.sei }}】
+
+            <div class="park-card-body">
+                <div class="p-img-box">
+                    <img src="{{ Conf.imgpath }}/{{ ppt.name }}.gif">
+                </div>
+                <div class="p-info">
+                    <div class="p-name">{{ ppt.name }}</div>
+                    <div class="p-meta">{{ ppt.sex }} / 【{{ ppt.sei }}】</div>
+                    <div class="p-hai">配合: {{ ppt.hai }}回</div>
+                </div>
             </div>
-            <div class="park_width">{{ ppt.hai }}回</div>
-            <div class="park_width">{{ ppt.lv }}<br>{{ ppt.mlv }}</div>
-            <div class="park_width">{{ ppt.hp }}<br>{{ ppt.mhp }}</div>
-            <div class="park_width">{{ ppt.mp }}<br>{{ ppt.mmp }}</div>
-            <div class="park_width">{{ ppt.atk }}</div>
-            <div class="park_width">{{ ppt.def }}</div>
-            <div class="park_width">{{ ppt.agi }}</div>
+
+            <div class="park-card-stats">
+                <div class="p-s-item"><span class="p-s-label">LV</span><span class="p-s-val">{{ ppt.lv }}<small>/{{ ppt.mlv }}</small></span></div>
+                <div class="p-s-item"><span class="p-s-label">HP</span><span class="p-s-val">{{ ppt.hp }}<small>/{{ ppt.mhp }}</small></span></div>
+                <div class="p-s-item"><span class="p-s-label">MP</span><span class="p-s-val">{{ ppt.mp }}<small>/{{ ppt.mmp }}</small></span></div>
+                <div class="p-s-item"><span class="p-s-label">攻撃</span><span class="p-s-val">{{ ppt.atk }}</span></div>
+                <div class="p-s-item"><span class="p-s-label">守備</span><span class="p-s-val">{{ ppt.def }}</span></div>
+                <div class="p-s-item"><span class="p-s-label">素早</span><span class="p-s-val">{{ ppt.agi }}</span></div>
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -112,7 +110,7 @@
             <input type="hidden" name="mode" value="park">
             <input type="hidden" name="page" value="{{ i }}">
             <input type="hidden" name="token" value="{{ token }}">
-            <button type="submit">{{ " %02d区" | format(i) }}</button>
+            <button type="submit" class="page-btn {% if i|string == page|string %}active{% endif %}">{{ "%02d区" | format(i) }}</button>
         </form>
         {% endfor %}
     </div>

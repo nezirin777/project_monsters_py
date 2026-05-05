@@ -1,5 +1,13 @@
-@charset "UTF-8";
-/*$yellow: #ffd900 ; */
+:root {
+  --sky-blue: #00CCCC;
+  --blue: #0000CC;
+  --red: #FF0000;
+  /* --yellow: #ffd900; */
+  --yellow: #f7e371;
+  --black: #000000;
+  --white: #FFFFFF;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -7,6 +15,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   /* 画面全体の高さを確保 */
+
   /* 画像を常に天地左右の中央に配置 */
   background-position: center center;
   /* 画像をタイル状に繰り返し表示しない */
@@ -18,6 +27,7 @@ body {
   text-align: center;
   /* background-image: url(../img/back.jpg); */
   background-color: #DEB887;
+
   /* アイフォン文字はみ出し対策 */
   -webkit-text-size-adjust: 100%;
   appearance: none;
@@ -30,12 +40,12 @@ body.modal-open {
 }
 
 A:Link {
-  color: #FFFFFF;
+  color: var(--white);
   text-decoration: none;
 }
 
 A:Visited {
-  color: #FFFFFF;
+  color: var(--white);
   text-decoration: none;
 }
 
@@ -65,25 +75,25 @@ button {
 }
 
 .sky_blue {
-  color: #00CCCC;
+  color: var(--sky-blue);
   font-size: 100%;
   font-weight: bold;
 }
 
 .blue {
-  color: #0000CC;
+  color: var(--blue);
   font-size: 100%;
   font-weight: bold;
 }
 
 .red {
-  color: #FF0000;
+  color: var(--red);
   font-size: 100%;
   font-weight: bold;
 }
 
 .yellow {
-  color: #f7e371;
+  color: var(--yellow);
   font-size: 100%;
   font-weight: bold;
 }
@@ -103,7 +113,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
@@ -117,12 +127,13 @@ button {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
-  background-color: #000000;
+  background-color: var(--black);
   width: 250px;
 }
+
 .kanri_login span {
   display: inline-flex;
   width: 100px;
@@ -133,7 +144,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
   box-sizing: border-box;
@@ -151,6 +162,7 @@ button {
   border: solid 1px #FF00FF;
   width: 100%;
 }
+
 .kanri_menu span {
   color: #ffbf7f;
 }
@@ -164,7 +176,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
@@ -178,7 +190,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
   box-sizing: border-box;
@@ -193,7 +205,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
   box-sizing: border-box;
@@ -201,28 +213,21 @@ button {
   background-color: #1e90ff;
   white-space: nowrap;
 }
+
 .kanri_save_edit_table th {
   background-color: #3F51B5; /* 背景色指定 */
-  color: #fff; /* 文字色指定 */
+  color: #fff;               /* 文字色指定 */
 }
 
 /************************************/
 /* TOPページ */
 /************************************/
-/*****
-.mente {
-	@include margin(10px,10px);
-	font-weight: bold;
-	width: 680px;
-	color:$red;
-}
-****/
 .mente {
   margin-left: auto;
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
@@ -236,7 +241,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
@@ -244,8 +249,9 @@ button {
   background-color: #660066;
   width: 1000px;
 }
+
 .toptitle span, .rank_t span {
-  color: #FF0000;
+  color: var(--red);
   font-size: 80%;
   font-weight: bold;
 }
@@ -255,7 +261,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
@@ -273,12 +279,13 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  background-color: #00CCCC;
+  background-color: var(--sky-blue);
   font-weight: bold;
   width: 680px;
 }
+
 .t_txt span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .login {
@@ -286,12 +293,13 @@ button {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
-  background-color: #000000;
+  background-color: var(--black);
   width: 250px;
 }
+
 .login span {
   display: inline-flex;
   width: 100px;
@@ -306,7 +314,7 @@ button {
   margin-right: auto;
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 350px;
 }
 
@@ -333,22 +341,22 @@ button {
 
 .r_1, .r_2, .r_3, .r_u1, .r_u2, .r_u3, .r_u4, .r_u5 {
   box-sizing: border-box;
-  border: solid 1px black;
-  color: #FFFFFF;
+  border: solid 1px var(--black);
+  color: var(--white);
 }
 
 .r_1 {
-  background-color: #000000;
+  background-color: var(--black);
   width: 50px;
 }
 
 .r_2 {
-  background-color: #0000CC;
+  background-color: var(--blue);
   width: 250px;
 }
 
 .r_3 {
-  background-color: #0000CC;
+  background-color: var(--blue);
   width: 550px;
 }
 
@@ -371,42 +379,45 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #0000CC;
+  background-color: var(--blue);
   font-size: 90%;
 }
+
 .r_u2 span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .r_u3 {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  background-color: #FFFFFF;
+  background-color: var(--white);
 }
+
 .r_u3 img {
   max-height: 120px;
 }
 
 .r_m {
-  color: #000000;
+  color: var(--black);
   font-size: 90%;
   font-weight: bold;
   width: 33%;
   line-height: 14px;
 }
+
 .r_m span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .r_u4 {
-  background-color: #0000CC;
+  background-color: var(--blue);
   width: 100px;
 }
 
 .r_u5 {
-  background-color: #FFFFFF;
-  color: #000000;
+  background-color: var(--white);
+  color: var(--black);
   width: 700px;
 }
 
@@ -426,7 +437,7 @@ button {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
@@ -440,10 +451,10 @@ button {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #f7e371;
+  color: var(--yellow);
   font-size: 140%;
   font-weight: bold;
-  background-color: #000000;
+  background-color: var(--black);
   width: 500px;
 }
 
@@ -452,7 +463,7 @@ button {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #000000;
+  color: var(--black);
   font-size: 140%;
   font-weight: bold;
   width: 450px;
@@ -463,7 +474,7 @@ button {
   margin-right: auto;
   margin-top: 20px;
   margin-bottom: 10px;
-  color: #FF0000;
+  color: var(--red);
   font-size: 140%;
   font-weight: bold;
 }
@@ -482,18 +493,20 @@ button {
 
 .new_1 {
   box-sizing: border-box;
-  border: solid 1px #000000;
+  border: solid 1px var(--black);
   flex-grow: 2;
-  background-color: #FFFFFF;
+  background-color: var(--white);
 }
+
 .new_1 div {
-  background-color: #00CCCC;
-  color: #FFFFFF;
+  background-color: var(--sky-blue);
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
 }
+
 .new_1 span {
-  color: #FF0000;
+  color: var(--red);
   font-size: 100%;
   font-weight: bold;
 }
@@ -507,9 +520,9 @@ button {
   margin-top: 0px;
   margin-bottom: 0px;
   box-sizing: border-box;
-  border: solid 1px #000000;
+  border: solid 1px var(--black);
   width: 600px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
 }
 
 /************************************/
@@ -520,7 +533,7 @@ button {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
   font-weight: bold;
   box-sizing: border-box;
@@ -534,7 +547,7 @@ button {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #000000;
+  color: var(--black);
   font-size: 120%;
   font-weight: bold;
   background-color: #f0bc68;
@@ -555,9 +568,9 @@ button {
 
 .my_page_user_st1 {
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   padding: 0px 10px 0 10px;
-  background: linear-gradient(180deg, #00CCCC 0%, #00CCCC 50%, #FFFFFF 50%, #FFFFFF 100%);
+  background: linear-gradient(180deg, var(--sky-blue) 0%, var(--sky-blue) 50%, #FFFFFF 50%, #FFFFFF 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -577,261 +590,108 @@ button {
   width: 1000px;
 }
 
-.my_page_chara_1 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #f7e371;
-  max-height: 180px;
-  width: 100%;
-  height: 180px;
-}
-
-.my_page_chara_2 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #f7e371;
-  max-height: 180px;
-  width: 100%;
-  height: 180px;
-}
-
+/* @for $i from 1 through 3 展開部分 */
+.my_page_chara_1,
+.my_page_chara_2,
 .my_page_chara_3 {
   display: flex;
   justify-content: center;
   align-items: auto;
-  background-color: #f7e371;
+  background-color: var(--yellow);
   max-height: 180px;
   width: 100%;
   height: 180px;
 }
 
-.my_page_chara_4 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #FFFFFF;
-  max-height: 180px;
-  width: 333px;
-  height: 180px;
-  box-sizing: border-box;
-}
-.my_page_chara_4 .my_page_st_1 {
-  width: 15%;
-}
-.my_page_chara_4 .my_page_st_2 {
-  width: 40%;
-}
-.my_page_chara_4 .my_page_charabox {
-  width: 45%;
-}
-.my_page_chara_4 .my_page_st_3 {
-  width: 100%;
-}
-.my_page_chara_4 .my_page_st_4 {
-  display: none;
-}
-.my_page_chara_4 * {
-  pointer-events: none;
-}
-.my_page_chara_4 select {
-  pointer-events: auto;
-}
-
-.my_page_chara_5 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #FFFFFF;
-  max-height: 180px;
-  width: 333px;
-  height: 180px;
-  box-sizing: border-box;
-}
-.my_page_chara_5 .my_page_st_1 {
-  width: 15%;
-}
-.my_page_chara_5 .my_page_st_2 {
-  width: 40%;
-}
-.my_page_chara_5 .my_page_charabox {
-  width: 45%;
-}
-.my_page_chara_5 .my_page_st_3 {
-  width: 100%;
-}
-.my_page_chara_5 .my_page_st_4 {
-  display: none;
-}
-.my_page_chara_5 * {
-  pointer-events: none;
-}
-.my_page_chara_5 select {
-  pointer-events: auto;
-}
-
-.my_page_chara_6 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #FFFFFF;
-  max-height: 180px;
-  width: 333px;
-  height: 180px;
-  box-sizing: border-box;
-}
-.my_page_chara_6 .my_page_st_1 {
-  width: 15%;
-}
-.my_page_chara_6 .my_page_st_2 {
-  width: 40%;
-}
-.my_page_chara_6 .my_page_charabox {
-  width: 45%;
-}
-.my_page_chara_6 .my_page_st_3 {
-  width: 100%;
-}
-.my_page_chara_6 .my_page_st_4 {
-  display: none;
-}
-.my_page_chara_6 * {
-  pointer-events: none;
-}
-.my_page_chara_6 select {
-  pointer-events: auto;
-}
-
-.my_page_chara_7 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #FFFFFF;
-  max-height: 180px;
-  width: 333px;
-  height: 180px;
-  box-sizing: border-box;
-}
-.my_page_chara_7 .my_page_st_1 {
-  width: 15%;
-}
-.my_page_chara_7 .my_page_st_2 {
-  width: 40%;
-}
-.my_page_chara_7 .my_page_charabox {
-  width: 45%;
-}
-.my_page_chara_7 .my_page_st_3 {
-  width: 100%;
-}
-.my_page_chara_7 .my_page_st_4 {
-  display: none;
-}
-.my_page_chara_7 * {
-  pointer-events: none;
-}
-.my_page_chara_7 select {
-  pointer-events: auto;
-}
-
-.my_page_chara_8 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #FFFFFF;
-  max-height: 180px;
-  width: 333px;
-  height: 180px;
-  box-sizing: border-box;
-}
-.my_page_chara_8 .my_page_st_1 {
-  width: 15%;
-}
-.my_page_chara_8 .my_page_st_2 {
-  width: 40%;
-}
-.my_page_chara_8 .my_page_charabox {
-  width: 45%;
-}
-.my_page_chara_8 .my_page_st_3 {
-  width: 100%;
-}
-.my_page_chara_8 .my_page_st_4 {
-  display: none;
-}
-.my_page_chara_8 * {
-  pointer-events: none;
-}
-.my_page_chara_8 select {
-  pointer-events: auto;
-}
-
-.my_page_chara_9 {
-  display: flex;
-  justify-content: center;
-  align-items: auto;
-  background-color: #FFFFFF;
-  max-height: 180px;
-  width: 333px;
-  height: 180px;
-  box-sizing: border-box;
-}
-.my_page_chara_9 .my_page_st_1 {
-  width: 15%;
-}
-.my_page_chara_9 .my_page_st_2 {
-  width: 40%;
-}
-.my_page_chara_9 .my_page_charabox {
-  width: 45%;
-}
-.my_page_chara_9 .my_page_st_3 {
-  width: 100%;
-}
-.my_page_chara_9 .my_page_st_4 {
-  display: none;
-}
-.my_page_chara_9 * {
-  pointer-events: none;
-}
-.my_page_chara_9 select {
-  pointer-events: auto;
-}
-
+/* @for $i from 4 through 10 展開部分 */
+.my_page_chara_4,
+.my_page_chara_5,
+.my_page_chara_6,
+.my_page_chara_7,
+.my_page_chara_8,
+.my_page_chara_9,
 .my_page_chara_10 {
   display: flex;
   justify-content: center;
   align-items: auto;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   max-height: 180px;
   width: 333px;
   height: 180px;
   box-sizing: border-box;
 }
+
+.my_page_chara_4 .my_page_st_1,
+.my_page_chara_5 .my_page_st_1,
+.my_page_chara_6 .my_page_st_1,
+.my_page_chara_7 .my_page_st_1,
+.my_page_chara_8 .my_page_st_1,
+.my_page_chara_9 .my_page_st_1,
 .my_page_chara_10 .my_page_st_1 {
   width: 15%;
 }
+
+.my_page_chara_4 .my_page_st_2,
+.my_page_chara_5 .my_page_st_2,
+.my_page_chara_6 .my_page_st_2,
+.my_page_chara_7 .my_page_st_2,
+.my_page_chara_8 .my_page_st_2,
+.my_page_chara_9 .my_page_st_2,
 .my_page_chara_10 .my_page_st_2 {
   width: 40%;
 }
+
+.my_page_chara_4 .my_page_charabox,
+.my_page_chara_5 .my_page_charabox,
+.my_page_chara_6 .my_page_charabox,
+.my_page_chara_7 .my_page_charabox,
+.my_page_chara_8 .my_page_charabox,
+.my_page_chara_9 .my_page_charabox,
 .my_page_chara_10 .my_page_charabox {
   width: 45%;
 }
+
+.my_page_chara_4 .my_page_st_3,
+.my_page_chara_5 .my_page_st_3,
+.my_page_chara_6 .my_page_st_3,
+.my_page_chara_7 .my_page_st_3,
+.my_page_chara_8 .my_page_st_3,
+.my_page_chara_9 .my_page_st_3,
 .my_page_chara_10 .my_page_st_3 {
   width: 100%;
 }
+
+.my_page_chara_4 .my_page_st_4,
+.my_page_chara_5 .my_page_st_4,
+.my_page_chara_6 .my_page_st_4,
+.my_page_chara_7 .my_page_st_4,
+.my_page_chara_8 .my_page_st_4,
+.my_page_chara_9 .my_page_st_4,
 .my_page_chara_10 .my_page_st_4 {
   display: none;
 }
+
+.my_page_chara_4 *,
+.my_page_chara_5 *,
+.my_page_chara_6 *,
+.my_page_chara_7 *,
+.my_page_chara_8 *,
+.my_page_chara_9 *,
 .my_page_chara_10 * {
   pointer-events: none;
 }
+
+.my_page_chara_4 select,
+.my_page_chara_5 select,
+.my_page_chara_6 select,
+.my_page_chara_7 select,
+.my_page_chara_8 select,
+.my_page_chara_9 select,
 .my_page_chara_10 select {
   pointer-events: auto;
 }
 
-.is-dragging [class^=my_page_chara_] select {
+.is-dragging [class^="my_page_chara_"] select {
   pointer-events: none !important;
 }
 
@@ -848,7 +708,7 @@ button {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   flex-direction: column;
   width: 5%;
 }
@@ -858,12 +718,13 @@ button {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   flex-direction: column;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 15%;
   min-height: 100px;
 }
+
 .my_page_st_2 img {
   max-height: 120px;
 }
@@ -873,18 +734,19 @@ button {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   flex-direction: column;
   width: 25%;
   height: 50%;
 }
 
 .my_page_st_title {
-  background-color: #00CCCC;
+  background-color: var(--sky-blue);
   width: 100%;
 }
+
 .my_page_st_title span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .my_page_st_val {
@@ -895,8 +757,9 @@ button {
   height: 100%;
   width: 100%;
 }
+
 .my_page_st_val span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .drag-over {
@@ -904,7 +767,6 @@ button {
   outline-offset: -3px;
   /* 線を内側に描画してはみ出しを防ぐ */
   background-color: rgba(255, 152, 0, 0.2) !important;
-  /* transform: scale(1.02); は隣を押し退けるので削除 */
   transition: background-color 0.2s ease;
 }
 
@@ -921,17 +783,17 @@ button.active {
   margin-top: 0px;
   margin-bottom: 0px;
   box-sizing: border-box;
-  border: solid 1px black;
-  background-color: #00CCCC;
+  border: solid 1px var(--black);
+  background-color: var(--sky-blue);
   width: 660px;
 }
 
 .my_page_list_item {
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   display: inline-flex;
   justify-content: center;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 20%;
 }
 
@@ -944,7 +806,7 @@ button.active {
   margin-right: auto;
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 150px;
   font-size: 80%;
 }
@@ -965,10 +827,10 @@ button.active {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #FF0000;
+  color: var(--red);
   font-size: 120%;
   font-weight: bold;
-  background-color: #000000;
+  background-color: var(--black);
   width: 25%;
 }
 
@@ -976,8 +838,8 @@ button.active {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000000;
-  color: #FFFFFF;
+  background-color: var(--black);
+  color: var(--white);
   width: 75%;
 }
 
@@ -986,14 +848,14 @@ button.active {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   background-color: #99CCFF;
   width: 25%;
 }
 
 .my_page_menu4 {
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   padding-top: 5px;
   padding-bottom: 5px;
   background-color: #99CCFF;
@@ -1006,11 +868,11 @@ button.active {
   cursor: not-allowed;
 }
 
-img[name=img1] {
+img[name="img1"] {
   max-height: 120px;
 }
 
-img[name=img2] {
+img[name="img2"] {
   max-height: 120px;
 }
 
@@ -1021,8 +883,8 @@ img[name=img2] {
   margin-left: auto;
   margin-right: auto;
   margin-top: 20px;
-  margin-bottom: 0px;
-  color: #FF0000;
+  margin-bottom: 20px;
+  color: var(--red);
   font-size: 150%;
   font-weight: bold;
 }
@@ -1047,7 +909,7 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 33%;
 }
 
@@ -1056,27 +918,30 @@ img[name=img2] {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   flex-direction: column;
   flex-grow: 5;
   width: 100%;
 }
+
 .battle_teki_name img {
   max-height: 100px;
 }
+
 .battle_teki_name span {
-  color: #FF0000;
+  color: var(--red);
   font-size: 100%;
   font-weight: bold;
 }
 
 .battle_teki_hp {
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   width: 100%;
 }
+
 .battle_teki_hp span {
-  color: #FF0000;
+  color: var(--red);
   font-size: 100%;
   font-weight: bold;
 }
@@ -1116,19 +981,21 @@ img[name=img2] {
   flex-grow: 2;
   width: 99%;
   min-height: 100px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
 }
+
 .battle_pt_name span {
-  color: #00CCCC;
+  color: var(--sky-blue);
   font-size: 100%;
   font-weight: bold;
 }
+
 .battle_pt_name img {
   max-height: 120px;
 }
 
 .battle_pt_1, .battle_pt_2, .battle_pt_3, .battle_pt_4 {
-  background-color: #FFFFFF;
+  background-color: var(--white);
   height: 25px;
   margin: 1px;
 }
@@ -1142,13 +1009,14 @@ img[name=img2] {
   width: 79%;
   font-weight: bold;
 }
+
 .battle_pt_2 span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .battle_pt_3 {
   width: 39%;
-  background-color: #f7e371;
+  background-color: var(--yellow);
 }
 
 .battle_pt_4 {
@@ -1165,20 +1033,22 @@ img[name=img2] {
   margin-bottom: 20px;
   flex-wrap: wrap;
   width: 500px;
-  background-color: #000000;
+  background-color: var(--black);
 }
 
 .battle_log_a, .battle_log_b {
   margin: 5px;
   width: 43%;
   font-size: 120%;
-  background-color: #00CCCC;
+  background-color: var(--sky-blue);
 }
+
 .battle_log_a img, .battle_log_b img {
   max-height: 120px;
 }
+
 .battle_log_a div, .battle_log_b div {
-  background-color: #FFFFFF;
+  background-color: var(--white);
   margin: 1px;
 }
 
@@ -1187,7 +1057,7 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 120%;
   font-weight: bold;
   width: 100%;
@@ -1198,13 +1068,14 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 0px;
   margin-bottom: 0px;
-  color: #FF0000;
+  color: var(--red);
   font-size: 160%;
   font-weight: bold;
   width: 10%;
 }
+
 .battle_R span {
-  color: #f7e371;
+  color: var(--yellow);
 }
 
 .battle_log_Lvup, .battle_keyget, .battle_monget {
@@ -1212,24 +1083,24 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 120%;
   font-weight: bold;
   box-sizing: border-box;
-  border: solid 2px #FF0000;
+  border: solid 2px var(--red);
   padding: 10px;
   width: 500px;
-  background-color: #000000;
+  background-color: var(--black);
 }
 
 .mget_text {
-  color: #FF0000;
+  color: var(--red);
   font-size: 120%;
   font-weight: bold;
 }
 
 .battle_roomkey_get {
-  color: #FF0000;
+  color: var(--red);
   font-size: 120%;
   font-weight: bold;
 }
@@ -1245,12 +1116,12 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #00CCCC;
+  color: var(--sky-blue);
   font-size: 100%;
   font-weight: bold;
   width: 600px;
   height: 100px;
-  background-color: #000000;
+  background-color: var(--black);
 }
 
 #zukan_title .fsize {
@@ -1271,9 +1142,8 @@ img[name=img2] {
   margin-bottom: 0px;
   width: 70%;
   font-weight: bold;
-  color: #FFFFFF;
+  color: var(--white);
   font-size: 100%;
-  font-weight: bold;
   box-sizing: border-box;
   border: solid 3px #FF00FF;
   background-color: #660066;
@@ -1307,17 +1177,18 @@ img[name=img2] {
 }
 
 .zukan_no, .zukan_name {
-  background-color: #000000;
-  color: #FFFFFF;
+  background-color: var(--black);
+  color: var(--white);
 }
 
 .zukan_img {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   height: 150px;
 }
+
 .zukan_img img {
   max-height: 120px;
 }
@@ -1333,6 +1204,7 @@ img[name=img2] {
     padding: 3px;
   }
 }
+
 .tooltip {
   position: fixed;
   max-width: 200px;
@@ -1355,50 +1227,40 @@ img[name=img2] {
     max-width: 80%;
   }
 }
+
 .スライム系, .ボカロ, .ボイロ, .ドラクエ {
   background-image: url(../img/back1.png);
 }
-
 .ドラゴン系, .とある {
   background-image: url(../img/back2.png);
 }
-
 .けもの系 {
   background-image: url(../img/back3.png);
 }
-
 .とり系, .シュタゲ {
   background-image: url(../img/back4.png);
 }
-
 .しょくぶつ系, .このすば {
   background-image: url(../img/back5.png);
 }
-
 .むし系, .ミルキィ {
   background-image: url(../img/back6.png);
 }
-
 .あくま系, .原神 {
   background-image: url(../img/back7.png);
 }
-
 .ゾンビ系 {
   background-image: url(../img/back8.png);
 }
-
 .ぶっしつ系, .シンフォギア, .東方, .アイマス {
   background-image: url(../img/back9.png);
 }
-
 .みず系 {
   background-image: url(../img/back12.png);
 }
-
 .？？？系 {
   background-image: url(../img/back13.png);
 }
-
 .せいれい系, .らき☆すた, .まどマギ {
   background-image: url(../img/back11.png);
 }
@@ -1411,7 +1273,7 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 240px;
 }
 
@@ -1424,7 +1286,7 @@ img[name=img2] {
   margin-top: 0px;
   margin-bottom: 0px;
   box-sizing: border-box;
-  border: solid 1px #0000CC;
+  border: solid 1px var(--blue);
   flex-wrap: wrap;
   width: 800px;
 }
@@ -1434,9 +1296,9 @@ img[name=img2] {
   justify-content: center;
   align-items: auto;
   box-sizing: border-box;
-  border: solid 1px #0000CC;
+  border: solid 1px var(--blue);
   flex-wrap: wrap;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 20%;
   min-height: 180px;
 }
@@ -1444,13 +1306,14 @@ img[name=img2] {
 .books_no {
   width: 100%;
   height: 25px;
-  background-color: #f7e371;
-  border-bottom: 2px #0000CC solid;
+  background-color: var(--yellow);
+  border-bottom: 2px var(--blue) solid;
 }
 
 .books_im, .books_m {
   width: 100%;
 }
+
 .books_im img, .books_m img {
   max-height: 120px;
 }
@@ -1463,9 +1326,9 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 330px;
-  color: #0000CC;
+  color: var(--blue);
   font-size: 150%;
   font-weight: bold;
 }
@@ -1484,39 +1347,35 @@ img[name=img2] {
 
 .hai_box1, .hai_box3 {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   margin-left: auto;
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
   box-sizing: border-box;
-  border: solid 1px black;
-  color: #000000;
+  border: solid 1px var(--black);
+  color: var(--black);
   font-size: 130%;
   font-weight: bold;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 40%;
-  justify-content: space-between;
   flex-direction: column;
   min-height: 180px;
 }
+
 .hai_box1 img, .hai_box3 img {
   max-height: 180px;
 }
 
 .hai_1 {
   width: 100%;
-  border-bottom: 1px #000000 solid;
+  border-bottom: 1px var(--black) solid;
 }
 
 .hai_name {
   width: 100%;
-  border-top: 1px #000000 solid;
+  border-top: 1px var(--black) solid;
 }
 
 .hai_box3 {
@@ -1531,28 +1390,20 @@ img[name=img2] {
 .hai_msg {
   margin-left: auto;
   margin-right: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  background-color: #FFFFFF;
-  width: auto;
-  margin-left: auto;
-  margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
+  background-color: var(--white);
+  width: auto;
 }
 
 .hai_rare {
   margin-left: auto;
   margin-right: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  background-color: #FFFFFF;
-  width: auto;
-  margin-left: auto;
-  margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #FF0000;
+  background-color: var(--white);
+  width: auto;
+  color: var(--red);
   font-size: 120%;
   font-weight: bold;
 }
@@ -1590,12 +1441,12 @@ img[name=img2] {
 }
 
 .hen_text1 {
-  background-color: #00CCCC;
+  background-color: var(--sky-blue);
   width: 100%;
 }
 
 .hen_text2 {
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 100%;
 }
 
@@ -1608,14 +1459,14 @@ img[name=img2] {
   margin-top: 10px;
   margin-bottom: 10px;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   flex-wrap: wrap;
   width: 500px;
 }
 
 .hen_box3 {
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   width: 25%;
 }
 
@@ -1636,8 +1487,8 @@ img[name=img2] {
 
 .hen_text3 {
   box-sizing: border-box;
-  border: solid 1px black;
-  background-color: #FFFFFF;
+  border: solid 1px var(--black);
+  background-color: var(--white);
   width: 20%;
 }
 
@@ -1658,27 +1509,24 @@ img[name=img2] {
 
 .medal_box1 {
   box-sizing: border-box;
-  border: solid 1px #FFFFFF;
-  color: #000000;
+  border: solid 1px var(--white);
+  color: var(--black);
   font-size: 140%;
   font-weight: bold;
   width: 200px;
-  background-color: #000000;
+  background-color: var(--black);
 }
 
 .medal_name {
   width: 100%;
-  color: #00CCCC;
+  color: var(--sky-blue);
 }
 
 .medal_val {
   width: 100%;
-  color: #FFFFFF;
+  color: var(--white);
 }
 
-/************************************/
-/* VIPS交換所 メダル交換所と共通*/
-/************************************/
 /************************************/
 /* お見合い ログインの流用 */
 /************************************/
@@ -1696,7 +1544,7 @@ img[name=img2] {
   display: flex;
   justify-content: center;
   align-items: auto;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   max-height: 180px;
   width: 100%;
 }
@@ -1715,7 +1563,7 @@ img[name=img2] {
   align-items: center;
   flex-direction: column;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
 }
 
 .omiai_st_1 {
@@ -1726,6 +1574,7 @@ img[name=img2] {
   width: 20%;
   min-height: 100px;
 }
+
 .omiai_st_2 img {
   max-height: 120px;
 }
@@ -1736,11 +1585,12 @@ img[name=img2] {
 }
 
 .omiai_st_title {
-  background-color: #00CCCC;
+  background-color: var(--sky-blue);
   width: 100%;
 }
+
 .omiai_st_title span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .omiai_st_val {
@@ -1750,8 +1600,9 @@ img[name=img2] {
   height: 100%;
   width: 100%;
 }
+
 .omiai_st_val span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 .omiai_mes {
@@ -1759,7 +1610,7 @@ img[name=img2] {
   margin-right: auto;
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   width: 500px;
   font-size: 120%;
 }
@@ -1767,10 +1618,6 @@ img[name=img2] {
 /************************************/
 /* モンスターパーク */
 /************************************/
-img[name=img1] {
-  max-height: 120px;
-}
-
 .park_box {
   margin-left: auto;
   margin-right: auto;
@@ -1786,17 +1633,18 @@ img[name=img1] {
     overflow-x: scroll;
   }
 }
+
 .park_ste, .park_mob {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #00CCCC;
+  background-color: var(--sky-blue);
   width: 1100px;
   height: 50px;
 }
 
 .park_mob {
-  background-color: #FFFFFF;
+  background-color: var(--white);
   height: 180px;
 }
 
@@ -1805,10 +1653,11 @@ img[name=img1] {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: solid 1px black;
+  border: solid 1px var(--black);
   flex-direction: column;
   height: 100%;
 }
+
 .park_mname img, .park_width img {
   max-height: 120px;
 }
@@ -1844,7 +1693,7 @@ img[name=img1] {
 /* メダル獲得杯 */
 /************************************/
 .medal_battle_title {
-  color: #0000CC;
+  color: var(--blue);
   font-size: 150%;
   font-weight: bold;
 }
@@ -1854,19 +1703,19 @@ img[name=img1] {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 0px;
-  color: #FF0000;
+  color: var(--red);
   font-size: 120%;
   font-weight: bold;
 }
 
 .medal_battle_sub {
-  color: #000000;
+  color: var(--black);
   font-size: 110%;
   font-weight: bold;
 }
 
 .medal_battle_result {
-  color: #000000;
+  color: var(--black);
   font-size: 100%;
   font-weight: bold;
 }
@@ -1882,13 +1731,13 @@ img[name=img1] {
   margin-right: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #000000;
+  color: var(--black);
   font-size: 150%;
   font-weight: bold;
   max-width: 600px;
   min-height: 80px;
   max-height: 250px;
-  background-color: #000000;
+  background-color: var(--black);
 }
 
 #result > span, #error span {
@@ -1901,15 +1750,15 @@ img[name=img1] {
 }
 
 #result span {
-  color: #00CCCC;
+  color: var(--sky-blue);
 }
 
 #result span span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 #error span {
-  color: #FF0000;
+  color: var(--red);
 }
 
 /************************************/
@@ -1929,7 +1778,7 @@ img[name=img1] {
 }
 
 #f_t {
-  color: #FF0000;
+  color: var(--red);
 }
 
 #f_box span {
@@ -2000,10 +1849,6 @@ img[name=img1] {
   white-space: pre-wrap;
 }
 
-.hidden {
-  display: none;
-}
-
 /************************************/
 /* UI */
 /************************************/
@@ -2062,6 +1907,7 @@ img[name=img1] {
     transform: translateY(0) scale(1);
   }
 }
+
 /* 退場 */
 .toast.fade-out {
   opacity: 0;
@@ -2110,6 +1956,7 @@ img[name=img1] {
     transform: rotate(360deg);
   }
 }
+
 /************************************/
 /* モーダル */
 /************************************/
@@ -2145,7 +1992,9 @@ img[name=img1] {
   min-width: 280px;
   max-width: 90%;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   animation: modalIn 0.2s ease;
 }
 
@@ -2159,6 +2008,7 @@ img[name=img1] {
     opacity: 1;
   }
 }
+
 /************************************/
 /* ボタン */
 /************************************/

@@ -1,19 +1,18 @@
 <!-- templates/ui_extra_tmp.html -->
 
-
-<!-- トースト -->
-<div id="toast-container"></div>
+<!-- トースト（aria-live="polite" で画面を見なくても通知が伝わるようにする） -->
+<div id="toast-container" aria-live="polite"></div>
 
 <!-- オーバーレイ（共通ロック用） -->
-<div id="overlay" class="hidden">
+<div id="overlay" class="hidden" aria-hidden="true">
   <div class="overlay-content">
     <div class="spinner"></div>
-    <div class="overlay-text">処理中...</div>
+    <div class="overlay-text" role="status">処理中...</div>
   </div>
 </div>
 
-<!-- 確認モーダル -->
-<div id="confirm-modal" class="modal hidden">
+<!-- 確認モーダル（role="dialog" と aria-modal="true" で正しいモーダルウィンドウとして認識させる） -->
+<div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-message">
   <div class="modal-bg"></div>
   <div class="modal-box">
     <p id="confirm-message">実行しますか？</p>

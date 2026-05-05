@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 3. パーティ編成（ドラッグ＆ドロップ ＆ セレクト変更）
     // ==========================================
-    const partyContainer = document.querySelector(".my_page_pt");
+    const partyContainer = document.getElementById("party-container");
 
     // 要素が存在しないページ（またはモンスター0匹）の場合はここで処理を止める（安全装置）
     if (!partyContainer) return;
@@ -94,10 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 変更フラグ（ボタンの色変更）
     function markChanged() {
         changed = true;
-        const btn = document.querySelector(".my_page_title button[type='submit']");
+        // ★修正: 新しいHTML構造に合わせて保存ボタンの取得先を変更
+        const btn = document.querySelector(".reorder-action-card .submit-btn");
         if (btn) {
             btn.classList.add("active");
-            // ボタンのテキストを「変更あり！」などの目立つ文言に変えるのもアリです
+            // ついでに変更があったことが分かりやすいようにテキストも変更
+            btn.textContent = "並び替えOK (未保存)";
         }
     }
 
@@ -122,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         markChanged();
     }
 
-// ドラッグ＆ドロップの初期化
+    // ドラッグ＆ドロップの初期化
     function initDragAndDrop() {
         getCharaItems().forEach(item => {
             if (item.dataset.dragInit === "1") return;
@@ -134,8 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.classList.add("dragging");
                 item.style.opacity = '0.5';
 
-                // ドラッグが始まったらコンテナにクラスを付け、CSSと連動してセレクトボックスを無効化する
                 partyContainer.classList.add('is-dragging');
+
+                // CSSに頼らず、JS側でドラッグ中は全セレクトボックスをロックする
+                getCharaItems().forEach(i => {
+                    const s = i.querySelector("select");
+                    if (s) s.style.pointerEvents = "none";
+                });
             });
 
             item.addEventListener("dragend", () => {
@@ -143,8 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.style.opacity = '1';
                 getCharaItems().forEach(i => i.classList.remove("drag-over"));
 
-                // ドラッグが終わったらセレクトボックスの操作を復活させる
                 partyContainer.classList.remove('is-dragging');
+
+                // ドラッグ完了後にセレクトボックスのロックを解除
+                getCharaItems().forEach(i => {
+                    const s = i.querySelector("select");
+                    if (s) s.style.pointerEvents = "auto";
+                });
             });
 
             item.addEventListener("dragenter", (e) => {
@@ -153,14 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             item.addEventListener("dragleave", (e) => {
-                // ★改善2: 万が一子要素に判定が吸われた場合でも、それが自分の子要素なら「退出していない」とみなす
                 if (item.contains(e.relatedTarget)) return;
                 item.classList.remove("drag-over");
             });
 
             item.addEventListener("dragover", e => {
-                e.preventDefault(); // 必須
-                // ★改善3: 念のための保険。侵入(enter)でクラスが付き損ねても、滞在(over)し続ければ確実に枠を光らせる
+                e.preventDefault();
                 if (item !== dragSrc && !item.classList.contains("drag-over")) {
                     item.classList.add("drag-over");
                 }
@@ -184,7 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (oldValue === newValue) return;
 
-        const currentItem = sel.closest('[class^="my_page_chara_"]');
+        // クラスの順番に依存する前方一致を辞め、確実な汎用クラスを指定
+        const currentItem = sel.closest('.modern-party-card');
         if (!currentItem) return;
 
         let targetItem = null;

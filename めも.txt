@@ -6,7 +6,7 @@
 
 
 
-print(f"<!-- token_check: in_name = {session.get('in_name')} -->", file=sys.stderr)
+print(f"<!--  -->", file=sys.stderr)
 
 ----------------------
 呼びだし元特定

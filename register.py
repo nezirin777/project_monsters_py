@@ -190,8 +190,8 @@ def sinki(FORM, kanri=False):
         )
         error(f"入力情報の検証に失敗しました: {error_msg}", "top")
 
-    in_name = form.user_name.data
-    in_pass = form.password.data
+    in_name = form.new_user_name.data
+    in_pass = form.new_password.data
 
     user_dir = os.path.join(Conf["savedir"], in_name)
     if os.path.exists(user_dir):

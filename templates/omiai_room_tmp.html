@@ -1,132 +1,112 @@
 <!-- templates/omiai_room_tmp.html -->
-
 {% extends "base_tmp.html" %}
 
 {% block content %}
-
-  <div id="result">
-    <span>お見合い所にモンスターを登録することができます<br>Lv{{ Conf.haigoulevel }}以上必要です<br>登録できるのは1体だけです</span>
+  <div class="action-card omiai-header-card">
+    <div class="action-card-header">お見合い所</div>
+    <div class="action-card-desc">
+      お見合い所にモンスターを登録することができます<br>
+      <small>※Lv{{ Conf.haigoulevel }}以上必要、登録は1体までです。</small>
+    </div>
   </div>
 
   {% if not my_registered and not baby_ready %}
-    <!-- 登録可能モンスター表示 -->
-    <form name="img_change" method="post"  id="img_change">
-      <select name="omiai" class="monster-select" data-target="img1">
-        <option value="0" selected data-name="0">登録するモンスターを選んでください</option>
-        {% for monster in selectable_monsters %}
-          <option value="{{ monster.index }}" data-name="{{ monster.name }}">
-            0{{ monster.index }}: {{ monster.name }} {{ monster.sex }} LV-{{ monster.lv }} 配合{{ monster.hai }}回
-          </option>
+    <!-- 登録フォーム -->
+    <div class="action-card omiai-touroku-card">
+      <form name="img_change" method="post" id="img_change" class="ex-form">
+        <div class="ex-select-group">
+          <div class="action-subtitle">登録するモンスター</div>
+          <select name="omiai" class="monster-select ex-select" data-target="img1">
+            <option value="0" selected data-name="0">選択してください</option>
+            {% for monster in selectable_monsters %}
+              <option value="{{ monster.index }}" data-name="{{ monster.name }}">
+                {{ monster.index }}: {{ monster.name }} {{ monster.sex }} LV-{{ monster.lv }} 配合{{ monster.hai }}回
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="haigou-img-box">
+          <img name="img1" src="{{ Conf.imgpath }}/0.gif">
+        </div>
+
+        <div class="ex-select-group">
+          <div class="action-subtitle">希望相手モンスター</div>
+          <input type="text" name="mes" class="ex-select" value="" placeholder="例：スライム系 など">
+        </div>
+
+        <button type="submit" class="submit-btn">この内容で登録する</button>
+        <input type="hidden" name="mode" value="omiai_touroku">
+        <input type="hidden" name="token" value="{{ token }}">
+      </form>
+    </div>
+  {% endif %}
+
+  <!-- 各種リスト表示エリア -->
+  <div class="omiai-lists-container">
+    {% if my_registered %}
+      <div class="action-subtitle">あなたが登録しているモンスター</div>
+      <div class="omiai-grid">
+        {% with item=my_registered, btn_mode="omiai_touroku_cancel", btn_label="登録解除" %}
+        {% include "omiai_room_monster_list_tmp.html" %}
+        {% endwith %}
+      </div>
+    {% endif %}
+
+    {% if baby_ready %}
+      <div class="sys-msg sys-lvup">
+        {{ mes }}<br>受け取るには配合回数×5000Gが必要です
+      </div>
+      <div class="omiai-grid">
+        {% with item=baby_ready, btn_mode="omiai_baby_get", btn_label="受け取る" %}
+        {% include "omiai_room_monster_list_tmp.html" %}
+        {% endwith %}
+      </div>
+    {% endif %}
+
+    {% if requests_to_me %}
+      <div class="action-subtitle">あなたにお見合いを望んでいる相手</div>
+      <div class="omiai-grid">
+        {% for item in requests_to_me %}
+          {% with item=item, btn_mode="omiai_answer_ok", btn_label="受諾", btn_mode2="omiai_answer_no", btn_label2="お断り" %}
+          {% include "omiai_room_monster_list_tmp.html" %}
+          {% endwith %}
         {% endfor %}
-      </select>
-      <br>
-      <img name="img1" src="{{ Conf.imgpath }}/0.gif">
-      <br>
-      <input type="text" name="mes" size="30" value="" placeholder="希望相手モンスターを入力">
-      <br>
-      <button type="submit">登録する</button>
-      <input type="hidden" name="mode" value="omiai_touroku">
-      <input type="hidden" name="token" value="{{ token }}">
-      <br>
-    </form>
+      </div>
+    {% endif %}
 
-    {% include "my_page_button_tmp.html" %}
-
-
-  {% elif my_registered %}
-    <hr>
-    <div id="result">
-      <span>あなたが登録しているモンスター</span>
-    </div>
-    <div class="omiai_pt">
-      {% with item=my_registered, btn_mode="omiai_touroku_cancel", btn_label="登録解除" %}
-      {% include "omiai_room_monster_list_tmp.html" %}
-      {% endwith %}
-    </div>
-
-  {% elif baby_ready %}
-    <hr>
-    <div id="result">
-      <span>{{ mes }}<br>受け取るには配合回数×5000Gが必要です</span>
-    </div>
-    <div class="omiai_pt">
-      {% with item=baby_ready, btn_mode="omiai_baby_get", btn_label="受け取る" %}
-      {% include "omiai_room_monster_list_tmp.html" %}
-      {% endwith %}
-    </div>
-  {% endif %}
-
-
-  {% if requests_to_me %}
-    <div id="result">
-      <span>あなたとお見合いを望んでる相手</span>
-    </div>
-    <div class="omiai_pt">
-      {% for item in requests_to_me %}
-        {% with item=item, btn_mode="omiai_answer_ok", btn_label="受け入れる", btn_mode2="omiai_answer_no", btn_label2="お断りする" %}
+    {% if my_request_to_other %}
+      <div class="action-subtitle">あなたがお見合い依頼している相手</div>
+      <div class="omiai-grid">
+        {% with item=my_request_to_other, btn_mode="omiai_request_cancel", btn_label="申請キャンセル" %}
         {% include "omiai_room_monster_list_tmp.html" %}
         {% endwith %}
-      {% endfor %}
-    </div>
-  {% endif %}
+      </div>
+    {% elif cancel %}
+      <div class="sys-msg sys-bad">{{ cancel }}</div>
+    {% endif %}
 
-
-  {% if my_request_to_other %}
-    <div id="result">
-      <span>あなたがお見合い依頼している相手</span>
-    </div>
-    <div class="omiai_pt">
-      {% with item=my_request_to_other, btn_mode="omiai_request_cancel", btn_label="申請キャンセル" %}
-      {% include "omiai_room_monster_list_tmp.html" %}
-      {% endwith %}
-    </div>
-  {% elif cancel %}
-    <div id="result">
-      <span>あなたがお見合い依頼している相手</span>
-    </div>
-    <div class="omiai_mes">{{ cancel }}</div>
-  {% endif %}
-
-
-  {% if other_monsters %}
-    <hr>
-    <div id="result">
-      <span>お見合い所に登録されているモンスター<br>{{ page }}ページ目</span>
-    </div>
-    <div class="park_page">
-      {% for page_button in tex_p %}
-        <form action="{{ Conf.cgi_url }}" method="post">
-          <input type="hidden" name="mode" value="omiai_room">
-          <input type="hidden" name="page" value="{{ page_button.page }}">
-          <input type="hidden" name="token" value="{{ token }}">
-          <button type="submit">{{ page_button.label }}</button>
-        </form>
-      {% endfor %}
-    </div>
-    <div class="omiai_pt">
-      {% for item in other_monsters %}
-        {% with item=item, btn_mode="omiai_request", btn_label="申し込む" %}
-        {% include "omiai_room_monster_list_tmp.html" %}
-        {% endwith %}
-      {% endfor %}
-    </div>
-    <div class="park_page">
-      {% for page_button in tex_p %}
-        <form action="{{ Conf.cgi_url }}" method="post">
-          <input type="hidden" name="mode" value="omiai_room">
-          <input type="hidden" name="page" value="{{ page_button.page }}">
-          <input type="hidden" name="token" value="{{ token }}">
-          <button type="submit">{{ page_button.label }}</button>
-        </form>
-      {% endfor %}
-    </div>
-  {% else %}
-    <hr>
-    <div id="result">
-      <span>お見合い所に登録されているモンスター<br>他に登録されてるモンスターはいないようです･･･</span>
-    </div>
-  {% endif %}
+    {% if other_monsters %}
+      <div class="action-subtitle">お見合い所に登録されているモンスター</div>
+      <div class="park_page">
+        {% for page_button in tex_p %}
+          <form action="{{ Conf.cgi_url }}" method="post" class="omiai-inline-form">
+            <input type="hidden" name="mode" value="omiai_room">
+            <input type="hidden" name="page" value="{{ page_button.page }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit" class="page-btn {% if page_button.page|string == page|string %}active{% endif %}">{{ page_button.label }}</button>
+          </form>
+        {% endfor %}
+      </div>
+      <div class="omiai-grid">
+        {% for item in other_monsters %}
+          {% with item=item, btn_mode="omiai_request", btn_label="申し込む" %}
+          {% include "omiai_room_monster_list_tmp.html" %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
 
   {% include "my_page_button_tmp.html" %}
-
 {% endblock %}

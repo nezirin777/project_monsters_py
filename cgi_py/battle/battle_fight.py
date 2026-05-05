@@ -68,7 +68,7 @@ def handle_battle_end_conditions(bm):
         is_end = True
         battle_end("勝利した", 1, bm)
 
-        if bm.special == 0:
+        if bm.special == "0" or bm.special == 0:
             key_get(bm)
             mon_get(bm)
         elif bm.special == "スライム":

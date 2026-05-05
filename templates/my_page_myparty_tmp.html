@@ -1,76 +1,116 @@
-<!-- templates/my_page_myparty.html -->
+<!-- templates/my_page_myparty_tmp.html -->
 
-<div class="my_page_title">{{ user.name }}さんのパーティー</div>
-<div class="my_page_box">
-  <div class="my_page_user_st1">所持金<br>{{ user_v.money }}G</div>
-  <div class="my_page_user_st1">所持鍵<br>{{ user_v.key }}階</div>
-  <div class="my_page_user_st1 {{ isekai }}">
-    異世界探索度<br>{{ user.get("isekai_key",0)-1 }}/{{ user.get("isekai_limit",0) }}/{{ Conf.isekai_max_limit }}</div>
-  <div class="my_page_user_st1">メダル<br>{{ user_v.medal }}個</div>
-  <div class="my_page_user_st1 my_page_zukan">
-    <a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type=スライム系&fol={{ fol }}">[魔物図鑑]</a>
-    <br>{{ user.getm }}
+<!-- ユーザーステータスカード -->
+<div class="user-stats-card">
+  <div class="user-stats-header">{{ user.name }}さんのパーティー</div>
+  <div class="user-stats-grid">
+    <div class="stat-box">
+      <div class="stat-label">所持金</div>
+      <div class="stat-value">{{ user_v.money }}G</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">所持鍵</div>
+      <div class="stat-value">{{ user_v.key }}階</div>
+    </div>
+    <div class="stat-box {{ isekai }}">
+      <div class="stat-label">異世界探索度</div>
+      <div class="stat-value">{{ user.get("isekai_key",0)-1 }}/{{ user.get("isekai_limit",0) }}/{{ Conf.isekai_max_limit
+        }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">メダル</div>
+      <div class="stat-value">{{ user_v.medal }}個</div>
+    </div>
+    <div class="stat-box my_page_zukan">
+      <div class="stat-label"><a
+          href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type=スライム系&fol={{ fol }}"
+          class="zukan-link">魔物図鑑</a></div>
+      <div class="stat-value">{{ user.getm }}</div>
+    </div>
   </div>
 </div>
 
+<!-- パーティ一覧 -->
 <form action="{{ Conf.cgi_url }}" method="post" class="form">
-  <div class="my_page_pt">
+  <div class="party-grid" id="party-container">
     {% for i, pt in party_with_index %}
-    <div class="my_page_chara_{{ i }}">
-      <div class="my_page_st_1">
-        <select name="c_no{{ i }}">
-          <option value="{{ i }}">{{ i }}</option>
-          {% for n in option_list %}
-          <option value="{{ n }}">{{ n }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="my_page_st_2"><img src="{{ Conf.imgpath }}/{{ pt.name }}.gif">{{ pt.name }}<br>-{{
-        pt.sex }}-<br>{{ pt.sei }}</div>
-      <div class="my_page_charabox">
-        <div class="my_page_st_3">
-          <div class="my_page_st_title">LV<span>/最大LV</span></div>
-          <div class="my_page_st_val">{{ pt.lv }}<span>/{{ pt.mlv }}</span></div>
+    <div class="my_page_chara_{{ i }} modern-party-card">
+
+      <!-- カード上段：操作と基本情報 -->
+      <div class="card-header">
+        <div class="order-select">
+          <select name="c_no{{ i }}">
+            <option value="{{ i }}">{{ i }}</option>
+            {% for n in option_list %}
+            <option value="{{ n }}">{{ n }}</option>
+            {% endfor %}
+          </select>
         </div>
-        <div class="my_page_st_4">
-          <div class="my_page_st_title">HP<span>/最大HP</span></div>
-          <div class="my_page_st_val">{{ pt.hp }}<span>/{{ pt.mhp }}</span></div>
-        </div>
-        <div class="my_page_st_4">
-          <div class="my_page_st_title">MP<span>/最大MP</span></div>
-          <div class="my_page_st_val">{{ pt.mp }}<span>/{{ pt.mmp }}</span></div>
-        </div>
-        <div class="my_page_st_4">
-          <div class="my_page_st_title">経験値<span>/次のLvまで</span></div>
-          <div class="my_page_st_val">{{ pt.exp }}<span>/{{ pt.n_exp }}</span></div>
-        </div>
-        <div class="my_page_st_3">
-          <div class="my_page_st_title">配合</div>
-          <div class="my_page_st_val">{{ pt.hai }}回</div>
-        </div>
-        <div class="my_page_st_4">
-          <div class="my_page_st_title">攻撃力</div>
-          <div class="my_page_st_val">{{ pt.atk }}</div>
-        </div>
-        <div class="my_page_st_4">
-          <div class="my_page_st_title">守備力</div>
-          <div class="my_page_st_val">{{ pt.def }}</div>
-        </div>
-        <div class="my_page_st_4">
-          <div class="my_page_st_title">素早さ</div>
-          <div class="my_page_st_val">{{ pt.agi }}</div>
+        <div class="monster-id-info">
+          <div class="pt-name">{{ pt.name }}</div>
+          <div class="pt-meta">-{{ pt.sex }}- / {{ pt.sei }}</div>
         </div>
       </div>
+
+      <!-- カード下段：画像とステータス -->
+      <div class="card-body">
+        <div class="monster-image-wrapper">
+          <img src="{{ Conf.imgpath }}/{{ pt.name }}.gif" alt="{{ pt.name }}">
+        </div>
+
+        <div class="monster-stats-grid">
+          <!-- LVと配合は常に表示するので stat-extra を付けない -->
+          <div class="m-stat">
+            <div class="m-label">LV</div>
+            <div class="m-val">{{ pt.lv }}<span>/{{ pt.mlv }}</span></div>
+          </div>
+
+          <!-- 控えに回ったら隠すステータスに stat-extra を追加 -->
+          <div class="m-stat stat-extra">
+            <div class="m-label">HP</div>
+            <div class="m-val">{{ pt.hp }}<span>/{{ pt.mhp }}</span></div>
+          </div>
+          <div class="m-stat stat-extra">
+            <div class="m-label">MP</div>
+            <div class="m-val">{{ pt.mp }}<span>/{{ pt.mmp }}</span></div>
+          </div>
+          <div class="m-stat stat-extra">
+            <div class="m-label">経験値</div>
+            <div class="m-val">{{ pt.exp }}<span>/{{ pt.n_exp }}</span></div>
+          </div>
+
+          <!-- LVと配合は常に表示 -->
+          <div class="m-stat">
+            <div class="m-label">配合</div>
+            <div class="m-val">{{ pt.hai }}回</div>
+          </div>
+
+          <!-- 控えに回ったら隠すステータス -->
+          <div class="m-stat stat-extra">
+            <div class="m-label">攻撃力</div>
+            <div class="m-val">{{ pt.atk }}</div>
+          </div>
+          <div class="m-stat stat-extra">
+            <div class="m-label">守備力</div>
+            <div class="m-val">{{ pt.def }}</div>
+          </div>
+          <div class="m-stat stat-extra">
+            <div class="m-label">素早さ</div>
+            <div class="m-val">{{ pt.agi }}</div>
+          </div>
+        </div>
+      </div>
+
     </div>
     {% endfor %}
   </div>
 
   {% if my_page_flg %}
-  <div class="my_page_title">
-    <button type="submit">並び替えOK</button>
+  <div class="reorder-action-card">
+    <button type="submit" class="submit-btn">並び替えOK</button>
     <input type="hidden" name="mode" value="change">
     <input type="hidden" name="token" value="{{ token }}">
-    No.1からNo.3迄のモンスターが戦闘を行います
+    <p class="reorder-note">No.1からNo.3迄のモンスターが戦闘に出撃します</p>
   </div>
   {% endif %}
 </form>
