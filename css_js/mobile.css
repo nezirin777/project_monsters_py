@@ -58,6 +58,7 @@
   .monster-item { width: 45%; }
   .rank-comment-label { width: 80px; font-size: 90%; }
 
+
   /* --- 新規登録・ユーザー設定 --- */
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .result-monster-header { flex-direction: column; gap: 10px; }

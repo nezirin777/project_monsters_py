@@ -3,18 +3,29 @@
 /* ==================================== */
 
 :root {
-  --sky-blue: #3ccccc;
-  --blue: #0000CC;
-  --red: #FF0000;
-  --yellow: #f7e371;
-  --black: #000000;
-  --white: #FFFFFF;
-  --gray: #CCCCCC;
-  --main: #00CCCC;
-    /* 既存のsky-blue */
-    --main-dark: #009999;
-    --bg-dark: #1e1e1e;
-    --bg-light: #f5f5f5;
+  /* --- カラーパレット --- */
+  --sky-blue: #64B5F6;
+  --blue: #2C3E50;
+  --red: #d32a2a;
+  --yellow: #FBC02D;
+  --black: #333333;
+  --white: #FAFAFA;
+  --gray: #E0E0E0;
+  --main: #00ACC1;
+  --main-dark: #00838F;
+  --bg-dark: #263238;
+  --bg-light: #F5F5F5;
+
+  /* --- 余白・サイズ (大・中・小 + 極小) --- */
+  --space-xs: 2px;
+  --space-s: 5px;
+  --space-m: 10px;
+  --space-l: 20px;
+
+  /* --- 角丸 (大・中・小) --- */
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 12px;
 }
 
 body {
@@ -23,15 +34,9 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
-  text-align: center;
   background-color: #DEB887;
+  text-align: center;
   -webkit-text-size-adjust: 100%;
-  appearance: none;
-  -webkit-appearance: none;
 
   &.modal-open {
     overflow: hidden;
@@ -53,9 +58,56 @@ input:invalid {
   border: solid 2px red;
 }
 
-button {
-  margin: 10px 1px;
+/* --- フォーム・ボタンの統一スタイル --- */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius-s);
+  border: 1px solid var(--gray);
+  box-sizing: border-box;
+  font-size: 16px;
+  /* モバイルでのズーム防止 */
 }
+
+button,
+.submit-btn,
+.menu-btn {
+  padding: var(--space-m) var(--space-l);
+  margin: var(--space-s);
+  border-radius: var(--radius-s);
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+  display: inline-block;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+button:hover,
+.submit-btn:hover,
+.menu-btn:hover {
+  opacity: 0.8;
+}
+
+/* スリムなボタン用 */
+.slim-btn,
+.shop-btn {
+  padding: var(--space-s) var(--space-m) !important;
+}
+
+/* 強調ボタン用 */
+.ex-btn,
+.battle-btn,
+.trade-btn {
+  border-radius: var(--radius-m) !important;
+  width: 90%;
+  max-width: 400px;
+}
+
 
 .form { display: inline; }
 .input { border-radius: 0px; }
@@ -66,6 +118,7 @@ button {
 .blue { color: var(--blue); font-size: 100%; font-weight: bold; }
 .red { color: var(--red); font-size: 100%; font-weight: bold; }
 .yellow { color: var(--yellow); font-size: 100%; font-weight: bold; }
+
 
 /* 共通レイアウト */
 .wrapper {
@@ -85,7 +138,7 @@ button {
   flex-shrink: 0;
   margin-top: auto;
   /* コンテンツが少なくても常に最下部へ押しやる */
-  padding: 20px 10px;
+  padding: var(--space-l) var(--space-m);
   text-align: right;
   /* PCでは右寄せ */
 }
@@ -177,6 +230,7 @@ button {
   &.fade-out { opacity: 0; transform: translateY(-10px) scale(0.95); transition: all 0.2s ease; }
 }
 
+
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -208,7 +262,7 @@ button {
   & .modal-box {
     position: relative; z-index: 1;
     background: linear-gradient(145deg, #1e1e1e, #2a2a2a); color: #fff;
-    padding: 24px 28px; border-radius: 14px;
+    padding: var(--space-l);  border-radius: var(--radius-l);
     min-width: 280px; max-width: 90%; text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     animation: modalIn 0.2s ease;
