@@ -88,45 +88,44 @@
 {% endif %}
 
 <!-- PC用見出し（スマホでは消えます） -->
-<div class="rank-header desktop-only">
-  <div class="rh-rank">Rank</div>
-  <div class="rh-user">User</div>
-  <div class="rh-party">手持ち</div>
-</div>
 
-{% for user in users %}
-<div class="rank-card">
-  <div class="rank-badge">{{ user.rank }}</div>
-  <div class="rank-body">
-    <!-- 上段：ユーザー情報と手持ち -->
-    <div class="rank-top-row">
-      <div class="rank-user-info">
-        ユーザー名: <a href="{{ Conf.cgi_url }}?mode=my_page2&target_user={{ user.user_name | urlencode }}" target="_blank"
-          rel="noopener">{{ user.user_name }}</a><br>
-        最深部: 地下<span>{{ user.key }}</span>階<br>
-        所持金: {{ user.money }}G<br>
-        図鑑: {{ user.getm }}<br>
-        保存期間: あと<span>{{ user.delday }}</span>日
+<div class="ranking-container">
+  {% for user in users %}
+  <div class="rank-user-card">
+    <div class="rank-user-header">
+      <div class="rank-num">第{{ user.rank }}位</div>
+      <div class="rank-username">
+        <a href="{{ Conf.cgi_url }}?mode=my_page2&target_user={{ user.user_name | urlencode }}" target="_blank"
+          rel="noopener">{{ user.user_name }}</a>
       </div>
-      <div class="rank-monsters">
+    </div>
+
+    <div class="rank-user-content">
+      <div class="rank-user-info">
+        <div>最深部: <span>{{ user.key }}</span>階</div>
+        <div>所持金: {{ user.money }}G</div>
+        <div>図鑑: {{ user.getm }}種</div>
+        <div class="del-info">保存期限: <span>{{ user.delday }}</span>日</div>
+      </div>
+
+      <div class="rank-party-display">
         {% for monster in user.monsters %}
-        <div class="monster-item">
-          <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}" /><br>
-          {{ monster.name }}<br>
-          Lv<span>{{ monster.lv }}</span><br>
-          配合<span>{{ monster.hai }}</span>回
+        <div class="rank-monster-item">
+          <div class="m-img"><img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}"></div>
+          <div class="m-name">{{ monster.name }}</div>
+          <div class="m-stats">Lv<span>{{ monster.lv }}</span> / +<span>{{ monster.hai }}</span></div>
         </div>
         {% endfor %}
       </div>
     </div>
-    <!-- 下段：コメント -->
-    <div class="rank-bottom-row">
-      <div class="rank-comment-label">コメント</div>
-      <div class="rank-comment-text">{{ user.mes | escape }}</div>
+
+    <div class="rank-user-comment">
+      <span class="comment-label">Comment</span>
+      <span class="comment-body">{{ user.mes | escape }}</span>
     </div>
   </div>
+  {% endfor %}
 </div>
-{% endfor %}
 
 {% if u_count > Conf.maxshow %}
   {{ ptxt([
