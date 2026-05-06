@@ -7,16 +7,17 @@
 <div class="toptitle">
   MONSTER'S 改 <span>{{ Conf.ver }}</span>
   <nav class="t_menu">
-    {% if u_count < Conf.sankaMAX %} <a href="./{{ Conf.reg_url }}" class="menu-btn new-reg">新規登録</a>
-      {% else %}
+    {% if u_count < Conf.sankaMAX %}
+      <a href="./{{ Conf.reg_url }}" class="menu-btn new-reg">新規登録</a>
+    {% else %}
       <span class="menu-btn disabled" title="参加者上限につき登録停止中">新規登録</span>
-      {% endif %}
-      <a href="./html/manual.html" target="_blank" rel="noopener" class="menu-btn">ぷれいまにゅある</a>
-      <a href="./html/event.html" target="_blank" class="menu-btn">イベントについて</a>
-      <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="menu-btn">配合表</a>
-      <a href="./html/haigou_list2.html" target="_blank" rel="noopener" class="menu-btn">配合表2</a>
-      <a href="./{{ Conf.kanri_url }}" target="_blank" rel="noopener" class="menu-btn">管理モード</a>
-      <a href="{{ Conf.homepage }}" class="menu-btn">{{ Conf.home_title }}</a>
+    {% endif %}
+    <a href="./html/manual.html" target="_blank" rel="noopener" class="menu-btn">ぷれいまにゅある</a>
+    <a href="./html/event.html" target="_blank" class="menu-btn">イベントについて</a>
+    <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="menu-btn">配合表</a>
+    <a href="./html/haigou_list2.html" target="_blank" rel="noopener" class="menu-btn">配合表2</a>
+    <a href="./{{ Conf.kanri_url }}" target="_blank" rel="noopener" class="menu-btn">管理モード</a>
+    <a href="{{ Conf.homepage }}" class="menu-btn">{{ Conf.home_title }}</a>
   </nav>
 </div>
 
@@ -29,7 +30,7 @@
 
 <div class="t_txt">
   何か問題等あれば、ゲーム内一言掲示板か<br>
-  [ <a href="https://discord.gg/yNg3ntSDgf" target="_blank" rel="noopener">Discord</a> ] の#cgigame チャンネル、<br>
+  [ <a href="https://discord.gg/yNg3ntSDgf" target="_blank" rel="noopener" class="discord_link">Discord</a> ] の#cgigame チャンネル、<br>
   もしくは"ねじりん"まで連絡くださいませ。<br>
 </div>
 
@@ -61,18 +62,17 @@
 <div id="medaltime">次のメダル獲得杯まであと{{ t_count }}日</div>
 
 <div>
-  <button onclick="location.href='./html/tournament_result.html'">前大会の結果</button>
+  <button onclick="location.href='./html/tournament_result.html'" class="submit-btn">前大会の結果</button>
 </div>
 
 <div><iframe id="news" src="./html/news.html" title="お知らせ">エラー</iframe></div>
-
 
 {% if users %}
 {% macro ptxt(buttons) %}
 <div style="text-align:center">
   {% for button in buttons %}
   <a href="{{ Conf.top_url }}?page={{ button.value }}" class="rank_pagination_link">
-    <button type="button">{{ button.label }}</button>
+    <button type="button" class="submit-btn">{{ button.label }}</button>
   </a>
   {% endfor %}
 </div>
@@ -86,8 +86,6 @@
   {'label': (Conf.maxshow + 1) | string ~ '位以降', 'value': 2}
   ]) }}
 {% endif %}
-
-<!-- PC用見出し（スマホでは消えます） -->
 
 <div class="ranking-container">
   {% for user in users %}
@@ -111,7 +109,7 @@
       <div class="rank-party-display">
         {% for monster in user.monsters %}
         <div class="rank-monster-item">
-          <div class="m-img"><img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}"></div>
+          <div class="m-img"><img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}" loading="lazy"></div>
           <div class="m-name">{{ monster.name }}</div>
           <div class="m-stats">Lv<span>{{ monster.lv }}</span> / +<span>{{ monster.hai }}</span></div>
         </div>

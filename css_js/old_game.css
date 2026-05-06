@@ -1,204 +1,11 @@
 /* ====================================== */
 /* game.css - ゲーム本編用のスタイル      */
 /* ====================================== */
-
 /* ========================================================= */
 /* 0. 共通コンポーネント（カード・汎用ボタン・フォーム・ページャー） */
 /* ========================================================= */
-/* =============== カード基盤 =============== */
-/* ほとんどのカードがこれを継承する */
-.card,
-.action-card,
-.rank-user-card,
-.result-card,
-.modern-party-card,
-.zukan-item-card,
-.book-monster-card,
-.omiai-monster-card,
-.park-monster-card,
-.shop-item-content {
-  box-sizing: border-box;
-  background-color: var(--white);
-  border: 2px solid var(--black);
-  border-radius: var(--radius-m);
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
 
-/* カードのバリエーション（ページごとの差をここで吸収） */
-.card--black {
-  background-color: var(--black);
-  border-color: var(--sky-blue);
-}
-
-.card--battle {
-  border-color: var(--red);
-}
-
-.card--info {
-  border-color: var(--sky-blue);
-}
-
-.card--shop {
-  border-color: var(--blue);
-}
-
-.card--result {
-  background-color: var(--gray);
-}
-
-/* カード内部構造 */
-.card-header,
-.action-card-header,
-.user-stats-header,
-.new-reg-header,
-.rank-user-header,
-.encount-header,
-.zukan-header-card,
-.bye-header {
-  background-color: var(--black);
-  color: var(--red);
-  font-size: 130%;
-  font-weight: bold;
-  padding: var(--space-s);
-  text-align: center;
-}
-
-.card-desc,
-.action-card-desc {
-  background-color: var(--sky-blue);
-  color: var(--black);
-  font-weight: bold;
-  padding: var(--space-s) var(--space-m);
-  font-size: 95%;
-  border-bottom: 2px solid var(--black);
-}
-
-.card-body,
-.action-card-body {
-  padding: var(--space-m);
-  background-color: var(--white);
-}
-
-/* カード用サブタイトル */
-.action-subtitle,
-.battle-option-title {
-  font-weight: bold;
-  color: var(--blue);
-  margin-bottom: var(--space-m);
-  text-align: center;
-  border-bottom: 1px dashed var(--blue);
-  padding-bottom: var(--space-s);
-}
-
-/* =============== ボタン共通化（押しボタン感を強化） =============== */
-.submit-btn,
-.ex-btn,
-.block-btn,
-.shop-btn,
-.battle-btn,
-.menu-btn,
-.page-btn,
-.trade-btn {
-  /* 基本レイアウト */
-  display: inline-block;
-  padding: var(--space-m) var(--space-l);
-  font-size: 100%;
-  text-align: center;
-  border-radius: var(--radius-s);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  border: 2px solid var(--black);
-  /* 濃い枠でボタン感UP */
-  box-shadow: 0 1px 0 var(--black);
-  /* 立体感の影 */
-  position: relative;
-  top: 0;
-}
-
-/* メニュー・ページャー */
-.menu-btn {
-  background-color: var(--black);
-  color: var(--white) !important;
-  border: 2px solid var(--gray);
-  box-shadow: 0 3px 0 var(--gray);
-  padding: var(--space-s) var(--space-m);
-  font-size: 100%;
-}
-
-/* ホバー・アクティブ時（押し込む表現） */
-.submit-btn:hover,
-.ex-btn:hover,
-.block-btn:hover,
-.shop-btn:hover,
-.battle-btn:hover,
-.menu-btn:hover:not(.disabled),
-.trade-btn:hover {
-  top: 2px;
-  box-shadow: 0 2px 0 var(--black);
-  transform: translateY(2px);
-  opacity: 1;
-}
-
-.menu-btn:hover {
-  background-color: var(--blue);
-  border-color: var(--black);
-}
-
-/* 押した時の表現 */
-.submit-btn:active,
-.ex-btn:active,
-.block-btn:active,
-.shop-btn:active,
-.battle-btn:active {
-  top: 4px;
-  box-shadow: 0 0 0 var(--black);
-  transform: translateY(4px);
-}
-
-/* 無効状態 */
-.menu-btn.disabled,
-button:disabled {
-  background-color: #555;
-  color: #999 !important;
-  border-color: #444;
-  box-shadow: 0 2px 0 #444;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* 危険・強調ボタン（必要に応じて使用） */
-.btn-danger {
-  background-color: var(--red);
-  border-color: var(--black);
-  color: var(--white);
-}
-
-.btn-danger:hover {
-  background-color: #c00;
-}
-
-/* =============== グリッド・レイアウト共通 =============== */
-.action-grid-container,
-.shop-button-grid,
-.battle-options-grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-m);
-  margin: var(--space-l) auto;
-  width: 95%;
-  max-width: 600px;
-}
-
-/* 横並びボタングリッド */
-.shop-button-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--space-s);
-}
-
-/* その他共通 */
+/* マイページ・TOPへ戻るボタンエリア */
 .my-page-back-form {
   display: flex;
   justify-content: center;
@@ -208,28 +15,165 @@ button:disabled {
   max-width: 400px;
 }
 
+/* アクションカード（戦闘・施設・配合の共通土台） */
+.action-card {
+  box-sizing: border-box;
+  background-color: var(--white);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.action-card-header {
+  background-color: var(--black);
+  color: var(--red);
+  font-size: 130%;
+  font-weight: bold;
+  padding: var(--space-s);
+  text-align: center;
+}
+
+.action-card-desc {
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-weight: bold;
+  padding: var(--space-s) var(--space-m);
+  font-size: 95%;
+  border-bottom: 2px solid var(--black);
+}
+
+.action-card-body {
+  padding: var(--space-m);
+  background-color: var(--white);
+}
+
+.action-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  margin: var(--space-l) auto;
+  width: 95%;
+  max-width: 600px;
+}
+
+.action-subtitle {
+  font-weight: bold;
+  color: var(--blue);
+  margin-bottom: var(--space-m);
+  text-align: center;
+  border-bottom: 1px dashed var(--blue);
+  padding-bottom: var(--space-s);
+}
+
+/* 汎用フォーム・入力系 */
 .flex-form {
   display: flex;
   gap: var(--space-s);
   align-items: center;
   margin: 0;
 }
+
+.full-width-input {
+  flex: 1;
+  padding: var(--space-m);
+  border-radius: var(--radius-s);
+  border: none;
+  font-size: 100%;
+}
+
+.slim-btn {
+  padding: var(--space-m);
+  margin: 0;
+  width: auto;
+  white-space: nowrap;
+}
+
+.ex-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.ex-select {
+  width: 90%;
+  max-width: 400px;
+  padding: var(--space-m);
+  font-size: 100%;
+  border-radius: var(--radius-s);
+  border: 1px solid #ccc;
+}
+
+.ex-btn {
+  width: 90%;
+  max-width: 400px;
+  padding: var(--space-m);
+  font-size: 110%;
+}
+
+.ex-select-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ex-select-group .action-subtitle {
+  margin-bottom: 5px;
+  border: none;
+}
+
+/* 汎用ページャー（パーク・お見合い共通） */
+.park_page {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-s);
+  margin: var(--space-m) 0;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  padding: var(--space-m);
+  border: 1px solid var(--black);
+  background: #eee;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  background: var(--black);
+  color: var(--white);
+}
+
 /* ========================================================= */
 /* 1. トップページ・ログイン・ランキング表示                 */
 /* ========================================================= */
-/* toptitle, rank_t, event_txt, mente など上部エリア */
+
+.mente {
+  margin: 5px auto;
+  /* 隙間を縮小 */
+  color: var(--white);
+  font-size: 140%;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: solid 2px var(--red);
+  /* 原色マゼンタを廃止 */
+  background-color: var(--black);
+  width: 300px;
+}
+
 .toptitle,
 .rank_t {
   margin: var(--space-s) auto;
+  /* 隙間を縮小 */
   color: var(--white);
   font-size: 140%;
   font-weight: bold;
   box-sizing: border-box;
   border: solid 2px var(--blue);
   background-color: var(--black);
-  width: 95%;
-  max-width: 1000px;
+  width: 1000px;
 
+  /* 背景が黒系なので、アクセントの文字色は赤より黄色が見やすいです */
   & span {
     color: var(--yellow);
     font-size: 80%;
@@ -237,7 +181,6 @@ button:disabled {
   }
 }
 
-.mente,
 .event_txt {
   margin: 5px auto;
   color: var(--white);
@@ -247,78 +190,159 @@ button:disabled {
   border: solid 2px var(--red);
   background-color: var(--black);
   width: 300px;
-  max-width: 95%;
 }
 
-/* メニューボタン群 */
 .t_menu {
   font-size: 80%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-xs);
-  margin-top: var(--space-s);
 }
 
-/* 説明テキストエリア */
 .t_txt {
   margin: var(--space-m) auto;
   padding: var(--space-m) var(--space-l);
   width: fit-content;
+  /* ★ここがポイント：中身のテキストの長さに合わせて箱が縮む */
   max-width: 95%;
   box-sizing: border-box;
+
   background-color: rgba(255, 255, 255, 0.7);
+  /* ★上部にアクセントラインを持ってくる */
   border-top: 4px solid var(--blue);
   border-left: 1px solid var(--gray);
   border-right: 1px solid var(--gray);
   border-bottom: 1px solid var(--gray);
   border-radius: var(--radius-s);
+
   color: var(--black);
   font-weight: bold;
   line-height: 1.6;
   text-align: center;
+  /* ★テキストを中央揃えに */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .t_txt span {
   color: var(--red);
   text-decoration: underline;
+  /* 強調箇所に下線 */
 }
 
-.discord_link {
-  color: var(--blue);
-  text-decoration: underline;
+/* ログインフォームとの間隔を少し調整 */
+.login-card {
+  margin: var(--space-m) auto;
+  /* 他のスタイルは維持 */
 }
 
-/* メダルタイムバッジ */
+#login_form input {
+  width: 8em;
+}
+
 #medaltime {
   margin: var(--space-m) auto;
   padding: var(--space-s) var(--space-l);
   width: auto;
+  /* 幅を固定せず中身に合わせる */
   max-width: 380px;
   display: inline-block;
+  /* 中央寄せを維持しつつバッジ化 */
+
+  /* デザインのポイント：丸みのあるバッジスタイル */
   background-color: var(--white);
   color: var(--blue);
   font-weight: bold;
   font-size: 90%;
+
   border: 2px solid var(--blue);
   border-radius: 50px;
+  /* 完全に角を丸くする */
 
+  /* アイコン代わりの装飾（疑似要素） */
   &::before {
     content: "🏆";
     margin-right: var(--space-s);
   }
 }
 
-/* ログインフォーム */
+#news {
+  margin: var(--space-s) auto;
+  width: 650px;
+  height: 160px;
+}
+
+/* 大枠の固定幅を解除して柔軟に */
+.toptitle,
+.rank_t,
+#news,
+.event_txt,
+.rank,
+.rank_m,
+.r_ubox {
+  width: 95%;
+  max-width: 1000px;
+  box-sizing: border-box;
+}
+
+/* iframe(news)のレスポンシブ対応 */
+#news {
+  width: 100%;
+  max-width: 650px;
+  border: none;
+  border-radius: var(--radius-m);
+  background: var(--white);
+}
+
+/* メニューのボタン化 */
+.t_menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+  /* ボタン同士の隙間を縮小 */
+  margin-top: var(--space-s);
+  /* 隙間を縮小 */
+}
+
+.menu-btn {
+  display: inline-block;
+  padding: var(--space-s);
+  /* ボタン自体の余白を少しタイトに */
+  background-color: var(--black);
+  color: var(--white) !important;
+  border: 1px solid var(--gray);
+  border-radius: var(--radius-s);
+  text-decoration: none;
+  font-weight: normal;
+  transition: all 0.2s;
+}
+
+.menu-btn:hover {
+  background-color: var(--blue);
+  color: var(--white) !important;
+}
+
+.menu-btn.new-reg {
+  background-color: var(--red);
+  border-color: var(--red);
+}
+
+.menu-btn.disabled {
+  background-color: #555;
+  color: #999 !important;
+  border-color: #444;
+  cursor: not-allowed;
+}
+
+/* ログインフォーム (タイトに修正) */
 .login-card {
   background-color: rgba(255, 255, 255, 0.8);
+  /* 浮きすぎないように変更 */
   border: 2px solid var(--blue);
   border-radius: var(--radius-m);
   padding: var(--space-m);
+  /* 余白を縮小 */
   width: 90%;
   max-width: 320px;
   margin: var(--space-s) auto;
+  /* 隙間を縮小 */
   box-sizing: border-box;
 }
 
@@ -326,6 +350,7 @@ button:disabled {
   display: flex;
   align-items: center;
   margin-bottom: var(--space-s);
+  /* 隙間を縮小 */
 }
 
 .login-card label {
@@ -347,50 +372,63 @@ button:disabled {
   border-radius: var(--radius-s);
 }
 
-/* ニュースiframe */
-#news {
+.login-card .submit-btn {
   width: 100%;
-  max-width: 650px;
+  margin-top: var(--space-s);
+  padding: var(--space-s);
+  background-color: var(--blue);
+  color: var(--white);
   border: none;
-  border-radius: var(--radius-m);
-  background: var(--white);
-  margin: var(--space-s) auto;
+  border-radius: var(--radius-s);
+  font-weight: bold;
+  cursor: pointer;
 }
 
 /* ========================================================= */
 /* ランキング：カード化デザイン（統一感重視）                */
 /* ========================================================= */
+
 .ranking-container {
   display: flex;
   flex-direction: column;
   gap: var(--space-m);
+  /* カード同士の隙間 */
   margin: var(--space-m) auto;
   width: 95%;
   max-width: 950px;
 }
 
 .rank-user-card {
-  /* .card を継承 */
+  background-color: var(--white);
+  border: 1px solid var(--gray);
+  margin-bottom: var(--space-m);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   text-align: left;
 }
 
+/* 順位と名前のバー：左寄せに修正 */
 .rank-user-header {
-  /* .card-header を継承 */
   background-color: var(--blue);
   color: var(--white);
   padding: var(--space-s) var(--space-m);
   display: flex;
   justify-content: flex-start;
+  /* 右端へ飛ばさず、左から並べる */
   gap: var(--space-l);
+  /* 順位と名前の間の距離（お好みで調整してください） */
   align-items: center;
+  font-weight: bold;
 }
 
 .rank-num {
   font-size: 110%;
   color: var(--yellow);
   white-space: nowrap;
+  /* 途中で改行されないように */
 }
 
 .rank-username a {
@@ -399,6 +437,7 @@ button:disabled {
   text-decoration: underline;
 }
 
+/* メインコンテンツエリア */
 .rank-user-content {
   display: flex;
   padding: var(--space-m);
@@ -406,6 +445,7 @@ button:disabled {
   background-color: var(--bg-light);
 }
 
+/* 左側：ユーザー基本ステータス */
 .rank-user-info {
   flex: 0 0 160px;
   font-size: 90%;
@@ -415,11 +455,18 @@ button:disabled {
   font-weight: bold;
 }
 
-.rank-user-info span,
-.m-stats span {
+.rank-user-info span {
   color: var(--red);
 }
 
+.del-info {
+  font-size: 85%;
+  font-weight: normal;
+  color: #666;
+  margin-top: var(--space-s);
+}
+
+/* 右側：パーティ表示 */
 .rank-party-display {
   flex: 1;
   display: flex;
@@ -432,7 +479,6 @@ button:disabled {
   width: 30%;
 }
 
-/* モンスター画像（トップページ用） */
 .m-img {
   height: 90px;
   display: flex;
@@ -443,8 +489,6 @@ button:disabled {
 
 .m-img img {
   max-height: 100%;
-  /* モンスター画像表示ルール遵守 */
-  max-width: 100px;
 }
 
 .m-name {
@@ -461,7 +505,11 @@ button:disabled {
   font-weight: bold;
 }
 
-/* コメントエリア（.comment-body を中央寄せに調整） */
+.m-stats span {
+  color: var(--red);
+}
+
+/* 下段：コメントエリア */
 .rank-user-comment {
   padding: var(--space-s) var(--space-m);
   background-color: var(--bg-light);
@@ -469,9 +517,6 @@ button:disabled {
   display: flex;
   gap: var(--space-m);
   align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
-  /* 全体を中央寄せ寄りに */
 }
 
 .comment-label {
@@ -481,100 +526,110 @@ button:disabled {
   padding: 1px 6px;
   border-radius: var(--radius-s);
   text-transform: uppercase;
-  flex-shrink: 0;
 }
 
 .comment-body {
   font-size: 90%;
   color: var(--black);
   font-weight: bold;
-  text-align: center;
-  /* 中央表示 */
-  flex: 1;
-  min-width: 0;
 }
 
+/* onclick属性や親クラスを狙い撃ちしてHTMLを変更せずに適用します */
+button[onclick*="tournament_result.html"],
+.rank_pagination_link button {
+  padding: var(--space-m);
+  /* ボタン内の余白を広げて大きく */
+  font-size: 110%;
 
+  /* 角を少し丸めてリッチに */
+  margin: var(--space-m);
+  /* ボタン周りの隙間 */
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* マウスオーバー時に少しだけ透かして押せる感を出します（色はそのまま） */
+button[onclick*="tournament_result.html"]:hover,
+.rank_pagination_link button:hover {
+  opacity: 0.8;
+}
 /* ========================================================= */
 /* 2. 新規登録画面・結果画面                                 */
 /* ========================================================= */
 
 .new-reg-card {
   background-color: var(--black);
-  border: 2px solid var(--blue);
-  /* 派手な色を落ち着いた配色に調整 */
+  border: 2px solid #FF00FF;
   border-radius: var(--radius-m);
   width: 90%;
   max-width: 500px;
   margin: var(--space-m) auto;
   overflow: hidden;
   box-sizing: border-box;
-
-  .new-reg-header {
-    background-color: var(--blue);
-    color: var(--white);
-    font-size: 140%;
-    font-weight: bold;
-    padding: var(--space-m);
-    border-bottom: 2px solid var(--black);
-  }
-
-  .new-reg-desc {
-    background-color: var(--black);
-    color: var(--yellow);
-    font-weight: bold;
-    padding: var(--space-m);
-    font-size: 110%;
-    border-bottom: 1px solid #444;
-
-    small {
-      color: #ccc;
-      font-size: 80%;
-      font-weight: normal;
-    }
-  }
-
-  .new-reg-form {
-    padding: var(--space-m);
-    background-color: var(--gray);
-    color: var(--black);
-
-    .form-group {
-      margin-bottom: var(--space-m);
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: var(--space-s);
-      color: var(--blue);
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: var(--space-s);
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: var(--radius-s);
-    }
-  }
 }
 
-/* フォームアクションボタンエリア */
+.new-reg-header {
+  background-color: #660066;
+  color: var(--white);
+  font-size: 140%;
+  font-weight: bold;
+  padding: var(--space-m);
+  border-bottom: 2px solid #FF00FF;
+}
+
+.new-reg-desc {
+  background-color: var(--black);
+  color: var(--yellow);
+  font-weight: bold;
+  padding: var(--space-m);
+  font-size: 110%;
+  border-bottom: 1px solid #444;
+}
+
+.new-reg-desc small {
+  color: #ccc;
+  font-size: 80%;
+  font-weight: normal;
+}
+
+.new-reg-form {
+  padding: var(--space-m);
+  background-color: var(--gray);
+  color: var(--black);
+}
+
+.new-reg-form .form-group {
+  margin-bottom: var(--space-m);
+  text-align: left;
+}
+
+.new-reg-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: var(--space-s);
+  color: var(--blue);
+}
+
+.new-reg-form input[type="text"],
+.new-reg-form input[type="password"] {
+  width: 100%;
+  padding: var(--space-s);
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: var(--radius-s);
+}
+
 .form-actions {
   margin-top: var(--space-m);
   text-align: center;
 }
 
-/* 新規登録結果画面 */
+/* 新規登録 結果画面 */
 .new-ok-msg {
   color: var(--red);
   font-size: 140%;
   font-weight: bold;
   margin: var(--space-m) auto var(--space-s);
-  text-align: center;
 }
 
 .result-card {
@@ -585,21 +640,21 @@ button:disabled {
   border-radius: var(--radius-m);
   background-color: var(--gray);
   overflow: hidden;
+}
 
-  .result-section {
-    padding: var(--space-s) var(--space-m);
-    border-bottom: 1px solid #ccc;
+.result-section {
+  padding: var(--space-s) var(--space-m);
+  border-bottom: 1px solid #ccc;
+}
 
-    &:last-child {
-      border-bottom: none;
-    }
-  }
+.result-section:last-child {
+  border-bottom: none;
+}
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: var(--space-s);
-  }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-s);
 }
 
 .stat-box {
@@ -623,13 +678,12 @@ button:disabled {
   font-weight: bold;
   background-color: var(--white);
   color: var(--black);
-
-  &.highlighted {
-    color: var(--red);
-  }
 }
 
-/* モンスター基本情報ヘッダー */
+.stat-value.highlighted {
+  color: var(--red);
+}
+
 .result-monster-header {
   display: flex;
   align-items: center;
@@ -638,12 +692,10 @@ button:disabled {
   background-color: #f8f8f8;
   border-bottom: 1px solid #ccc;
   gap: 20px;
+}
 
-  img {
-    max-height: 230px;
-    max-width: 100px;
-    /* モンスター画像表示ルール遵守 */
-  }
+.result-monster-header img {
+  max-height: 120px;
 }
 
 .monster-info-text {
@@ -651,23 +703,11 @@ button:disabled {
   font-weight: bold;
   font-size: 110%;
   line-height: 1.5;
-
-  .monster-name,
-  .monster-sex,
-  .monster-sei {
-    margin-bottom: 4px;
-  }
 }
 
-/* アクションボタンエリア */
 .action-buttons {
   margin: var(--space-m) auto;
   text-align: center;
-
-  .submit-btn {
-    max-width: 250px;
-    margin: 0 auto;
-  }
 }
 
 /* ========================================================= */
@@ -678,8 +718,11 @@ button:disabled {
   margin-bottom: var(--space-m);
 }
 
+/* ユーザーステータスカード */
 .user-stats-card {
-  /* .card--black を使用 */
+  background-color: var(--black);
+  border: 2px solid var(--sky-blue);
+  border-radius: var(--radius-m);
   margin: 0 auto var(--space-m) auto;
   width: 95%;
   max-width: 800px;
@@ -732,6 +775,7 @@ button:disabled {
   text-decoration: underline;
 }
 
+/* カウントダウンタイマー */
 .timer-badge {
   background-color: var(--white);
   color: var(--red);
@@ -744,6 +788,7 @@ button:disabled {
   font-size: 90%;
 }
 
+/* 鍵・特技一覧のカード化 */
 .info-card-container {
   display: flex;
   flex-direction: column;
@@ -805,6 +850,7 @@ button:disabled {
   border: 1px solid var(--black);
 }
 
+/* コメントフォームのカード化 */
 .comment-card {
   background-color: var(--black);
   border: 2px solid var(--blue);
@@ -816,6 +862,7 @@ button:disabled {
   box-sizing: border-box;
 }
 
+/* パーティ一覧・ステータス表示 */
 .party-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -826,7 +873,10 @@ button:disabled {
 }
 
 .modern-party-card {
-  /* .card を継承 */
+  background-color: var(--white);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   color: var(--black);
@@ -847,6 +897,7 @@ button:disabled {
   background-color: #fff3e0;
 }
 
+/* ドラッグ＆ドロップ装飾 */
 .drag-over {
   outline: 3px dashed #ff9800 !important;
   outline-offset: -3px;
@@ -913,6 +964,7 @@ button.active {
   max-height: 120px;
 }
 
+/* 個別ステータスグリッド */
 .monster-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -973,6 +1025,7 @@ button.active {
   display: flex;
 }
 
+/* 並び替え実行エリア */
 .reorder-action-card {
   margin: var(--space-m) auto;
   background-color: rgba(0, 0, 0, 0.6);
@@ -987,6 +1040,131 @@ button.active {
   font-size: 90%;
   margin-top: var(--space-m);
   margin-bottom: 0;
+}
+
+/* 戦闘選択フォーム固有 */
+.battle-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  background-color: #f0f0f0;
+}
+
+.battle-option-box {
+  background-color: var(--white);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius-m);
+  padding: var(--space-m);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.battle-option-box.hidden {
+  display: none !important;
+}
+
+.battle-option-title {
+  font-weight: bold;
+  color: var(--blue);
+  margin-bottom: var(--space-m);
+  border-bottom: 1px dashed var(--blue);
+  padding-bottom: var(--space-xs);
+}
+
+.battle-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.battle-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-m);
+}
+
+.battle-select {
+  padding: var(--space-xs) var(--space-s);
+  font-size: 100%;
+  border-radius: var(--radius-s);
+  border: 1px solid #ccc;
+  max-width: 100%;
+}
+
+.battle-number {
+  padding: var(--space-xs) var(--space-s);
+  font-size: 100%;
+  width: 70px;
+  text-align: center;
+  border-radius: var(--radius-s);
+  border: 1px solid #ccc;
+}
+
+.battle-text {
+  font-size: 90%;
+  font-weight: bold;
+}
+
+.battle-btn {
+  width: 100%;
+  padding: var(--space-m);
+  font-size: 110%;
+  margin: 0;
+}
+
+/* ショップ一覧固有 */
+.shop-msg-area {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 100%;
+}
+
+.omiai-status-banner {
+  background-color: #ffe4e1;
+  text-align: center;
+  padding: var(--space-m);
+  border-bottom: 2px solid var(--black);
+}
+
+.omiai-status-banner img {
+  max-height: 60px;
+}
+
+.shop-button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+  padding: var(--space-m);
+  background-color: #f0f0f0;
+}
+
+.shop-form {
+  display: flex;
+  width: 100%;
+  margin: 0;
+}
+
+.shop-span {
+  display: flex;
+  width: 100%;
+}
+
+.shop-btn {
+  width: 100%;
+  padding: var(--space-m);
+  font-size: 95%;
+  margin: 0;
+  white-space: normal;
+  word-break: break-all;
 }
 
 /* ========================================================= */
@@ -1166,7 +1344,7 @@ button.active {
 .c-label {
   color: var(--sky-blue);
   background-color: var(--black);
-  padding: var(--space-xs) var(--space-s);
+  padding: var(--space-xs), var(--space-s);
   border-radius: var(--radius-s);
   display: inline-block;
   min-width: 25px;
@@ -1216,9 +1394,11 @@ button.active {
   padding: var(--space-m);
 }
 
-/* 戦闘ログ */
-.battle-log-container,
-.system-log-container {
+/* 戦闘 - アクションログ・システムログ */
+.battle-log-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
   margin: var(--space-s) auto;
   width: 95%;
   max-width: 800px;
@@ -1353,13 +1533,18 @@ button.active {
 }
 
 @keyframes flash {
-  from {
-    opacity: 1;
-  }
+  from { opacity: 1; }
+  to { opacity: 0.8; }
+}
 
-  to {
-    opacity: 0.8;
-  }
+.system-log-container {
+  margin: var(--space-m) auto;
+  width: 95%;
+  max-width: 800px;
+  background-color: var(--white);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  overflow: hidden;
 }
 
 .system-log-body {
@@ -1412,6 +1597,7 @@ button.active {
   padding: var(--space-m);
 }
 
+
 /* ========================================================= */
 /* 5. 施設（魔物図鑑・本屋・配合所・交換所）                 */
 /* ========================================================= */
@@ -1459,7 +1645,7 @@ button.active {
 .zukan-category-btn {
   background-color: #660066;
   color: var(--white);
-  padding: var(--space-xs) var(--space-s);
+  padding: var(--space-xs) ,var(--space-s);
   border-radius: var(--radius-l);
   font-size: 90%;
   font-weight: bold;
@@ -1557,73 +1743,72 @@ button.active {
   margin: 0.3rem 0;
 }
 
-/* 系統別背景画像（まとめ） */
+@media (pointer: coarse),
+(hover: none) {
+  .zukan-img-wrapper[title]:focus::after {
+    content: attr(title);
+    top: 10%;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid;
+    width: fit-content;
+    padding: 3px;
+  }
+}
+
+/* 系統別背景画像 */
 .スライム系,
 .ボカロ,
 .ボイロ,
 .ドラクエ {
   background-image: url(../img/back1.png);
 }
-
 .ドラゴン系,
 .とある {
   background-image: url(../img/back2.png);
 }
-
 .けもの系 {
   background-image: url(../img/back3.png);
 }
-
 .とり系,
 .シュタゲ {
   background-image: url(../img/back4.png);
 }
-
 .しょくぶつ系,
 .このすば {
   background-image: url(../img/back5.png);
 }
-
 .むし系,
 .ミルキィ {
   background-image: url(../img/back6.png);
 }
-
 .あくま系,
 .原神 {
   background-image: url(../img/back7.png);
 }
-
 .ゾンビ系 {
   background-image: url(../img/back8.png);
 }
-
 .ぶっしつ系,
 .シンフォギア,
 .東方,
 .アイマス {
   background-image: url(../img/back9.png);
 }
-
 .みず系 {
   background-image: url(../img/back12.png);
 }
-
 .？？？系 {
   background-image: url(../img/back13.png);
 }
-
 .せいれい系,
 .らき☆すた,
 .まどマギ {
   background-image: url(../img/back11.png);
 }
 
-/* 本屋・配合・交換所 */
-.book-info-card,
-.book-form-card,
-.haigou-check-card,
-.shop-msg-card {
+/* 本屋 */
+.book-info-card {
   margin: var(--space-m) auto;
   width: 95%;
   max-width: 600px;
@@ -1694,10 +1879,22 @@ button.active {
   font-size: 90%;
   font-weight: bold;
   color: var(--black);
-  margin-top: var(--space-xs);
+  margin-top: var(--space-xs);}
+
+.book-form-card {
+  width: 95%;
+  max-width: 600px;
+  margin: 20px auto;
 }
 
-/* 配合関連 */
+/* 配合・誕生結果 */
+.haigou-check-card,
+.result-card {
+  margin: var(--space-m) auto;
+  width: 95%;
+  max-width: 700px;
+}
+
 .haigou-select-area {
   display: flex;
   flex-direction: column;
@@ -1754,8 +1951,7 @@ button.active {
   text-align: center;
 }
 
-.haigou-label,
-.haigou-name {
+.haigou-label {
   background-color: var(--black);
   color: var(--white);
   font-size: 85%;
@@ -1773,6 +1969,13 @@ button.active {
 .haigou-img img {
   max-height: 100px;
   max-width: 100%;
+}
+
+.haigou-name {
+  padding: var(--space-s);
+  font-weight: bold;
+  border-top: 1px solid #eee;
+  background-color: #f0f0f0;
 }
 
 .haigou-result-preview {
@@ -1885,6 +2088,12 @@ button.active {
 }
 
 /* 交換所 */
+.shop-msg-card {
+  margin: var(--space-m) auto;
+  width: 95%;
+  max-width: 600px;
+}
+
 .shop-status-container {
   display: flex;
   justify-content: center;
@@ -1999,17 +2208,22 @@ button.active {
   font-size: 120%;
 }
 
+
 /* ========================================================= */
 /* 6. 特殊施設（お見合い所・パーク・モンスター別れ・ユーザー設定） */
 /* ========================================================= */
 
-.omiai-header-card,
-.omiai-touroku-card,
-.park-header-card,
-.bye-card,
-.name-change-card {
+/* お見合い部屋 */
+.omiai-header-card {
   margin: var(--space-m) auto;
   width: 95%;
+  max-width: 800px;
+}
+
+.omiai-touroku-card {
+  margin: 0 auto var(--space-m) auto;
+  width: 95%;
+  max-width: 600px;
 }
 
 .omiai-touroku-card .haigou-img-box {
@@ -2027,25 +2241,13 @@ button.active {
   margin: 0 auto;
 }
 
-.omiai-grid,
-.park-grid {
+.omiai-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--space-m);
   margin-bottom: var(--space-m);
 }
 
-.omiai-grid {
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-}
-
-.park-grid {
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  width: 95%;
-  max-width: 1100px;
-  margin: 0 auto var(--space-m) auto;
-}
-
-/* お見合いカード */
 .omiai-monster-card {
   background-color: var(--white);
   overflow: hidden;
@@ -2172,7 +2374,13 @@ button.active {
   color: var(--black);
 }
 
-/* パーク */
+/* モンスターパーク */
+.park-header-card {
+  margin: 15px auto;
+  width: 95%;
+  max-width: 600px;
+}
+
 .park-touroku-area {
   padding: var(--space-m);
   background-color: #f9f9f9;
@@ -2190,6 +2398,15 @@ button.active {
   justify-content: center;
   gap: var(--space-s);
   margin-bottom: var(--space-s);
+}
+
+.park-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-s);
+  width: 95%;
+  max-width: 1100px;
+  margin: 0 auto var(--space-m) auto;
 }
 
 .park-monster-card {
@@ -2249,13 +2466,13 @@ button.active {
   color: var(--blue);
 }
 
-.p-meta,
-.p-hai {
+.p-meta {
   font-size: 85%;
   color: #666;
 }
 
 .p-hai {
+  font-size: 85%;
   font-weight: bold;
   color: var(--black);
   margin-top: 3px;
@@ -2295,8 +2512,11 @@ button.active {
   color: #999;
 }
 
-/* 別れ・設定 */
+/* モンスター別れ */
 .bye-card {
+  margin: var(--space-m) auto;
+  width: 95%;
+  max-width: 600px;
   border-color: var(--red);
 }
 
@@ -2316,6 +2536,13 @@ button.active {
   text-align: center;
 }
 
+/* ユーザー設定 (名前変更) */
+.name-change-card {
+  margin: var(--space-m) auto;
+  width: 95%;
+  max-width: 500px;
+}
+
 .name-change-card .ex-select-group {
   margin-bottom: var(--space-m);
 }
@@ -2329,6 +2556,7 @@ button.active {
   margin-top: var(--space-m);
   text-align: center;
 }
+
 
 /* ========================================================= */
 /* 7. 一行掲示板 (BBS)                                       */
@@ -2399,7 +2627,7 @@ button.active {
   height: 20px;
   border-radius: 50%;
   border: 2px solid transparent;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   transition: transform 0.1s;
 }
 
@@ -2407,7 +2635,7 @@ button.active {
   display: none;
 }
 
-.color-radio input[type="radio"]:checked+.color-swatch {
+.color-radio input[type="radio"]:checked + .color-swatch {
   border-color: var(--black);
   transform: scale(1.2);
 }
@@ -2426,7 +2654,7 @@ button.active {
   margin-bottom: 8px;
   padding: var(--space-m);
   border-radius: var(--radius-s);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .bbs-log-header {
@@ -2496,7 +2724,7 @@ button.active {
   }
 
   .card-header {
-    padding: var(--space-s) var(--space-m);
+    padding: var(--space-s), var(--space-m);
   }
 
   .card-body {
@@ -2514,6 +2742,6 @@ button.active {
 
   .m-val,
   .m-label {
-    padding: 0;
+    padding: 0px;
   }
 }

@@ -45,7 +45,7 @@ body {
 
 A {
   &:link, &:visited {
-    color: var(--white);
+    color: var(--sky-blue);
     text-decoration: none;
   }
   &:hover {
@@ -58,59 +58,6 @@ input:invalid {
   border: solid 2px red;
 }
 
-/* --- フォーム・ボタンの統一スタイル --- */
-input[type="text"],
-input[type="password"],
-input[type="number"],
-select,
-textarea {
-  padding: var(--space-s) var(--space-m);
-  border-radius: var(--radius-s);
-  border: 1px solid var(--gray);
-  box-sizing: border-box;
-  font-size: 16px;
-  /* モバイルでのズーム防止 */
-}
-
-button,
-.submit-btn,
-.menu-btn {
-  padding: var(--space-m) var(--space-l);
-  margin: var(--space-s);
-  border-radius: var(--radius-s);
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  transition: opacity 0.2s;
-  display: inline-block;
-  text-decoration: none;
-  box-sizing: border-box;
-}
-
-button:hover,
-.submit-btn:hover,
-.menu-btn:hover {
-  opacity: 0.8;
-}
-
-/* スリムなボタン用 */
-.slim-btn,
-.shop-btn {
-  padding: var(--space-s) var(--space-m) !important;
-}
-
-/* 強調ボタン用 */
-.ex-btn,
-.battle-btn,
-.trade-btn {
-  border-radius: var(--radius-m) !important;
-  width: 90%;
-  max-width: 400px;
-}
-
-
-.form { display: inline; }
-.input { border-radius: 0px; }
 .hidden { display: none !important; }
 
 /* テキストカラーのユーティリティ */
@@ -118,6 +65,7 @@ button:hover,
 .blue { color: var(--blue); font-size: 100%; font-weight: bold; }
 .red { color: var(--red); font-size: 100%; font-weight: bold; }
 .yellow { color: var(--yellow); font-size: 100%; font-weight: bold; }
+
 
 
 /* 共通レイアウト */
