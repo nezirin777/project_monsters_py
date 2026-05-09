@@ -74,23 +74,23 @@
     {% if syslog.type == "battle_end" %}
     <div class="sys-msg sys-result">
       戦闘に<span class="red">{{ syslog.result }}</span><br>
-      <span class="sky_blue">{{ syslog.money }}</span>Gを得た。<br>
-      それぞれ<span class="sky_blue">{{ syslog.exp }}</span>ポイントの経験値を得た。
+      <span class="blue">{{ syslog.money }}</span>Gを得た。<br>
+      それぞれ<span class="blue">{{ syslog.exp }}</span>ポイントの経験値を得た。
     </div>
 
     {% elif syslog.type == "lvup" %}
     <div class="sys-msg sys-lvup">
       <div class="lvup-title">レベルアップ！</div>
-      <span class="sky_blue">{{ syslog.name }}</span>は<span class="red">Lv{{ syslog.old_lv }}からLv{{ syslog.new_lv
+      <span class="blue">{{ syslog.name }}</span>は<span class="red">Lv{{ syslog.old_lv }}からLv{{ syslog.new_lv
         }}</span>になった！<br>
       {% if syslog.is_max %}
       <span class="red">成長の限界に達した。</span><br>年老いた為、力が激減した。
       {% else %}
-      最大HPが <span class="sky_blue">+{{ syslog.up_hp }}</span><br>
-      最大MPが <span class="sky_blue">+{{ syslog.up_mp }}</span><br>
-      攻撃力が <span class="sky_blue">+{{ syslog.up_atk }}</span><br>
-      守備力が <span class="sky_blue">+{{ syslog.up_def }}</span><br>
-      素早さが <span class="sky_blue">+{{ syslog.up_agi }}</span><br>
+      最大HPが <span class="blue">+{{ syslog.up_hp }}</span><br>
+      最大MPが <span class="blue">+{{ syslog.up_mp }}</span><br>
+      攻撃力が <span class="blue">+{{ syslog.up_atk }}</span><br>
+      守備力が <span class="blue">+{{ syslog.up_def }}</span><br>
+      素早さが <span class="blue">+{{ syslog.up_agi }}</span><br>
       {% endif %}
     </div>
 

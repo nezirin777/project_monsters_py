@@ -1,6 +1,6 @@
 <!-- templates/my_page_battleselect_tmp.html -->
 
-<div class="action-card">
+<div class="action-card card" id="battle-section">
   <!-- ヘッダーと説明文 -->
   <div class="action-card-header">戦 闘</div>
   <div class="action-card-desc">
@@ -28,7 +28,7 @@
           <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ user.key }}" class="battle-number">
           <span class="battle-text">Fに</span>
         </div>
-        <button type="submit" class="submit-btn battle-btn" disabled>戦闘に行く！</button>
+        <button type="submit" class="submit-btn battle-btn" data-original-text="戦闘に行く！" disabled>戦闘に行く！</button>
         <input type="hidden" name="mode" value="battle_type">
         <input type="hidden" name="token" value="{{ token }}">
       </form>
@@ -51,14 +51,14 @@
           <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ last_floor }}" class="battle-number">
           <span class="battle-text">Fに</span>
         </div>
-        <button type="submit" class="submit-btn battle-btn" disabled>戦闘に行く！</button>
+        <button type="submit" class="submit-btn battle-btn" data-original-text="戦闘に行く！" disabled>戦闘に行く！</button>
         <input type="hidden" name="mode" value="battle_type">
         <input type="hidden" name="token" value="{{ token }}">
       </form>
     </div>
 
     <!-- 異世界:最深階 -->
-    <div class="battle-option-box {{ isekai }}">
+    <div class="battle-option-box {{ isekai }} battle-option-box--isekai">
       <div class="battle-option-title">【 異世界:最深階 】</div>
       <form action="{{ Conf.cgi_url }}" method="post" class="battle-form battle_go">
         <div class="battle-inputs">
@@ -66,7 +66,7 @@
           <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ isekai_next }}" class="battle-number">
           <span class="battle-text">Fに</span>
         </div>
-        <button type="submit" class="submit-btn battle-btn" disabled>探索に行く！</button>
+        <button type="submit" class="submit-btn battle-btn" data-original-text="探索に行く！" disabled>探索に行く！</button>
         <input type="hidden" name="mode" value="battle_type2">
         <input type="hidden" name="in_room" value="異世界">
         <input type="hidden" name="token" value="{{ token }}">
@@ -74,7 +74,7 @@
     </div>
 
     <!-- 異世界:前探索階 -->
-    <div class="battle-option-box {{ isekai }}">
+    <div class="battle-option-box {{ isekai }} battle-option-box--isekai">
       <div class="battle-option-title">【 異世界:前探索階 】</div>
       <form action="{{ Conf.cgi_url }}" method="post" class="battle-form battle_go">
         <div class="battle-inputs">
@@ -82,7 +82,7 @@
           <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ last_floor_isekai }}" class="battle-number">
           <span class="battle-text">Fに</span>
         </div>
-        <button type="submit" class="submit-btn battle-btn" disabled>探索に行く！</button>
+        <button type="submit" class="submit-btn battle-btn" data-original-text="探索に行く！" disabled>探索に行く！</button>
         <input type="hidden" name="mode" value="battle_type2">
         <input type="hidden" name="in_room" value="異世界">
         <input type="hidden" name="token" value="{{ token }}">

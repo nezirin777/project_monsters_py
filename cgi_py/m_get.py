@@ -35,7 +35,7 @@ def m_get(FORM):
     # teki[0] に仲間になるモンスター情報が入っている前提
     teki = battle["teki"][0]
     get_name = teki.get("name", "")
-    Asex = teki.get("sex", "陰")
+    Asex = teki.get("sex", "不明な性別")
 
     if not get_name:
         error("仲間にするモンスターの情報がありません。", jump="my_page")

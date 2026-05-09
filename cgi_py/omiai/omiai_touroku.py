@@ -6,6 +6,7 @@ from sub_def.file_ops import (
     save_omiai_list,
     open_user_all,
     save_user_all,
+    log,
 )
 from sub_def.utils import error, success
 
@@ -25,11 +26,12 @@ def omiai_touroku(FORM):
     omiai = FORM.get("omiai")
     mes = FORM.get("mes", "")
 
+    log(f"omiai:{omiai}")
     if not omiai:
         error("モンスター番号が指定されていません", jump="omiai_room")
 
     try:
-        no = int(omiai) - 1
+        no = int(omiai)
         if no < 0:
             raise ValueError
     except ValueError:

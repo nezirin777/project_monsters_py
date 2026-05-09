@@ -1,52 +1,59 @@
 <!-- templates/omiai_room_monster_list_tmp.html -->
 
-<div class="omiai-monster-card">
-  <!-- 上段：ユーザー情報と操作ボタン -->
-  <div class="omiai-card-top">
-    <div class="omiai-user-info">
-      <span class="omiai-user-label">ユーザー</span>
-      <span class="omiai-user-name">{{ item.target }}</span>
-    </div>
-    <div class="omiai-action-btns">
-      <form action="{{ Conf.cgi_url }}" method="post" class="omiai-inline-form">
-        <input type="hidden" name="target" value="{{ item.target }}">
-        <input type="hidden" name="mode" value="{{ btn_mode }}">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit" class="submit-btn slim-btn">{{ btn_label }}</button>
-      </form>
-      {% if btn_mode2 %}
-      <form action="{{ Conf.cgi_url }}" method="post" class="omiai-inline-form">
-        <input type="hidden" name="target" value="{{ item.target }}">
-        <input type="hidden" name="mode" value="{{ btn_mode2 }}">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit" class="submit-btn slim-btn cancel">{{ btn_label2 }}</button>
-      </form>
-      {% endif %}
-    </div>
-  </div>
+<div class="omiai-grid">
 
-  <!-- 中段：モンスターメイン情報 -->
-  <div class="omiai-card-main">
-    <div class="omiai-img-box">
-      <img src="{{ Conf.imgpath }}/{{ item.omiai.name }}.gif" alt="{{ item.omiai.name }}">
-    </div>
-    <div class="omiai-monster-basic">
-      <div class="omiai-m-name">{{ item.omiai.name }}</div>
-      <div class="omiai-m-meta">{{ item.omiai.sex }} / {{ item.omiai.sei }}</div>
-    </div>
-  </div>
+  {% for item in items %}
 
-  <!-- 下段：ステータスグリッド -->
-  <div class="omiai-card-stats">
-    <div class="omiai-s-item"><span class="omiai-s-label">LV</span><span class="omiai-s-val">{{ item.omiai.lv }}<small>/{{ item.omiai.mlv }}</small></span></div>
-    <div class="omiai-s-item"><span class="omiai-s-label">HP</span><span class="omiai-s-val">{{ item.omiai_v.hp }}<small>/{{ item.omiai_v.mhp }}</small></span></div>
-    <div class="omiai-s-item"><span class="omiai-s-label">配合</span><span class="omiai-s-val">{{ item.omiai.hai }}回</span></div>
-    <div class="omiai-s-item"><span class="omiai-s-label">攻撃</span><span class="omiai-s-val">{{ item.omiai_v.atk }}</span></div>
-  </div>
+    <div class="omiai-monster-card">
+      <!-- 上段：ユーザー情報と操作ボタン -->
+      <div class="omiai-card-header">
+        <div class="omiai-user-info">
+          <span class="omiai-user-label">ユーザー</span>
+          <span class="omiai-user-name">{{ item.target }}</span>
+        </div>
+        <div class="omiai-action-btns">
+          <form action="{{ Conf.cgi_url }}" method="post" class="omiai-inline-form">
+            <input type="hidden" name="target" value="{{ item.target }}">
+            <input type="hidden" name="mode" value="{{ btn_mode }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit" class="submit-btn slim-btn">{{ btn_label }}</button>
+          </form>
+          {% if btn_mode2 %}
+          <form action="{{ Conf.cgi_url }}" method="post" class="omiai-inline-form">
+            <input type="hidden" name="target" value="{{ item.target }}">
+            <input type="hidden" name="mode" value="{{ btn_mode2 }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button type="submit" class="submit-btn slim-btn cancel">{{ btn_label2 }}</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
 
-  <!-- 最下段：希望メッセージ -->
-  <div class="omiai-card-message">
-    <span class="omiai-msg-label">希望モンスター</span>
-    <div class="omiai-msg-text">{{ item.omiai.mes }}</div>
-  </div>
+      <!-- 中段：モンスターメイン情報 -->
+      <div class="omiai-card-body">
+        <div class="omiai-img-box">
+          <img src="{{ Conf.imgpath }}/{{ item.omiai.name }}.gif" alt="{{ item.omiai.name }}">
+        </div>
+        <div class="omiai-monster-basic">
+          <div class="omiai-m-name">{{ item.omiai.name }}</div>
+          <div class="omiai-m-meta">{{ item.omiai.sex }} / {{ item.omiai.sei }}</div>
+        </div>
+      </div>
+
+      <!-- 下段：ステータスグリッド -->
+      <div class="omiai-card-stats">
+        <div class="omiai-s-item"><span class="omiai-s-label">LV</span><span class="omiai-s-val">{{ item.omiai.lv }}<small>/{{ item.omiai.mlv }}</small></span></div>
+        <div class="omiai-s-item"><span class="omiai-s-label">HP</span><span class="omiai-s-val">{{ item.omiai_v.hp }}<small>/{{ item.omiai_v.mhp }}</small></span></div>
+        <div class="omiai-s-item"><span class="omiai-s-label">配合</span><span class="omiai-s-val">{{ item.omiai.hai }}回</span></div>
+        <div class="omiai-s-item"><span class="omiai-s-label">攻撃</span><span class="omiai-s-val">{{ item.omiai_v.atk }}</span></div>
+      </div>
+
+      <!-- 最下段：希望メッセージ -->
+      <div class="omiai-card-message">
+        <span class="omiai-msg-label">希望モンスター</span>
+        <div class="omiai-msg-text">{{ item.omiai.mes }}</div>
+      </div>
+    </div>
+  {% endfor %}
+
 </div>

@@ -20,24 +20,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 2. メニュー（鍵、特技一覧）の開閉機能
     // ==========================================
-    document.querySelectorAll('.toggle-menu').forEach(link => {
-        link.addEventListener('click', (e) => {
+    document.querySelectorAll('.toggle-trigger').forEach(trigger => {
+        trigger.addEventListener('click', (e) => {
             e.preventDefault();
-            const showId = link.dataset.show;
-            const hideId = link.dataset.hide;
-            const showEl = document.getElementById(showId);
-            const hideEl = document.getElementById(hideId);
 
-            if (!showEl || !hideEl) {
-                console.warn('Toggle elements not found:', showId, hideId);
+            const targetId = trigger.dataset.target;
+            const target = document.getElementById(targetId);
+
+            if (!target) {
+                console.warn(`Target not found: #${targetId}`);
                 return;
             }
 
-            hideEl.style.display = 'none';
-            showEl.style.display = showEl.style.display === 'block' ? 'none' : 'block';
+            // 表示/非表示をトグル
+            if (target.style.display === 'block') {
+                target.style.display = 'none';
+            } else {
+                target.style.display = 'block';
+            }
         });
     });
-
     // ==========================================
     // 3. パーティ編成（ドラッグ＆ドロップ ＆ セレクト変更）
     // ==========================================
@@ -95,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function markChanged() {
         changed = true;
         // ★修正: 新しいHTML構造に合わせて保存ボタンの取得先を変更
-        const btn = document.querySelector(".reorder-action-card .submit-btn");
+        const btn = document.querySelector(".party-action-footer .submit-btn");
         if (btn) {
             btn.classList.add("active");
             // ついでに変更があったことが分かりやすいようにテキストも変更

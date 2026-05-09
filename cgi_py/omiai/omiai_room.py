@@ -87,6 +87,7 @@ def omiai_room(FORM):
     selectable_monsters = [
         {
             "index": i,
+            "index_view": i + 1,
             "name": pt.get("name", ""),
             "sex": pt.get("sex", ""),
             "lv": pt.get("lv", 1),
