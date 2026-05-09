@@ -111,8 +111,11 @@ def mikata_action(actor, bm):
     }
 
     # サボり判定
-    if random.randint(0, 3) == 0:
-        if bm.seikaku_dat.get(actor.get("sei", ""), {}).get("行動", 1) == 0:
+    sei_data = bm.seikaku_dat.get(actor.get("sei", ""), {})  # ここで1回だけ取得
+    action_type = sei_data.get("行動", 1)
+
+    if random.randint(0, 3) == 0:  # 1/4の確率でサボりチェック
+        if action_type == 0:  # 性格「行動」=0 の場合
             event["action_type"] = "sabori"
             bm.log_action(actor, None, event)
             return
@@ -137,13 +140,16 @@ def mikata_action(actor, bm):
             event["damage"] = 0
         else:
             actor["mp"] -= int(zyumon.get("mp", 0))
-            kaisin = (
-                2
-                if bm.seikaku_dat.get(actor.get("sei", ""), {}).get("行動", 1) == 2
-                else 1
-            )
-            if kaisin == 2:
-                event["is_critical"] = True
+
+            # 会心判定（行動 == 2 の性格の場合のみ1/3確率）
+            if action_type == 2:
+                if random.random() < 1 / 3:
+                    event["is_critical"] = True
+                    kaisin = 2
+                else:
+                    kaisin = 1
+            else:
+                kaisin = 1
 
             dmg = calculate_damage(actor, target_obj, zyumon.get("damage", 1) * kaisin)
             event["damage"] = slim_number_with_cookie(dmg)
@@ -153,6 +159,7 @@ def mikata_action(actor, bm):
             elif target_obj.get("hp", 0) == 0:
                 event["is_dead"] = True
                 bm.battle["teki"][0]["name"] = target_obj.get("name", "")
+                bm.battle["teki"][0]["sex"] = target_obj.get("sex", "不明な性別")
                 bm.battle["teki"][0]["exp"] += target_obj.get("exp", 0)
                 bm.battle["teki"][0]["money"] += target_obj.get("money", 0)
                 bm.battle["teki"][0]["down"] += 1

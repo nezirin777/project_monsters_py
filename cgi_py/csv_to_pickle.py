@@ -234,7 +234,12 @@ def convert_csv_to_pickle(target_key, user_name=None):
         try:
             pickle_dump(data, pickle_path)
             log(f"[DONE] {category} | {csv_name} → {pickle_name}")
-            safe_remove(csv_path)  # 変換成功後はCSVを削除
+            # 【修正】マスターデータはCSVを残す
+            if category == "GLOBAL":
+                safe_remove(csv_path)
+                log(f"[DELETE] GLOBAL CSV削除: {csv_name}")
+            else:
+                log(f"[KEEP] MASTER CSVは保持: {csv_name}")
         except Exception as e:
             log(f"[ERROR] 保存失敗: {pickle_path} | {e}")
         return

@@ -45,7 +45,7 @@ def m_bye(FORM):
         if Mno < 0 or Mno >= len(party):
             error("無効なモンスター番号が指定されました", jump="my_page")
 
-        by_name = party[Mno].get("name", "不明")
+        by_name = party[Mno].get("name", "不明な名前")
 
         # 指定されたインデックスのモンスターを削除
         party.pop(Mno)

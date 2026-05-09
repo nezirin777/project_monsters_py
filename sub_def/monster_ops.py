@@ -13,6 +13,7 @@ from .file_ops import (
     open_seikaku_dat,
     open_user_all,
     save_user_all,
+    log,
 )
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -33,7 +34,10 @@ def _calc_base_stat(
 # 特技・図鑑登録（統合版）
 # ============#
 def register_monster_progress(
-    waza_target: str = None, zukan_target: str = None, user_name: str = ""
+    waza_target: str = None,
+    zukan_target: str = None,
+    user_name: str = "",
+    all_data: Optional[Dict] = None,
 ) -> dict:
     """
     特技取得と図鑑登録を1つの関数で処理。
@@ -42,7 +46,6 @@ def register_monster_progress(
     """
     result = {"waza_new": False, "zukan_new": False}
 
-    all_data = open_user_all(user_name)
     user = all_data.setdefault("user", {})
     waza = all_data.setdefault("waza", {})
     zukan = all_data.setdefault("zukan", {})
@@ -63,18 +66,21 @@ def register_monster_progress(
             zukan[zukan_target]["get"] = 1
             result["zukan_new"] = True
 
+            log(
+                f"図鑑登録: {zukan_target} , 登録状態: {zukan[zukan_target]['get']} , \"result['zukan_new']\": {result['zukan_new']}"
+            )  # デバッグログ
+
             # ゼロ除算を完全に防止
             get_count = sum(1 for val in zukan.values() if val.get("get", 0) == 1)
             total_count = len(zukan)
             progress = (get_count / total_count * 100) if total_count > 0 else 0.0
             user["getm"] = f"{get_count}／{total_count}匹 ({progress:.2f}％)"
 
-    # 保存（変更があった場合のみ）
+    # 保存は呼び出しもとで。
     if result["waza_new"] or result["zukan_new"]:
         all_data["user"] = user
         all_data["waza"] = waza
         all_data["zukan"] = zukan
-        save_user_all(all_data, user_name)
 
     return result
 

@@ -66,12 +66,14 @@ def haigou_hensin(FORM):
         waza_target=waza_target,
         zukan_target=new_mob_name,
         user_name=user_name,
+        all_data=all_data,
     )
 
     is_waza = progress["waza_new"]
     is_new = progress["zukan_new"]
 
-    is_rare = Mons.get(mon_master["room"], {}) == "異世界"
+    room = str(mon_master.get("room", "")).strip()
+    is_rare = room == "異世界"
 
     # 配合後モンスターに引き継ぐステータスを上書き
     new_mob.update(

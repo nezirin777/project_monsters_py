@@ -238,7 +238,7 @@
     }
 
     // 外部からトーストを呼び出せるように、windowオブジェクトに公開する（これだけは例外）
-    window.showToast = function(message, type = "info", duration = 4000) {
+    window.showToast = function(message, type = "info", duration = 3000) {
         toastQueue.push({ message, type, duration });
         processToastQueue();
     };
