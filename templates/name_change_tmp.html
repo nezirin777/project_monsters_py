@@ -5,30 +5,30 @@
 {% block content %}
 
 <!-- 名前変更カード -->
-<div class="action-card name-change-card">
-  <div class="action-card-header">ユーザー名変更</div>
-  <div class="action-card-desc">
+<div class="game-card action-card name-change-card">
+  <div class="game-card__header action-card-header">ユーザー名変更</div>
+  <div class="game-card__desc action-card-desc">
     使用可能な文字は半角/全角英数字及び日本語です<br>
     <small>（一部特殊文字は使用できません）</small>
   </div>
 
-  <div class="action-card-body">
-    <form action="{{ Conf.cgi_url }}" method="post" class="ex-form" id="nameChangeForm"
+  <div class="game-card__body action-card-body">
+    <form action="{{ Conf.cgi_url }}" method="post" class="form-stack ex-form" id="nameChangeForm"
       data-confirm="ユーザー名を変更します。本当によろしいですか？" data-loading="名前を変更中...">
 
       <div class="ex-select-group">
         <div class="action-subtitle">現在の名前</div>
-        <input type="text" class="ex-select" value="{{ current_name }}" disabled style="background-color: #eee; cursor: not-allowed;">
+        <input type="text" class="form-control ex-select" value="{{ current_name }}" disabled style="background-color: #eee; cursor: not-allowed;">
       </div>
 
       <div class="ex-select-group">
         <div class="action-subtitle">新しい名前</div>
-        <input type="text" name="new_name" id="newNameInput" class="ex-select" value="" maxlength="20" placeholder="新しい名前を入力" required>
+        <input type="text" name="new_name" id="newNameInput" class="form-control ex-select" value="" maxlength="20" placeholder="新しい名前を入力" required>
       </div>
 
       <div class="ex-select-group">
         <div class="action-subtitle">確認用パスワード</div>
-        <input type="password" name="password" class="ex-select" placeholder="パスワードを入力" required>
+        <input type="password" name="password" class="form-control ex-select" placeholder="パスワードを入力" required>
       </div>
 
       <div class="form-action-area">

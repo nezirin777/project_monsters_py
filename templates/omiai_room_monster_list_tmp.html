@@ -4,9 +4,9 @@
 
   {% for item in items %}
 
-    <div class="omiai-monster-card">
+    <div class="monster-card game-card omiai-monster-card">
       <!-- 上段：ユーザー情報と操作ボタン -->
-      <div class="omiai-card-header">
+      <div class="game-card__header omiai-card-header">
         <div class="omiai-user-info">
           <span class="omiai-user-label">ユーザー</span>
           <span class="omiai-user-name">{{ item.target }}</span>
@@ -30,22 +30,22 @@
       </div>
 
       <!-- 中段：モンスターメイン情報 -->
-      <div class="omiai-card-body">
-        <div class="omiai-img-box">
+      <div class="game-card__body omiai-card-body">
+        <div class="monster-card__image omiai-img-box">
           <img src="{{ Conf.imgpath }}/{{ item.omiai.name }}.gif" alt="{{ item.omiai.name }}">
         </div>
         <div class="omiai-monster-basic">
-          <div class="omiai-m-name">{{ item.omiai.name }}</div>
-          <div class="omiai-m-meta">{{ item.omiai.sex }} / {{ item.omiai.sei }}</div>
+          <div class="monster-card__name omiai-m-name">{{ item.omiai.name }}</div>
+          <div class="monster-card__meta omiai-m-meta">{{ item.omiai.sex }} / {{ item.omiai.sei }}</div>
         </div>
       </div>
 
       <!-- 下段：ステータスグリッド -->
-      <div class="omiai-card-stats">
-        <div class="omiai-s-item"><span class="omiai-s-label">LV</span><span class="omiai-s-val">{{ item.omiai.lv }}<small>/{{ item.omiai.mlv }}</small></span></div>
-        <div class="omiai-s-item"><span class="omiai-s-label">HP</span><span class="omiai-s-val">{{ item.omiai_v.hp }}<small>/{{ item.omiai_v.mhp }}</small></span></div>
-        <div class="omiai-s-item"><span class="omiai-s-label">配合</span><span class="omiai-s-val">{{ item.omiai.hai }}回</span></div>
-        <div class="omiai-s-item"><span class="omiai-s-label">攻撃</span><span class="omiai-s-val">{{ item.omiai_v.atk }}</span></div>
+      <div class="stats-grid omiai-card-stats">
+        <div class="stat-item omiai-s-item"><span class="stat-item__label omiai-s-label">LV</span><span class="stat-item__value omiai-s-val">{{ item.omiai.lv }}<small>/{{ item.omiai.mlv }}</small></span></div>
+        <div class="stat-item omiai-s-item"><span class="stat-item__label omiai-s-label">HP</span><span class="stat-item__value omiai-s-val">{{ item.omiai_v.hp }}<small>/{{ item.omiai_v.mhp }}</small></span></div>
+        <div class="stat-item omiai-s-item"><span class="stat-item__label omiai-s-label">配合</span><span class="stat-item__value omiai-s-val">{{ item.omiai.hai }}回</span></div>
+        <div class="stat-item omiai-s-item"><span class="stat-item__label omiai-s-label">攻撃</span><span class="stat-item__value omiai-s-val">{{ item.omiai_v.atk }}</span></div>
       </div>
 
       <!-- 最下段：希望メッセージ -->

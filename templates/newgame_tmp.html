@@ -4,19 +4,19 @@
 
 {% block content %}
 
-<div class="new-reg-card">
-  <div class="new-reg-header">新規ユーザー登録</div>
-  <div class="new-reg-desc">
+<div class="game-card newgame-card new-reg-card">
+  <div class="game-card__header new-reg-header">新規ユーザー登録</div>
+  <div class="game-card__desc new-reg-desc">
     ユーザー名・パスワードを設定してください<br>
     <small>(20文字以内。ユーザー名はひらがな等もOK。パスワードは英数字のみ)</small>
   </div>
 
-  <form action="{{ Conf.reg_url }}" method="post" class="new-reg-form">
-    <div class="form-group">
+  <form action="{{ Conf.reg_url }}" method="post" class="form-stack new-reg-form">
+    <div class="form-row form-group">
       <label>ユーザー名</label>
       <input type="text" name="new_user_name" maxlength="20" autocomplete="username" required>
     </div>
-    <div class="form-group">
+    <div class="form-row form-group">
       <label>パスワード</label>
       <input type="password" name="new_password" maxlength="20" autocomplete="new-password" required>
     </div>

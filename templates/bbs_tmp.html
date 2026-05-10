@@ -8,11 +8,11 @@
 </head>
 <body>
   <!-- data-no-lock="true" を追加して main.js のロックを除外 -->
-  <form method="post" action="{{ Conf.bbs_url }}" data-no-lock="true" class="bbs-form-card">
+  <form method="post" action="{{ Conf.bbs_url }}" data-no-lock="true" class="game-card bbs-form-card">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
-    <div class="bbs-input-group">
-      <input type="text" placeholder="発言" name="bbs_txt" class="bbs-input" autocomplete="off" required>
+    <div class="form-row bbs-input-group">
+      <input type="text" placeholder="発言" name="bbs_txt" class="form-control bbs-input" autocomplete="off" required>
       <button type="submit" class="submit-btn bbs-btn">送信</button>
       <button type="button" class="submit-btn bbs-btn refresh-btn">更新</button>
     </div>

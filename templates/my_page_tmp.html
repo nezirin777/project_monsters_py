@@ -55,7 +55,7 @@
 
   <section class="info-card-container">
 
-    <div class="info-card card">
+    <div class="game-card info-card card">
       <button class="toggle-trigger block-btn" data-target="key-list">
         ▼ 取得系統の鍵一覧 ▼
       </button>
@@ -71,7 +71,7 @@
       </div>
     </div>
 
-    <div class="info-card card">
+    <div class="game-card info-card card">
       <button class="toggle-trigger block-btn" data-target="skill-list">
         ▼ 取得特技一覧 ▼
       </button>
@@ -89,14 +89,14 @@
 
   </section>
 
-  <section class="comment-card card">
-    <div class="card-header">
+  <section class="game-card comment-card card">
+    <div class="game-card__header card-header">
       COMMENT
     </div>
 
-    <div class="card-body">
-      <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
-        <input type="text" name="message" value="{{ user.mes | escape }}" class="full-width-input" placeholder="ひとことコメント">
+    <div class="game-card__body card-body">
+      <form action="{{ Conf.cgi_url }}" method="post" class="form-row flex-form">
+        <input type="text" name="message" value="{{ user.mes | escape }}" class="form-control full-width-input" placeholder="ひとことコメント">
         <input type="hidden" name="mode" value="comment">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit" class="submit-btn slim-btn">
@@ -108,11 +108,11 @@
   </section>
 
 
-  <section class="bbs-card card" id="bbs-section">
-    <div class="card-header">
+  <section class="game-card bbs-card card" id="bbs-section">
+    <div class="game-card__header card-header">
       BBS
     </div>
-    <div class="card-body">
+    <div class="game-card__body card-body">
       <div id="bbs"></div>
     </div>
   </section>

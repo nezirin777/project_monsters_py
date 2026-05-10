@@ -4,9 +4,9 @@
 {% block content %}
 
     <!-- メッセージ表示 -->
-    <div class="action-card shop-msg-card">
-      <div class="action-card-header">交換所</div>
-      <div class="action-card-desc">{{ mes }}</div>
+    <div class="game-card action-card shop-msg-card">
+      <div class="game-card__header action-card-header">交換所</div>
+      <div class="game-card__desc action-card-desc">{{ mes }}</div>
     </div>
 
     <!-- 所持状況バッジ -->
@@ -22,13 +22,13 @@
     </div>
 
     <!-- 交換アイテム選択フォーム -->
-    <form action="{{ Conf.cgi_url }}" id="form_check" method="post" class="shop-trade-form">
+    <form action="{{ Conf.cgi_url }}" id="form_check" method="post" class="form-stack shop-trade-form">
         {% for category, items in item_lists.items() %}
           <div class="shop-item-grid">
             {% for item in items %}
             <label class="shop-item-card">
               <input type="radio" name="m_name" value="{{ item.name }}" class="shop-item-radio" required>
-              <div class="shop-item-content">
+              <div class="game-card shop-item-content">
                 <div class="shop-item-name">{{ item.name }}</div>
                 <div class="shop-item-price">
                   <span class="price-prefix">{{ item.val1 }}</span>

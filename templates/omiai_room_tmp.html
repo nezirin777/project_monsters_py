@@ -2,9 +2,9 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-  <div class="action-card omiai-header-card">
-    <div class="action-card-header">お見合い所</div>
-    <div class="action-card-desc">
+  <div class="game-card action-card omiai-header-card">
+    <div class="game-card__header action-card-header">お見合い所</div>
+    <div class="game-card__desc action-card-desc">
       お見合い所にモンスターを登録することができます<br>
       <small>※Lv{{ Conf.haigoulevel }}以上必要、登録は1体までです。</small>
     </div>
@@ -12,9 +12,9 @@
     {% if not my_registered and not baby_ready %}
       <!-- 登録フォーム -->
       <div class="omiai-touroku-area">
-        <form name="form1" method="post" id="img_change" class="ex-form">
+        <form name="form1" method="post" id="img_change" class="form-stack ex-form">
           <div class="omiai-select-box">
-            <select name="omiai" class="monster-select ex-select" data-target="img1">
+            <select name="omiai" class="form-control monster-select ex-select" data-target="img1">
               <option value="99" selected data-name="0">登録するモンスターを選択</option>
               {% for monster in selectable_monsters %}
                 <option value="{{ monster.index }}" data-name="{{ monster.name }}">
@@ -24,12 +24,12 @@
             </select>
           </div>
 
-          <div class="haigou-img-box">
+          <div class="monster-card__image haigou-img-box">
             <img name="img1" src="{{ Conf.imgpath }}/0.gif">
           </div>
 
           <div class="omiai-select-box">
-            <input type="text" name="mes" class="ex-select" value="" placeholder="希望相手モンスター記入 例：スライム系 など">
+            <input type="text" name="mes" class="form-control ex-select" value="" placeholder="希望相手モンスター記入 例：スライム系 など">
           </div>
 
           <button type="submit" class="submit-btn">この内容で登録する</button>

@@ -2,14 +2,14 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="action-card haigou-check-card">
-    <div class="action-card-header">
+<div class="game-card action-card haigou-check-card">
+    <div class="game-card__header action-card-header">
         {% if mode=="omiai_req" %}お見合い申請確認
         {% elif mode=="omiai_ans" %}お見合い受諾確認
         {% else %}配合確認{% endif %}
     </div>
 
-    <div class="action-card-desc">
+    <div class="game-card__desc action-card-desc">
         {% if mode=="omiai_req" %}お見合いを申し込みますか？
         {% elif mode=="omiai_ans" %}お見合いを受けますか？
         {% else %}モンスターを配合しますか？{% endif %}
@@ -17,25 +17,25 @@
 
     <!-- 配合ペアの表示 -->
     <div class="haigou-pair-grid">
-        <div class="haigou-mons-card">
+        <div class="monster-card game-card haigou-mons-card">
             <div class="haigou-label">ベース</div>
-            <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ nameA }}.gif"></div>
-            <div class="haigou-name">{{ nameA }}</div>
+            <div class="monster-card__image haigou-img"><img src="{{ Conf.imgpath }}/{{ nameA }}.gif"></div>
+            <div class="monster-card__name haigou-name">{{ nameA }}</div>
         </div>
         <div class="haigou-plus">＋</div>
-        <div class="haigou-mons-card">
+        <div class="monster-card game-card haigou-mons-card">
             <div class="haigou-label">相手</div>
-            <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ nameB }}.gif"></div>
-            <div class="haigou-name">{{ nameB }}</div>
+            <div class="monster-card__image haigou-img"><img src="{{ Conf.imgpath }}/{{ nameB }}.gif"></div>
+            <div class="monster-card__name haigou-name">{{ nameB }}</div>
         </div>
     </div>
 
     <!-- 予想結果 -->
     <div class="haigou-result-preview">
         <div class="action-subtitle">NEW MONSTER 予想</div>
-        <div class="haigou-mons-card result-preview">
-            <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif"></div>
-            <div class="haigou-name">{{ my_new_mons }}</div>
+        <div class="monster-card game-card haigou-mons-card result-preview">
+            <div class="monster-card__image haigou-img"><img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif"></div>
+            <div class="monster-card__name haigou-name">{{ my_new_mons }}</div>
         </div>
         {% if hint_flag %}
         <div class="hai_msg hint-msg">不思議な気配を感じる…</div>
@@ -44,7 +44,7 @@
 
     <!-- アクションボタン -->
     <div class="haigou-actions">
-        <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
+        <form action="{{ Conf.cgi_url }}" method="post" class="form-row flex-form">
             {% if mode=="omiai_req" %}
                 <button type="submit" class="submit-btn">申請する</button>
                 <input type="hidden" name="mode" value="omiai_request_ok">
@@ -60,7 +60,7 @@
             <input type="hidden" name="token" value="{{ token }}">
         </form>
 
-        <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
+        <form action="{{ Conf.cgi_url }}" method="post" class="form-row flex-form">
             <input type="hidden" name="mode" value="{% if mode=='haigou' %}my_page{% else %}omiai_room{% endif %}">
             <input type="hidden" name="token" value="{{ token }}">
             <button type="submit" class="submit-btn slim-btn">キャンセル</button>

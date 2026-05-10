@@ -1,8 +1,8 @@
 <!-- templates/battle_encount_tmp.html -->
 
-<div class="action-card encount-card">
+<div class="game-card action-card encount-card">
   <!-- エンカウントのメッセージ -->
-  <div class="encount-header">
+  <div class="game-card__header encount-header">
     {% if target == "スライム" %}
       スライムの不思議な城に迷い込んだ！<br>
       <small>勝利すれば不思議な鍵が貰えます！</small>
@@ -21,13 +21,13 @@
   <!-- 出現した敵のリスト -->
   <div class="enemy-grid">
     {% for teki in tekis %}
-    <div class="enemy-card">
-      <div class="enemy-image-wrapper">
+    <div class="monster-card game-card enemy-card">
+      <div class="monster-card__image enemy-image-wrapper">
         <img src="{{ Conf.imgpath }}/{{ teki.name }}.gif" alt="{{ teki.name }}">
       </div>
       <div class="enemy-info">
-        <div class="enemy-name">{{ teki.name2 }}</div>
-        <div class="enemy-meta">-{{ teki.sex }}-</div>
+        <div class="monster-card__name enemy-name">{{ teki.name2 }}</div>
+        <div class="monster-card__meta enemy-meta">-{{ teki.sex }}-</div>
       </div>
       <div class="enemy-hp-box">
         <div class="enemy-hp-label">HP</div>

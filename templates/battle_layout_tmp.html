@@ -14,7 +14,7 @@
 {% if action_logs %}
 <div class="battle-log-container">
   {% for log in action_logs %}
-  <div class="action-log-card">
+  <div class="game-card battle-log__card action-log-card">
     <!-- キャラクター情報のヘッダー部分（VS形式） -->
     <div class="log-actors-area">
 
@@ -66,8 +66,8 @@
 
 <!-- 3. リザルト・システムログ -->
 {% if system_logs %}
-<div class="system-log-container">
-  <div class="action-card-header">リザルト</div>
+<div class="game-card battle-system-log system-log-container">
+  <div class="game-card__header action-card-header">リザルト</div>
   <div class="system-log-body">
     {% for syslog in system_logs %}
 
@@ -128,8 +128,8 @@
     {% elif syslog.type == "roomkey" %}
     <div class="sys-msg sys-action">
       <div class="action-prompt">どのKEYを取得しますか？</div>
-      <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
-        <select name="get_key" class="full-width-input">
+      <form action="{{ Conf.cgi_url }}" method="post" class="form-row flex-form">
+        <select name="get_key" class="form-control full-width-input">
           {% for opt in syslog.options %}
           <option value="{{ opt }}">{{ opt }}の部屋の鍵</option>
           {% endfor %}
@@ -142,7 +142,7 @@
 
     {% elif syslog.type == "monget" %}
     <div class="sys-msg sys-action">
-      <div class="monget-img"><img src="{{ Conf.imgpath }}/{{ syslog.name }}.gif" alt="{{ syslog.name }}"></div>
+      <div class="monster-card__image monget-img"><img src="{{ Conf.imgpath }}/{{ syslog.name }}.gif" alt="{{ syslog.name }}"></div>
       <div class="action-prompt"><span class="red">{{ syslog.name }}</span>が仲間になりたがっています。<br>仲間にしますか？</div>
       <form action="{{ Conf.cgi_url }}" method="post">
         <button type="submit" class="submit-btn">仲間にする</button>

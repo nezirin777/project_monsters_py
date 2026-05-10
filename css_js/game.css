@@ -6,7 +6,12 @@
 /* 0. 共通コンポーネント（カード・汎用ボタン・フォーム・ページャー） */
 /* ========================================================= */
 /* =============== カード基盤 =============== */
-/* ほとんどのカードがこれを継承する */
+/*
+  .game-card を共通ベースにし、既存の page/component class は
+  ページ固有の調整用として残す。移行中テンプレートの互換性のため、
+  旧カード class も同じ基盤を受ける。
+*/
+.game-card,
 .card,
 .action-card,
 .rank-user-card,
@@ -16,7 +21,12 @@
 .book-monster-card,
 .omiai-monster-card,
 .park-monster-card,
-.shop-item-content {
+.shop-item-content,
+.enemy-card,
+.cmd-member-card,
+.haigou-mons-card,
+.bbs-form-card,
+.new-reg-card {
   box-sizing: border-box;
   background-color: var(--white);
   border: 2px solid var(--black);
@@ -48,6 +58,7 @@
 }
 
 /* カード内部構造 */
+.game-card__header,
 .card-header,
 .action-card-header,
 .user-stats-header,
@@ -64,6 +75,7 @@
   text-align: center;
 }
 
+.game-card__desc,
 .card-desc,
 .action-card-desc {
   background-color: var(--sky-blue);
@@ -74,6 +86,7 @@
   border-bottom: 2px solid var(--black);
 }
 
+.game-card__body,
 .card-body,
 .action-card-body {
   padding: var(--space-m);
@@ -111,6 +124,70 @@
 }
 
 /* その他共通 */
+
+/* =============== モンスター表示・ステータス共通 =============== */
+.monster-card {
+  box-sizing: border-box;
+}
+
+.monster-card__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monster-card__image img {
+  width: auto;
+  max-width: 110px;
+  max-height: 230px;
+  object-fit: contain;
+}
+
+.monster-card__name {
+  overflow: hidden;
+  color: var(--blue);
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monster-card__meta {
+  color: #666;
+  font-size: 85%;
+  line-height: 1.4;
+}
+
+.stats-grid {
+  display: grid;
+  gap: var(--space-s);
+}
+
+.stat-item {
+  box-sizing: border-box;
+}
+
+.stat-item__label {
+  font-weight: bold;
+}
+
+.stat-item__value {
+  min-width: 0;
+}
+
+/* =============== フォーム共通 =============== */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  box-sizing: border-box;
+}
+
+.form-control {
+  box-sizing: border-box;
+}
+
 
 /* ========================================================= */
 /* 0.5 新共通定義。ここは残して置く。         */

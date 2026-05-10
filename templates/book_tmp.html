@@ -5,9 +5,9 @@
 {% block content %}
 
 <!-- 説明カード -->
-<div class="action-card book-info-card">
-  <div class="action-card-header">本　屋</div>
-  <div class="action-card-desc">
+<div class="game-card action-card book-info-card">
+  <div class="game-card__header action-card-header">本　屋</div>
+  <div class="game-card__desc action-card-desc">
     モンスターに本を読ませると性格が変わります。<br>
     <small>※現在の性格によっては変わらない場合もあります。 1冊: {{ book_price }}G</small>
   </div>
@@ -16,14 +16,14 @@
 <!-- パーティモンスター一覧（レスポンシブグリッド） -->
 <div class="book-monster-grid">
   {% for monster in monster_data %}
-  <div class="book-monster-card">
+  <div class="monster-card game-card book-monster-card">
     <div class="book-no">No.{{ monster.no }}</div>
-    <div class="book-img-wrapper">
+    <div class="monster-card__image book-img-wrapper">
       <img src="{{ monster.img }}" alt="{{ monster.name }}">
     </div>
     <div class="book-monster-info">
-      <div class="book-m-name">{{ monster.name }}</div>
-      <div class="book-m-meta">-{{ monster.sex }}-</div>
+      <div class="monster-card__name book-m-name">{{ monster.name }}</div>
+      <div class="monster-card__meta book-m-meta">-{{ monster.sex }}-</div>
       <div class="book-m-sei">{{ monster.sei }}</div>
     </div>
   </div>
@@ -31,12 +31,12 @@
 </div>
 
 <!-- 実行フォーム -->
-<div class="action-card book-form-card">
-  <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="ex-form">
+<div class="game-card action-card book-form-card">
+  <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="form-stack ex-form">
 
     <div class="ex-select-group">
       <div class="action-subtitle">モンスターを選択</div>
-      <select name="Mno" class="ex-select">
+      <select name="Mno" class="form-control ex-select">
         {% for option in monster_options %}
         <option value="{{ option.value }}">{{ option.label }}</option>
         {% endfor %}
@@ -45,7 +45,7 @@
 
     <div class="ex-select-group">
       <div class="action-subtitle">本を選択</div>
-      <select name="Bname" class="ex-select">
+      <select name="Bname" class="form-control ex-select">
       {% for b_name in book_options %}
         <option value="{{ b_name }}">{{ b_name }}</option>
       {% endfor %}

@@ -33,13 +33,13 @@
   <!-- ゲーム概要 -->
   <!-- ========================= -->
 
-  <section class="info-box card">
+  <section class="game-card info-box card">
 
-    <div class="card-header">
+    <div class="game-card__header card-header">
       ゲーム情報
     </div>
 
-    <div class="card-body">
+    <div class="game-card__body card-body">
       初めての方は上の<span>新規登録</span>から参加してください。<br>
       現在の参加数は<span>{{ u_count }}/{{ Conf.sankaMAX }}</span>人です!<br>
       戦闘間隔は<span>{{ Conf.nextplay }}</span>秒、配合可能レベルは<span>{{ Conf.haigoulevel }}</span>の設定です。<br>
@@ -69,18 +69,18 @@
   <!-- ログイン -->
   <!-- ========================= -->
 
-  <section class="login-card card">
-    <div class="card-header">
+  <section class="game-card login-card card">
+    <div class="game-card__header card-header">
       LOGIN
     </div>
 
-    <div class="card-body">
+    <div class="game-card__body card-body">
       <form action="{{ Conf.cgi_url }}" method="post" id="login_form">
-        <div class="form-group">
+        <div class="form-row form-group">
           <label>ユーザー名</label>
           <input type="text" name="user_name" autocomplete="username" required>
         </div>
-        <div class="form-group">
+        <div class="form-row form-group">
           <label>パスワード</label>
           <input type="password" name="password" autocomplete="current-password" required>
         </div>
@@ -100,11 +100,11 @@
 <!-- ニュース -->
 <!-- ========================= -->
 
-<section class="news-card card">
-  <div class="card-header">
+<section class="game-card news-card card">
+  <div class="game-card__header card-header">
     NEWS
   </div>
-  <div class="card-body">
+  <div class="game-card__body card-body">
     <iframe id="news" src="./html/news.html" title="お知らせ">
       エラー
     </iframe>
@@ -134,13 +134,13 @@
   <!-- サポート -->
   <!-- ========================= -->
 
-  <section class="support-box card">
+  <section class="game-card support-box card">
 
-    <div class="card-header">
+    <div class="game-card__header card-header">
       お問い合わせ
     </div>
 
-    <div class="card-body">
+    <div class="game-card__body card-body">
       何か問題等あれば、ゲーム内一言掲示板か<br>
       [ <a href="https://discord.gg/yNg3ntSDgf" target="_blank" rel="noopener" class="discord_link">Discord</a> ]
       の#cgigameチャンネル、<br>
@@ -183,8 +183,8 @@
 
     <div class="ranking-container">
       {% for user in users %}
-      <article class="rank-user-card">
-        <div class="rank-user-header">
+      <article class="game-card rank-user-card">
+        <div class="game-card__header rank-user-header">
           <div class="rank-num">
             第{{ user.rank }}位
           </div>
@@ -196,7 +196,7 @@
           </div>
         </div>
 
-        <div class="rank-user-content">
+        <div class="game-card__body rank-user-content">
           <div class="rank-user-info">
             <div>
               最深部:
@@ -221,13 +221,13 @@
           <div class="rank-party-display">
             {% for monster in user.monsters %}
             <div class="rank-monster-item">
-              <div class="m-img">
+              <div class="monster-card__image m-img">
                 <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}" loading="lazy">
               </div>
-              <div class="m-name">
+              <div class="monster-card__name m-name">
                 {{ monster.name }}
               </div>
-              <div class="m-stats">
+              <div class="monster-card__meta m-stats">
                 Lv<span>{{ monster.lv }}</span>
                 /
                 +<span>{{ monster.hai }}</span>

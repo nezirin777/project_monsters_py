@@ -5,6 +5,9 @@
 :root {
   /* --- カラーパレット --- */
   --sky-blue: #64B5F6;
+  --sky-blue-soft: #e8f2ff;
+  --panel-blue-gray: #eef3f8;
+  --panel-blue-gray-dark: #d7e2ef;
   --blue: #2422c9;
   --red: #d32a2a;
   --yellow: #FBC02D;

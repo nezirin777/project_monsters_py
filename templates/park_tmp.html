@@ -5,18 +5,18 @@
 {% block content %}
 
     <!-- ヘッダー -->
-    <div class="action-card park-header-card">
-        <div class="action-card-header">モンスターパーク</div>
-        <div class="action-card-desc">
+    <div class="game-card action-card park-header-card">
+        <div class="game-card__header action-card-header">モンスターパーク</div>
+        <div class="game-card__desc action-card-desc">
             モンスターを預けたりパーティに加えたりできます<br>
             <small>預かり状況：{{ azukari }} / {{ waku }} 体</small>
         </div>
 
         <!-- 預け入れフォーム -->
         <div class="park-touroku-area">
-          <form name="form1" method="post" id="img_change" class="ex-form">
+          <form name="form1" method="post" id="img_change" class="form-stack ex-form">
                 <div class="park-select-box">
-                    <select name="Mno" class="monster-select ex-select" data-target="img1">
+                    <select name="Mno" class="form-control monster-select ex-select" data-target="img1">
                         <option value="99" hidden data-name="0">預けるモンスターを選択</option>
                         {% for pt in party %}
                         <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">{{ pt.no }}: {{ pt.name }} {{ pt.sex }}
@@ -24,7 +24,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="haigou-img-box">
+                <div class="monster-card__image haigou-img-box">
                     <img name="img1" src="{{ Conf.imgpath }}/0.gif">
                 </div>
                 <button type="submit" class="submit-btn">預ける</button>
@@ -64,7 +64,7 @@
         <!-- 上部ページャー -->
         <div class="park_page">
           {% for i in range(1, jump_count + 1) %}
-            <form action="{{ Conf.cgi_url }}" method="post" class="park_jump_form flex-form">
+            <form action="{{ Conf.cgi_url }}" method="post" class="form-row park_jump_form flex-form">
               <input type="hidden" name="mode" value="park">
               <input type="hidden" name="page" value="{{ i }}">
               <input type="hidden" name="token" value="{{ token }}">
@@ -76,8 +76,8 @@
         <!-- モンスター一覧 -->
         <div class="park-grid">
             {% for ppt in park_v[p1:p2] %}
-            <div class="park-monster-card">
-                <div class="park-card-header">
+            <div class="monster-card game-card park-monster-card">
+                <div class="game-card__header park-card-header">
                     <span class="park-monster-no">No.{{ ppt.no }}</span>
 
                     <form action="{{ Conf.cgi_url }}" method="post" class="park-inline-form">
@@ -88,27 +88,27 @@
                     </form>
                 </div>
 
-                <div class="park-card-body">
-                    <div class="p-img-box">
+                <div class="game-card__body park-card-body">
+                    <div class="monster-card__image p-img-box">
                         <img src="{{ Conf.imgpath }}/{{ ppt.name }}.gif">
                     </div>
                     <div class="park-monster-basic">
-                        <div class="park-m-name">{{ ppt.name }}</div>
-                        <div class="park-m-meta">{{ ppt.sex }} / {{ ppt.sei }}</div>
+                        <div class="monster-card__name park-m-name">{{ ppt.name }}</div>
+                        <div class="monster-card__meta park-m-meta">{{ ppt.sex }} / {{ ppt.sei }}</div>
                         <div class="park-m-hai">配合: {{ ppt.hai }}回</div>
                     </div>
                 </div>
 
-                <div class="park-card-stats">
-                    <div class="p-s-item"><span class="p-s-label">LV</span><span class="p-s-val">{{ ppt.lv }}<small>/{{ ppt.mlv
+                <div class="stats-grid park-card-stats">
+                    <div class="stat-item p-s-item"><span class="stat-item__label p-s-label">LV</span><span class="stat-item__value p-s-val">{{ ppt.lv }}<small>/{{ ppt.mlv
                                 }}</small></span></div>
-                    <div class="p-s-item"><span class="p-s-label">HP</span><span class="p-s-val">{{ ppt.hp }}<small>/{{ ppt.mhp
+                    <div class="stat-item p-s-item"><span class="stat-item__label p-s-label">HP</span><span class="stat-item__value p-s-val">{{ ppt.hp }}<small>/{{ ppt.mhp
                                 }}</small></span></div>
-                    <div class="p-s-item"><span class="p-s-label">MP</span><span class="p-s-val">{{ ppt.mp }}<small>/{{ ppt.mmp
+                    <div class="stat-item p-s-item"><span class="stat-item__label p-s-label">MP</span><span class="stat-item__value p-s-val">{{ ppt.mp }}<small>/{{ ppt.mmp
                                 }}</small></span></div>
-                    <div class="p-s-item"><span class="p-s-label">攻撃</span><span class="p-s-val">{{ ppt.atk }}</span></div>
-                    <div class="p-s-item"><span class="p-s-label">守備</span><span class="p-s-val">{{ ppt.def }}</span></div>
-                    <div class="p-s-item"><span class="p-s-label">素早</span><span class="p-s-val">{{ ppt.agi }}</span></div>
+                    <div class="stat-item p-s-item"><span class="stat-item__label p-s-label">攻撃</span><span class="stat-item__value p-s-val">{{ ppt.atk }}</span></div>
+                    <div class="stat-item p-s-item"><span class="stat-item__label p-s-label">守備</span><span class="stat-item__value p-s-val">{{ ppt.def }}</span></div>
+                    <div class="stat-item p-s-item"><span class="stat-item__label p-s-label">素早</span><span class="stat-item__value p-s-val">{{ ppt.agi }}</span></div>
                 </div>
             </div>
             {% endfor %}
@@ -117,7 +117,7 @@
         <!-- 下部ページャー -->
         <div class="park_page">
             {% for i in range(1, jump_count + 1) %}
-            <form action="{{ Conf.cgi_url }}"method="post" class="park_jump_form flex-form">
+            <form action="{{ Conf.cgi_url }}"method="post" class="form-row park_jump_form flex-form">
                 <input type="hidden" name="mode" value="park">
                 <input type="hidden" name="page" value="{{ i }}">
                 <input type="hidden" name="token" value="{{ token }}">

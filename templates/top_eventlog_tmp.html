@@ -8,9 +8,9 @@
 
 {% block content %}
 
-<div class="toptitle">
+<div class="top-event__title toptitle">
   MONSTER'S 改 <span>{{ Conf.ver }}</span>
-  <nav class="t_menu">
+  <nav class="top-event__menu t_menu">
     {% if u_count < Conf.sankaMAX %} <a href="./{{ Conf.reg_url }}" class="menu-btn new-reg">新規登録</a>
       {% else %}
       <span class="menu-btn disabled" title="参加者上限につき登録停止中">新規登録</span>
@@ -45,16 +45,16 @@
 <div class="rank_t">{{ rank_text }}</div>
 
 <!-- PC用見出し（スマホでは消えます） -->
-<div class="rank-header desktop-only">
+<div class="top-event__rank-header rank-header desktop-only">
   <div class="rh-rank">Rank</div>
   <div class="rh-user">User</div>
   <div class="rh-party">手持ち</div>
 </div>
 
 {% for user in users %}
-<div class="rank-card">
+<div class="game-card top-event__rank-card rank-card">
   <div class="rank-badge">{{ user.rank }}</div>
-  <div class="rank-body">
+  <div class="game-card__body top-event__rank-body rank-body">
     <!-- 上段：ユーザー情報と手持ち -->
     <div class="rank-top-row">
       <div class="rank-user-info">
@@ -65,9 +65,9 @@
         図鑑: {{ user.getm }}<br>
         保存期間: あと<span>{{ user.delday }}</span>日
       </div>
-      <div class="rank-monsters">
+      <div class="top-event__rank-monsters rank-monsters">
         {% for monster in user.monsters %}
-        <div class="monster-item">
+        <div class="monster-card top-event__monster-item monster-item">
           <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}" /><br>
           {{ monster.name }}<br>
           Lv<span>{{ monster.lv }}</span><br>
@@ -79,7 +79,7 @@
     <!-- 下段：コメント -->
     <div class="rank-bottom-row">
       <div class="rank-comment-label">コメント</div>
-      <div class="rank-comment-text">{{ user.mes | escape }}</div>
+      <div class="top-event__comment-text rank-comment-text">{{ user.mes | escape }}</div>
     </div>
   </div>
 </div>

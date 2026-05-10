@@ -3,46 +3,46 @@
 <!-- ユーザーステータスカード -->
 <section class="party-section" id="party-section">
 
-  <div class="user-stats-card card">
+  <div class="game-card user-stats-card card">
 
-    <div class="card-header">
+    <div class="game-card__header card-header">
       {{ user.name }}さんのパーティー
     </div>
 
-    <div class="card-body">
+    <div class="game-card__body card-body">
       <div class="user-stats-grid">
 
-        <div class="user-stat-box">
-          <div class="stat-label">所持金</div>
-          <div class="stat-value">{{ user_v.money }}G</div>
+        <div class="stat-item user-stat-box">
+          <div class="stat-item__label stat-label">所持金</div>
+          <div class="stat-item__value stat-value">{{ user_v.money }}G</div>
         </div>
 
-        <div class="user-stat-box">
-          <div class="stat-label">所持鍵</div>
-          <div class="stat-value">{{ user_v.key }}階</div>
+        <div class="stat-item user-stat-box">
+          <div class="stat-item__label stat-label">所持鍵</div>
+          <div class="stat-item__value stat-value">{{ user_v.key }}階</div>
         </div>
 
-        <div class="user-stat-box {{ isekai }}">
-          <div class="stat-label">異世界探索度</div>
-          <div class="stat-value">
+        <div class="stat-item user-stat-box {{ isekai }}">
+          <div class="stat-item__label stat-label">異世界探索度</div>
+          <div class="stat-item__value stat-value">
             {{ user.get("isekai_key",0)-1 }}/{{ user.get("isekai_limit",0) }}/{{ Conf.isekai_max_limit }}
           </div>
         </div>
 
-        <div class="user-stat-box">
-          <div class="stat-label">メダル</div>
-          <div class="stat-value">{{ user_v.medal }}個</div>
+        <div class="stat-item user-stat-box">
+          <div class="stat-item__label stat-label">メダル</div>
+          <div class="stat-item__value stat-value">{{ user_v.medal }}個</div>
         </div>
 
-        <div class="user-stat-box my_page_zukan">
-          <div class="stat-label">
+        <div class="stat-item user-stat-box my_page_zukan">
+          <div class="stat-item__label stat-label">
             <a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type=スライム系&fol={{ fol }}"
               class="zukan-link">
               魔物図鑑
             </a>
           </div>
 
-          <div class="stat-value">
+          <div class="stat-item__value stat-value">
             {{ user.getm }}
           </div>
         </div>
@@ -59,10 +59,10 @@
 
       {% for i, pt in party_with_index %}
 
-      <div class="my_page_chara_{{ i }} modern-party-card card">
+      <div class="monster-card game-card my_page_chara_{{ i }} modern-party-card card">
 
         <!-- カード上段 -->
-        <div class="card-header">
+        <div class="game-card__header card-header">
           <div class="order-select">
             <select name="c_no{{ i }}">
               <option value="{{ i }}">{{ i }}</option>
@@ -73,11 +73,11 @@
           </div>
 
           <div class="monster-basic-info">
-            <div class="pt-name">
+            <div class="monster-card__name pt-name">
               {{ pt.name }}
             </div>
 
-            <div class="monster-tags">
+            <div class="monster-card__meta monster-tags">
               <span class="monster-tag">-{{ pt.sex }}-</span>
               <span class="monster-tag">{{ pt.sei }}</span>
             </div>
@@ -87,44 +87,44 @@
 
 
         <!-- カード下段 -->
-        <div class="card-body">
+        <div class="game-card__body card-body">
 
-          <div class="monster-image-wrapper">
+          <div class="monster-card__image monster-image-wrapper">
             <img src="{{ Conf.imgpath }}/{{ pt.name }}.gif" alt="{{ pt.name }}">
           </div>
 
-          <div class="monster-stats-grid">
-            <div class="m-stat">
-              <div class="m-label">LV</div>
-              <div class="m-val">{{ pt.lv }}<span>/{{ pt.mlv }}</span></div>
+          <div class="stats-grid monster-stats-grid">
+            <div class="stat-item m-stat">
+              <div class="stat-item__label m-label">LV</div>
+              <div class="stat-item__value m-val">{{ pt.lv }}<span>/{{ pt.mlv }}</span></div>
             </div>
-            <div class="m-stat stat-extra">
-              <div class="m-label">HP</div>
-              <div class="m-val">{{ pt.hp }}<span>/{{ pt.mhp }}</span></div>
+            <div class="stat-item m-stat stat-extra">
+              <div class="stat-item__label m-label">HP</div>
+              <div class="stat-item__value m-val">{{ pt.hp }}<span>/{{ pt.mhp }}</span></div>
             </div>
-            <div class="m-stat stat-extra">
-              <div class="m-label">MP</div>
-              <div class="m-val">{{ pt.mp }}<span>/{{ pt.mmp }}</span></div>
+            <div class="stat-item m-stat stat-extra">
+              <div class="stat-item__label m-label">MP</div>
+              <div class="stat-item__value m-val">{{ pt.mp }}<span>/{{ pt.mmp }}</span></div>
             </div>
-            <div class="m-stat stat-extra">
-              <div class="m-label">経験値</div>
-              <div class="m-val">{{ pt.exp }}<span>/{{ pt.n_exp }}</span></div>
+            <div class="stat-item m-stat stat-extra">
+              <div class="stat-item__label m-label">経験値</div>
+              <div class="stat-item__value m-val">{{ pt.exp }}<span>/{{ pt.n_exp }}</span></div>
             </div>
-            <div class="m-stat">
-              <div class="m-label">配合</div>
-              <div class="m-val">{{ pt.hai }}回</div>
+            <div class="stat-item m-stat">
+              <div class="stat-item__label m-label">配合</div>
+              <div class="stat-item__value m-val">{{ pt.hai }}回</div>
             </div>
-            <div class="m-stat stat-extra">
-              <div class="m-label">攻撃力</div>
-              <div class="m-val">{{ pt.atk }}</div>
+            <div class="stat-item m-stat stat-extra">
+              <div class="stat-item__label m-label">攻撃力</div>
+              <div class="stat-item__value m-val">{{ pt.atk }}</div>
             </div>
-            <div class="m-stat stat-extra">
-              <div class="m-label">守備力</div>
-              <div class="m-val">{{ pt.def }}</div>
+            <div class="stat-item m-stat stat-extra">
+              <div class="stat-item__label m-label">守備力</div>
+              <div class="stat-item__value m-val">{{ pt.def }}</div>
             </div>
-            <div class="m-stat stat-extra">
-              <div class="m-label">素早さ</div>
-              <div class="m-val">{{ pt.agi }}</div>
+            <div class="stat-item m-stat stat-extra">
+              <div class="stat-item__label m-label">素早さ</div>
+              <div class="stat-item__value m-val">{{ pt.agi }}</div>
             </div>
 
           </div>
