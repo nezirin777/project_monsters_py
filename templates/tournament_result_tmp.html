@@ -6,18 +6,21 @@
 <head>
   <meta charset="UTF-8">
   <title> MONSTER'S 改 {{ Conf.ver }}</title>
+  <link rel="stylesheet" href="../css_js/common.css">
   <link rel="stylesheet" href="../css_js/style.css">
+  <link rel="stylesheet" href="../css_js/game.css">
+  <link rel="stylesheet" href="../css_js/mobile.css">
 </head>
 
 <body>
 
-  <div class="my_page_topmenu">
+  <nav class="action-footer my_page_topmenu">
     [ <a href="../monster.py">TOPへ</a> ]
-  </div>
+  </nav>
 
-  <div class="tournament_result_box">
+  <main class="tournament-result-box tournament_result_box action-card card card--result">
 
-    <div class="medal_battle_title">{{ log_data.title }}</div>
+    <div class="medal-battle-title medal_battle_title action-card-header card-header">{{ log_data.title }}</div>
 
     {% if log_data.status == "cancel" %}
     <div>規定人数未満につき中止になりました。</div>
@@ -25,13 +28,13 @@
 
     {% for round in log_data.rounds %}
     <div>
-      <div class="medal_battle_data">{{ round.name }}</div>
+      <section class="medal-battle-round medal_battle_data">{{ round.name }}</section>
 
       {% for match in round.matches %}
       {% if match.num %}
-      <div class="medal_battle_sub">第{{ match.num }}試合</div>
+      <div class="medal-battle-sub medal_battle_sub">第{{ match.num }}試合</div>
       {% endif %}
-      <div class="medal_battle_result">
+      <div class="medal-battle-result medal_battle_result">
         {{ match.fighter1 }} vs {{ match.fighter2 }} は {{ match.winner }} さんが勝利しました
       </div>
       {{ match.loser }} さんにメダル {{ match.medal }} 枚が与えられました<br>
@@ -45,11 +48,11 @@
 
     {% endif %}
 
-  </div>
+  </main>
 
   <br>
   <form action="../{{ Conf.cgi_url }}" method="post">
-    <button type="submit">TOPへ戻る</button>
+    <button type="submit" class="submit-btn">TOPへ戻る</button>
   </form>
 
   {% include "footer_tmp.html" %}

@@ -3654,3 +3654,353 @@ button.active {
     }
   }
 }
+
+/* ========================================================= */
+/* 追加: テンプレート命名統一用の共通補助スタイル             */
+/* ========================================================= */
+
+.form-action-area,
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-m);
+  width: 95%;
+  max-width: 600px;
+  margin: var(--space-l) auto;
+}
+
+.credit-value {
+  color: var(--black);
+}
+
+/* ========================= */
+/* 新規登録 / 登録結果       */
+/* ========================= */
+
+.new-reg-card,
+.newgame-result-card,
+.result-card {
+  width: 95%;
+  max-width: 640px;
+  margin: var(--space-l) auto;
+}
+
+.new-reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.new-reg-form .form-group {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-m);
+}
+
+.new-reg-form label {
+  color: var(--blue);
+  font-weight: bold;
+  text-align: right;
+}
+
+.new-reg-form input {
+  min-width: 0;
+  padding: var(--space-s) var(--space-m);
+  border: 1px solid #9fb4cc;
+  border-radius: var(--radius-s);
+  background-color: #f8fbff;
+  color: var(--black);
+  font-size: 100%;
+}
+
+.new-ok-msg {
+  width: 95%;
+  max-width: 640px;
+  margin: var(--space-l) auto var(--space-m);
+}
+
+.newgame-result-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  background-color: #eef3f8;
+}
+
+.result-section {
+  border-bottom: 1px dashed #b9c7d8;
+}
+
+.result-section:last-child {
+  border-bottom: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-s);
+}
+
+.stat-box {
+  overflow: hidden;
+  border: 1px solid #b9c7d8;
+  border-radius: var(--radius-s);
+  background-color: #fbfdff;
+}
+
+.stat-box .stat-label {
+  padding: var(--space-xs) var(--space-s);
+  background-color: #dcecff;
+  color: var(--blue);
+}
+
+.stat-box .stat-value {
+  padding: var(--space-s);
+  min-height: 1.4em;
+}
+
+.stat-value.highlighted {
+  color: var(--red);
+}
+
+.result-monster-header {
+  display: grid;
+  grid-template-columns: minmax(110px, 160px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-m);
+  border-bottom: 1px dashed #b9c7d8;
+  background-color: #f6f9fd;
+}
+
+.result-monster-header img {
+  justify-self: center;
+  max-width: 110px;
+  max-height: 230px;
+}
+
+.monster-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  text-align: left;
+  font-weight: bold;
+}
+
+.monster-name,
+.monster-sex,
+.monster-sei {
+  padding: var(--space-xs) var(--space-s);
+  border-left: 4px solid var(--sky-blue);
+  background-color: #fff;
+}
+
+/* ========================= */
+/* 配合表 / 特殊配合表       */
+/* ========================= */
+
+.haigou-title-card {
+  width: 95%;
+  max-width: 960px;
+  margin: var(--space-m) auto;
+  padding: var(--space-m);
+  background: linear-gradient(180deg, #f8fbff, #e8f1fb);
+  color: var(--blue);
+  font-size: 140%;
+  font-weight: bold;
+}
+
+.haigou-anchor-menu {
+  position: sticky;
+  top: var(--space-s);
+  z-index: 10;
+  width: fit-content;
+  max-width: 90%;
+  margin: var(--space-m) var(--space-m) var(--space-m) auto;
+  padding: var(--space-s) var(--space-m);
+  background-color: rgba(250, 250, 250, 0.94);
+  font-size: 90%;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.haigou-anchor-menu button,
+.sortBtn {
+  display: inline-block;
+  margin: var(--space-xs);
+  padding: var(--space-xs) var(--space-s);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-s);
+  background-color: #eef3f8;
+  color: var(--black);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 1px 0 var(--black);
+}
+
+.haigou-menu,
+.haigou-list2 {
+  width: 96%;
+  max-width: 1100px;
+  margin: 0 auto var(--space-l);
+}
+
+.haigou-table,
+.list2-monster-table {
+  width: 100%;
+  margin: var(--space-m) auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  background-color: #fbfdff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.haigou-table th,
+.haigou-table td,
+.list2-monster-table td {
+  padding: var(--space-s);
+  border-right: 1px solid #b8c2d1;
+  border-bottom: 1px solid #b8c2d1;
+  color: var(--black);
+}
+
+.haigou-table th {
+  background-color: var(--sky-blue);
+  color: var(--black);
+}
+
+.haigou-table tr:nth-child(even) td,
+.list2-monster-table tr:nth-child(even) td {
+  background-color: #f2f6fb;
+}
+
+.haigou_menu_2,
+.haigou_menu_3B,
+.haigou_menu_4B {
+  font-weight: bold;
+}
+
+.haigou_menu_2 {
+  color: var(--blue);
+}
+
+.haigou-guide-card {
+  width: 95%;
+  max-width: 900px;
+  margin: var(--space-m) auto;
+  padding: var(--space-m);
+  background-color: #f8fbff;
+  color: var(--black);
+  line-height: 1.7;
+}
+
+.haigou-guide-card ul {
+  display: inline-block;
+  margin: var(--space-m) auto 0;
+  text-align: left;
+}
+
+.list2-group-header {
+  margin: var(--space-l) auto var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-m);
+  background-color: var(--black);
+  color: var(--white);
+  font-size: 120%;
+}
+
+.list2-image-cell {
+  width: 130px;
+  background-color: #eef3f8;
+  font-weight: bold;
+  color: var(--blue);
+}
+
+.list2-image-cell img {
+  max-width: 110px;
+  max-height: 230px;
+}
+
+.list2-data-cell.floor,
+.list2-data-cell.location {
+  width: 90px;
+  font-weight: bold;
+  color: var(--blue);
+}
+
+.list2-data-cell.description-a,
+.list2-data-cell.description-b {
+  text-align: left;
+  line-height: 1.5;
+}
+
+/* ========================= */
+/* トーナメント結果          */
+/* ========================= */
+
+.tournament-result-box {
+  width: 95%;
+  max-width: 760px;
+  margin: var(--space-l) auto;
+  padding-bottom: var(--space-m);
+}
+
+.medal-battle-title {
+  margin-bottom: var(--space-m);
+}
+
+.medal-battle-round {
+  margin: var(--space-m) auto var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  border-top: 1px dashed #b8c2d1;
+  border-bottom: 1px dashed #b8c2d1;
+  color: var(--red);
+  font-size: 110%;
+  font-weight: bold;
+}
+
+.medal-battle-sub {
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.medal-battle-result {
+  display: inline-block;
+  margin: var(--space-xs) auto;
+  padding: var(--space-xs) var(--space-m);
+  border-radius: var(--radius-s);
+  background-color: #eef3f8;
+  font-weight: bold;
+}
+
+@media (max-width: 640px) {
+  .new-reg-form .form-group,
+  .result-monster-header {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .new-reg-form label,
+  .monster-info-text {
+    text-align: center;
+  }
+
+  .haigou-anchor-menu {
+    position: static;
+    margin-right: auto;
+  }
+
+  .haigou-menu,
+  .haigou-list2 {
+    overflow-x: auto;
+  }
+
+  .haigou-table,
+  .list2-monster-table {
+    min-width: 720px;
+  }
+}

@@ -6,20 +6,23 @@
 <head>
   <meta charset="UTF-8">
   <title>MONSTER'S 配合表2</title>
+  <link rel="stylesheet" href="../css_js/common.css">
   <link rel="stylesheet" href="../css_js/html_style.css">
+  <link rel="stylesheet" href="../css_js/game.css">
+  <link rel="stylesheet" href="../css_js/mobile.css">
   <script src="../css_js/table_sort.js"></script>
 </head>
 
 <body>
   <div class="wrapper">
-    <div class="haigou_title" id="top">
+    <header class="haigou-title-card haigou_title card card--info" id="top">
       MONSTER'S 改 {{ Conf.ver }}
       <br>
       特殊モンスター配合表・出現階層
-    </div>
+    </header>
 
     <!-- 右メニュー -->
-    <div id="haigou_rightmenu">
+    <nav id="haigou_rightmenu" class="haigou-anchor-menu card" aria-label="特殊配合表内メニュー">
       [<a href="#top">一番上へ</a>]
       {% for link in links %}
       <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
@@ -30,10 +33,10 @@
         <input type="hidden" name="mode" value="">
         <button type="submit">TOPへ</button>
       </form>
-    </div>
+    </nav>
 
     <!-- 追加情報や説明 -->
-    <div class="haigou_txt">
+    <section class="haigou-guide-card haigou_txt card">
       <br>
       <div class="haigou_txt">
         配合のみ、戦闘のみ、交換のみ等入手条件が限られるものもあります。<br>
@@ -61,41 +64,41 @@
           <li>2021/06/03 DQMキャラバンハートモンスター実装</li>
         </ul>
       </div>
-    </div>
+    </section>
 
-    <main class="list2">
+    <main class="haigou-list2 list2">
       {% for link in links %}
-      <div class="list2_group_header" id="{{ link.id }}">{{ link.label }}</div>
+      <h2 class="list2-group-header list2_group_header" id="{{ link.id }}">{{ link.label }}</h2>
 
       {% for monster in monsters if monster.m_type == link.id %}
-      <table class="list2_monster_table" role="grid" aria-label="モンスター {{ monster.name }} の詳細">
+      <table class="list2-monster-table list2_monster_table" role="grid" aria-label="モンスター {{ monster.name }} の詳細">
         <tbody>
           <!-- 1行目 -->
           <tr>
-            <td id="{{ monster.m_type }}" rowspan="4" class="list2_image_cell">
+            <td id="{{ monster.m_type }}" rowspan="4" class="list2-image-cell list2_image_cell">
               <img src="../{{ Conf.imgpath }}/{{ monster.name}}.gif" alt="{{ monster.name }}の画像">
               <div>{{ monster.name }}</div>
             </td>
-            <td rowspan="2" class="right-cell floor">{{ monster.floor }}</td>
-            <td rowspan="2" class="right-cell location">{{ monster.room }}</td>
+            <td rowspan="2" class="list2-data-cell right-cell floor">{{ monster.floor }}</td>
+            <td rowspan="2" class="list2-data-cell right-cell location">{{ monster.room }}</td>
             {% if monster.desc_b %}
             <!-- ★ | safe を追加してHTMLタグを有効化 -->
-            <td rowspan="2" class="right-cell description-a">{{ monster.desc_a | safe }}</td>
-            <td rowspan="2" class="right-cell description-b">{{ monster.desc_b }}</td>
+            <td rowspan="2" class="list2-data-cell right-cell description-a">{{ monster.desc_a | safe }}</td>
+            <td rowspan="2" class="list2-data-cell right-cell description-b">{{ monster.desc_b }}</td>
             {% else %}
             <!-- ★ | safe を追加してHTMLタグを有効化 -->
-            <td rowspan="2" colspan="2" class="right-cell description-a expand">{{ monster.desc_a | safe }}</td>
+            <td rowspan="2" colspan="2" class="list2-data-cell right-cell description-a expand">{{ monster.desc_a | safe }}</td>
             {% endif %}
           </tr>
           <!-- 2行目（1行目と結合されているため空） -->
           <tr></tr>
           <!-- 3行目 -->
           <tr>
-            <td colspan="4" class="right-cell">{{ monster.stats }}</td>
+            <td colspan="4" class="list2-data-cell right-cell">{{ monster.stats }}</td>
           </tr>
           <!-- 4行目 -->
           <tr>
-            <td colspan="4" class="right-cell">{{ monster.date }}
+            <td colspan="4" class="list2-data-cell right-cell">{{ monster.date }}
               <span data-upday="{{ monster.date }}" data-no="{{ monster.no }}"
                 data-floor="{{ monster.floor_min }}"></span>
             </td>

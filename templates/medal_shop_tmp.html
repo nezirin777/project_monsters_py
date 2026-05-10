@@ -4,9 +4,9 @@
 {% block content %}
 
     <!-- メッセージ表示 -->
-    <div class="action-card shop-msg-card">
-      <div class="action-card-header">交換所</div>
-      <div class="action-card-desc">{{ mes }}</div>
+    <div class="action-card card card--shop shop-msg-card">
+      <div class="action-card-header card-header">交換所</div>
+      <div class="action-card-desc card-desc">{{ mes }}</div>
     </div>
 
     <!-- 所持状況バッジ -->
@@ -28,7 +28,7 @@
             {% for item in items %}
             <label class="shop-item-card">
               <input type="radio" name="m_name" value="{{ item.name }}" class="shop-item-radio" required>
-              <div class="shop-item-content">
+              <div class="shop-item-content card">
                 <div class="shop-item-name">{{ item.name }}</div>
                 <div class="shop-item-price">
                   <span class="price-prefix">{{ item.val1 }}</span>

@@ -4,11 +4,11 @@
 
 {% block content %}
 
-<div class="new-ok-msg">{{ k_txt }}</div>
+<div class="new-ok-msg sys-msg sys-result">{{ k_txt }}</div>
 
-<div class="result-card">
+<div class="result-card action-card card card--result newgame-result-card">
   <!-- ユーザー情報 -->
-  <div class="result-section">
+  <section class="result-section card-body">
     <div class="stats-grid">
       <div class="stat-box">
         <div class="stat-label">ユーザー名</div>
@@ -27,10 +27,10 @@
         <div class="stat-value">{{ key_floor }}</div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- モンスター基本情報 -->
-  <div class="result-monster-header">
+  <section class="result-monster-header card-body">
     <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif"
          alt="{{ monster.name }}"
          loading="lazy">
@@ -39,10 +39,10 @@
       <div class="monster-sex">性別：-{{ monster.sex }}-</div>
       <div class="monster-sei">性格：{{ monster.sei }}</div>
     </div>
-  </div>
+  </section>
 
   <!-- モンスター詳細ステータス -->
-  <div class="result-section">
+  <section class="result-section card-body">
     <div class="stats-grid">
       <div class="stat-box">
         <div class="stat-label">配合数</div>
@@ -73,10 +73,10 @@
         <div class="stat-value">{{ monster.exp }} / {{ monster.n_exp }}</div>
       </div>
     </div>
-  </div>
+  </section>
 </div>
 
-<div class="action-buttons">
+<div class="action-footer action-buttons">
   {% if kanri %}
     {% include "kanri_page_button_tmp.html" %}
   {% else %}

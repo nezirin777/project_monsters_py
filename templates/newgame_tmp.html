@@ -4,14 +4,14 @@
 
 {% block content %}
 
-<div class="new-reg-card">
-  <div class="new-reg-header">新規ユーザー登録</div>
-  <div class="new-reg-desc">
+<div class="new-reg-card action-card card">
+  <div class="new-reg-header action-card-header card-header">新規ユーザー登録</div>
+  <div class="new-reg-desc action-card-desc card-desc">
     ユーザー名・パスワードを設定してください<br>
     <small>(20文字以内。ユーザー名はひらがな等もOK。パスワードは英数字のみ)</small>
   </div>
 
-  <form action="{{ Conf.reg_url }}" method="post" class="new-reg-form">
+  <form action="{{ Conf.reg_url }}" method="post" class="new-reg-form action-card-body card-body">
     <div class="form-group">
       <label>ユーザー名</label>
       <input type="text" name="new_user_name" maxlength="20" autocomplete="username" required>
@@ -21,7 +21,7 @@
       <input type="password" name="new_password" maxlength="20" autocomplete="new-password" required>
     </div>
 
-    <div class="form-actions">
+    <div class="form-action-area form-actions">
       <button type="submit" class="submit-btn">登 録</button>
     </div>
 

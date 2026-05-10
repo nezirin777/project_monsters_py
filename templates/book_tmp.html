@@ -5,9 +5,9 @@
 {% block content %}
 
 <!-- 説明カード -->
-<div class="action-card book-info-card">
-  <div class="action-card-header">本　屋</div>
-  <div class="action-card-desc">
+<div class="action-card card book-info-card">
+  <div class="action-card-header card-header">本　屋</div>
+  <div class="action-card-desc card-desc">
     モンスターに本を読ませると性格が変わります。<br>
     <small>※現在の性格によっては変わらない場合もあります。 1冊: {{ book_price }}G</small>
   </div>
@@ -16,7 +16,7 @@
 <!-- パーティモンスター一覧（レスポンシブグリッド） -->
 <div class="book-monster-grid">
   {% for monster in monster_data %}
-  <div class="book-monster-card">
+  <div class="book-monster-card card">
     <div class="book-no">No.{{ monster.no }}</div>
     <div class="book-img-wrapper">
       <img src="{{ monster.img }}" alt="{{ monster.name }}">
@@ -31,7 +31,7 @@
 </div>
 
 <!-- 実行フォーム -->
-<div class="action-card book-form-card">
+<div class="action-card card book-form-card">
   <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="ex-form">
 
     <div class="ex-select-group">

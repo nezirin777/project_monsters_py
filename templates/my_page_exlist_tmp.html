@@ -1,13 +1,13 @@
 <!-- templates/my_page_exlist_tmp.html -->
 
 <!-- 配合 -->
-<div class="action-card" id="haigou-section">
-  <div class="action-card-header">配　合</div>
-  <div class="action-card-desc">
+<div class="action-card card" id="haigou-section">
+  <div class="action-card-header card-header">配　合</div>
+  <div class="action-card-desc card-desc">
     配合料金は配合させる2匹のモンスターの<br>
     <small>【（レベル＋レベル）×10G】です。</small>
   </div>
-  <div class="action-card-body">
+  <div class="action-card-body card-body">
     <div class="action-subtitle">【 配合可能のみ表示 】</div>
     <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="ex-form">
 
@@ -43,12 +43,12 @@
 </div>
 
 <!-- 陰陽変換所 -->
-<div class="action-card">
-  <div class="action-card-header">陰陽変換所</div>
-  <div class="action-card-desc">
+<div class="action-card card">
+  <div class="action-card-header card-header">陰陽変換所</div>
+  <div class="action-card-desc card-desc">
     変換料金はモンスターの【配合回数×100G】です。
   </div>
-  <div class="action-card-body">
+  <div class="action-card-body card-body">
     <div class="action-subtitle">【 変換可能のみ表示 】</div>
     <form action="{{ Conf.cgi_url }}" method="post" class="ex-form" data-confirm="選択したモンスターの陰陽変換を実行します。よろしいですか？"
       data-loading="変換中...">
@@ -67,12 +67,12 @@
 </div>
 
 <!-- 設定変更 -->
-<div class="action-card">
-  <div class="action-card-header">設定変更</div>
-  <div class="action-card-desc">
+<div class="action-card card">
+  <div class="action-card-header card-header">設定変更</div>
+  <div class="action-card-desc card-desc">
     大きすぎる数値表記を調整します。
   </div>
-  <div class="action-card-body">
+  <div class="action-card-body card-body">
     <form action="{{ Conf.cgi_url }}" method="post" class="ex-form" data-loading="変更中...">
       <select name="no" class="ex-select">
         <option value="" hidden>選 択</option>

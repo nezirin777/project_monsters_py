@@ -3,11 +3,11 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="action-card bye-card">
-  <div class="action-card-header bye-header">パーティがいっぱいです！</div>
+<div class="action-card card bye-card">
+  <div class="action-card-header card-header bye-header">パーティがいっぱいです！</div>
 
-  <div class="action-card-body">
-    <div class="action-card-desc">
+  <div class="action-card-body card-body">
+    <div class="action-card-desc card-desc">
       新しく仲間になりたがっているモンスターがいますが、<br>パーティの枠が足りません。<br>
       <span class="red">誰か一人と、お別れする必要があります。</span>
     </div>
@@ -34,7 +34,7 @@
         <img name="img1" src="{{ Conf.imgpath }}/{{ get_name }}.gif" alt="{{ get_name }}">
       </div>
 
-      <div class="bye-action-area">
+      <div class="form-action-area bye-action-area">
         <button type="submit" class="submit-btn bye-btn" data-confirm="本当にお別れしてもよろしいですか？">
           選択したモンスターと別れる
         </button>

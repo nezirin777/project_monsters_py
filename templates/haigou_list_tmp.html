@@ -5,17 +5,20 @@
 <head>
     <meta charset="UTF-8">
     <title>MONSTER'S 配合表</title>
+    <link rel="stylesheet" href="../css_js/common.css">
     <link rel="stylesheet" href="../css_js/html_style.css">
+    <link rel="stylesheet" href="../css_js/game.css">
+    <link rel="stylesheet" href="../css_js/mobile.css">
 </head>
 <body>
     <div class="wrapper">
-        <div class="haigou_title" id="top">
+        <header class="haigou-title-card haigou_title card card--info" id="top">
             MONSTER'S 改 {{ Conf.ver }}<br>
             配合表・出現階数
-        </div>
+        </header>
 
         <!-- 右メニュー -->
-        <div id="haigou_rightmenu">
+        <nav id="haigou_rightmenu" class="haigou-anchor-menu card" aria-label="配合表内メニュー">
             [<a href="#top">一番上へ</a>]
                 {% for link in links %}
                     <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
@@ -25,11 +28,11 @@
                 <input type="hidden" name="mode" value="">
                 <button type="submit">TOPへ</button>
             </form>
-        </div>
+        </nav>
 
-        <div class="haigou_menu">
+        <main class="haigou-menu haigou_menu">
             {% for m_type, monsters in filtered_M_list.items() %}
-                <table class="haigou_box" id="{{ m_type }}">
+                <table class="haigou-table haigou_box" id="{{ m_type }}">
                     <thead>
                         <tr>
                             <th class="menu_title_1">NO</th>
@@ -62,7 +65,7 @@
                     </tbody>
                 </table>
             {% endfor %}
-        </div>
+        </main>
 
         {% include "footer_tmp.html" %}
     </div>

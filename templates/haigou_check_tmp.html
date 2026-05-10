@@ -2,14 +2,14 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="action-card haigou-check-card">
-    <div class="action-card-header">
+<div class="action-card card haigou-check-card">
+    <div class="action-card-header card-header">
         {% if mode=="omiai_req" %}お見合い申請確認
         {% elif mode=="omiai_ans" %}お見合い受諾確認
         {% else %}配合確認{% endif %}
     </div>
 
-    <div class="action-card-desc">
+    <div class="action-card-desc card-desc">
         {% if mode=="omiai_req" %}お見合いを申し込みますか？
         {% elif mode=="omiai_ans" %}お見合いを受けますか？
         {% else %}モンスターを配合しますか？{% endif %}
@@ -17,13 +17,13 @@
 
     <!-- 配合ペアの表示 -->
     <div class="haigou-pair-grid">
-        <div class="haigou-mons-card">
+        <div class="haigou-mons-card card">
             <div class="haigou-label">ベース</div>
             <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ nameA }}.gif"></div>
             <div class="haigou-name">{{ nameA }}</div>
         </div>
         <div class="haigou-plus">＋</div>
-        <div class="haigou-mons-card">
+        <div class="haigou-mons-card card">
             <div class="haigou-label">相手</div>
             <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ nameB }}.gif"></div>
             <div class="haigou-name">{{ nameB }}</div>
@@ -33,7 +33,7 @@
     <!-- 予想結果 -->
     <div class="haigou-result-preview">
         <div class="action-subtitle">NEW MONSTER 予想</div>
-        <div class="haigou-mons-card result-preview">
+        <div class="haigou-mons-card card result-preview">
             <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif"></div>
             <div class="haigou-name">{{ my_new_mons }}</div>
         </div>
