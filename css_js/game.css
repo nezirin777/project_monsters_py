@@ -91,6 +91,30 @@
   padding-bottom: var(--space-s);
 }
 
+/* ====================================== */
+/* 共通コンテンツ幅                       */
+/* ====================================== */
+
+.content-narrow {
+  width: 95%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content-medium {
+  width: 95%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content-wide {
+  width: 95%;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
 /* =============== グリッド・レイアウト共通 =============== */
 .action-grid-container,
 .shop-button-grid,
@@ -110,11 +134,6 @@
   gap: var(--space-s);
 }
 
-/* その他共通 */
-
-/* ========================================================= */
-/* 0.5 新共通定義。ここは残して置く。         */
-/* ========================================================= */
 /* =============== ボタン共通化（押しボタン感を強化） =============== */
 .submit-btn {
   /* 基本レイアウト */
@@ -156,6 +175,30 @@
   margin: var(--space-xs);
   width: auto;
   white-space: nowrap;
+}
+
+/* ====================================== */
+/* 共通ボタン土台                         */
+/* ====================================== */
+
+.button,
+.submit-btn,
+.menu-btn,
+.shop-btn,
+.battle-btn,
+.ex-btn,
+.bbs-btn {
+  display: inline-block;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+
+  font-weight: bold;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 /* メニュー・ページャー */
@@ -225,6 +268,30 @@
   gap: var(--space-s);
   align-items: center;
   margin: 0;
+}
+
+/* ====================================== */
+/* 共通フォーム部品                       */
+/* ====================================== */
+
+.form-control,
+.battle-select,
+.battle-number,
+.ex-select,
+.bbs-input,
+.login-card input {
+  box-sizing: border-box;
+  border-radius: var(--radius-s);
+  background-color: var(--white);
+}
+
+.form-row,
+.form-group,
+.bbs-input-group,
+.flex-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
 }
 
 /* ========================================================= */
