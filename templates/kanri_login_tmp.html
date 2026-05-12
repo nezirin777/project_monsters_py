@@ -2,7 +2,13 @@
 
 {% extends "base_tmp.html" %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="./css_js/common.css">
+<link rel="stylesheet" href="./css_js/admin.css">
+{% endblock %}
+
 {% block content %}
+<main class="admin-page admin-page--login">
         <div class="kanri_title">管理モード</div>
         <div class="kanri_login">
             <form action="{{ Conf.kanri_url }}" method="post">
@@ -15,5 +21,6 @@
                 <button type="submit">管理モード</button>
             </form>
         </div>
+</main>
 
 {% endblock %}

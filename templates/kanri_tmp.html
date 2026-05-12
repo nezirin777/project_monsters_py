@@ -2,10 +2,14 @@
 
 {% extends "base_tmp.html" %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="./css_js/common.css">
+<link rel="stylesheet" href="./css_js/slimselect.css">
+<link rel="stylesheet" href="./css_js/admin.css">
+{% endblock %}
+
 {% block head %}
-<link href="./css_js\admin.css" rel="stylesheet">
-<link href="./css_js\slimselect.css" rel="stylesheet">
-<script src="./css_js\slimselect.js"></script>
+<script src="./css_js/slimselect.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -89,6 +93,7 @@
 {% endblock %}
 
 {% block content %}
+<main class="admin-page admin-page--dashboard">
   <div class="kanri_title">管理モード</div>
 {% if mente_chek %}
   <div class="kanri_title">メンテナンスモード中</div>
@@ -324,5 +329,6 @@
     </form>
   </div>
 </div>
+</main>
 
 {% endblock %}
