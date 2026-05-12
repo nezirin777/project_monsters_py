@@ -525,13 +525,253 @@ img {
 /* 9. Top Page                            */
 /* ====================================== */
 
-/* 移行時に実装 */
+/*
+  .page-header      — ページ上部ヘッダーエリア（ナビ含む縦積み）
+  .page-body        — メインコンテンツの縦積みラッパー
+  .site-title-block — タイトル帯（黒背景・白文字・青border）
+*/
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  width: 95%;
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-block: var(--space-m);
+}
+
+.page-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+  width: 95%;
+  max-width: 900px;
+  margin-inline: auto;
+  padding-bottom: var(--space-l);
+}
+
+.site-title-block {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-m);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-m);
+  background-color: var(--black);
+  color: var(--white);
+  font-size: 140%;
+  font-weight: bold;
+  text-align: center;
+
+  /* バージョン番号 */
+  & span {
+    color: var(--yellow);
+    font-size: 80%;
+  }
+}
+
+/* メダルカウント（pill型） */
+#medaltime {
+  display: inline-block;
+  max-width: 380px;
+  padding: var(--space-s) var(--space-l);
+  border: 2px solid var(--blue);
+  border-radius: 999px;
+  background-color: var(--white);
+  color: var(--blue);
+  font-size: 90%;
+  font-weight: bold;
+
+  &::before {
+    content: "🏆";
+    margin-right: var(--space-s);
+  }
+}
+
+/* NEWSのiframe */
+#news {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  border: none;
+  background-color: var(--white);
+}
 
 /* ====================================== */
 /* 10. Ranking                            */
 /* ====================================== */
 
-/* 移行時に実装 */
+/*
+  .rank-title         — ランキングタイトル帯（黒背景）
+  .rank-card          — ランキングユーザーカード（.card継承）
+  .rank-card__header  — 順位 + ユーザー名
+  .rank-card__rank    — 順位数値
+  .rank-card__username — ユーザー名
+  .rank-card__body    — 情報 + パーティ
+  .rank-card__info    — 最深部・所持金・図鑑等
+  .rank-card__expiry  — 保存期限（控えめ表示）
+  .rank-card__party   — パーティモンスター横並び
+  .rank-card__comment — コメント行
+  .rank-card__comment-label — "Comment"ラベル
+  .rank-card__comment-body  — コメント本文
+  .monster-item       — パーティ内モンスター小表示
+  .monster-item__img  — 画像エリア
+  .monster-item__name — モンスター名
+  .monster-item__stats — Lv・配合数
+*/
+
+  .reg-link {
+    color: var(--red);
+    font-weight: bold;
+  }
+
+.rank-title {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-s) var(--space-m);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-m);
+  background-color: var(--black);
+  color: var(--white);
+  font-size: 140%;
+  font-weight: bold;
+  text-align: center;
+
+  & span {
+    color: var(--yellow);
+  }
+}
+
+/* .card と併用: <article class="card rank-card"> */
+.rank-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rank-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-l);
+  padding: var(--space-s) var(--space-m);
+  background-color: var(--sky-blue);
+}
+
+.rank-card__rank {
+  color: var(--yellow);
+  font-size: 110%;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.rank-card__username {
+  font-size: 105%;
+  font-weight: bold;
+
+  & a {
+    color: var(--white);
+    text-decoration: underline;
+  }
+}
+
+.rank-card__body {
+  display: flex;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  background-color: var(--bg-light);
+}
+
+.rank-card__info {
+  flex: 0 0 170px;
+  padding-right: var(--space-m);
+  border-right: 1px dashed #bbb;
+  font-size: 90%;
+  font-weight: bold;
+  line-height: 1.7;
+
+  & span {
+    color: var(--red);
+  }
+}
+
+.rank-card__expiry {
+  margin-top: var(--space-s);
+  color: #666;
+  font-size: 85%;
+}
+
+.rank-card__party {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+  align-items: flex-end;
+  gap: var(--space-s);
+}
+
+.rank-card__comment {
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  padding: var(--space-s) var(--space-m);
+  border-top: 1px solid #ccc;
+  background-color: #fafafa;
+}
+
+.rank-card__comment-label {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-s);
+  background-color: var(--blue);
+  color: var(--white);
+  font-size: 75%;
+}
+
+.rank-card__comment-body {
+  flex: 1;
+  min-width: 0;
+  color: var(--black);
+  font-size: 90%;
+  font-weight: bold;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* モンスター小カード（ランキング内パーティ表示） */
+.monster-item {
+  width: 30%;
+  text-align: center;
+}
+
+.monster-item__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  margin-bottom: var(--space-s);
+
+  & img {
+    max-width: 120px;
+    max-height: 230px;
+  }
+}
+
+.monster-item__name {
+  overflow: hidden;
+  color: var(--blue);
+  font-size: 90%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monster-item__stats {
+  font-size: 85%;
+  font-weight: bold;
+
+  & span {
+    color: var(--red);
+  }
+}
 
 /* ====================================== */
 /* 11. My Page                            */
