@@ -27,7 +27,6 @@
         {% elif event.is_dead and event.damage == 0 %}
             <span class="red">{{ event.target_name }}</span>に攻撃しようとしたが既に力尽きていた
         {% else %}
-
             {% if event.is_miss %}
                 しかし<span class="red">{{ event.target_name }}</span>にダメージを与えることができなかった…
             {% else %}

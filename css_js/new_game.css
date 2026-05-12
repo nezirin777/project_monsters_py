@@ -46,13 +46,8 @@ img {
 }
 
 /* gapのバリエーション */
-.layout-stack--sm {
-  --stack-gap: var(--space-s);
-}
-
-.layout-stack--lg {
-  --stack-gap: var(--space-l);
-}
+.layout-stack--sm { --stack-gap: var(--space-s); }
+.layout-stack--lg { --stack-gap: var(--space-l); }
 
 /* --- Cluster --- */
 .layout-cluster {
@@ -63,17 +58,9 @@ img {
   gap: var(--cluster-gap, var(--space-s));
 }
 
-.layout-cluster--start {
-  justify-content: flex-start;
-}
-
-.layout-cluster--end {
-  justify-content: flex-end;
-}
-
-.layout-cluster--between {
-  justify-content: space-between;
-}
+.layout-cluster--start  { justify-content: flex-start; }
+.layout-cluster--end    { justify-content: flex-end; }
+.layout-cluster--between { justify-content: space-between; }
 
 /* --- Grid --- */
 /*
@@ -84,19 +71,16 @@ img {
 */
 .layout-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit,
-      minmax(var(--grid-min, 200px), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--grid-min, 200px), 1fr)
+  );
   gap: var(--grid-gap, var(--space-m));
 }
 
 /* 列数固定 modifier */
-.layout-grid--2col {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.layout-grid--3col {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
+.layout-grid--2col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.layout-grid--3col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* ====================================== */
 /* 2. Width System                        */
@@ -118,17 +102,9 @@ img {
   margin-inline: auto;
 }
 
-.content-sm {
-  max-width: 600px;
-}
-
-.content-md {
-  max-width: 900px;
-}
-
-.content-lg {
-  max-width: 1100px;
-}
+.content-sm { max-width: 600px; }
+.content-md { max-width: 900px; }
+.content-lg { max-width: 1100px; }
 
 /* ====================================== */
 /* 3. Card Core                           */
@@ -331,8 +307,7 @@ img {
 
 /* JS依存class: スタイルは .btn に委譲、classはJSのターゲットとして残す */
 .battle-btn {}
-
-.bbs-btn {}
+.bbs-btn    {}
 
 /* ====================================== */
 /* 5. Form Core                           */
@@ -529,6 +504,7 @@ img {
   .page-header      — ページ上部ヘッダーエリア（ナビ含む縦積み）
   .page-body        — メインコンテンツの縦積みラッパー
   .site-title-block — タイトル帯（黒背景・白文字・青border）
+  .reg-link         — ゲーム情報カード内「新規登録」強調テキスト
 */
 
 .page-header {
@@ -568,6 +544,12 @@ img {
     color: var(--yellow);
     font-size: 80%;
   }
+}
+
+/* ゲーム情報カード内「新規登録」強調テキスト */
+.reg-link {
+  color: var(--red);
+  font-weight: bold;
 }
 
 /* メダルカウント（pill型） */
@@ -619,11 +601,6 @@ img {
   .monster-item__name — モンスター名
   .monster-item__stats — Lv・配合数
 */
-
-  .reg-link {
-    color: var(--red);
-    font-weight: bold;
-  }
 
 .rank-title {
   box-sizing: border-box;
@@ -777,25 +754,1016 @@ img {
 /* 11. My Page                            */
 /* ====================================== */
 
-/* 移行時に実装 */
+/*
+  --- フローティングナビ ---
+  .floating-nav        — 右側固定ナビ
+  .floating-nav__btn   — ナビボタン
+
+  --- ステータスボックス ---
+  .stat-box            — ユーザーステータス1項目
+  .stat-box__label     — ラベル
+  .stat-box__value     — 値
+  .zukan-link          — 図鑑リンクボタン（stat-box内）
+
+  --- パーティ ---
+  .party-grid          — パーティカードグリッド（JS依存のためclass維持）
+  .party-card          — パーティカード（.cardと併用）
+  .party-card__name    — モンスター名
+  .party-card__tags    — 性別・性格タグ
+  .party-card__img     — モンスター画像エリア
+  .party-card__stats   — ステータスグリッド
+  .stat-row            — ステータス1行
+  .stat-row__label     — ラベル部分（青背景）
+  .stat-row__value     — 値部分
+
+  --- 汎用 ---
+  .section-label       — セクション内サブタイトル（Battle/Shopでも使用）
+  .monster-preview     — 配合画像プレビューボックス
+  .monster-preview__plus — 配合の+記号
+
+  --- JS依存（JS側と同時変更可） ---
+  .my_page_chara_1〜3  — 出撃メンバー識別（my_page.jsが付け替え）
+  .stat-extra          — 控えメンバーの詳細非表示（my_page.jsが制御）
+  .my_page_menu4       — ショップホバー説明文（my_page.jsが読み取り）
+  .shop-span           — data-msg 読み取り対象（my_page.js）
+  .toggle-trigger      — 開閉トリガー（my_page.js）
+  .toggle-content      — 開閉コンテンツ（my_page.js）
+  .battle_go           — 戦闘フォーム識別（CountDown.js）
+  .monster-select      — 画像切り替えselect（main.js）
+*/
+
+/* --- 開閉コンテンツ: デフォルト非表示。my_page.js が display:block で開く --- */
+.toggle-content {
+  display: none;
+}
+
+/* --- フローティングナビ --- */
+
+.floating-nav {
+  position: fixed;
+  top: 140px;
+  right: 18px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-s);
+  background: linear-gradient(
+    to bottom,
+    rgba(248, 252, 255, 0.95),
+    rgba(228, 236, 245, 0.92)
+  );
+  border: 1px solid #b8c7d8;
+  border-radius: 16px;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.floating-nav__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, #fafdff, #dce8f5);
+  border: 1px solid #a8b9cc;
+  border-radius: 10px;
+  color: #35506d;
+  font-size: 12px;
+  font-weight: bold;
+  text-decoration: none;
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:link,
+  &:visited { color: #35506d; }
+
+  &:hover {
+    background: linear-gradient(to bottom, #ffffff, #e7f1fb);
+    color: #17324d;
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      0 2px 5px rgba(0, 0, 0, 0.12);
+  }
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.14);
+  }
+}
+
+/* --- ステータスボックス --- */
+
+.stat-box {
+  padding: var(--space-m);
+  border: 1px solid #ccc;
+  border-radius: var(--radius-s);
+  background-color: #fafafa;
+  text-align: center;
+}
+
+.stat-box__label {
+  margin-bottom: var(--space-xs);
+  color: var(--blue);
+  font-size: 85%;
+  font-weight: bold;
+}
+
+.stat-box__value {
+  color: var(--black);
+  font-size: 105%;
+  font-weight: bold;
+}
+
+/* 図鑑リンク（stat-box内） */
+.zukan-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-s);
+  background: linear-gradient(to bottom, #eef4fb, #dbe8f5);
+  border: 1px solid #9fb4cc;
+  border-radius: var(--radius-s);
+  color: #2b4d73;
+  font-weight: bold;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition:
+    background-color 0.15s ease,
+    transform 0.08s ease;
+
+  &::before { content: "📖"; font-size: 105%; }
+
+  &:link,
+  &:visited { color: #2b4d73; }
+
+  &:hover {
+    background: linear-gradient(to bottom, #f7fbff, #e4eef8);
+    color: #16324f;
+    transform: translateY(1px);
+  }
+}
+
+/* --- パーティグリッド --- */
+
+/* JS依存のためclass名維持。スタイルのみ移行 */
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-m);
+  width: 95%;
+  max-width: 1050px;
+  margin-inline: auto;
+}
+
+/* --- パーティカード --- */
+
+/* .card と併用: <div class="card party-card"> */
+.party-card {
+  overflow: hidden;
+}
+
+.party-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xs) var(--space-s);
+  background-color: #f3f6fb;
+  border-bottom: 1px solid #d6dbe4;
+  color: var(--black);
+  text-align: left;
+}
+
+.party-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-s);
+}
+
+.party-card__name {
+  overflow: hidden;
+  color: var(--blue);
+  font-size: 95%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.party-card__tags {
+  margin-top: 2px;
+  color: #666;
+  font-size: 72%;
+  line-height: 1.1;
+}
+
+.party-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 110px;
+
+  & img {
+    max-width: 110px;
+    max-height: 230px;
+  }
+}
+
+.party-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+/* ステータス1行 */
+.stat-row {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  font-size: 90%;
+}
+
+.stat-row__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35%;
+  flex-shrink: 0;
+  padding: var(--space-xs) var(--space-s);
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-weight: bold;
+  font-size: 90%;
+  text-align: center;
+}
+
+.stat-row__value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-xs) var(--space-s);
+  background-color: #fdfdfd;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.1;
+
+  & span {
+    color: var(--red);
+    font-size: 85%;
+    margin-top: var(--space-xs);
+  }
+}
+
+/* JS依存: 出撃メンバー（1〜3番）の強調 */
+.my_page_chara_1,
+.my_page_chara_2,
+.my_page_chara_3 {
+  border-color: #ff9800;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+
+  & .card-header { background-color: #fff3e0; }
+
+  & .stat-extra { display: flex; }
+}
+
+/* JS依存: 控えメンバーは詳細ステータス非表示 */
+.party-card:not(.my_page_chara_1):not(.my_page_chara_2):not(.my_page_chara_3) {
+  & .stat-extra { display: none; }
+}
+
+/* 並び替えフッター */
+.party-action-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  width: 95%;
+  max-width: 600px;
+  margin: var(--space-m) auto;
+  padding: var(--space-m);
+  border-radius: var(--radius-m);
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.reorder-note {
+  color: var(--white);
+  font-size: 90%;
+  text-align: center;
+}
+
+/* ドラッグ中ハイライト（JS付与） */
+.drag-over {
+  outline: 5px dashed var(--red);
+  outline-offset: -3px;
+  background-color: rgba(255, 152, 0, 0.2);
+}
+
+/* --- 汎用: セクションサブタイトル（Battle/Shopでも共通） --- */
+
+.section-label {
+  font-weight: bold;
+  color: var(--blue);
+  margin-bottom: var(--space-s);
+  padding-bottom: var(--space-s);
+  text-align: center;
+  border-bottom: 1px dashed var(--blue);
+}
+
+/* --- 配合画像プレビュー --- */
+
+.monster-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  border-radius: var(--radius-s);
+
+  & img {
+    max-width: 120px;
+    max-height: 230px;
+    object-fit: contain;
+  }
+}
+
+.monster-preview__plus {
+  color: var(--blue);
+  font-size: 160%;
+  font-weight: bold;
+}
 
 /* ====================================== */
 /* 12. Battle                             */
 /* ====================================== */
 
-/* 移行時に実装 */
+/*
+  --- マイページ 戦闘選択 ---
+  .battle-option         — 戦闘選択1ボックス
+  .battle-option__title  — ボックスタイトル
+  .battle-option--isekai — 異世界modifier
+  .battle-text           — フォーム内テキスト断片
+
+  --- エンカウント ---
+  .encount-card          — エンカウントカード（.cardと併用）
+  .encount-card__header  — エンカウントメッセージ
+  .enemy-card            — 敵1体カード
+  .enemy-card__img       — 敵画像
+  .enemy-card__info      — 敵名・性別
+  .enemy-card__name      — 敵名
+  .enemy-card__meta      — 性別等
+  .enemy-card__hp        — HPバー
+  .enemy-card__hp-label  — "HP"ラベル
+  .enemy-card__hp-value  — HP数値
+
+  --- 戦闘ログ ---
+  .battle-log            — ログ全体（layout-stack + content-md）
+  .log-card              — 1ターン分カード（.cardと併用）
+  .log-card__actors      — VS表示エリア
+  .log-card__actor       — キャラクター表示
+  .log-card__actor--attacker — 攻撃側（左寄せ）
+  .log-card__actor--defender — 防御側（右寄せ）
+  .log-card__actor--empty    — ターゲットなし（空枠）
+  .log-card__actor-img   — キャラクター画像
+  .log-card__actor-stats — ステータス
+  .log-card__name        — キャラクター名
+  .log-card__name--ally  — 味方（青）
+  .log-card__name--enemy — 敵（赤）
+  .log-card__hpmp        — HP/MP表示
+  .log-card__turn        — ターン数バッジ
+  .log-card__turn-num    — ターン数値
+  .log-card__turn-unit   — "R"単位
+  .log-card__text        — テキストログ
+  .dmg-text              — ダメージ数値
+  .critical-text         — 会心の一撃
+
+  --- リザルト ---
+  .result-log            — リザルト全体（.cardと併用）
+  .result-log__body      — リザルト内容
+  .result-msg            — システムメッセージ基盤
+  .result-msg--result    — 戦闘結果
+  .result-msg--lvup      — レベルアップ
+  .result-msg--item      — アイテム取得
+  .result-msg--bad       — ペナルティ
+  .result-msg--action    — ユーザー入力要求
+  .result-msg__title     — レベルアップタイトル
+  .result-msg__img       — 仲間加入モンスター画像
+  .result-msg__prompt    — 選択プロンプト
+
+  --- 戦闘コマンド ---
+  .battle-menu           — コマンドカード（.cardと併用）
+  .cmd-card              — メンバー1人分カード
+  .cmd-card__header      — 上段（画像＋ステータス）
+  .cmd-card__img         — モンスター画像
+  .cmd-card__info        — 名前・ステータス
+  .cmd-card__name        — モンスター名
+  .cmd-card__stats       — ステータス一覧
+  .cmd-card__stat        — ステータス1行
+  .cmd-card__stat-label  — ステータスラベル
+  .cmd-card__actions     — 下段（コマンド選択）
+  .cmd-card__row         — コマンド1行
+  .cmd-card__row-label   — コマンドラベル
+
+  JS依存（JS側と同時変更可）:
+  .battle-btn  — CountDown.js が disabled制御
+  .battle_go   — CountDown.js が戦闘フォーム識別
+*/
+
+/* ========================= */
+/* マイページ 戦闘選択       */
+/* ========================= */
+
+.battle-option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  border: 1px solid #d6dbe4;
+  border-radius: var(--radius-s);
+  background-color: #fcfdff;
+}
+
+.battle-option__title {
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px dashed #ccd6e3;
+  color: var(--blue);
+  font-weight: bold;
+  text-align: center;
+}
+
+.battle-option--isekai {
+  border-color: #c9b7e8;
+  background-color: #faf7ff;
+
+  & .battle-option__title {
+    border-bottom-color: #d8ccef;
+    color: #6a4aa1;
+  }
+}
+
+.battle-text {
+  white-space: nowrap;
+  font-size: 88%;
+  color: var(--black);
+}
+
+/* ========================= */
+/* エンカウント              */
+/* ========================= */
+
+/* .card と併用: <div class="card encount-card content-md"> */
+.encount-card {
+  border-color: var(--red);
+}
+
+.encount-card__header {
+  padding: var(--space-m);
+  border-bottom: 1px solid #dbe3ee;
+  background-color: #f6f9fd;
+  color: var(--blue);
+  font-size: 105%;
+  font-weight: bold;
+  line-height: 1.7;
+  text-align: center;
+
+  & small {
+    color: #666;
+    font-size: 82%;
+    font-weight: normal;
+  }
+}
+
+/* 敵グリッド: layout-gridの--grid-minをインラインで指定 */
+/* <div class="layout-grid" style="--grid-min:180px; background:#fce4e4; padding:..."> */
+
+.enemy-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-s);
+  border: 1px solid #d6dbe4;
+  border-radius: var(--radius-s);
+  background-color: #fcfdff;
+  text-align: center;
+}
+
+.enemy-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 120px;
+
+  & img {
+    max-width: 110px;
+    max-height: 230px;
+    object-fit: contain;
+  }
+}
+
+.enemy-card__info {
+  width: 100%;
+}
+
+.enemy-card__name {
+  overflow: hidden;
+  color: var(--red);
+  font-size: 95%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enemy-card__meta {
+  margin-top: 2px;
+  font-size: 90%;
+}
+
+.enemy-card__hp {
+  display: flex;
+  width: 100%;
+  border: 1px solid #d5dce6;
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  background-color: #f8fbff;
+}
+
+.enemy-card__hp-label {
+  padding: var(--space-xs);
+  width: 30%;
+  background-color: var(--red);
+  color: var(--white);
+  font-weight: bold;
+  text-align: center;
+}
+
+.enemy-card__hp-value {
+  padding: var(--space-xs);
+  width: 70%;
+  text-align: center;
+  font-weight: bold;
+  color: var(--black);
+
+  & span {
+    font-size: 85%;
+    color: #888;
+  }
+}
+
+/* ========================= */
+/* 戦闘ログ                  */
+/* ========================= */
+
+.battle-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  width: 95%;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+/* .card と併用: <div class="card log-card"> */
+.log-card {
+  overflow: hidden;
+}
+
+.log-card__actors {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: var(--space-s);
+  border-bottom: 2px solid #e4eaf2;
+  background-color: #f6f9fd;
+  position: relative;
+}
+
+.log-card__actor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
+  width: 40%;
+}
+
+.log-card__actor--attacker {
+  justify-content: flex-start;
+}
+
+.log-card__actor--defender {
+  justify-content: flex-end;
+  text-align: right;
+
+  & .log-card__actor-img {
+    order: 2;
+    margin-right: 0;
+    margin-left: var(--space-m);
+  }
+
+  & .log-card__actor-stats {
+    order: 1;
+  }
+}
+
+.log-card__actor--empty {
+  visibility: hidden;
+}
+
+.log-card__actor-img {
+  height: 100px;
+  border-radius: var(--radius-s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-m);
+  flex-shrink: 0;
+
+  & img { max-width: 100%; }
+}
+
+.log-card__actor-stats {
+  min-width: 0;
+}
+
+.log-card__name {
+  overflow: hidden;
+  margin-bottom: 2px;
+  font-size: 95%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log-card__name--ally  { color: var(--blue); }
+.log-card__name--enemy { color: var(--red); }
+
+.log-card__hpmp {
+  color: #555;
+  font-size: 80%;
+  line-height: 1.35;
+}
+
+.log-card__turn {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  min-width: 58px;
+  padding: var(--space-xs) var(--space-s);
+  border: 1px solid #c9d5e3;
+  border-radius: 999px;
+  background-color: var(--white);
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.log-card__turn-num {
+  font-size: 120%;
+  line-height: 1;
+}
+
+.log-card__turn-unit {
+  margin-left: 2px;
+  font-size: 72%;
+}
+
+.log-card__text {
+  padding: var(--space-s) var(--space-m);
+  color: var(--black);
+  font-size: 90%;
+  line-height: 1.7;
+  word-break: break-word;
+  text-align: center;
+
+  & .red    { color: #d94040; font-weight: bold; }
+  & .yellow { color: #c28a00; font-weight: bold; }
+  & .sky_blue { color: var(--blue); font-weight: bold; }
+
+  & br {
+    content: "";
+    display: block;
+    margin-top: 2px;
+  }
+}
+
+/* ダメージ数値 */
+.dmg-text {
+  display: inline-block;
+  min-width: 2ch;
+  margin: 0 2px;
+  font-size: 115%;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* 会心の一撃 */
+.critical-text {
+  display: inline-block;
+  margin-bottom: var(--space-xs);
+  padding: 2px var(--space-s);
+  border: 1px solid #f3c15d;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #fff7d6, #ffe28a);
+  color: #b36b00;
+  font-size: 78%;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+/* ========================= */
+/* リザルト                   */
+/* ========================= */
+
+/* .card と併用: <div class="card result-log content-md"> */
+.result-log {
+  overflow: hidden;
+}
+
+.result-log__header {
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-size: 110%;
+  font-weight: bold;
+  padding: var(--space-s);
+  text-align: center;
+}
+
+.result-log__body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* システムメッセージ基盤 */
+.result-msg {
+  padding: var(--space-m);
+  border-top: 1px dashed #d9e1ec;
+  font-size: 92%;
+  line-height: 1.7;
+
+  &:first-child { border-top: none; }
+}
+
+.result-msg--result { background-color: #fbfeff; }
+.result-msg--lvup   { background-color: #fffef7; }
+.result-msg--item   { background-color: #fcfffa; }
+.result-msg--bad    { background-color: #fff9f8; }
+.result-msg--action { background-color: #fafdff; }
+
+.result-msg__title {
+  margin-bottom: var(--space-xs);
+  color: var(--red);
+  font-size: 105%;
+  font-weight: bold;
+}
+
+.result-msg__img {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-s);
+
+  & img {
+    max-width: 90px;
+    max-height: 180px;
+    object-fit: contain;
+  }
+}
+
+.result-msg__prompt {
+  margin-bottom: var(--space-s);
+  line-height: 1.6;
+}
+
+/* ========================= */
+/* 戦闘コマンド              */
+/* ========================= */
+
+/* .card と併用: <div class="card battle-menu content-md"> */
+.battle-menu {
+  border-color: var(--blue);
+}
+
+.cmd-card {
+  overflow: hidden;
+  border: 1px solid #d6dbe4;
+  border-radius: var(--radius-m);
+  background-color: #fcfdff;
+}
+
+.cmd-card__header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-m);
+  background-color: #f0f0f0;
+  border-bottom: 2px solid var(--black);
+}
+
+.cmd-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 110px;
+  min-width: 96px;
+  min-height: 96px;
+  margin-right: var(--space-m);
+
+  & img {
+    max-width: 110px;
+    max-height: 230px;
+    object-fit: contain;
+  }
+}
+
+.cmd-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cmd-card__name {
+  overflow: hidden;
+  margin-bottom: var(--space-xs);
+  color: var(--blue);
+  font-size: 95%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmd-card__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: 90%;
+  font-weight: bold;
+}
+
+.cmd-card__stat {
+  font-size: 95%;
+}
+
+.cmd-card__stat-label {
+  display: inline-block;
+  min-width: 25px;
+  padding: var(--space-xs) var(--space-s);
+  background-color: var(--sky-blue);
+  border-radius: var(--radius-s);
+  text-align: center;
+}
+
+.cmd-card__actions {
+  padding: var(--space-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  background-color: #fafafa;
+}
+
+.cmd-card__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.cmd-card__row-label {
+  font-size: 85%;
+  font-weight: bold;
+  color: var(--blue);
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2px;
+}
+
+/* JS依存: CountDown.js が .battle-btn を disabled 制御 */
+.battle-btn {}
 
 /* ====================================== */
 /* 13. Shop                               */
 /* ====================================== */
 
-/* 移行時に実装 */
+/*
+  .shop-grid    — 施設ボタングリッド（JS依存 my_page_menu4 と併用）
+  .omiai-banner — お見合い通知バナー
+*/
+
+/* JS依存classと併用: <div class="shop-grid my_page_menu4"> */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
+  padding: var(--space-s);
+}
+
+.omiai-banner {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-s);
+  border-bottom: 1px solid #edf1f6;
+  background-color: #fffdf8;
+
+  & img {
+    max-width: 220px;
+    height: auto;
+  }
+}
 
 /* ====================================== */
 /* 14. BBS                                */
 /* ====================================== */
 
-/* 移行時に実装 */
+/*
+  .bbs-form          — フォーム全体ラッパー
+  .bbs-log           — ログ表示エリア（#log-area idはJS依存のため変更不可）
+  .color-picker      — カラーパレット
+  .color-picker__item   — ラジオ1個ラッパー
+  .color-picker__swatch — 色見本
+
+  サーバー生成class（Python側生成のためclass名変更不可）:
+  .bbs-line  — ログ1行
+  .bbs-time  — 発言時刻
+*/
+
+/* フォームラッパー */
+.bbs-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* ログエリア */
+.bbs-log {
+  background-color: var(--white);
+}
+
+/* ログ1行（Python生成のためclass名維持） */
+.bbs-line {
+  padding: var(--space-xs) 0;
+  border-bottom: 1px dashed #555;
+  color: var(--black);
+  font-size: 95%;
+  line-height: 2.0;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* 発言時刻（Python生成のためclass名維持） */
+.bbs-time {
+  margin-left: var(--space-s);
+  color: #888;
+  font-size: 80%;
+}
+
+/* ログ内の区切り線 */
+.bbs-log hr {
+  margin: var(--space-xs) 0;
+  border: none;
+  border-top: 1px dashed #555;
+}
+
+/* カラーパレット */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.color-picker__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ラジオボタン本体は非表示 */
+  & input[type="radio"] {
+    display: none;
+  }
+
+  /* 選択状態 */
+  & input[type="radio"]:checked + .color-picker__swatch {
+    border-color: var(--black);
+    box-shadow: 0 0 0 2px #d9e4f2;
+    transform: scale(1.08);
+  }
+}
+
+.color-picker__swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #999;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
 
 /* ====================================== */
 /* 15. Footer                             */
