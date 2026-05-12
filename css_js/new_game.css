@@ -1226,6 +1226,7 @@ img {
 /* .card と併用: <div class="card encount-card content-md"> */
 .encount-card {
   border-color: var(--red);
+  margin: var(--space-m) auto;
 }
 
 .encount-card__header {
@@ -1577,7 +1578,6 @@ img {
   max-width: 110px;
   min-width: 96px;
   min-height: 96px;
-  margin-right: var(--space-m);
 
   & img {
     max-width: 110px;
@@ -1616,7 +1616,6 @@ img {
 .cmd-card__stat-label {
   display: inline-block;
   min-width: 25px;
-  padding: var(--space-xs) var(--space-s);
   background-color: var(--sky-blue);
   border-radius: var(--radius-s);
   text-align: center;
