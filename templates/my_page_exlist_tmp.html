@@ -1,41 +1,48 @@
 <!-- templates/my_page_exlist_tmp.html -->
 
 <!-- 配合 -->
-<div class="action-card" id="haigou-section">
-  <div class="action-card-header">配　合</div>
-  <div class="action-card-desc">
+<div class="card" id="haigou-section">
+  <div class="card__header">配　合</div>
+  <div class="card__desc">
     配合料金は配合させる2匹のモンスターの<br>
     <small>【（レベル＋レベル）×10G】です。</small>
   </div>
-  <div class="action-card-body">
-    <div class="action-subtitle">【 配合可能のみ表示 】</div>
-    <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="ex-form">
+  <div class="card__body">
+    <div class="section-label">【 配合可能のみ表示 】</div>
+    <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="form">
 
-      <div class="haigou-select-area">
-        <select name="haigou1" class="monster-select ex-select" data-target="img1">
+      <div class="layout-stack" style="width:100%; gap: var(--space-s);">
+        <!-- JS依存: monster-select は main.js が画像切り替えに使用 -->
+        <select name="haigou1" class="form-control monster-select" data-target="img1">
           <option value="99" data-name="0" hidden>選 択 -ベース-</option>
           {% for haigou in haigou_options %}
-          <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index_view }}: {{ haigou.name }} {{
-            haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
+          <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">
+            {{ haigou.index_view }}: {{ haigou.name }} {{ haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回
+          </option>
           {% endfor %}
         </select>
 
-        <select name="haigou2" class="monster-select ex-select" data-target="img2">
+        <select name="haigou2" class="form-control monster-select" data-target="img2">
           <option value="99" data-name="0" hidden>選 択 -素材-</option>
           {% for haigou in haigou_options %}
-          <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">{{ haigou.index_view }}: {{ haigou.name }} {{
-            haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回</option>
+          <option value="{{ haigou.index }}" data-name="{{ haigou.name }}">
+            {{ haigou.index_view }}: {{ haigou.name }} {{ haigou.sex }} LV-{{ haigou.lv }} 配合{{ haigou.hai }}回
+          </option>
           {% endfor %}
         </select>
       </div>
 
-      <div class="haigou-img-area">
-        <div class="haigou-img-box"><img name="img1" src="{{ Conf.imgpath }}/0.gif" alt="ベースモンスター"></div>
-        <span class="haigou-plus">＋</span>
-        <div class="haigou-img-box"><img name="img2" src="{{ Conf.imgpath }}/0.gif" alt="素材モンスター"></div>
+      <div class="layout-cluster">
+        <div class="monster-preview">
+          <img name="img1" src="{{ Conf.imgpath }}/0.gif" alt="ベースモンスター">
+        </div>
+        <span class="monster-preview__plus">＋</span>
+        <div class="monster-preview">
+          <img name="img2" src="{{ Conf.imgpath }}/0.gif" alt="素材モンスター">
+        </div>
       </div>
 
-      <button type="submit" class="submit-btn ex-btn">配合する</button>
+      <button type="submit" class="btn btn--block">配合する</button>
       <input type="hidden" name="mode" value="haigou_check">
       <input type="hidden" name="token" value="{{ token }}">
     </form>
@@ -43,23 +50,25 @@
 </div>
 
 <!-- 陰陽変換所 -->
-<div class="action-card">
-  <div class="action-card-header">陰陽変換所</div>
-  <div class="action-card-desc">
+<div class="card">
+  <div class="card__header">陰陽変換所</div>
+  <div class="card__desc">
     変換料金はモンスターの【配合回数×100G】です。
   </div>
-  <div class="action-card-body">
-    <div class="action-subtitle">【 変換可能のみ表示 】</div>
-    <form action="{{ Conf.cgi_url }}" method="post" class="ex-form" data-confirm="選択したモンスターの陰陽変換を実行します。よろしいですか？"
-      data-loading="変換中...">
-      <select name="no" class="ex-select">
+  <div class="card__body">
+    <div class="section-label">【 変換可能のみ表示 】</div>
+    <form action="{{ Conf.cgi_url }}" method="post" class="form"
+          data-confirm="選択したモンスターの陰陽変換を実行します。よろしいですか？"
+          data-loading="変換中...">
+      <select name="no" class="form-control">
         <option value="99" hidden>選 択</option>
         {% for tenkan in tenkan_options %}
-          <option value="{{ tenkan.index }}" data-name="{{ tenkan.name }}">{{ tenkan.index_view }}:{{ tenkan.name }} {{
-          tenkan.sex }} {{ tenkan.cost }}G</option>
+        <option value="{{ tenkan.index }}" data-name="{{ tenkan.name }}">
+          {{ tenkan.index_view }}:{{ tenkan.name }} {{ tenkan.sex }} {{ tenkan.cost }}G
+        </option>
         {% endfor %}
       </select>
-      <button type="submit" class="submit-btn ex-btn">陰陽変換する</button>
+      <button type="submit" class="btn btn--block">陰陽変換する</button>
       <input type="hidden" name="mode" value="seitenkan_ok">
       <input type="hidden" name="token" value="{{ token }}">
     </form>
@@ -67,21 +76,21 @@
 </div>
 
 <!-- 設定変更 -->
-<div class="action-card">
-  <div class="action-card-header">設定変更</div>
-  <div class="action-card-desc">
+<div class="card">
+  <div class="card__header">設定変更</div>
+  <div class="card__desc">
     大きすぎる数値表記を調整します。
   </div>
-  <div class="action-card-body">
-    <form action="{{ Conf.cgi_url }}" method="post" class="ex-form" data-loading="変更中...">
-      <select name="no" class="ex-select">
+  <div class="card__body">
+    <form action="{{ Conf.cgi_url }}" method="post" class="form" data-loading="変更中...">
+      <select name="no" class="form-control">
         <option value="" hidden>選 択</option>
         <option value="0">調整なし</option>
         <option value="1">区切り文字だけ</option>
         <option value="2">k,M,G単位表記</option>
         <option value="3">万,億,兆単位表記</option>
       </select>
-      <button type="submit" class="submit-btn ex-btn">設定する</button>
+      <button type="submit" class="btn btn--block">設定する</button>
       <input type="hidden" name="mode" value="number_unit">
       <input type="hidden" name="token" value="{{ token }}">
     </form>

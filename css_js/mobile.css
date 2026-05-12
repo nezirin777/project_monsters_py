@@ -131,25 +131,147 @@
   /* 11. My Page                            */
   /* ====================================== */
 
-  /* 移行時に実装 */
+  /* フローティングナビ: モバイルでは非表示 */
+  .floating-nav {
+    display: none;
+  }
+
+  /* パーティグリッド: 1列に切り替え */
+  .party-grid {
+    grid-template-columns: 1fr;
+    max-width: 450px;
+  }
+
+  /* パーティカードのcard-body: 横並びに切り替え */
+  .party-card .card-body {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--space-s);
+  }
+
+  /* 画像エリア: 横並び時は幅を固定 */
+  .party-card__img {
+    width: 35%;
+    min-height: auto;
+
+    & img {
+      max-height: 100px;
+    }
+  }
+
+  /* ステータスグリッド: 画像の横に配置 */
+  .party-card__stats {
+    width: 65%;
+  }
 
   /* ====================================== */
   /* 12. Battle                             */
   /* ====================================== */
 
-  /* 移行時に実装 */
+  /* 戦闘選択グリッド: 1列に切り替え */
+  .layout-grid--2col:has(.battle-option) {
+    grid-template-columns: 1fr;
+  }
+
+  /* 戦闘フォーム内クラスター: 縦に整列 */
+  .battle-option .layout-cluster {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* 数値入力: 縦並び時は全幅 */
+  .battle-option .form-control[type="number"] {
+    width: 100%;
+  }
+
+  /* エンカウント: 敵グリッドを2列に */
+  .encount-card .layout-grid {
+    --grid-min: 140px;
+  }
+
+  .enemy-card__img img {
+    max-height: 80px;
+  }
+
+  /* 戦闘ログ: キャラクター表示を縦積みに */
+  .log-card__actor {
+    flex-direction: column;
+    text-align: center;
+    width: 35%;
+  }
+
+  .log-card__actor-img {
+    margin-right: 0;
+    margin-bottom: var(--space-xs);
+    height: auto;
+
+    & img {
+      max-height: 60px;
+    }
+  }
+
+  /* 防御側のorder打ち消し */
+  .log-card__actor--defender {
+    & .log-card__actor-img {
+      order: unset;
+      margin-left: 0;
+    }
+
+    & .log-card__actor-stats {
+      order: unset;
+    }
+  }
+
+  /* 戦闘コマンド: 1列に切り替え */
+  .battle-menu .layout-grid {
+    grid-template-columns: 1fr;
+  }
 
   /* ====================================== */
   /* 13. Shop                               */
   /* ====================================== */
 
-  /* 移行時に実装 */
+  /* 施設ボタングリッド: 2列に切り替え */
+  .shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ショップボタン: 高さを確保してタップしやすく */
+  .shop-grid .btn {
+    min-height: 48px;
+    font-size: 90%;
+    padding: var(--space-s);
+  }
 
   /* ====================================== */
   /* 14. BBS                                */
   /* ====================================== */
 
-  /* 移行時に実装 */
+  /* 入力エリア: モバイルでは縦積みに切り替え */
+  .bbs-form .layout-cluster {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* 入力欄: 全幅 */
+  .bbs-form .form-control {
+    width: 100%;
+  }
+
+  /* 送信・更新ボタン: 横並びを維持しつつ均等幅 */
+  .bbs-form .layout-cluster {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .bbs-form .form-control {
+    flex: 1 1 100%;
+  }
+
+  .bbs-btn,
+  .bbs-refresh {
+    flex: 1;
+  }
 
   /* ====================================== */
   /* 15. Footer                             */
