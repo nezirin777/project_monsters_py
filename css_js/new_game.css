@@ -1,51 +1,564 @@
 /* ====================================== */
+/* new_game.css                           */
+/* 設計層: common.css + new_game.css のみ */
+/* で全ページが成立することを最終目標とする */
+/* ====================================== */
+/*
+  依存: common.css（変数・body・リンク・
+        トースト・モーダル・スピナー・フッター）
+  game.css: 移行完了後に削除予定のレガシー層
+*/
+
+/* ====================================== */
 /* 0. Foundation / Reset                  */
 /* ====================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 
 /* ====================================== */
 /* 1. Layout Core                         */
 /* ====================================== */
 
-/* ====================================== */
-/* 2. Card Core                           */
-/* ====================================== */
+/*
+  .layout-stack   — 縦積み（flex column）
+  .layout-cluster — 横並び折り返し（flex wrap）
+  .layout-grid    — グリッド
+
+  gap は --stack-gap / --cluster-gap / --grid-min
+  で上書き可能。デフォルトは --space-m。
+*/
+
+/* --- Stack --- */
+.layout-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, var(--space-m));
+}
+
+/* gapのバリエーション */
+.layout-stack--sm {
+  --stack-gap: var(--space-s);
+}
+
+.layout-stack--lg {
+  --stack-gap: var(--space-l);
+}
+
+/* --- Cluster --- */
+.layout-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cluster-gap, var(--space-s));
+}
+
+.layout-cluster--start {
+  justify-content: flex-start;
+}
+
+.layout-cluster--end {
+  justify-content: flex-end;
+}
+
+.layout-cluster--between {
+  justify-content: space-between;
+}
+
+/* --- Grid --- */
+/*
+  使用例:
+    <div class="layout-grid" style="--grid-min: 280px">
+  または modifier で指定:
+    <div class="layout-grid layout-grid--2col">
+*/
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,
+      minmax(var(--grid-min, 200px), 1fr));
+  gap: var(--grid-gap, var(--space-m));
+}
+
+/* 列数固定 modifier */
+.layout-grid--2col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.layout-grid--3col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 
 /* ====================================== */
-/* 3. Button Core                         */
+/* 2. Width System                        */
 /* ====================================== */
 
-/* ====================================== */
-/* 4. Form Core                           */
-/* ====================================== */
+/*
+  .content-sm — max-width: 600px  （ログイン・フォーム・単体カード）
+  .content-md — max-width: 900px  （戦闘ログ・グリッド中規模）
+  .content-lg — max-width: 1100px （パーティ・ランキング）
+
+  margin は auto で水平中央揃え。
+  width: 95% でモバイルの端を確保。
+*/
+
+.content-sm,
+.content-md,
+.content-lg {
+  width: 95%;
+  margin-inline: auto;
+}
+
+.content-sm {
+  max-width: 600px;
+}
+
+.content-md {
+  max-width: 900px;
+}
+
+.content-lg {
+  max-width: 1100px;
+}
 
 /* ====================================== */
-/* 5. Utility                             */
+/* 3. Card Core                           */
 /* ====================================== */
 
-/* ====================================== */
-/* 6. Top Page                            */
-/* ====================================== */
+/*
+  .card           — カード基盤
+  .card__header   — ヘッダー帯（青背景）
+  .card__body     — コンテンツ領域
+  .card__footer   — フッター行（ボタン等）
+  .card__desc     — 説明帯（ヘッダー直下の補足）
+
+  modifier:
+    .card--dark     — 黒背景・青border
+    .card--warning  — 赤border
+    .card--info     — 青border
+*/
+
+.card {
+  box-sizing: border-box;
+  background-color: var(--white);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.card__header {
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-size: 110%;
+  font-weight: bold;
+  padding: var(--space-s);
+  text-align: center;
+}
+
+.card__desc {
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-weight: bold;
+  padding: var(--space-s) var(--space-m);
+  font-size: 95%;
+  border-bottom: 2px solid var(--black);
+
+  & small {
+    color: #555;
+    font-size: 90%;
+  }
+}
+
+.card__body {
+  padding: var(--space-m);
+  background-color: var(--white);
+}
+
+.card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  border-top: 1px solid var(--gray);
+  background-color: #f5f8fb;
+}
+
+/* modifier */
+.card--dark {
+  background-color: var(--black);
+  border-color: var(--sky-blue);
+}
+
+.card--warning {
+  border-color: var(--red);
+}
+
+.card--info {
+  border-color: var(--sky-blue);
+}
 
 /* ====================================== */
-/* 7. Ranking                             */
+/* 4. Button Core                         */
 /* ====================================== */
 
-/* ====================================== */
-/* 8. My Page                             */
-/* ====================================== */
+/*
+  .btn         — ボタン基盤
+  .btn--menu   — ナビメニュー用（黒背景・白文字）
+  .btn--accent — 強調・新規登録等（赤背景）
+  .btn--sm     — 小型modifier
+  .btn--block  — 全幅modifier
+
+  JS依存classはスタイルを持たず .btn に委譲:
+    .battle-btn → <button class="btn battle-btn">
+    .bbs-btn    → <button class="btn bbs-btn">
+*/
+
+.btn {
+  display: inline-block;
+  padding: var(--space-m) var(--space-l);
+  background-color: #eef3f8;
+  color: #31465d;
+  font-size: 100%;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-s);
+  box-shadow: 0 3px 0 var(--black);
+  cursor: pointer;
+  position: relative;
+  top: 0;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+
+  /* aタグとして使う場合 */
+  &:link,
+  &:visited {
+    color: #31465d;
+    text-decoration: none;
+  }
+}
+
+.btn:hover {
+  background-color: #e3ebf4;
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--black);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--black);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 3px 0 #999;
+  pointer-events: none;
+}
+
+/* --- modifier --- */
+
+.btn--menu {
+  background-color: var(--black);
+  color: var(--white);
+  border-color: var(--gray);
+  box-shadow: 0 3px 0 var(--gray);
+
+  &:link,
+  &:visited {
+    color: var(--white);
+  }
+
+  &:hover {
+    background-color: #222;
+    color: var(--white);
+  }
+}
+
+.btn--menu.btn--disabled,
+.btn--menu[disabled] {
+  background-color: #555;
+  color: #999;
+  border-color: #444;
+  box-shadow: 0 2px 0 #444;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn--accent {
+  background-color: var(--red);
+  color: var(--white);
+  border-color: #a11f1f;
+  box-shadow: 0 3px 0 #a11f1f;
+
+  &:link,
+  &:visited {
+    color: var(--white);
+  }
+
+  &:hover {
+    background-color: #c00;
+    color: var(--white);
+  }
+}
+
+.btn--sm {
+  padding: var(--space-xs) var(--space-s);
+  font-size: 90%;
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.btn--block {
+  display: block;
+  width: 100%;
+}
+
+/* JS依存class: スタイルは .btn に委譲、classはJSのターゲットとして残す */
+.battle-btn {}
+
+.bbs-btn {}
 
 /* ====================================== */
-/* 9. Battle                              */
+/* 5. Form Core                           */
 /* ====================================== */
 
-/* ====================================== */
-/* 10. Shop                               */
-/* ====================================== */
+/*
+  .form          — 縦積みフォーム基盤
+  .form--inline  — 横並びフォーム（送信+キャンセル等）
+  .form-control  — input / select / textarea 共通
+  .form-label    — ラベル
+  .form-group    — ラベル + コントロールのペア
+*/
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-m);
+}
+
+.form--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-s);
+  border: 1px solid #b8c2d1;
+  border-radius: var(--radius-s);
+  background-color: var(--white);
+  color: var(--black);
+  font-size: 88%;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--blue);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(36, 34, 201, 0.12);
+  }
+}
+
+.form-label {
+  display: block;
+  font-size: 85%;
+  font-weight: bold;
+  color: var(--blue);
+  margin-bottom: var(--space-xs);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: var(--space-xs);
+}
+
+/* 横並びグループ（label + input が横に並ぶ場合） */
+.form-group--row {
+  flex-direction: row;
+  align-items: center;
+
+  & .form-label {
+    flex: 0 0 100px;
+    text-align: right;
+    margin-bottom: 0;
+  }
+
+  & .form-control {
+    flex: 1;
+    min-width: 0;
+  }
+}
 
 /* ====================================== */
-/* 11. BBS                                */
+/* 6. Badge / Label Core                  */
 /* ====================================== */
 
+/*
+  .badge        — バッジ基盤（インライン）
+  .badge--key   — 鍵バッジ（青系）
+  .badge--skill — 特技バッジ（橙系）
+  .badge--tag   — 汎用タグ（グレー）
+*/
+
+.badge {
+  display: inline-block;
+  padding: 2px var(--space-s);
+  border-radius: 999px;
+  font-size: 85%;
+  font-weight: bold;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.badge--key {
+  background-color: #e8f2ff;
+  border-color: #7aa7d9;
+  color: #23507c;
+}
+
+.badge--skill {
+  background-color: #fff0d9;
+  border-color: #d6a04f;
+  color: #7a4d00;
+}
+
+.badge--tag {
+  background-color: var(--gray);
+  border-color: #bbb;
+  color: #555;
+}
+
 /* ====================================== */
-/* 12. Footer                             */
+/* 7. Banner Core                         */
 /* ====================================== */
+
+/*
+  .banner         — 通知バナー基盤
+  .banner--event  — イベント・ブースト（黄色系）
+  .banner--warning — メンテナンス等（赤系）
+  .banner--info   — 情報（青系）
+
+  システムメッセージ（旧 .sys-msg系）:
+  .sys-msg は game.css の戦闘リザルト用なので
+  移行時に .banner へ統合する。
+*/
+
+.banner {
+  box-sizing: border-box;
+  width: 95%;
+  margin-inline: auto;
+  padding: var(--space-m);
+  border-radius: var(--radius-m);
+  text-align: center;
+  font-size: 110%;
+  font-weight: bold;
+  border: 2px solid transparent;
+}
+
+.banner--event {
+  background-color: #fff4d6;
+  color: #8a5300;
+  border-color: #d8a100;
+}
+
+.banner--warning {
+  background-color: #ffe4e4;
+  color: #a40000;
+  border-color: #c62828;
+}
+
+.banner--info {
+  background-color: #e8f4ff;
+  color: #1a4a7a;
+  border-color: #5b9bd5;
+}
+
+/* ====================================== */
+/* 8. Utility                             */
+/* ====================================== */
+
+/*
+  単機能utility（.text-center, .text-bold, .w-full 等）は禁止。
+  見た目の責務はcomponentまたはmodifierが持つ。
+  複数classの羅列でスタイルを組み立てない。
+
+  ここに置くのは「classでしか表現できない」ものだけ。
+*/
+
+/* アクセシビリティ: 視覚的に非表示だがスクリーンリーダーには読まれる */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* セパレーター: hr要素のデフォルトを上書きする構造的な役割 */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--gray);
+  margin: var(--space-l) 0;
+}
+
+/* ====================================== */
+/* 9. Top Page                            */
+/* ====================================== */
+
+/* 移行時に実装 */
+
+/* ====================================== */
+/* 10. Ranking                            */
+/* ====================================== */
+
+/* 移行時に実装 */
+
+/* ====================================== */
+/* 11. My Page                            */
+/* ====================================== */
+
+/* 移行時に実装 */
+
+/* ====================================== */
+/* 12. Battle                             */
+/* ====================================== */
+
+/* 移行時に実装 */
+
+/* ====================================== */
+/* 13. Shop                               */
+/* ====================================== */
+
+/* 移行時に実装 */
+
+/* ====================================== */
+/* 14. BBS                                */
+/* ====================================== */
+
+/* 移行時に実装 */
+
+/* ====================================== */
+/* 15. Footer                             */
+/* ====================================== */
+
+/* common.css に実装済み */
