@@ -2,9 +2,13 @@
 
 {% extends "base_tmp.html" %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="./css_js/common.css">
+<link rel="stylesheet" href="./css_js/select2.min.css">
+<link rel="stylesheet" href="./css_js/admin.css">
+{% endblock %}
+
 {% block head %}
-    <!-- select2 CSS -->
-    <link href="./css_js/select2.min.css" rel="stylesheet" />
     <!-- select2 JS -->
     <script src="./css_js/select2.min.js"></script>
     <script>
@@ -16,15 +20,11 @@
             });
         });
     </script>
-    <style>
-        .select2-results__options {
-            max-height: 400px !important; /* 表示する高さを増やす */
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
 
+<main class="admin-page admin-page--present">
         <div class="kanri_title">モンスター配布</div>
         <div class="kanri_menu_top">
             <div class="kanri_menu">
@@ -60,5 +60,6 @@
         </div>
 
     {% include "kanri_page_button_tmp.html" %}
+</main>
 
 {% endblock %}

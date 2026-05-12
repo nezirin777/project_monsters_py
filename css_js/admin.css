@@ -1,128 +1,484 @@
-/* ==================================== */
-/* admin.css - 管理画面専用のスタイル   */
-/* ==================================== */
+/* ====================================== */
+/* admin.css                              */
+/* 設計層: common.css + admin.css のみで  */
+/* 管理画面が成立することを目標とする      */
+/* ====================================== */
+/*
+  依存: common.css（変数・body・リンク・
+        トースト・モーダル・スピナー・フッター）
+
+  対象テンプレート:
+    kanri_tmp.html
+    kanri_login_tmp.html
+    kanri_saveedit_select_tmp.html
+    kanri_saveedit_table_tmp.html
+    kanri_mon_present_tmp.html
+    kanri_page_button_tmp.html
+*/
+
+/* ====================================== */
+/* 0. Admin Foundation                    */
+/* ====================================== */
+
+.admin-page {
+  --admin-purple: #660066;
+  --admin-magenta: #ff00ff;
+  --admin-blue: #1e90ff;
+  --admin-blue-dark: #263c9f;
+  --admin-panel: #f7fbff;
+  --admin-border: #b9cae0;
+  --admin-accent: #ffbf7f;
+
+  box-sizing: border-box;
+  width: 95%;
+  max-width: 980px;
+  margin-inline: auto;
+  padding-block: var(--space-m) var(--space-l);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-m);
+}
+
+.admin-page form {
+  margin: 0;
+}
+
+.admin-page button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin: 3px;
+  padding: var(--space-xs) var(--space-m);
+  border: 2px solid #240024;
+  border-radius: var(--radius-s);
+  background: linear-gradient(to bottom, #fff6ff, #e9ceef);
+  color: #360036;
+  font-weight: bold;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #240024;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
+}
+
+.admin-page button:hover {
+  background: linear-gradient(to bottom, #ffffff, #f2dcf7);
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #240024;
+}
+
+.admin-page button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.admin-page input:not([type="hidden"]):not([type="checkbox"]),
+.admin-page select {
+  max-width: 100%;
+  min-height: 32px;
+  margin: 3px;
+  padding: var(--space-xs) var(--space-s);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-s);
+  background-color: var(--white);
+  color: var(--black);
+  font-size: 95%;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+.admin-page input[type="number"] {
+  width: 90px;
+}
+
+.admin-page input[type="text"],
+.admin-page input[type="password"] {
+  width: min(260px, 90vw);
+}
+
+.admin-page input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-inline: var(--space-s);
+  vertical-align: middle;
+  accent-color: var(--admin-purple);
+}
+
+.admin-page input:focus,
+.admin-page select:focus {
+  border-color: var(--admin-blue);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.18);
+}
+
+.admin-page option[value="separator"] {
+  color: #777;
+}
+
+/* ====================================== */
+/* 1. Layout Core                         */
+/* ====================================== */
+
+.kanri_title,
+.kanri_save_edit_caution,
+.kanri_save_edit_title {
+  box-sizing: border-box;
+  margin-inline: auto;
+  border: 3px solid var(--admin-magenta);
+  color: var(--white);
+  font-weight: bold;
+  text-align: center;
+}
 
 .kanri_title {
-  margin: 10px auto;
-  color: var(--white);
+  width: min(300px, 100%);
+  padding: var(--space-s) var(--space-m);
+  background-color: var(--admin-purple);
   font-size: 140%;
-  font-weight: bold;
-  box-sizing: border-box;
-  border: solid 3px #FF00FF;
-  background-color: #660066;
-  width: 300px;
-}
-
-.kanri_login {
-  margin: 0 auto;
-  color: var(--white);
-  font-size: 100%;
-  font-weight: bold;
-  background-color: var(--black);
-  width: 250px;
-
-  & span { display: inline-flex; width: 100px; }
-}
-
-.kanri_menu_top {
-  margin: 10px auto;
-  color: var(--white);
-  font-size: 100%;
-  font-weight: bold;
-  box-sizing: border-box;
-  border: solid 3px #FF00FF;
-  background-color: #1e90ff;
-  width: 600px;
-}
-
-.kanri_menu {
-  margin: 0 auto;
-  box-sizing: border-box;
-  border: solid 1px #FF00FF;
-  width: 100%;
-
-  & span { color: #ffbf7f; }
 }
 
 .kanri_save_edit_caution {
-  margin: 10px auto;
-  color: var(--white);
-  font-size: 140%;
-  font-weight: bold;
-  box-sizing: border-box;
-  border: solid 3px #FF00FF;
-  background-color: #660066;
-  width: 600px;
+  width: min(680px, 100%);
+  padding: var(--space-m);
+  background-color: var(--admin-purple);
+  font-size: 120%;
+  line-height: 1.7;
 }
 
 .kanri_save_edit_title {
-  margin: 10px auto;
+  width: min(520px, 100%);
+  padding: var(--space-s) var(--space-m);
+  background-color: var(--admin-blue);
+  font-size: 100%;
+  line-height: 1.7;
+}
+
+/* ====================================== */
+/* 2. Login                               */
+/* ====================================== */
+
+.admin-page--login {
+  justify-content: center;
+  min-height: 55vh;
+}
+
+.kanri_login {
+  box-sizing: border-box;
+  width: min(320px, 100%);
+  margin-inline: auto;
+  padding: var(--space-m);
+  border: 2px solid var(--admin-magenta);
+  border-radius: var(--radius-m);
+  background-color: var(--black);
   color: var(--white);
   font-size: 100%;
   font-weight: bold;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.kanri_login span {
+  display: inline-flex;
+  width: 100px;
+}
+
+.kanri_login button {
+  margin-top: var(--space-s);
+}
+
+/* ====================================== */
+/* 3. Admin Menu                          */
+/* ====================================== */
+
+.kanri_menu_top {
   box-sizing: border-box;
-  border: solid 3px #FF00FF;
-  background-color: #1e90ff;
-  width: 300px;
+  width: min(720px, 100%);
+  margin-inline: auto;
+  border: 3px solid var(--admin-magenta);
+  border-radius: var(--radius-m);
+  background-color: var(--admin-blue);
+  color: var(--white);
+  font-size: 100%;
+  font-weight: bold;
+  overflow: hidden;
+}
+
+.kanri_menu {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-m);
+  border-bottom: 1px solid var(--admin-magenta);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.kanri_menu:last-child {
+  border-bottom: none;
+}
+
+.kanri_menu:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.kanri_menu span {
+  color: var(--admin-accent);
+}
+
+.kanri_menu form {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  max-width: 100%;
+}
+
+.kanri_menu form:not(.flex) {
+  display: flex;
+  margin-top: var(--space-xs);
+}
+
+.kanri_menu .flex {
+  display: inline-flex;
+}
+
+/* ====================================== */
+/* 4. Save Edit                           */
+/* ====================================== */
+
+.admin-page--save-table {
+  max-width: 1200px;
+}
+
+.kanri-save-edit-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-m);
+}
+
+.kanri-save-edit-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 3px solid var(--admin-magenta);
+  border-radius: var(--radius-m);
+  background-color: var(--admin-blue);
 }
 
 .kanri_save_edit_table {
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto;
   border-collapse: collapse;
-  margin: 10px auto;
+  background-color: var(--admin-blue);
   color: var(--white);
-  font-size: 100%;
+  font-size: 92%;
   font-weight: bold;
-  box-sizing: border-box;
-  border: solid 3px #FF00FF;
-  background-color: #1e90ff;
   white-space: nowrap;
-
-  & th { background-color: #3F51B5; color: #fff; }
 }
+
+.kanri_save_edit_table th,
+.kanri_save_edit_table td {
+  padding: var(--space-xs) var(--space-s);
+  border: 1px solid var(--admin-magenta);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.kanri_save_edit_table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--admin-blue-dark);
+  color: var(--white);
+}
+
+.kanri_save_edit_table tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.kanri_save_edit_table input[type="text"] {
+  width: 120px;
+  min-height: 28px;
+  margin: 0;
+  font-size: 90%;
+}
+
+/* ====================================== */
+/* 5. Page Actions                        */
+/* ====================================== */
+
+.admin-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  width: min(520px, 100%);
+  margin-inline: auto;
+  padding: var(--space-m);
+  border: 2px solid var(--admin-magenta);
+  border-radius: var(--radius-m);
+  background-color: rgba(102, 0, 102, 0.86);
+}
+
+.admin-page-actions form {
+  display: inline-flex;
+}
+
+.admin-page-actions button {
+  min-width: 130px;
+}
+
+/* ====================================== */
+/* 6. Progress Popup                      */
+/* ====================================== */
 
 #progressPopup {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  inset: 0;
   z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-l);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 #popupContent {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
+  box-sizing: border-box;
+  width: min(360px, 100%);
+  padding: var(--space-l);
+  border: 2px solid var(--admin-magenta);
+  border-radius: var(--radius-m);
+  background-color: var(--white);
+  color: var(--black);
   text-align: center;
-  width: 300px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 #progressContainer {
   width: 100%;
-  background-color: #e0e0e0;
-  border-radius: 10px;
+  margin-bottom: var(--space-m);
+  border: 1px solid #c5d3e2;
+  border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 10px;
+  background-color: var(--gray);
 }
 
 #progressBar {
-  height: 20px;
-  background-color: #76c7c0;
   width: 0%;
+  height: 20px;
+  background: linear-gradient(to right, #42c6b5, #1e90ff);
   transition: width 0.3s ease;
 }
 
-.ss-main {
-  width: 250px !important;
-  /* ここでお好みの幅（200px〜300pxなど）に調整してください */
+#progressText {
+  font-weight: bold;
+}
+
+/* ====================================== */
+/* 7. Select Plugins                      */
+/* ====================================== */
+
+.admin-page .ss-main {
   display: inline-flex !important;
-  /* ボタンと綺麗に横並びにするため */
+  width: min(280px, 100%) !important;
+  margin: 3px !important;
   vertical-align: middle;
-  /* 縦のズレを補正 */
-  margin-bottom: 5px;
+}
+
+.admin-page .select2-container {
+  max-width: 100%;
+  margin: 3px;
+  text-align: left;
+}
+
+.admin-page .select2-container--default .select2-selection--single {
+  min-height: 34px;
+  border-color: var(--admin-border);
+  border-radius: var(--radius-s);
+}
+
+.admin-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 32px;
+  color: var(--black);
+  font-weight: bold;
+}
+
+.admin-page .select2-container--default .select2-selection--single .select2-selection__arrow {
+  min-height: 32px;
+}
+
+.select2-results__options {
+  max-height: 400px !important;
+}
+
+/* ====================================== */
+/* 8. Responsive                          */
+/* ====================================== */
+
+@media screen and (max-width: 768px) {
+  .admin-page {
+    width: 96%;
+    gap: var(--space-s);
+    padding-block: var(--space-s) var(--space-m);
+  }
+
+  .kanri_title {
+    font-size: 120%;
+  }
+
+  .kanri_save_edit_caution {
+    font-size: 100%;
+  }
+
+  .kanri_menu {
+    padding: var(--space-s);
+  }
+
+  .kanri_menu form,
+  .kanri_menu form:not(.flex) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kanri_menu form.flex {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .admin-page button,
+  .admin-page input:not([type="hidden"]):not([type="checkbox"]),
+  .admin-page select,
+  .admin-page .ss-main,
+  .admin-page .select2-container {
+    width: 100% !important;
+    margin-inline: 0;
+  }
+
+  .admin-page input[type="checkbox"] {
+    width: 18px !important;
+  }
+
+  .admin-page-actions {
+    padding: var(--space-s);
+  }
+
+  .admin-page-actions form {
+    flex: 1 1 160px;
+  }
+
+  .kanri_save_edit_table {
+    font-size: 85%;
+  }
 }
