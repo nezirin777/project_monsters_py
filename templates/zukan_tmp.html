@@ -11,34 +11,35 @@
 {% block content %}
 
 <!-- タイトルカード -->
-<div class="action-card zukan-header-card">
-  <div class="zukan-title-text">
-    <span class="zukan-user-name">{{ user_name }}の魔物図鑑</span><br>
-    <span class="zukan-count">入手したモンスターは {{ user.getm }}</span>
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+  <div class="card__header">{{ user_name }}の魔物図鑑</div>
+  <div class="card__body" style="text-align:center;">
+    入手したモンスターは <strong>{{ user.getm }}</strong> 種
   </div>
 </div>
 
-<!-- 系統別ナビゲーション（タップしやすいピルボタン型） -->
-<div class="zukan-category-nav">
+<!-- 系統別ナビゲーション -->
+<div class="category-nav">
   {% for category in categories %}
   <a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type={{ category | urlencode }}&fol={{ fol }}"
-    class="zukan-category-btn">{{ category }}</a>
+    class="category-nav__btn">{{ category }}</a>
   {% endfor %}
 </div>
 
 <!-- 現在表示中の系統 -->
-<div class="zukan-current-type">【 {{ m_type }} 】</div>
+<div class="zukan-current">【 {{ m_type }} 】</div>
 
-<!-- 図鑑グリッド（レスポンシブ対応） -->
+<!-- 図鑑グリッド -->
 <div class="zukan-grid">
   {% for name, li in zukan_list.items() %}
-  <div class="zukan-item-card">
-    <div class="zukan-no">No.{{ li.no }}</div>
-    <div class="zukan-img-wrapper {{ li.display_class }}" tabindex="0" {% if li.show_tooltip %}
-      data-tooltip="{% for recipe in li.recipes %}<p>{{ recipe }}</p>{% endfor %}" {% endif %}>
+  <div class="zukan-card">
+    <div class="zukan-card__no">No.{{ li.no }}</div>
+    <!-- JS依存: zukan_tooltip.js が .zukan-card__img をセレクタに使用 -->
+    <div class="zukan-card__img {{ li.display_class }}" tabindex="0" {% if li.show_tooltip
+      %}data-tooltip="{% for recipe in li.recipes %}<p>{{ recipe }}</p>{% endfor %}" {% endif %}>
       <img src="{{ Conf.imgpath }}/{{ li.display_name }}.gif" alt="{{ li.display_name }}">
     </div>
-    <div class="zukan-name">{{ li.display_name }}</div>
+    <div class="zukan-card__name">{{ li.display_name }}</div>
   </div>
   {% endfor %}
 </div>
@@ -46,20 +47,18 @@
 {% if ref %}
 <!-- 共有ツールチップ -->
 <div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
-
-  {% include "my_page_button_tmp.html" %}
-
+{% include "my_page_button_tmp.html" %}
 {% endif %}
 
 {% if not ref %}
-<div class="zukan-footer-actions">
-  <form action="{{ Conf.cgi_url }}" method="get" class="flex-form">
+<div class="layout-cluster" style="margin: var(--space-l) auto;">
+  <form action="{{ Conf.cgi_url }}" method="get">
     <input type="hidden" name="mode" value="my_page2">
     <input type="hidden" name="name" value="{{ user_name }}">
-    <button type="submit" class="submit-btn slim-btn">ユーザーページへ</button>
+    <button type="submit" class="btn btn--sm">ユーザーページへ</button>
   </form>
-  <form action="{{ Conf.top_url }}" method="post" class="flex-form">
-    <button type="submit" class="submit-btn slim-btn">TOPへ</button>
+  <form action="{{ Conf.top_url }}" method="post">
+    <button type="submit" class="btn btn--sm">TOPへ</button>
   </form>
 </div>
 {% endif %}

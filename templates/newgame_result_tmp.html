@@ -4,84 +4,87 @@
 
 {% block content %}
 
-<div class="new-ok-msg">{{ k_txt }}</div>
+<div class="banner banner--info content-sm" style="margin: var(--space-m) auto;">
+  {{ k_txt }}
+</div>
 
-<div class="result-card">
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+
   <!-- ユーザー情報 -->
-  <div class="result-section">
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-label">ユーザー名</div>
-        <div class="stat-value highlighted">{{ in_name }}</div>
+  <div class="card__body">
+    <div class="layout-grid" style="--grid-min: 160px;">
+      <div class="stat-box stat-box--highlight">
+        <div class="stat-box__label">ユーザー名</div>
+        <div class="stat-box__value">{{ in_name }}</div>
+      </div>
+      <div class="stat-box stat-box--highlight">
+        <div class="stat-box__label">パスワード</div>
+        <div class="stat-box__value">{{ in_pass }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">パスワード</div>
-        <div class="stat-value highlighted">{{ in_pass }}</div>
+        <div class="stat-box__label">所持金</div>
+        <div class="stat-box__value">{{ money }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">所持金</div>
-        <div class="stat-value">{{ money }}</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">鍵入手</div>
-        <div class="stat-value">{{ key_floor }}</div>
+        <div class="stat-box__label">鍵入手</div>
+        <div class="stat-box__value">{{ key_floor }}</div>
       </div>
     </div>
   </div>
 
   <!-- モンスター基本情報 -->
-  <div class="result-monster-header">
-    <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif"
-         alt="{{ monster.name }}"
-         loading="lazy">
-    <div class="monster-info-text">
-      <div class="monster-name">名前：{{ monster.name }}</div>
-      <div class="monster-sex">性別：-{{ monster.sex }}-</div>
-      <div class="monster-sei">性格：{{ monster.sei }}</div>
+  <div class="register-result__monster">
+    <img src="{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}" loading="lazy"
+      style="max-width:110px; max-height:230px;">
+    <div class="register-result__monster-info">
+      <div>名前：{{ monster.name }}</div>
+      <div>性別：-{{ monster.sex }}-</div>
+      <div>性格：{{ monster.sei }}</div>
     </div>
   </div>
 
   <!-- モンスター詳細ステータス -->
-  <div class="result-section">
-    <div class="stats-grid">
+  <div class="card__body">
+    <div class="layout-grid" style="--grid-min: 160px;">
       <div class="stat-box">
-        <div class="stat-label">配合数</div>
-        <div class="stat-value">0回</div>
+        <div class="stat-box__label">配合数</div>
+        <div class="stat-box__value">0回</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">LEVEL</div>
-        <div class="stat-value">{{ monster.lv }} / {{ monster.mlv }}</div>
+        <div class="stat-box__label">LEVEL</div>
+        <div class="stat-box__value">{{ monster.lv }} / {{ monster.mlv }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">H P</div>
-        <div class="stat-value">{{ monster.hp }} / {{ monster.mhp }}</div>
+        <div class="stat-box__label">H P</div>
+        <div class="stat-box__value">{{ monster.hp }} / {{ monster.mhp }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">M P</div>
-        <div class="stat-value">{{ monster.mp }} / {{ monster.mmp }}</div>
+        <div class="stat-box__label">M P</div>
+        <div class="stat-box__value">{{ monster.mp }} / {{ monster.mmp }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">攻撃力</div>
-        <div class="stat-value">{{ monster.atk }}</div>
+        <div class="stat-box__label">攻撃力</div>
+        <div class="stat-box__value">{{ monster.atk }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">守備力</div>
-        <div class="stat-value">{{ monster.def }}</div>
+        <div class="stat-box__label">守備力</div>
+        <div class="stat-box__value">{{ monster.def }}</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">経験値</div>
-        <div class="stat-value">{{ monster.exp }} / {{ monster.n_exp }}</div>
+        <div class="stat-box__label">経験値</div>
+        <div class="stat-box__value">{{ monster.exp }} / {{ monster.n_exp }}</div>
       </div>
     </div>
   </div>
+
 </div>
 
-<div class="action-buttons">
+<div class="layout-cluster" style="margin: var(--space-l) auto;">
   {% if kanri %}
-    {% include "kanri_page_button_tmp.html" %}
+  {% include "kanri_page_button_tmp.html" %}
   {% else %}
   <form action="{{ Conf.top_url }}" method="post">
-    <button type="submit" class="submit-btn">T O P へ</button>
+    <button type="submit" class="btn">T O P へ</button>
   </form>
   {% endif %}
 </div>

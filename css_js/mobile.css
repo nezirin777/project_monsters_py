@@ -274,6 +274,108 @@
   }
 
   /* ====================================== */
+  /* 16. Zukan                              */
+  /* ====================================== */
+
+  .zukan-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--space-xs);
+  }
+
+  .zukan-card__img {
+    min-height: 90px;
+
+    & img {
+      max-height: 75px;
+    }
+  }
+
+  .tooltip {
+    max-width: 85%;
+  }
+
+  /* ====================================== */
+  /* 17. Book                               */
+  /* ====================================== */
+
+  .preview-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xs);
+  }
+
+  .preview-card__img {
+    min-height: 80px;
+
+    & img {
+      max-height: 70px;
+    }
+  }
+
+  .preview-card__name {
+    font-size: 85%;
+  }
+
+  /* ====================================== */
+  /* 18. Medal Shop / Name Change           */
+  /* ====================================== */
+
+  .item-select-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .item-card {
+    max-width: none;
+  }
+
+  /* ====================================== */
+  /* 19. Park & Omiai                       */
+  /* ====================================== */
+
+  /* list-cardはlayout-gridに乗るので自動で1列になる */
+  /* list-card__body: そのまま成立 */
+
+  /* ====================================== */
+  /* 20. Monster Events                     */
+  /* ====================================== */
+
+  /* fusion-pair: 3カラム→縦積みに切り替え */
+  .fusion-pair {
+    grid-template-columns: 1fr;
+    gap: var(--space-s);
+  }
+
+  .fusion-plus {
+    transform: rotate(90deg);
+  }
+
+  /* born-card__img: サイズ縮小 */
+  .born-card__img {
+    width: 160px;
+    min-height: 160px;
+
+    & img {
+      max-height: 130px;
+    }
+  }
+
+  .born-card__stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* ====================================== */
+  /* 21. Newgame                            */
+  /* ====================================== */
+
+  .register-result__monster {
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .register-result__monster-info {
+    text-align: center;
+  }
+
+  /* ====================================== */
   /* 15. Footer                             */
   /* ====================================== */
 

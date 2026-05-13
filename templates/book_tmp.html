@@ -4,60 +4,59 @@
 
 {% block content %}
 
-<!-- 説明カード -->
-<div class="action-card book-info-card">
-  <div class="action-card-header">本　屋</div>
-  <div class="action-card-desc">
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+  <div class="card__header">本　屋</div>
+  <div class="card__desc">
     モンスターに本を読ませると性格が変わります。<br>
     <small>※現在の性格によっては変わらない場合もあります。 1冊: {{ book_price }}G</small>
   </div>
 </div>
 
-<!-- パーティモンスター一覧（レスポンシブグリッド） -->
-<div class="book-monster-grid">
+<div class="preview-grid" style="margin: var(--space-m) auto;">
   {% for monster in monster_data %}
-  <div class="book-monster-card">
-    <div class="book-no">No.{{ monster.no }}</div>
-    <div class="book-img-wrapper">
+  <div class="preview-card">
+    <div class="preview-card__no">No.{{ monster.no }}</div>
+    <div class="preview-card__img">
       <img src="{{ monster.img }}" alt="{{ monster.name }}">
     </div>
-    <div class="book-monster-info">
-      <div class="book-m-name">{{ monster.name }}</div>
-      <div class="book-m-meta">-{{ monster.sex }}-</div>
-      <div class="book-m-sei">{{ monster.sei }}</div>
+    <div class="preview-card__info">
+      <div class="preview-card__name">{{ monster.name }}</div>
+      <div class="preview-card__meta">-{{ monster.sex }}-</div>
+      <div class="preview-card__sei">{{ monster.sei }}</div>
     </div>
   </div>
   {% endfor %}
 </div>
 
-<!-- 実行フォーム -->
-<div class="action-card book-form-card">
-  <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="ex-form">
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+  <div class="card__body">
+    <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="form">
 
-    <div class="ex-select-group">
-      <div class="action-subtitle">モンスターを選択</div>
-      <select name="Mno" class="ex-select">
-        {% for option in monster_options %}
-        <option value="{{ option.value }}">{{ option.label }}</option>
-        {% endfor %}
-      </select>
-    </div>
+      <div class="form-group">
+        <div class="section-label">モンスターを選択</div>
+        <select name="Mno" class="form-control">
+          {% for option in monster_options %}
+          <option value="{{ option.value }}">{{ option.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-    <div class="ex-select-group">
-      <div class="action-subtitle">本を選択</div>
-      <select name="Bname" class="ex-select">
-      {% for b_name in book_options %}
-        <option value="{{ b_name }}">{{ b_name }}</option>
-      {% endfor %}
-      </select>
-    </div>
+      <div class="form-group">
+        <div class="section-label">本を選択</div>
+        <select name="Bname" class="form-control">
+          {% for b_name in book_options %}
+          <option value="{{ b_name }}">{{ b_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-    <button type="submit" class="submit-btn ex-btn">本を読む</button>
-    <input type="hidden" name="mode" value="book_read">
-    <input type="hidden" name="token" value="{{ token }}">
-  </form>
+      <button type="submit" class="btn btn--block">本を読む</button>
+      <input type="hidden" name="mode" value="book_read">
+      <input type="hidden" name="token" value="{{ token }}">
+    </form>
+  </div>
 </div>
 
-  {% include "my_page_button_tmp.html" %}
+{% include "my_page_button_tmp.html" %}
 
 {% endblock %}
