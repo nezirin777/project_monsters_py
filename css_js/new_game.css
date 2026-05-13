@@ -46,8 +46,13 @@ img {
 }
 
 /* gapのバリエーション */
-.layout-stack--sm { --stack-gap: var(--space-s); }
-.layout-stack--lg { --stack-gap: var(--space-l); }
+.layout-stack--sm {
+  --stack-gap: var(--space-s);
+}
+
+.layout-stack--lg {
+  --stack-gap: var(--space-l);
+}
 
 /* --- Cluster --- */
 .layout-cluster {
@@ -58,9 +63,17 @@ img {
   gap: var(--cluster-gap, var(--space-s));
 }
 
-.layout-cluster--start  { justify-content: flex-start; }
-.layout-cluster--end    { justify-content: flex-end; }
-.layout-cluster--between { justify-content: space-between; }
+.layout-cluster--start {
+  justify-content: flex-start;
+}
+
+.layout-cluster--end {
+  justify-content: flex-end;
+}
+
+.layout-cluster--between {
+  justify-content: space-between;
+}
 
 /* --- Grid --- */
 /*
@@ -71,16 +84,19 @@ img {
 */
 .layout-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(var(--grid-min, 200px), 1fr)
-  );
+  grid-template-columns: repeat(auto-fit,
+      minmax(var(--grid-min, 200px), 1fr));
   gap: var(--grid-gap, var(--space-m));
 }
 
 /* 列数固定 modifier */
-.layout-grid--2col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.layout-grid--3col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.layout-grid--2col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.layout-grid--3col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 
 /* ====================================== */
 /* 2. Width System                        */
@@ -102,9 +118,17 @@ img {
   margin-inline: auto;
 }
 
-.content-sm { max-width: 600px; }
-.content-md { max-width: 900px; }
-.content-lg { max-width: 1100px; }
+.content-sm {
+  max-width: 600px;
+}
+
+.content-md {
+  max-width: 900px;
+}
+
+.content-lg {
+  max-width: 1100px;
+}
 
 /* ====================================== */
 /* 3. Card Core                           */
@@ -307,7 +331,8 @@ img {
 
 /* JS依存class: スタイルは .btn に委譲、classはJSのターゲットとして残す */
 .battle-btn {}
-.bbs-btn    {}
+
+.bbs-btn {}
 
 /* ====================================== */
 /* 5. Form Core                           */
@@ -808,11 +833,9 @@ img {
   flex-direction: column;
   gap: var(--space-s);
   padding: var(--space-s);
-  background: linear-gradient(
-    to bottom,
-    rgba(248, 252, 255, 0.95),
-    rgba(228, 236, 245, 0.92)
-  );
+  background: linear-gradient(to bottom,
+      rgba(248, 252, 255, 0.95),
+      rgba(228, 236, 245, 0.92));
   border: 1px solid #b8c7d8;
   border-radius: 16px;
   box-shadow:
@@ -840,7 +863,9 @@ img {
     box-shadow 0.15s ease;
 
   &:link,
-  &:visited { color: #35506d; }
+  &:visited {
+    color: #35506d;
+  }
 
   &:hover {
     background: linear-gradient(to bottom, #ffffff, #e7f1fb);
@@ -899,10 +924,15 @@ img {
     background-color 0.15s ease,
     transform 0.08s ease;
 
-  &::before { content: "📖"; font-size: 105%; }
+  &::before {
+    content: "📖";
+    font-size: 105%;
+  }
 
   &:link,
-  &:visited { color: #2b4d73; }
+  &:visited {
+    color: #2b4d73;
+  }
 
   &:hover {
     background: linear-gradient(to bottom, #f7fbff, #e4eef8);
@@ -1035,14 +1065,20 @@ img {
   border-color: #ff9800;
   box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
 
-  & .card-header { background-color: #fff3e0; }
+  & .card-header {
+    background-color: #fff3e0;
+  }
 
-  & .stat-extra { display: flex; }
+  & .stat-extra {
+    display: flex;
+  }
 }
 
 /* JS依存: 控えメンバーは詳細ステータス非表示 */
 .party-card:not(.my_page_chara_1):not(.my_page_chara_2):not(.my_page_chara_3) {
-  & .stat-extra { display: none; }
+  & .stat-extra {
+    display: none;
+  }
 }
 
 /* 並び替えフッター */
@@ -1393,7 +1429,9 @@ img {
   margin-right: var(--space-m);
   flex-shrink: 0;
 
-  & img { max-width: 100%; }
+  & img {
+    max-width: 100%;
+  }
 }
 
 .log-card__actor-stats {
@@ -1409,8 +1447,13 @@ img {
   white-space: nowrap;
 }
 
-.log-card__name--ally  { color: var(--blue); }
-.log-card__name--enemy { color: var(--red); }
+.log-card__name--ally {
+  color: var(--blue);
+}
+
+.log-card__name--enemy {
+  color: var(--red);
+}
 
 .log-card__hpmp {
   color: #555;
@@ -1449,9 +1492,20 @@ img {
   word-break: break-word;
   text-align: center;
 
-  & .red    { color: #d94040; font-weight: bold; }
-  & .yellow { color: #c28a00; font-weight: bold; }
-  & .sky_blue { color: var(--blue); font-weight: bold; }
+  & .red {
+    color: #d94040;
+    font-weight: bold;
+  }
+
+  & .yellow {
+    color: #c28a00;
+    font-weight: bold;
+  }
+
+  & .sky_blue {
+    color: var(--blue);
+    font-weight: bold;
+  }
 
   & br {
     content: "";
@@ -1514,14 +1568,30 @@ img {
   font-size: 92%;
   line-height: 1.7;
 
-  &:first-child { border-top: none; }
+  &:first-child {
+    border-top: none;
+  }
 }
 
-.result-msg--result { background-color: #fbfeff; }
-.result-msg--lvup   { background-color: #fffef7; }
-.result-msg--item   { background-color: #fcfffa; }
-.result-msg--bad    { background-color: #fff9f8; }
-.result-msg--action { background-color: #fafdff; }
+.result-msg--result {
+  background-color: #fbfeff;
+}
+
+.result-msg--lvup {
+  background-color: #fffef7;
+}
+
+.result-msg--item {
+  background-color: #fcfffa;
+}
+
+.result-msg--bad {
+  background-color: #fff9f8;
+}
+
+.result-msg--action {
+  background-color: #fafdff;
+}
 
 .result-msg__title {
   margin-bottom: var(--space-xs);
@@ -1561,11 +1631,16 @@ img {
   border: 1px solid #d6dbe4;
   border-radius: var(--radius-m);
   background-color: #fcfdff;
+  display: flex;
+  flex-direction: column;
 }
 
 .cmd-card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  /* 画像の高さが違っても底辺を揃え、上方向に伸ばす */
+  flex: 1;
+  /* 残りの高さをheaderが受け持ち、actionsを下に固定 */
   padding: var(--space-m);
   background-color: #f0f0f0;
   border-bottom: 2px solid var(--black);
@@ -1578,6 +1653,7 @@ img {
   max-width: 110px;
   min-width: 96px;
   min-height: 96px;
+  margin-right: var(--space-m);
 
   & img {
     max-width: 110px;
@@ -1616,6 +1692,7 @@ img {
 .cmd-card__stat-label {
   display: inline-block;
   min-width: 25px;
+  padding: var(--space-xs) var(--space-s);
   background-color: var(--sky-blue);
   border-radius: var(--radius-s);
   text-align: center;
@@ -1748,7 +1825,7 @@ img {
   }
 
   /* 選択状態 */
-  & input[type="radio"]:checked + .color-picker__swatch {
+  & input[type="radio"]:checked+.color-picker__swatch {
     border-color: var(--black);
     box-shadow: 0 0 0 2px #d9e4f2;
     transform: scale(1.08);
@@ -1769,3 +1846,839 @@ img {
 /* ====================================== */
 
 /* common.css に実装済み */
+/* ====================================== */
+/* 16. Zukan                              */
+/* ====================================== */
+
+/*
+  .category-nav      — 系統ナビ
+  .category-nav__btn — 系統ボタン
+  .zukan-current     — 現在表示系統
+  .zukan-grid        — 図鑑グリッド
+  .zukan-card        — 1アイテムカード
+  .zukan-card__no    — 図鑑番号
+  .zukan-card__img   — 画像エリア（JS依存: zukan_tooltip.jsがセレクタに使用）
+  .zukan-card__name  — モンスター名
+  .not-get           — 未取得（Python生成のためclass名維持）
+  .tooltip           — ツールチップ（JS制御）
+*/
+
+.category-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+  width: 95%;
+  max-width: 900px;
+  margin-inline: auto;
+  padding: var(--space-m);
+  background-color: var(--gray);
+  border-radius: var(--radius-m);
+}
+
+.category-nav__btn {
+  padding: var(--space-s) var(--space-m);
+  border: 1px solid #cfd6e0;
+  border-radius: var(--radius-m);
+  background-color: var(--sky-blue);
+  color: var(--white);
+  font-size: 85%;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:link,
+  &:visited {
+    color: var(--black);
+  }
+
+  &:hover {
+    border-color: #9fb7d8;
+    background-color: #eef5ff;
+  }
+}
+
+.zukan-current {
+  margin-bottom: var(--space-m);
+  color: var(--blue);
+  font-size: 110%;
+  font-weight: bold;
+  text-align: center;
+}
+
+.zukan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-s);
+  width: 95%;
+  max-width: 900px;
+  margin-inline: auto;
+  margin-bottom: var(--space-m);
+}
+
+.zukan-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--radius-s);
+  background-color: var(--sky-blue);
+  text-align: center;
+  overflow: hidden;
+}
+
+.zukan-card__no {
+  width: 100%;
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-weight: bold;
+  font-size: 90%;
+  text-align: center;
+  padding: 2px 0;
+}
+
+/* JS依存: zukan_tooltip.js が .zukan-card__img をセレクタに使用 */
+.zukan-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 110px;
+  padding: 0;
+  border: 1px solid #e2e7ef;
+  border-radius: var(--radius-s);
+  background-color: #f8fbff;
+  background-position: center;
+
+  & img {
+    max-width: 110px;
+    max-height: 280px;
+  }
+
+  /* 未取得（Python生成のためclass名維持） */
+  &.not-get {
+    filter: grayscale(100%);
+    opacity: 0.7;
+  }
+}
+
+.zukan-card__name {
+  overflow: hidden;
+  width: 100%;
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-size: 90%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 0;
+}
+
+/* ツールチップ（JS制御） */
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 320px;
+  padding: var(--space-s);
+  border: 1px solid #cfd6e0;
+  border-radius: var(--radius-s);
+  background-color: var(--white);
+  color: var(--black);
+  font-size: 80%;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+
+  & p+p {
+    margin-top: var(--space-xs);
+  }
+}
+
+/* 系統別背景画像（Python生成のためclass名維持） */
+.スライム系,
+.ボカロ,
+.ボイロ,
+.ドラクエ {
+  background-image: url(../img/back1.png);
+}
+
+.ドラゴン系,
+.とある {
+  background-image: url(../img/back2.png);
+}
+
+.けもの系 {
+  background-image: url(../img/back3.png);
+}
+
+.とり系,
+.シュタゲ {
+  background-image: url(../img/back4.png);
+}
+
+.しょくぶつ系,
+.このすば {
+  background-image: url(../img/back5.png);
+}
+
+.むし系,
+.ミルキィ {
+  background-image: url(../img/back6.png);
+}
+
+.あくま系,
+.原神 {
+  background-image: url(../img/back7.png);
+}
+
+.ゾンビ系 {
+  background-image: url(../img/back8.png);
+}
+
+.ぶっしつ系,
+.シンフォギア,
+.東方,
+.アイマス {
+  background-image: url(../img/back9.png);
+}
+
+.みず系 {
+  background-image: url(../img/back12.png);
+}
+
+.？？？系 {
+  background-image: url(../img/back13.png);
+}
+
+.せいれい系,
+.らき☆すた,
+.まどマギ {
+  background-image: url(../img/back11.png);
+}
+
+/* ====================================== */
+/* 17. Book                               */
+/* ====================================== */
+
+/*
+  .preview-grid      — モンスタープレビューグリッド
+  .preview-card      — 1体カード
+  .preview-card__no  — 番号
+  .preview-card__img — 画像エリア
+  .preview-card__name — 名前
+  .preview-card__meta — 性別
+  .preview-card__sei  — 性格
+*/
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--space-m);
+  width: 95%;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.preview-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  background-color: var(--white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.10);
+  }
+}
+
+.preview-card__no {
+  padding: var(--space-s);
+  border-bottom: 1px solid #dde5ef;
+  background-color: #f2f6fb;
+  color: #5b6b7d;
+  font-size: 80%;
+  font-weight: bold;
+  text-align: center;
+}
+
+.preview-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  background: linear-gradient(to bottom, #fdfefe, #f3f7fb);
+  border-bottom: 1px solid #e3e8ef;
+
+  & img {
+    max-width: 100px;
+    max-height: 230px;
+    object-fit: contain;
+  }
+}
+
+.preview-card__info {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-s) var(--space-m);
+  background-color: var(--white);
+  text-align: center;
+}
+
+.preview-card__name {
+  overflow: hidden;
+  color: var(--blue);
+  font-size: 95%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-card__meta {
+  color: #666;
+  font-size: 80%;
+}
+
+.preview-card__sei {
+  margin-top: var(--space-xs);
+  padding: var(--space-s);
+  border: 1px solid #d7e0ea;
+  border-radius: 999px;
+  background-color: #f5f8fc;
+  color: #444;
+  font-size: 80%;
+  font-weight: bold;
+}
+
+/* ====================================== */
+/* 18. Medal Shop / Name Change           */
+/* ====================================== */
+
+/*
+  .status-badge        — 所持状況バッジ
+  .status-badge__label — ラベル
+  .status-badge__value — 数値
+  .item-select-grid    — 選択式アイテムグリッド
+  .item-card           — アイテムカード
+  .item-card__name     — アイテム名
+  .item-card__price    — 価格エリア
+*/
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 140px;
+  padding: var(--space-s) var(--space-m);
+  border: 1px solid #ccd6e2;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.status-badge__label {
+  color: #5d6b79;
+  font-size: 85%;
+  font-weight: bold;
+}
+
+.status-badge__value {
+  margin-left: auto;
+  color: var(--blue);
+  font-size: 100%;
+  font-weight: bold;
+}
+
+/* 選択式アイテムグリッド */
+.item-select-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 180px));
+  justify-content: center;
+  gap: var(--space-s);
+  margin-bottom: var(--space-m);
+}
+
+/* ラジオボタンラッパー（label要素） */
+.item-label {
+  display: block;
+  cursor: pointer;
+
+  /* ラジオ非表示 */
+  & input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* 選択状態 */
+  & input[type="radio"]:checked+.item-card {
+    border-color: #5e7ea4;
+    background: linear-gradient(to bottom, #eef4fb, #e2ebf5);
+    box-shadow: 0 0 0 2px rgba(94, 126, 164, 0.18), 0 6px 16px rgba(0, 0, 0, 0.10);
+  }
+}
+
+.item-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-s);
+  min-height: 100px;
+  max-width: 180px;
+  padding: var(--space-m);
+  margin: 0 auto;
+  border: 2px solid #d7dfe8;
+  border-radius: var(--radius-m);
+  background: linear-gradient(to bottom, #ffffff, #f6f9fc);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #95abc4;
+  }
+}
+
+.item-card__name {
+  color: var(--blue);
+  font-size: 100%;
+  font-weight: bold;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.item-card__price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  margin-top: auto;
+  padding-top: var(--space-s);
+  border-top: 1px dashed #d4dce6;
+}
+
+.item-card__price-prefix {
+  color: #666;
+  font-size: 85%;
+  font-weight: bold;
+}
+
+.item-card__price-num {
+  color: var(--red);
+  font-size: 135%;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.item-card__price-unit {
+  color: #555;
+  font-size: 85%;
+  font-weight: bold;
+}
+
+/* ====================================== */
+/* 19. Park & Omiai                       */
+/* ====================================== */
+
+/*
+  park と omiai のモンスターカードを共通化。
+
+  .list-card             — 一覧内モンスターカード基盤（.cardと併用）
+  .list-card__header     — ヘッダー（番号orユーザー名 + ボタン）
+  .list-card__label      — 小ラベルバッジ（"ユーザー" / No.xx）
+  .list-card__username   — ユーザー名（omiai用）
+  .list-card__actions    — アクションボタン群
+  .list-card__body       — 中段（画像 + 名前・性別）
+  .list-card__img        — 画像ボックス
+  .list-card__info       — テキスト情報
+  .list-card__name       — モンスター名
+  .list-card__meta       — サブ情報（性別・性格・配合回数等）
+  .list-card__stats      — ステータスグリッド
+  .list-card__stat       — ステータス1行
+  .list-card__stat-label — ラベル
+  .list-card__stat-value — 値
+  .list-card__message    — メッセージ欄（omiai: 希望モンスター）
+  .list-card__message-label
+  .list-card__message-body
+*/
+
+.list-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.list-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  border-bottom: 1px solid #d9e1eb;
+  background-color: #f4f8fc;
+}
+
+.list-card__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-s);
+  background-color: var(--sky-blue);
+  color: var(--white);
+  font-size: 70%;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.list-card__username {
+  overflow: hidden;
+  flex: 1;
+  color: var(--blue);
+  font-size: 90%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-card__actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.list-card__body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  padding: var(--space-m);
+}
+
+.list-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  min-width: 110px;
+  max-height: 230px;
+
+  & img {
+    width: auto;
+    max-width: 110px;
+    max-height: 230px;
+    image-rendering: pixelated;
+  }
+}
+
+.list-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-card__name {
+  overflow: hidden;
+  color: var(--blue);
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-card__meta {
+  margin-top: var(--space-xs);
+  color: #666;
+  font-size: 80%;
+  line-height: 1.4;
+}
+
+.list-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xs);
+  padding: 0 var(--space-m) var(--space-m);
+}
+
+.list-card__stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-s);
+  border: 1px solid #cfd6e0;
+  border-radius: var(--radius-s);
+  background-color: #f8fbff;
+}
+
+.list-card__stat-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.8em;
+  padding: 2px 6px;
+  border-radius: var(--radius-s);
+  background-color: var(--sky-blue);
+  color: var(--white);
+  font-size: 68%;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.list-card__stat-value {
+  overflow: hidden;
+  flex: 1;
+  color: var(--black);
+  font-size: 84%;
+  font-weight: bold;
+  text-align: right;
+  word-break: break-word;
+
+  & small {
+    display: block;
+    color: var(--red);
+    font-size: 88%;
+  }
+}
+
+.list-card__message {
+  padding: var(--space-s) var(--space-m);
+  border-top: 1px solid #d9e1eb;
+  background-color: #fafcff;
+}
+
+.list-card__message-label {
+  display: inline-block;
+  margin-bottom: 4px;
+  color: var(--blue);
+  font-size: 75%;
+  font-weight: bold;
+}
+
+.list-card__message-body {
+  color: var(--black);
+  font-size: 90%;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ====================================== */
+/* 20. Monster Events                     */
+/* ====================================== */
+
+/*
+  --- 配合確認 ---
+  .fusion-pair        — 配合ペア表示（3カラム: ベース + plus + 素材）
+  .fusion-mon         — 各モンスターカード
+  .fusion-mon__label  — "ベース" / "相手" ラベル
+  .fusion-mon__img    — 画像エリア
+  .fusion-mon__name   — モンスター名
+  .fusion-plus        — ＋記号
+  .fusion-preview     — 結果プレビューエリア
+  .hint-note          — ヒントメッセージ（不思議な気配）
+
+  --- NEW MONSTER ---
+  .born-card__display — 誕生モンスター表示エリア
+  .born-card__img     — 画像コンテナ（円形）
+  .born-card__img--rare — レア背景modifier
+  .born-card__info    — 名前・性別・性格
+  .born-card__name    — モンスター名
+  .born-card__meta    — 性別・性格
+  .born-card__stats   — ステータスグリッド（stat-rowを再利用）
+  .rare-badge         — レア誕生バナー
+*/
+
+/* --- 配合確認 --- */
+
+.fusion-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-m);
+  padding: var(--space-l) var(--space-m);
+  background: linear-gradient(to bottom, #fbfcfe, #f3f6fa);
+}
+
+.fusion-mon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  border: 1px solid #d6dee8;
+  border-radius: var(--radius-m);
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.fusion-mon__label {
+  padding: var(--space-xs) var(--space-m);
+  border-radius: 999px;
+  background-color: #eef3f8;
+  color: #5c6b79;
+  font-size: 75%;
+  font-weight: bold;
+}
+
+.fusion-mon__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 150px;
+
+  & img {
+    max-width: 110px;
+    max-height: 230px;
+    object-fit: contain;
+  }
+}
+
+.fusion-mon__name {
+  color: var(--blue);
+  font-size: 105%;
+  font-weight: bold;
+  text-align: center;
+  word-break: break-word;
+}
+
+.fusion-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: #edf2f7;
+  color: #5d7188;
+  font-size: 170%;
+  font-weight: bold;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.fusion-preview {
+  padding: var(--space-l) var(--space-m);
+  border-top: 1px solid #e2e8f0;
+  background-color: #fafcff;
+  text-align: center;
+}
+
+/* ヒントメッセージ */
+.hint-note {
+  margin-top: var(--space-m);
+  color: #7a5b00;
+  font-size: 90%;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+}
+
+/* --- NEW MONSTER --- */
+
+/* レア誕生バナー */
+.rare-badge {
+  padding: var(--space-s) var(--space-m);
+  border: 1px solid #e7c35a;
+  border-radius: var(--radius-s);
+  background: linear-gradient(to right, #fff2b8, #ffe17d, #fff2b8);
+  color: #7b5200;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 205, 60, 0.25);
+}
+
+.born-card__display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-m);
+  text-align: center;
+}
+
+.born-card__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  min-height: 220px;
+  padding: var(--space-m);
+  border: 2px solid #d7e2ef;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #ffffff 0%, #edf4fb 75%, #dde8f3 100%);
+  box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.8), 0 6px 16px rgba(0, 0, 0, 0.08);
+
+  & img {
+    max-width: 110px;
+    max-height: 230px;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+
+  /* レア背景 */
+  &.born-card__img--rare {
+    border-color: #f0c75b;
+    background-image: url(../img/rare_bg.jpg);
+    background-position: center;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.75), 0 0 20px rgba(255, 211, 77, 0.35);
+  }
+}
+
+.born-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.born-card__name {
+  color: var(--blue);
+  font-size: 150%;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.born-card__meta {
+  color: #666;
+  font-size: 90%;
+  font-weight: bold;
+}
+
+/* ステータスグリッド: stat-row（section11）を再利用 */
+.born-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-s);
+  width: 100%;
+}
+
+/* ====================================== */
+/* 21. Newgame                            */
+/* ====================================== */
+
+/*
+  新規登録・登録結果ページ。
+  stat-box（section11）を登録結果でも再利用。
+
+  .stat-box--highlight — 強調値（ユーザー名・パスワード）
+  .register-result__monster — モンスター基本情報エリア
+*/
+
+.stat-box--highlight .stat-box__value {
+  color: var(--red);
+  font-size: 120%;
+}
+
+.register-result__monster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-l);
+  padding: var(--space-m);
+  border-top: 1px solid #eee;
+  background-color: #fafafa;
+  justify-content: center;
+}
+
+.register-result__monster-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-weight: bold;
+  font-size: 95%;
+}

@@ -13,18 +13,14 @@
 </script>
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-
     const raw = document.getElementById("error-data").textContent;
     const DATA = JSON.parse(raw);
-
     const { txt, url, par, shouldJump } = DATA;
 
-    // トースト
     if (typeof showToast === "function") {
       showToast(txt, "error");
     }
 
-    // 遷移
     if (shouldJump) {
       setTimeout(() => {
         setUILock(true, "移動中...");
@@ -36,12 +32,13 @@
 {% endblock %}
 
 {% block content %}
-    <div id="error">
-        <span>
-            {{ txt }}
-            {% if jump in ["top", "kanri", ""] %}
-                <br>自動移動します
-            {% endif %}
-        </span>
-    </div>
+<!-- common.css の #error スタイルを使用 -->
+<div id="error">
+  <span>
+    {{ txt }}
+    {% if jump in ["top", "kanri", ""] %}
+    <br>自動移動します
+    {% endif %}
+  </span>
+</div>
 {% endblock %}

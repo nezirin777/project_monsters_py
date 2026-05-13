@@ -1,54 +1,87 @@
 <!-- templates/new_monster_tmp.html -->
+
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="action-card result-card">
-    <div class="action-card-header">NEW MONSTER!</div>
 
-    <div class="action-card-body">
-        {% if hint_flag and not is_rare %}
-        <div class="hai_msg">不思議な気配を感じたが…何も起こらなかったようだ…</div>
-        {% endif %}
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+  <div class="card__header">NEW MONSTER!</div>
 
-        {% if is_rare and is_new %}
-        <div class="hai_rare">特別なモンスターが誕生した！</div>
-        {% endif %}
+  <div class="card__body">
 
-        <!-- 誕生モンスターメイン -->
-        <div class="born-monster-display">
-            <div class="born-img-container{% if is_rare %} hen_rare_bg{% endif %}">
-                <img src="{{ Conf.imgpath }}/{{ my_data.name }}.gif" class="born-img">
-            </div>
-            <div class="born-info">
-                <div class="born-name">{{ my_data.name }}</div>
-                <div class="born-meta">{{ my_data.sex }} / {{ my_data.sei }}</div>
-            </div>
-        </div>
+    {% if hint_flag and not is_rare %}
+    <div class="hint-note">不思議な気配を感じたが…何も起こらなかったようだ…</div>
+    {% endif %}
 
-        <!-- ステータスグリッド -->
-        <div class="born-stats-grid">
-            <div class="b-stat"><div class="b-label">Level</div><div class="b-val">1 / {{ my_data.mlv }}</div></div>
-            <div class="b-stat"><div class="b-label">配合数</div><div class="b-val">{{ my_data.hai }}回</div></div>
-            <div class="b-stat"><div class="b-label">H P</div><div class="b-val">{{ my_data.mhp }} / {{ my_data.mhp }}</div></div>
-            <div class="b-stat"><div class="b-label">M P</div><div class="b-val">{{ my_data.mmp }} / {{ my_data.mmp }}</div></div>
-            <div class="b-stat"><div class="b-label">攻撃力</div><div class="b-val">{{ my_data.atk }}</div></div>
-            <div class="b-stat"><div class="b-label">守備力</div><div class="b-val">{{ my_data.def }}</div></div>
-            <div class="b-stat"><div class="b-label">素早さ</div><div class="b-val">{{ my_data.agi }}</div></div>
-            <div class="b-stat"><div class="b-label">経験値</div><div class="b-val">0 / {{ Conf.nextup }}</div></div>
-        </div>
+    {% if is_rare and is_new %}
+    <div class="rare-badge" style="margin-bottom: var(--space-m);">特別なモンスターが誕生した！</div>
+    {% endif %}
 
-        {% if is_new %}<div class="sys-msg sys-item">図鑑に登録されました！</div>{% endif %}
-        {% if is_waza %}<div class="sys-msg sys-item">新たな特技が使えるようになった！</div>{% endif %}
+    <div class="born-card__display">
+      <div class="born-card__img {% if is_rare %}born-card__img--rare{% endif %}">
+        <img src="{{ Conf.imgpath }}/{{ my_data.name }}.gif" alt="{{ my_data.name }}">
+      </div>
+      <div class="born-card__info">
+        <div class="born-card__name">{{ my_data.name }}</div>
+        <div class="born-card__meta">{{ my_data.sex }} / {{ my_data.sei }}</div>
+      </div>
     </div>
+
+    <div class="born-card__stats" style="margin-top: var(--space-m);">
+      <div class="stat-row">
+        <div class="stat-row__label">Level</div>
+        <div class="stat-row__value">1<span>/{{ my_data.mlv }}</span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">配合数</div>
+        <div class="stat-row__value">{{ my_data.hai }}回</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">H P</div>
+        <div class="stat-row__value">{{ my_data.mhp }}<span>/{{ my_data.mhp }}</span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">M P</div>
+        <div class="stat-row__value">{{ my_data.mmp }}<span>/{{ my_data.mmp }}</span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">攻撃力</div>
+        <div class="stat-row__value">{{ my_data.atk }}</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">守備力</div>
+        <div class="stat-row__value">{{ my_data.def }}</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">素早さ</div>
+        <div class="stat-row__value">{{ my_data.agi }}</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row__label">経験値</div>
+        <div class="stat-row__value">0<span>/{{ Conf.nextup }}</span></div>
+      </div>
+    </div>
+
+    {% if is_new %}
+    <div class="result-msg result-msg--item" style="margin-top: var(--space-m);">図鑑に登録されました！</div>
+    {% endif %}
+    {% if is_waza %}
+    <div class="result-msg result-msg--item">新たな特技が使えるようになった！</div>
+    {% endif %}
+
+  </div>
 </div>
 
 {% if mode=="omiai" %}
-<form action="{{ Conf.cgi_url }}" method="post" class="my-page-back-form">
+<div class="layout-cluster" style="margin: var(--space-m) auto;">
+  <form action="{{ Conf.cgi_url }}" method="post">
     <input type="hidden" name="mode" value="omiai_room">
     <input type="hidden" name="token" value="{{ token }}">
-    <button type="submit" class="submit-btn">お見合い部屋に戻る</button>
-</form>
+    <button type="submit" class="btn">お見合い部屋に戻る</button>
+  </form>
+</div>
 {% endif %}
 
 {% include "my_page_button_tmp.html" %}
+
 {% endblock %}
