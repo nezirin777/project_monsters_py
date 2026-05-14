@@ -4,36 +4,34 @@
 
 {% block content %}
 
-<!-- 名前変更カード -->
-<div class="action-card name-change-card">
-  <div class="action-card-header">ユーザー名変更</div>
-  <div class="action-card-desc">
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+  <div class="card__header">ユーザー名変更</div>
+  <div class="card__desc">
     使用可能な文字は半角/全角英数字及び日本語です<br>
     <small>（一部特殊文字は使用できません）</small>
   </div>
-
-  <div class="action-card-body">
-    <form action="{{ Conf.cgi_url }}" method="post" class="ex-form" id="nameChangeForm"
+  <div class="card__body">
+    <form action="{{ Conf.cgi_url }}" method="post" id="nameChangeForm" class="form"
       data-confirm="ユーザー名を変更します。本当によろしいですか？" data-loading="名前を変更中...">
 
-      <div class="ex-select-group">
-        <div class="action-subtitle">現在の名前</div>
-        <input type="text" class="ex-select" value="{{ current_name }}" disabled style="background-color: #eee; cursor: not-allowed;">
+      <div class="form-group">
+        <label class="form-label">現在の名前</label>
+        <input type="text" class="form-control" value="{{ current_name }}" disabled
+          style="background-color:#eee; cursor:not-allowed;">
       </div>
 
-      <div class="ex-select-group">
-        <div class="action-subtitle">新しい名前</div>
-        <input type="text" name="new_name" id="newNameInput" class="ex-select" value="" maxlength="20" placeholder="新しい名前を入力" required>
+      <div class="form-group">
+        <label class="form-label">新しい名前</label>
+        <input type="text" name="new_name" id="newNameInput" class="form-control" maxlength="20" placeholder="新しい名前を入力"
+          required>
       </div>
 
-      <div class="ex-select-group">
-        <div class="action-subtitle">確認用パスワード</div>
-        <input type="password" name="password" class="ex-select" placeholder="パスワードを入力" required>
+      <div class="form-group">
+        <label class="form-label">確認用パスワード</label>
+        <input type="password" name="password" class="form-control" placeholder="パスワードを入力" required>
       </div>
 
-      <div class="form-action-area">
-        <button type="submit" class="submit-btn name-change-btn">名前を確認して変更する</button>
-      </div>
+      <button type="submit" class="btn btn--block">名前を確認して変更する</button>
 
       <input type="hidden" name="mode" value="name_change_ok">
       <input type="hidden" name="token" value="{{ token }}">
@@ -50,11 +48,9 @@
 
     input.addEventListener("input", function () {
       const newName = input.value.trim();
-      if (newName) {
-        form.dataset.confirm = `ユーザー名を「${currentName}」から「${newName}」へ変更します。\n本当によろしいですか？`;
-      } else {
-        form.dataset.confirm = `ユーザー名を変更します。\n本当によろしいですか？`;
-      }
+      form.dataset.confirm = newName
+        ? `ユーザー名を「${currentName}」から「${newName}」へ変更します。\n本当によろしいですか？`
+        : `ユーザー名を変更します。\n本当によろしいですか？`;
     });
   });
 </script>

@@ -9,136 +9,110 @@
 {% endblock %}
 
 {% block content %}
-<nav class="mypage-floating-nav">
-  <a href="#party-section" class="floating-nav-btn">
-    PARTY
-  </a>
-  <a href="#bbs-section" class="floating-nav-btn">
-    BBS
-  </a>
-  <a href="#battle-section" class="floating-nav-btn">
-    BATTLE
-  </a>
-  <a href="#shop-section" class="floating-nav-btn">
-    SHOP
-  </a>
-  <a href="#haigou-section" class="floating-nav-btn">
-    配合
-  </a>
 
+<nav class="floating-nav">
+  <a href="#party-section" class="floating-nav__btn">PARTY</a>
+  <a href="#bbs-section"   class="floating-nav__btn">BBS</a>
+  <a href="#battle-section" class="floating-nav__btn">BATTLE</a>
+  <a href="#shop-section"  class="floating-nav__btn">SHOP</a>
+  <a href="#haigou-section" class="floating-nav__btn">配合</a>
 </nav>
 
-  <nav class="t_menu top-nav-margin">
-    <a href="{{ Conf.top_url }}" class="menu-btn">TOPへ</a>
-    <a href="./html/manual.html" target="_blank" rel="noopener" class="menu-btn">ぷれいまにゅある</a>
-    <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="menu-btn">配合表</a>
-    <a href="./html/haigou_list2.html" target="_blank" rel="noopener" class="menu-btn">配合表2</a>
-    <a href="{{ Conf.homepage }}" class="menu-btn">{{ Conf.home_title }}</a>
-  </nav>
+<nav class="layout-cluster" style="margin: var(--space-m);">
+  <a href="{{ Conf.top_url }}" class="btn btn--menu">TOPへ</a>
+  <a href="./html/manual.html" target="_blank" rel="noopener" class="btn btn--menu">ぷれいまにゅある</a>
+  <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="btn btn--menu">配合表</a>
+  <a href="./html/haigou_list2.html" target="_blank" rel="noopener" class="btn btn--menu">配合表2</a>
+  <a href="{{ Conf.homepage }}" class="btn btn--menu">{{ Conf.home_title }}</a>
+</nav>
 
-  {% if Conf.event_boost %}
-  <section class="notice-banner notice-banner--event">
-    !!現在ブースト期間中!!
-  </section>
-  {% endif %}
+{% if Conf.event_boost %}
+<div class="banner banner--event content-sm">
+  !!現在ブースト期間中!!
+</div>
+{% endif %}
 
-  {% if boost_flg %}
-  <section class="notice-banner notice-banner--event">
-    !!現在課金ブースト期間中!!<br>
-    残り{{ boost_time }}
-  </section>
-  {% endif %}
+{% if boost_flg %}
+<div class="banner banner--event content-sm">
+  !!現在課金ブースト期間中!!<br>
+  残り{{ boost_time }}
+</div>
+{% endif %}
 
-  {% include "my_page_myparty_tmp.html" %}
+{% include "my_page_myparty_tmp.html" %}
 
-  {% if my_page_flg %}
+{% if my_page_flg %}
 
-  <section class="info-card-container">
+<section class="layout-stack content-sm" style="margin-top: var(--space-m);">
 
-    <div class="info-card card">
-      <button class="toggle-trigger block-btn" data-target="key-list">
-        ▼ 取得系統の鍵一覧 ▼
-      </button>
-
-      <div id="key-list" class="toggle-content">
-        <div class="item-grid">
-          {%- for item in room_key_display -%}
-          <div class="badge badge--key">
-            {{ item.name | escape if item.has_key else "なし" }}の鍵
-          </div>
-          {%- endfor -%}
-        </div>
+  <div class="card">
+    <button class="btn btn--block toggle-trigger" data-target="key-list">
+      ▼ 取得系統の鍵一覧 ▼
+    </button>
+    <div id="key-list" class="toggle-content">
+      <div class="layout-cluster" style="padding: var(--space-m);">
+        {%- for item in room_key_display -%}
+        <span class="badge badge--key">
+          {{ item.name | escape if item.has_key else "-" }}の鍵
+        </span>
+        {%- endfor -%}
       </div>
     </div>
+  </div>
 
-    <div class="info-card card">
-      <button class="toggle-trigger block-btn" data-target="skill-list">
-        ▼ 取得特技一覧 ▼
-      </button>
-
-      <div id="skill-list" class="toggle-content">
-        <div class="item-grid">
-          {%- for item in waza_display -%}
-          <div class="badge badge--skill">
-            {{ item.name | escape }}
-          </div>
-          {%- endfor -%}
-        </div>
+  <div class="card">
+    <button class="btn btn--block toggle-trigger" data-target="skill-list">
+      ▼ 取得特技一覧 ▼
+    </button>
+    <div id="skill-list" class="toggle-content">
+      <div class="layout-cluster" style="padding: var(--space-m);">
+        {%- for item in waza_display -%}
+        <span class="badge badge--skill">{{ item.name | escape }}</span>
+        {%- endfor -%}
       </div>
     </div>
+  </div>
 
-  </section>
+</section>
 
-  <section class="comment-card card">
-    <div class="card-header">
-      COMMENT
-    </div>
+<section class="card content-sm" id="bbs-section" style="height: 240px; overflow-y: auto; margin-top: var(--space-m);">
+  <div class="card__header">BBS</div>
+  <div class="card__body">
+    <div id="bbs"></div>
+  </div>
+</section>
 
-    <div class="card-body">
-      <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
-        <input type="text" name="message" value="{{ user.mes | escape }}" class="full-width-input" placeholder="ひとことコメント">
-        <input type="hidden" name="mode" value="comment">
-        <input type="hidden" name="token" value="{{ token }}">
-        <button type="submit" class="submit-btn slim-btn">
-          コメント変更
-        </button>
-      </form>
-    </div>
+<section class="card content-sm" style="margin-top: var(--space-m);">
+  <div class="card__header">COMMENT</div>
+  <div class="card__body">
+    <form action="{{ Conf.cgi_url }}" method="post" class="form form--inline">
+      <input type="text" name="message" value="{{ user.mes | escape }}"
+             class="form-control" placeholder="ひとことコメント">
+      <input type="hidden" name="mode" value="comment">
+      <input type="hidden" name="token" value="{{ token }}">
+      <button type="submit" class="btn btn--sm">コメント変更</button>
+    </form>
+  </div>
+</section>
 
-  </section>
+<div id="b_count_txt" hidden>{{ next_t | escape }}</div>
 
+<section class="layout-stack content-sm" id="action-section" style="margin-top: var(--space-m);">
+  {% include "my_page_battleselect_tmp.html" %}
+  {% include "my_page_shoplist_tmp.html" %}
+  {% include "my_page_exlist_tmp.html" %}
+</section>
 
-  <section class="bbs-card card" id="bbs-section">
-    <div class="card-header">
-      BBS
-    </div>
-    <div class="card-body">
-      <div id="bbs"></div>
-    </div>
-  </section>
+<div class="layout-cluster" style="margin: var(--space-l) auto; max-width: 400px;">
+  {% include "my_page_button_tmp.html" %}
+</div>
 
+{% endif %}
 
-  <div id="b_count_txt" hidden>{{ next_t | escape }}</div>
-
-  <section class="action-grid-container" id="action-section">
-    {% include "my_page_battleselect_tmp.html" %}
-    {% include "my_page_shoplist_tmp.html" %}
-    {% include "my_page_exlist_tmp.html" %}
-  </section>
-
-
-  <section class="action-footer">
-    {% include "my_page_button_tmp.html" %}
-  </section>
-
-  {% endif %}
-
-
-  {% if not my_page_flg %}
-  <form action="{{ Conf.top_url }}" method="post" class="action-footer">
-    <button type="submit" class="submit-btn back-home-btn">TOPへ</button>
-  </form>
-  {% endif %}
-
+{% if not my_page_flg %}
+<div class="layout-cluster" style="margin: var(--space-l) auto;">
+  <a href="{{ Conf.top_url }}" class="btn">TOPへ</a>
+</div>
+{% endif %}
 
 {% endblock %}

@@ -1,12 +1,12 @@
 <!-- templates/my_page_button_tmp.html -->
 
-<div class="my-page-back-form">
-  <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
+<div class="layout-cluster">
+  <form action="{{ Conf.cgi_url }}" method="post">
     <input type="hidden" name="mode" value="my_page">
     <input type="hidden" name="token" value="{{ token }}">
-    <button type="submit" class="submit-btn">マイページへ</button>
+    <button type="submit" class="btn">マイページへ</button>
   </form>
-  <form action="{{ Conf.top_url }}" method="post" class="flex-form">
-    <button type="submit" class="submit-btn">TOPへ</button>
+  <form action="{{ Conf.top_url }}" method="post">
+    <button type="submit" class="btn">TOPへ</button>
   </form>
 </div>

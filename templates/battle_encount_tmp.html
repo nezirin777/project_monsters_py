@@ -1,39 +1,42 @@
 <!-- templates/battle_encount_tmp.html -->
 
-<div class="action-card encount-card">
-  <!-- エンカウントのメッセージ -->
-  <div class="encount-header">
+<div class="card encount-card content-sm">
+
+  <div class="encount-card__header">
     {% if target == "スライム" %}
-      スライムの不思議な城に迷い込んだ！<br>
-      <small>勝利すれば不思議な鍵が貰えます！</small>
+    スライムの不思議な城に迷い込んだ！<br>
+    <small>勝利すれば不思議な鍵が貰えます！</small>
     {% elif target == "わたぼう" %}
-      わたぼうのメダル城に迷い込んだ！<br>
-      <small>勝利すればメダルが貰えます！</small>
+    わたぼうのメダル城に迷い込んだ！<br>
+    <small>勝利すればメダルが貰えます！</small>
     {% elif target == "vipsg" %}
-      VIPSガールズが現れた！
+    VIPSガールズが現れた！
     {% elif target == "異世界" %}
-      異界の者たちが現れた！
+    異界の者たちが現れた！
     {% else %}
-      モンスターが現れた！
+    モンスターが現れた！
     {% endif %}
   </div>
 
-  <!-- 出現した敵のリスト -->
-  <div class="enemy-grid">
+  <div class="layout-grid"
+    style="--grid-min: 180px; background-color: #fce4e4; padding: var(--space-m); gap: var(--space-m);">
     {% for teki in tekis %}
     <div class="enemy-card">
-      <div class="enemy-image-wrapper">
+      <div class="enemy-card__img">
         <img src="{{ Conf.imgpath }}/{{ teki.name }}.gif" alt="{{ teki.name }}">
       </div>
-      <div class="enemy-info">
-        <div class="enemy-name">{{ teki.name2 }}</div>
-        <div class="enemy-meta">-{{ teki.sex }}-</div>
+      <div class="enemy-card__info">
+        <div class="enemy-card__name">{{ teki.name2 }}</div>
+        <div class="enemy-card__meta">-{{ teki.sex }}-</div>
       </div>
-      <div class="enemy-hp-box">
-        <div class="enemy-hp-label">HP</div>
-        <div class="enemy-hp-val">{{ teki.hp }}<span> / {{ teki.mhp }}</span></div>
+      <div class="enemy-card__hp">
+        <div class="enemy-card__hp-label">HP</div>
+        <div class="enemy-card__hp-value">
+          {{ teki.hp }}<span> / {{ teki.mhp }}</span>
+        </div>
       </div>
     </div>
     {% endfor %}
   </div>
+
 </div>
