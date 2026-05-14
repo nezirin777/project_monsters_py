@@ -1,484 +1,524 @@
 /* ====================================== */
-/* admin.css                              */
-/* 設計層: common.css + admin.css のみで  */
-/* 管理画面が成立することを目標とする      */
+/* admin.css                          */
+/* 管理画面専用スタイル                    */
+/* common.css + new_game.css の上に追加   */
 /* ====================================== */
-/*
-  依存: common.css（変数・body・リンク・
-        トースト・モーダル・スピナー・フッター）
 
-  対象テンプレート:
-    kanri_tmp.html
-    kanri_login_tmp.html
-    kanri_saveedit_select_tmp.html
-    kanri_saveedit_table_tmp.html
-    kanri_mon_present_tmp.html
-    kanri_page_button_tmp.html
+/* ========================= */
+/* 管理画面カラー変数        */
+/* ========================= */
+
+:root {
+  --adm-bg:          #0f172a;
+  --adm-surface:     #1e293b;
+  --adm-surface-2:   #334155;
+  --adm-border:      #475569;
+  --adm-accent:      #38bdf8;
+  --adm-accent-dark: #0369a1;
+  --adm-danger:      #f87171;
+  --adm-danger-bg:   #7f1d1d;
+  --adm-danger-dim:  #450a0a;
+  --adm-warning:     #fbbf24;
+  --adm-warning-bg:  #78350f;
+  --adm-success:     #4ade80;
+  --adm-text:        #e2e8f0;
+  --adm-text-muted:  #94a3b8;
+}
+
+/* ========================= */
+/* ベース上書き              */
+/* ========================= */
+
+body {
+  background-color: var(--adm-bg);
+  color: var(--adm-text);
+}
+
+.wrapper {
+  max-width: 1280px;
+  padding: var(--space-m);
+  margin-inline: auto;
+}
+
+a:link,
+a:visited {
+  color: var(--adm-accent);
+}
+
+a:hover {
+  color: var(--adm-text);
+}
+
+input:invalid {
+  border-color: var(--adm-danger);
+}
+
+/* ========================= */
+/* ページヘッダー            */
+/* ========================= */
+
+/*
+  .admin-header              — ページタイトルバー
+  .admin-header__title       — タイトルテキスト
+  .admin-header__badge       — ステータスバッジ
+  .admin-header__badge--warning — 警告バッジ（メンテ中等）
+  .admin-header__badge--danger  — 危険バッジ（削除系）
 */
 
-/* ====================================== */
-/* 0. Admin Foundation                    */
-/* ====================================== */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-m);
+  padding: var(--space-m) var(--space-l);
+  margin-bottom: var(--space-l);
+  border-radius: var(--radius-m);
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2040 100%);
+  border: 1px solid var(--adm-accent);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.12);
+}
 
-.admin-page {
-  --admin-purple: #660066;
-  --admin-magenta: #ff00ff;
-  --admin-blue: #1e90ff;
-  --admin-blue-dark: #263c9f;
-  --admin-panel: #f7fbff;
-  --admin-border: #b9cae0;
-  --admin-accent: #ffbf7f;
+.admin-header__title {
+  color: var(--adm-accent);
+  font-size: 130%;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
 
-  box-sizing: border-box;
-  width: 95%;
-  max-width: 980px;
-  margin-inline: auto;
-  padding-block: var(--space-m) var(--space-l);
+.admin-header__badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 80%;
+  font-weight: bold;
+}
+
+.admin-header__badge--warning {
+  background-color: var(--adm-warning-bg);
+  color: var(--adm-warning);
+  border: 1px solid var(--adm-warning);
+}
+
+.admin-header__badge--danger {
+  background-color: var(--adm-danger-bg);
+  color: var(--adm-danger);
+  border: 1px solid var(--adm-danger);
+}
+
+/* ========================= */
+/* アクショングリッド        */
+/* ========================= */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-m);
+  margin-bottom: var(--space-l);
+}
+
+/* ========================= */
+/* アクションカード          */
+/* ========================= */
+
+/*
+  .admin-card           — 通常カード
+  .admin-card--danger   — 削除・リセット等の危険操作
+  .admin-card__title    — カードタイトル
+  .admin-card__body     — カード内容（フォーム等）
+*/
+
+.admin-card {
   display: flex;
   flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--radius-m);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-card:hover {
+  border-color: var(--adm-accent);
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.08);
+}
+
+.admin-card--danger {
+  border-color: var(--adm-danger-bg);
+
+  &:hover {
+    border-color: var(--adm-danger);
+    box-shadow: 0 4px 16px rgba(248, 113, 113, 0.1);
+  }
+
+  & .admin-card__title {
+    color: var(--adm-danger);
+    border-bottom-color: var(--adm-danger-bg);
+  }
+}
+
+.admin-card__title {
+  padding-bottom: var(--space-s);
+  border-bottom: 1px solid var(--adm-surface-2);
+  color: var(--adm-accent);
+  font-size: 90%;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+}
+
+.admin-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  font-size: 88%;
+  color: var(--adm-text-muted);
+}
+
+/* ========================= */
+/* ボタン                    */
+/* ========================= */
+
+/*
+  .admin-btn           — 通常ボタン
+  .admin-btn--danger   — 削除・リセット等
+  .admin-btn--block    — 全幅
+*/
+
+.admin-btn {
+  display: inline-block;
+  padding: var(--space-s) var(--space-m);
+  background-color: var(--adm-surface-2);
+  color: var(--adm-text);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--radius-s);
+  font-size: 88%;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--adm-accent);
+    border-color: var(--adm-accent);
+    color: var(--adm-bg);
+  }
+
+  &:active {
+    background-color: var(--adm-accent-dark);
+    border-color: var(--adm-accent-dark);
+  }
+
+  &:disabled,
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.admin-btn--danger {
+  border-color: var(--adm-danger-bg);
+  color: var(--adm-danger);
+
+  &:hover {
+    background-color: var(--adm-danger);
+    border-color: var(--adm-danger);
+    color: var(--adm-bg);
+  }
+}
+
+.admin-btn--block {
+  display: block;
+  width: 100%;
+}
+
+/* ========================= */
+/* フォーム部品              */
+/* ========================= */
+
+.admin-select,
+.admin-input {
+  width: 100%;
+  padding: var(--space-s);
+  background-color: var(--adm-surface-2);
+  color: var(--adm-text);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--radius-s);
+  font-size: 88%;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--adm-accent);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-field__label {
+  color: var(--adm-text-muted);
+  font-size: 78%;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* チェックボックス */
+.admin-check {
+  display: flex;
   align-items: center;
+  gap: var(--space-s);
+  color: var(--adm-text-muted);
+  font-size: 85%;
+  cursor: pointer;
+
+  & input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--adm-accent);
+  }
+}
+
+/* ========================= */
+/* ログイン                  */
+/* ========================= */
+
+.admin-login {
+  width: 95%;
+  max-width: 360px;
+  margin: var(--space-l) auto;
+  padding: var(--space-l);
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--radius-m);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
   gap: var(--space-m);
 }
 
-.admin-page form {
-  margin: 0;
-}
+/* ========================= */
+/* 注意・警告バナー          */
+/* ========================= */
 
-.admin-page button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  margin: 3px;
-  padding: var(--space-xs) var(--space-m);
-  border: 2px solid #240024;
-  border-radius: var(--radius-s);
-  background: linear-gradient(to bottom, #fff6ff, #e9ceef);
-  color: #360036;
+.admin-caution {
+  padding: var(--space-m);
+  margin-bottom: var(--space-m);
+  background-color: var(--adm-danger-dim);
+  border: 1px solid var(--adm-danger);
+  border-radius: var(--radius-m);
+  color: var(--adm-danger);
   font-weight: bold;
-  line-height: 1.2;
-  white-space: nowrap;
-  cursor: pointer;
-  box-shadow: 0 2px 0 #240024;
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease,
-    background-color 0.12s ease;
+  text-align: center;
+  line-height: 1.8;
 }
 
-.admin-page button:hover {
-  background: linear-gradient(to bottom, #ffffff, #f2dcf7);
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 #240024;
+/* ========================= */
+/* データ選択セクション      */
+/* ========================= */
+
+.admin-select-section {
+  width: 95%;
+  max-width: 500px;
+  margin: var(--space-m) auto;
+  padding: var(--space-l);
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--radius-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
 }
 
-.admin-page button:active {
-  transform: translateY(2px);
-  box-shadow: none;
-}
-
-.admin-page input:not([type="hidden"]):not([type="checkbox"]),
-.admin-page select {
-  max-width: 100%;
-  min-height: 32px;
-  margin: 3px;
-  padding: var(--space-xs) var(--space-s);
-  border: 1px solid var(--admin-border);
-  border-radius: var(--radius-s);
-  background-color: var(--white);
-  color: var(--black);
+.admin-select-section__target {
+  color: var(--adm-text);
   font-size: 95%;
   font-weight: bold;
-  box-sizing: border-box;
+
+  & span {
+    color: var(--adm-accent);
+  }
 }
 
-.admin-page input[type="number"] {
-  width: 90px;
-}
+/* ========================= */
+/* データ編集テーブル        */
+/* ========================= */
 
-.admin-page input[type="text"],
-.admin-page input[type="password"] {
-  width: min(260px, 90vw);
-}
-
-.admin-page input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-inline: var(--space-s);
-  vertical-align: middle;
-  accent-color: var(--admin-purple);
-}
-
-.admin-page input:focus,
-.admin-page select:focus {
-  border-color: var(--admin-blue);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.18);
-}
-
-.admin-page option[value="separator"] {
-  color: #777;
-}
-
-/* ====================================== */
-/* 1. Layout Core                         */
-/* ====================================== */
-
-.kanri_title,
-.kanri_save_edit_caution,
-.kanri_save_edit_title {
-  box-sizing: border-box;
-  margin-inline: auto;
-  border: 3px solid var(--admin-magenta);
-  color: var(--white);
-  font-weight: bold;
-  text-align: center;
-}
-
-.kanri_title {
-  width: min(300px, 100%);
-  padding: var(--space-s) var(--space-m);
-  background-color: var(--admin-purple);
-  font-size: 140%;
-}
-
-.kanri_save_edit_caution {
-  width: min(680px, 100%);
-  padding: var(--space-m);
-  background-color: var(--admin-purple);
-  font-size: 120%;
-  line-height: 1.7;
-}
-
-.kanri_save_edit_title {
-  width: min(520px, 100%);
-  padding: var(--space-s) var(--space-m);
-  background-color: var(--admin-blue);
-  font-size: 100%;
-  line-height: 1.7;
-}
-
-/* ====================================== */
-/* 2. Login                               */
-/* ====================================== */
-
-.admin-page--login {
-  justify-content: center;
-  min-height: 55vh;
-}
-
-.kanri_login {
-  box-sizing: border-box;
-  width: min(320px, 100%);
-  margin-inline: auto;
-  padding: var(--space-m);
-  border: 2px solid var(--admin-magenta);
-  border-radius: var(--radius-m);
-  background-color: var(--black);
-  color: var(--white);
-  font-size: 100%;
-  font-weight: bold;
-  line-height: 1.8;
-  text-align: center;
-}
-
-.kanri_login span {
-  display: inline-flex;
-  width: 100px;
-}
-
-.kanri_login button {
-  margin-top: var(--space-s);
-}
-
-/* ====================================== */
-/* 3. Admin Menu                          */
-/* ====================================== */
-
-.kanri_menu_top {
-  box-sizing: border-box;
-  width: min(720px, 100%);
-  margin-inline: auto;
-  border: 3px solid var(--admin-magenta);
-  border-radius: var(--radius-m);
-  background-color: var(--admin-blue);
-  color: var(--white);
-  font-size: 100%;
-  font-weight: bold;
-  overflow: hidden;
-}
-
-.kanri_menu {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0 auto;
-  padding: var(--space-m);
-  border-bottom: 1px solid var(--admin-magenta);
-  line-height: 1.7;
-  text-align: center;
-}
-
-.kanri_menu:last-child {
-  border-bottom: none;
-}
-
-.kanri_menu:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.kanri_menu span {
-  color: var(--admin-accent);
-}
-
-.kanri_menu form {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  max-width: 100%;
-}
-
-.kanri_menu form:not(.flex) {
-  display: flex;
-  margin-top: var(--space-xs);
-}
-
-.kanri_menu .flex {
-  display: inline-flex;
-}
-
-/* ====================================== */
-/* 4. Save Edit                           */
-/* ====================================== */
-
-.admin-page--save-table {
-  max-width: 1200px;
-}
-
-.kanri-save-edit-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-m);
-}
-
-.kanri-save-edit-table-wrap {
-  width: 100%;
+.admin-table-wrap {
   overflow-x: auto;
-  border: 3px solid var(--admin-magenta);
+  margin: var(--space-m) auto;
   border-radius: var(--radius-m);
-  background-color: var(--admin-blue);
+  border: 1px solid var(--adm-border);
 }
 
-.kanri_save_edit_table {
-  width: max-content;
-  min-width: 100%;
-  margin: 0 auto;
+.admin-table {
   border-collapse: collapse;
-  background-color: var(--admin-blue);
-  color: var(--white);
-  font-size: 92%;
-  font-weight: bold;
+  width: 100%;
+  font-size: 85%;
   white-space: nowrap;
+  color: var(--adm-text);
+
+  & th {
+    padding: var(--space-s) var(--space-m);
+    background-color: var(--adm-surface-2);
+    color: var(--adm-accent);
+    border-bottom: 1px solid var(--adm-border);
+    font-weight: bold;
+    text-align: left;
+  }
+
+  & td {
+    padding: var(--space-xs) var(--space-s);
+    border-bottom: 1px solid var(--adm-surface-2);
+    background-color: var(--adm-surface);
+  }
+
+  & tr:last-child td { border-bottom: none; }
+
+  & tr:hover td {
+    background-color: var(--adm-surface-2);
+  }
+
+  & input[type="text"] {
+    width: 90px;
+    padding: 2px var(--space-s);
+    background-color: var(--adm-surface-2);
+    color: var(--adm-text);
+    border: 1px solid var(--adm-border);
+    border-radius: var(--radius-s);
+    font-size: 85%;
+
+    &:focus {
+      border-color: var(--adm-accent);
+      outline: none;
+    }
+  }
 }
 
-.kanri_save_edit_table th,
-.kanri_save_edit_table td {
-  padding: var(--space-xs) var(--space-s);
-  border: 1px solid var(--admin-magenta);
-  text-align: center;
-  vertical-align: middle;
-}
+/* ========================= */
+/* ナビゲーション            */
+/* ========================= */
 
-.kanri_save_edit_table th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background-color: var(--admin-blue-dark);
-  color: var(--white);
-}
-
-.kanri_save_edit_table tr:nth-child(even) td {
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.kanri_save_edit_table input[type="text"] {
-  width: 120px;
-  min-height: 28px;
-  margin: 0;
-  font-size: 90%;
-}
-
-/* ====================================== */
-/* 5. Page Actions                        */
-/* ====================================== */
-
-.admin-page-actions {
+.admin-nav {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
   gap: var(--space-s);
-  width: min(520px, 100%);
-  margin-inline: auto;
-  padding: var(--space-m);
-  border: 2px solid var(--admin-magenta);
-  border-radius: var(--radius-m);
-  background-color: rgba(102, 0, 102, 0.86);
+  margin: var(--space-m) auto;
 }
 
-.admin-page-actions form {
-  display: inline-flex;
-}
-
-.admin-page-actions button {
-  min-width: 130px;
-}
-
-/* ====================================== */
-/* 6. Progress Popup                      */
-/* ====================================== */
+/* ========================= */
+/* プログレスポップアップ    */
+/* ========================= */
 
 #progressPopup {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: var(--space-l);
-  background-color: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
 }
 
 #popupContent {
-  box-sizing: border-box;
-  width: min(360px, 100%);
-  padding: var(--space-l);
-  border: 2px solid var(--admin-magenta);
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-accent);
   border-radius: var(--radius-m);
-  background-color: var(--white);
-  color: var(--black);
+  padding: var(--space-l);
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  width: 320px;
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 #progressContainer {
   width: 100%;
-  margin-bottom: var(--space-m);
-  border: 1px solid #c5d3e2;
+  height: 10px;
+  background-color: var(--adm-surface-2);
   border-radius: 999px;
   overflow: hidden;
-  background-color: var(--gray);
+  margin-bottom: var(--space-m);
 }
 
 #progressBar {
+  height: 100%;
+  background: linear-gradient(to right, var(--adm-accent), #818cf8);
   width: 0%;
-  height: 20px;
-  background: linear-gradient(to right, #42c6b5, #1e90ff);
   transition: width 0.3s ease;
+  border-radius: 999px;
 }
 
 #progressText {
-  font-weight: bold;
+  color: var(--adm-text-muted);
+  font-size: 85%;
 }
 
-/* ====================================== */
-/* 7. Select Plugins                      */
-/* ====================================== */
+/* ========================= */
+/* SlimSelect 上書き         */
+/* ========================= */
 
-.admin-page .ss-main {
-  display: inline-flex !important;
-  width: min(280px, 100%) !important;
-  margin: 3px !important;
-  vertical-align: middle;
+.ss-main {
+  width: 100% !important;
+  background-color: var(--adm-surface-2) !important;
+  border-color: var(--adm-border) !important;
+  color: var(--adm-text) !important;
+  min-height: 36px !important;
+  border-radius: var(--radius-s) !important;
 }
 
-.admin-page .select2-container {
-  max-width: 100%;
-  margin: 3px;
-  text-align: left;
+.ss-main:focus {
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25) !important;
 }
 
-.admin-page .select2-container--default .select2-selection--single {
-  min-height: 34px;
-  border-color: var(--admin-border);
-  border-radius: var(--radius-s);
+.ss-content {
+  background-color: var(--adm-surface) !important;
+  border-color: var(--adm-border) !important;
+  z-index: 10000 !important;
 }
 
-.admin-page .select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 32px;
-  color: var(--black);
-  font-weight: bold;
+.ss-content .ss-search input {
+  background-color: var(--adm-surface-2) !important;
+  color: var(--adm-text) !important;
+  border-bottom-color: var(--adm-border) !important;
 }
 
-.admin-page .select2-container--default .select2-selection--single .select2-selection__arrow {
-  min-height: 32px;
+.ss-content .ss-list .ss-option {
+  color: var(--adm-text) !important;
 }
 
-.select2-results__options {
-  max-height: 400px !important;
+.ss-content .ss-list .ss-option:hover:not(.ss-disabled) {
+  background-color: var(--adm-accent) !important;
+  color: var(--adm-bg) !important;
+  border-left-color: var(--adm-accent) !important;
 }
 
-/* ====================================== */
-/* 8. Responsive                          */
-/* ====================================== */
+.ss-content .ss-list .ss-option.ss-selected {
+  background-color: var(--adm-accent-dark) !important;
+  color: var(--adm-text) !important;
+}
 
-@media screen and (max-width: 768px) {
-  .admin-page {
-    width: 96%;
-    gap: var(--space-s);
-    padding-block: var(--space-s) var(--space-m);
-  }
+.ss-main .ss-arrow path {
+  stroke: var(--adm-text-muted) !important;
+}
 
-  .kanri_title {
-    font-size: 120%;
-  }
+.ss-main .ss-deselect svg path {
+  stroke: var(--adm-text-muted) !important;
+}
 
-  .kanri_save_edit_caution {
-    font-size: 100%;
-  }
-
-  .kanri_menu {
-    padding: var(--space-s);
-  }
-
-  .kanri_menu form,
-  .kanri_menu form:not(.flex) {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .kanri_menu form.flex {
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .admin-page button,
-  .admin-page input:not([type="hidden"]):not([type="checkbox"]),
-  .admin-page select,
-  .admin-page .ss-main,
-  .admin-page .select2-container {
-    width: 100% !important;
-    margin-inline: 0;
-  }
-
-  .admin-page input[type="checkbox"] {
-    width: 18px !important;
-  }
-
-  .admin-page-actions {
-    padding: var(--space-s);
-  }
-
-  .admin-page-actions form {
-    flex: 1 1 160px;
-  }
-
-  .kanri_save_edit_table {
-    font-size: 85%;
-  }
+.ss-main .ss-values .ss-single {
+  color: var(--adm-text) !important;
 }

@@ -72,4 +72,4 @@ Jinjaテンプレート。
 JS依存classはJavascript側と同時に変更することを許可。
 他は表示上の問題なし。バトル系の前にbbs.tmp.htmlをお願い。
 
-管理ページ系をお願い。これはadmin.cssを参考にしてnew_admin.cssに書き出して。
+管理ページ系をお願い。これはadmin.cssを参考にしてadmin.cssに書き出して。

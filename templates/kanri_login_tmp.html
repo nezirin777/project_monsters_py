@@ -2,25 +2,30 @@
 
 {% extends "base_tmp.html" %}
 
-{% block stylesheets %}
-<link rel="stylesheet" href="./css_js/common.css">
-<link rel="stylesheet" href="./css_js/admin.css">
+{% block head %}
+<link href="./css_js/admin.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<main class="admin-page admin-page--login">
-        <div class="kanri_title">管理モード</div>
-        <div class="kanri_login">
-            <form action="{{ Conf.kanri_url }}" method="post">
-                MASTER_NAME<br>
-                <input type="text" name="m_name"><br>
-                MASTER_PASSWORD<br>
-                <input type="password" name="m_password"><br>
-                <input type="hidden" name="mode" value="KANRI">
-                <input type="hidden" name="token" value="{{ token }}">
-                <button type="submit">管理モード</button>
-            </form>
-        </div>
-</main>
+
+<div class="admin-header">
+  <div class="admin-header__title">MONSTER'S 改 — 管理モード</div>
+</div>
+
+<div class="admin-login">
+  <form action="{{ Conf.kanri_url }}" method="post" class="form">
+    <div class="admin-field">
+      <label class="admin-field__label">MASTER NAME</label>
+      <input type="text" name="m_name" class="admin-input" autocomplete="username" required>
+    </div>
+    <div class="admin-field">
+      <label class="admin-field__label">MASTER PASSWORD</label>
+      <input type="password" name="m_password" class="admin-input" autocomplete="current-password" required>
+    </div>
+    <input type="hidden" name="mode" value="KANRI">
+    <input type="hidden" name="token" value="{{ token }}">
+    <button type="submit" class="admin-btn admin-btn--block">管理モードへ入る</button>
+  </form>
+</div>
 
 {% endblock %}
