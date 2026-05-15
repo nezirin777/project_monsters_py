@@ -93,6 +93,9 @@ class BattleStarter:
         while kaisou > 500:
             kaisou -= 500
 
+        # 旧補正
+        # base_hosei = floor * (floor / 500 if floor > 500 else 1)
+
         base_hosei = floor * (floor / 500 if floor > 500 else 1)
         user_key = (
             self.user.get("key", 0) if special_monster in ("vipsg", "異世界") else 0
