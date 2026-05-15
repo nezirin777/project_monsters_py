@@ -21,7 +21,7 @@
                     <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
                 {% endfor %}
             <br>
-            <form action="{{ Conf.top_url }}" method="post">
+            <form action="../{{ Conf.top_url }}" method="post">
                 <input type="hidden" name="mode" value="">
                 <button type="submit">TOPへ</button>
             </form>

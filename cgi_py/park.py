@@ -88,6 +88,7 @@ def park(FORM):
         "party": party,
         "park_v": park_v,
         "jump_count": jump_count,
+        "page": page,
         "p1": p1,
         "p2": p2,
         "flash_msg": flash_msg,
