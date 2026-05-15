@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function markChanged() {
         changed = true;
         // ★修正: 新しいHTML構造に合わせて保存ボタンの取得先を変更
-        const btn = document.querySelector(".party-action-footer .submit-btn");
+        const btn = document.querySelector(".party-action-footer .btn");
         if (btn) {
             btn.classList.add("active");
             // ついでに変更があったことが分かりやすいようにテキストも変更
