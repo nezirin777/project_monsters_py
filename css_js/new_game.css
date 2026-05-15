@@ -1093,6 +1093,10 @@ img {
   padding: var(--space-m);
   border-radius: var(--radius-m);
   background-color: rgba(0, 0, 0, 0.6);
+  & .active {
+      background: #ff9800 !important;
+      box-shadow: 0 0 8px #ff9800 !important;
+  }
 }
 
 .reorder-note {
@@ -1107,6 +1111,8 @@ img {
   outline-offset: -3px;
   background-color: rgba(255, 152, 0, 0.2);
 }
+
+
 
 /* --- 汎用: セクションサブタイトル（Battle/Shopでも共通） --- */
 
