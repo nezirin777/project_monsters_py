@@ -990,8 +990,7 @@ img {
 
 .party-card__tags {
   margin-top: 2px;
-  color: #666;
-  font-size: 72%;
+  font-size: 85%;
   line-height: 1.1;
 }
 
@@ -2394,7 +2393,6 @@ img {
 
 .list-card__meta {
   margin-top: var(--space-xs);
-  color: #666;
   font-size: 80%;
   line-height: 1.4;
 }
