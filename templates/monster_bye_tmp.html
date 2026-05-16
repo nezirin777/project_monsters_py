@@ -3,46 +3,39 @@
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="action-card bye-card">
-  <div class="action-card-header bye-header">パーティがいっぱいです！</div>
 
-  <div class="action-card-body">
-    <div class="action-card-desc">
-      新しく仲間になりたがっているモンスターがいますが、<br>パーティの枠が足りません。<br>
-      <span class="red">誰か一人と、お別れする必要があります。</span>
-    </div>
+<div class="card content-sm" style="margin: var(--space-m) auto;">
+  <div class="card__header">パーティがいっぱいです！</div>
+  <div class="card__desc">
+    新しく仲間になりたがっているモンスターがいますが、パーティの枠が足りません。<br>
+    <span class="red">誰か一人と、お別れする必要があります。</span>
+  </div>
+  <div class="card__body">
+    <form name="img_change" method="post" id="img_change" class="form">
 
-    <form name="img_change" method="post" id="img_change" class="ex-form">
-      <div class="ex-select-group">
-        <div class="action-subtitle">お別れするモンスターを選択</div>
-        <select name="Mno" class="monster-select ex-select" data-target="img1">
-          <!-- 仲間にしない（お別れする）場合は99を送信 -->
-          <option value="99" data-name="{{ get_name }}" selected>
-            新しいモンスター : {{ get_name }} {{ Asex }}
-          </option>
+      <select name="Mno" class="form-control monster-select" data-target="img1">
+        <option value="99" data-name="{{ get_name }}" selected>
+          新しいモンスター : {{ get_name }} {{ Asex }}
+        </option>
+        {% for pt in party %}
+        <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">
+          {{ loop.index }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回
+        </option>
+        {% endfor %}
+      </select>
 
-          {% for pt in party %}
-          <option value="{{ loop.index0 }}" data-name="{{ pt.name }}">
-            {{ loop.index }}: {{ pt.name }} {{ pt.sex }} LV-{{ pt.lv }} 配合{{ pt.hai }}回
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <!-- 選択中のモンスタープレビュー -->
-      <div class="haigou-img-box bye-preview-img">
+      <div class="monster-preview">
         <img name="img1" src="{{ Conf.imgpath }}/{{ get_name }}.gif" alt="{{ get_name }}">
       </div>
 
-      <div class="bye-action-area">
-        <button type="submit" class="submit-btn bye-btn" data-confirm="本当にお別れしてもよろしいですか？">
-          選択したモンスターと別れる
-        </button>
-      </div>
+      <button type="submit" class="btn btn--block" data-confirm="本当にお別れしてもよろしいですか？">
+        選択したモンスターと別れる
+      </button>
 
       <input type="hidden" name="mode" value="m_bye">
       <input type="hidden" name="token" value="{{ token }}">
     </form>
   </div>
 </div>
+
 {% endblock %}

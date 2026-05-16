@@ -11,8 +11,6 @@ from .file_ops import (
     open_monster_dat,
     open_monster_boss_dat,
     open_seikaku_dat,
-    open_user_all,
-    save_user_all,
     log,
 )
 
@@ -36,7 +34,6 @@ def _calc_base_stat(
 def register_monster_progress(
     waza_target: str = None,
     zukan_target: str = None,
-    user_name: str = "",
     all_data: Optional[Dict] = None,
 ) -> dict:
     """

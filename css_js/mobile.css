@@ -1,157 +1,386 @@
-/* ======================================================
-   mobile.css - スマートフォン向けレイアウト調整 (max-width: 768px)
-   ====================================================== */
+/* ====================================== */
+/* mobile.css                             */
+/* スマートフォン向けレイアウト調整        */
+/* 対象: max-width 768px                  */
+/* ====================================== */
+/*
+  new_game.css のページ移行に合わせて
+  ページ単位で追記していく。
+
+  原則:
+  - PCで成立している構造をモバイルで崩れないよう補正する
+  - 新規のスタイルはここに書かない（new_game.cssに書く）
+  - 補正が不要な箇所はセクションを空のままにしない（コメントで明示する）
+*/
+
 @media screen and (max-width: 768px) {
 
+  /* ====================================== */
+  /* 0. Foundation / Reset                  */
+  /* ====================================== */
 
-  /* --- 全般・共通パーツ --- */
-  .desktop-only { display: none !important; }
+  /* new_game.css の Foundation はモバイル補正不要 */
 
-  .my-page-back-form { gap: 10px; }
-  .my-page-back-form .slim-btn { padding: 12px 10px; font-size: 90%; }
+  /* ====================================== */
+  /* 1. Layout Core                         */
+  /* ====================================== */
 
-  .flex-form { flex-direction: column; }
-  .full-width-input { width: 100%; box-sizing: border-box; }
-  .slim-btn { width: 100%; }
+  /* .layout-cluster: モバイルでは左右マージン確保のみでそのまま成立 */
+  /* .layout-stack: 縦積みなのでモバイル補正不要 */
+  /* .layout-grid: --grid-min の値次第。各ページセクションで個別対応 */
 
-  .site-footer {
-    text-align: center;
-    /* スマホでは中央寄せ */
+  /* ====================================== */
+  /* 2. Width System                        */
+  /* ====================================== */
+
+  /* .content-sm / .content-md / .content-lg: width:95% が効いているので補正不要 */
+
+  /* ====================================== */
+  /* 3. Card Core                           */
+  /* ====================================== */
+
+  /* .card 基盤はモバイル補正不要 */
+
+  /* ====================================== */
+  /* 4. Button Core                         */
+  /* ====================================== */
+
+  /* .btn はそのまま成立。padding等の個別補正は各ページセクションで行う */
+
+  /* ====================================== */
+  /* 5. Form Core                           */
+  /* ====================================== */
+
+  /* ログインフォームのform-group--rowはモバイルで縦積みに切り替える */
+  .form-group--row {
+    flex-direction: column;
+    align-items: stretch;
+
+    & .form-label {
+      flex: none;
+      text-align: left;
+      margin-bottom: 0;
+      width: auto;
+    }
   }
 
-  .footer-credits {
+  /* ====================================== */
+  /* 6. Badge / Label Core                  */
+  /* ====================================== */
+
+  /* .badge はモバイル補正不要 */
+
+  /* ====================================== */
+  /* 7. Banner Core                         */
+  /* ====================================== */
+
+  /* .banner はモバイル補正不要 */
+
+  /* ====================================== */
+  /* 8. Utility                             */
+  /* ====================================== */
+
+  /* 補正不要 */
+
+  /* ====================================== */
+  /* 9. Top Page                            */
+  /* ====================================== */
+
+  /* .page-header: gap を縮める */
+  .page-header {
+    gap: var(--space-s);
+    padding-block: var(--space-s);
+  }
+
+  /* .site-title-block: フォントサイズを縮める */
+  .site-title-block {
+    font-size: 110%;
+  }
+
+  /* .page-body: gapを縮める */
+  .page-body {
+    gap: var(--space-m);
+  }
+
+  /* ====================================== */
+  /* 10. Ranking                            */
+  /* ====================================== */
+
+  /* .rank-card__body: モバイルでは縦積みに切り替える */
+  .rank-card__body {
+    flex-direction: column;
+  }
+
+  /* .rank-card__info: 縦積み時はborder-rightを外してborder-bottomに切り替える */
+  .rank-card__info {
+    flex: none;
+    padding-right: 0;
+    padding-bottom: var(--space-s);
+    border-right: none;
+    border-bottom: 1px dashed #bbb;
+  }
+
+  /* .rank-card__party: モンスターが横に並ぶのはそのまま成立 */
+
+  /* .monster-item: 幅をやや広げて画像が小さくなりすぎないよう補正 */
+  .monster-item {
+    width: 30%;
+  }
+
+  /* ====================================== */
+  /* 11. My Page                            */
+  /* ====================================== */
+
+  /* フローティングナビ: モバイルでは非表示 */
+  .floating-nav {
+    display: none;
+  }
+
+  /* パーティグリッド: 1列に切り替え */
+  .party-grid {
+    grid-template-columns: 1fr;
+    max-width: 450px;
+  }
+
+  /* パーティカードのcard-body: 横並びに切り替え */
+  .party-card .card-body {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--space-s);
+  }
+
+  /* 画像エリア: 横並び時は幅を固定 */
+  .party-card__img {
+    width: 35%;
+    min-height: auto;
+
+    & img {
+      max-height: 100px;
+    }
+  }
+
+  /* ステータスグリッド: 画像の横に配置 */
+  .party-card__stats {
+    width: 65%;
+  }
+
+  /* ====================================== */
+  /* 12. Battle                             */
+  /* ====================================== */
+
+  /* 戦闘選択グリッド: 1列に切り替え */
+  .layout-grid--2col:has(.battle-option) {
+    grid-template-columns: 1fr;
+  }
+
+  /* 戦闘フォーム内クラスター: 縦に整列 */
+  .battle-option .layout-cluster {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* 数値入力: 縦並び時は全幅 */
+  .battle-option .form-control[type="number"] {
+    width: 100%;
+  }
+
+  /* エンカウント: 敵グリッドを2列に */
+  .encount-card .layout-grid {
+    --grid-min: 140px;
+  }
+
+  .enemy-card__img img {
+    max-height: 80px;
+  }
+
+  /* 戦闘ログ: キャラクター表示を縦積みに */
+  .log-card__actor {
+    flex-direction: column;
+    text-align: center;
+    width: 35%;
+  }
+
+  .log-card__actor-img {
+    margin-right: 0;
+    margin-bottom: var(--space-xs);
+    height: auto;
+
+    & img {
+      max-height: 60px;
+    }
+  }
+
+  /* 防御側のorder打ち消し */
+  .log-card__actor--enemy {
+    & .log-card__actor-img {
+      order: unset;
+      margin-left: 0;
+    }
+
+    & .log-card__actor-stats {
+      order: unset;
+    }
+  }
+
+  /* 戦闘コマンド: 1列に切り替え */
+  .battle-menu .layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ====================================== */
+  /* 13. Shop                               */
+  /* ====================================== */
+
+  /* 施設ボタングリッド: 2列に切り替え */
+  .shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ショップボタン: 高さを確保してタップしやすく */
+  .shop-grid .btn {
+    min-height: 48px;
+    font-size: 90%;
+    padding: var(--space-s);
+  }
+
+  /* ====================================== */
+  /* 14. BBS                                */
+  /* ====================================== */
+
+  /* 入力エリア: モバイルでは縦積みに切り替え */
+  .bbs-form .layout-cluster {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* 入力欄: 全幅 */
+  .bbs-form .form-control {
+    width: 100%;
+  }
+
+  /* 送信・更新ボタン: 横並びを維持しつつ均等幅 */
+  .bbs-form .layout-cluster {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .bbs-form .form-control {
+    flex: 1 1 100%;
+  }
+
+  .bbs-btn,
+  .bbs-refresh {
+    flex: 1;
+  }
+
+  /* ====================================== */
+  /* 16. Zukan                              */
+  /* ====================================== */
+
+  .zukan-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--space-xs);
+  }
+
+  .zukan-card__img {
+    min-height: 90px;
+
+    & img {
+      max-height: 75px;
+    }
+  }
+
+  .tooltip {
+    max-width: 85%;
+  }
+
+  /* ====================================== */
+  /* 17. Book                               */
+  /* ====================================== */
+
+  .preview-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xs);
+  }
+
+  .preview-card__img {
+    min-height: 80px;
+
+    & img {
+      max-height: 70px;
+    }
+  }
+
+  .preview-card__name {
     font-size: 85%;
   }
 
-  .credit-row {
-    justify-content: center;
-    /* 項目を中央に集める */
+  /* ====================================== */
+  /* 18. Medal Shop / Name Change           */
+  /* ====================================== */
+
+  .item-select-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .credit-label {
-    width: auto;
-    margin-right: 5px;
+  .item-card {
+    max-width: none;
   }
 
-  /* --- TOPページ・ランキング --- */
-  .rank-card {
+  /* ====================================== */
+  /* 19. Park & Omiai                       */
+  /* ====================================== */
+
+  /* list-cardはlayout-gridに乗るので自動で1列になる */
+  /* list-card__body: そのまま成立 */
+
+  /* ====================================== */
+  /* 20. Monster Events                     */
+  /* ====================================== */
+
+  /* fusion-pair: 3カラム→縦積みに切り替え */
+  .fusion-pair {
+    grid-template-columns: 1fr;
+    gap: var(--space-s);
+  }
+
+  .fusion-plus {
+    transform: rotate(90deg);
+  }
+
+  /* born-card__img: サイズ縮小 */
+  .born-card__img {
+    width: 160px;
+    min-height: 160px;
+
+    & img {
+      max-height: 130px;
+    }
+  }
+
+  .born-card__stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* ====================================== */
+  /* 21. Newgame                            */
+  /* ====================================== */
+
+  .register-result__monster {
     flex-direction: column;
-    border: 2px solid var(--blue);
-    border-radius: 8px;
-    margin-bottom: 15px;
-    overflow: hidden;
+    gap: var(--space-m);
   }
-  .rank-badge {
-    width: 100%;
-    font-size: 150%;
-    padding: 10px 0;
-    border-right: none;
-    border-bottom: 1px solid var(--black);
+
+  .register-result__monster-info {
+    text-align: center;
   }
-  .rank-top-row { flex-direction: column; }
-  .rank-user-info {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--black);
-  }
-  .rank-monsters { padding: 10px; }
-  .monster-item { width: 45%; }
-  .rank-comment-label { width: 80px; font-size: 90%; }
 
+  /* ====================================== */
+  /* 15. Footer                             */
+  /* ====================================== */
 
-  /* --- 新規登録・ユーザー設定 --- */
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .result-monster-header { flex-direction: column; gap: 10px; }
-  .monster-info-text { text-align: center; }
-
-  .name-change-card { width: 95%; }
-  .form-action-area .submit-btn { width: 100%; padding: 15px; }
-
-  /* --- マイページメイン --- */
-  .party-grid { grid-template-columns: 1fr; max-width: 450px; }
-  .card-body { flex-direction: row; align-items: center; padding: 10px 5px; }
-  .monster-image-wrapper { width: 35%; margin-bottom: 0; min-height: auto; }
-  .monster-image-wrapper img { max-height: 100px; }
-  .monster-stats-grid { width: 65%; }
-  .m-label { font-size: 85%; width: 35%; }
-  .m-val { font-size: 95%; }
-
-  .battle-options-grid { grid-template-columns: 1fr; padding: 10px; }
-  .battle-inputs { flex-direction: column; align-items: stretch; }
-  .battle-select, .battle-number { width: 100%; box-sizing: border-box; }
-  .battle-text { text-align: center; margin: 2px 0; }
-
-  .shop-button-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; }
-  .shop-btn { font-size: 90%; padding: 15px 5px; }
-
-  .ex-select, .ex-btn { width: 100%; box-sizing: border-box; }
-
-  .bbs-input-group { flex-wrap: wrap; }
-  .bbs-input { width: 100%; min-width: 100%; }
-  .bbs-btn { flex: 1; }
-
-  /* --- 戦闘・ログ --- */
-  .enemy-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
-  .enemy-image-wrapper { min-height: 100px; }
-  .enemy-image-wrapper img { max-height: 80px; }
-  .enemy-name { font-size: 95%; }
-
-  .battle-cmd-grid { grid-template-columns: 1fr; }
-  .cmd-member-header { padding: 8px; }
-  .cmd-member-img { width: 60px; height: 60px; margin-right: 10px; }
-  .cmd-member-img img { max-height: 50px; }
-  .cmd-name { font-size: 100%; }
-
-  .log-actors-area { align-items: flex-start; }
-  .log-actor { flex-direction: column; text-align: center; }
-  .log-attacker, .log-defender { justify-content: center; text-align: center; }
-  .log-defender .log-actor-img { order: unset; margin-left: 0; margin-right: 0; margin-bottom: 5px; }
-  .log-defender .log-actor-stats { order: unset; }
-  .log-actor-img { margin-right: 0; margin-bottom: 5px; }
-
-  /* --- 図鑑・本屋・交換所 --- */
-  .zukan-category-btn { padding: 8px 10px; font-size: 85%; }
-  .zukan-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; }
-  .zukan-img-wrapper { height: 90px; }
-  .zukan-img-wrapper img { max-height: 75px; }
-  .zukan-name { font-size: 80%; }
-  .tooltip { max-width: 85%; }
-
-  .book-monster-grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
-  .book-img-wrapper { height: 80px; }
-  .book-img-wrapper img { max-height: 70px; }
-  .book-m-name { font-size: 85%; }
-
-  .shop-item-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 5px; }
-  .shop-item-content { padding: 12px 5px; }
-  .shop-item-name { font-size: 95%; }
-  .shop-item-price { font-size: 85%; }
-
-  /* --- 配合・お見合い・パーク --- */
-  .haigou-img-area { gap: 10px; }
-  .haigou-img-box { width: 110px; height: 110px; }
-  .haigou-img-box img { max-height: 90px; }
-  .haigou-plus { font-size: 150%; }
-
-  .haigou-pair-grid { gap: 5px; padding: 10px; }
-  .haigou-mons-card { width: 110px; }
-  .haigou-img { height: 100px; }
-  .born-img-container { width: 160px; height: 160px; }
-  .born-img { max-height: 130px; }
-  .born-stats-grid { grid-template-columns: 1fr; }
-
-  .omiai-grid { grid-template-columns: 1fr; }
-  .omiai-card-top { flex-direction: column; gap: 10px; align-items: flex-start; }
-  .omiai-touroku-card { width: 95%; max-width: none; }
-  .omiai-action-btns { width: 100%; }
-  .omiai-action-btns .submit-btn { flex: 1; text-align: center; }
-
-  .park-grid { grid-template-columns: 1fr; }
-  .park-sort-btns { flex-direction: column; }
-  .park-sort-btns .page-btn { width: 100%; }
-  .park-card-stats { grid-template-columns: repeat(2, 1fr); }
-
-  .bye-card { margin-top: 10px; }
-  .bye-btn { width: 100%; padding: 15px; }
+  /* common.css のフッターはモバイル補正不要 */
 
 }
+
+/* end @media */

@@ -1,70 +1,80 @@
 <!-- templates/haigou_check_tmp.html -->
+
 {% extends "base_tmp.html" %}
 
 {% block content %}
-<div class="action-card haigou-check-card">
-    <div class="action-card-header">
-        {% if mode=="omiai_req" %}お見合い申請確認
-        {% elif mode=="omiai_ans" %}お見合い受諾確認
-        {% else %}配合確認{% endif %}
-    </div>
 
-    <div class="action-card-desc">
-        {% if mode=="omiai_req" %}お見合いを申し込みますか？
-        {% elif mode=="omiai_ans" %}お見合いを受けますか？
-        {% else %}モンスターを配合しますか？{% endif %}
-    </div>
+<div class="card content-sm" style="margin: var(--space-m) auto;">
 
-    <!-- 配合ペアの表示 -->
-    <div class="haigou-pair-grid">
-        <div class="haigou-mons-card">
-            <div class="haigou-label">ベース</div>
-            <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ nameA }}.gif"></div>
-            <div class="haigou-name">{{ nameA }}</div>
-        </div>
-        <div class="haigou-plus">＋</div>
-        <div class="haigou-mons-card">
-            <div class="haigou-label">相手</div>
-            <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ nameB }}.gif"></div>
-            <div class="haigou-name">{{ nameB }}</div>
-        </div>
-    </div>
+  <div class="card__header">
+    {% if mode=="omiai_req" %}お見合い申請確認
+    {% elif mode=="omiai_ans" %}お見合い受諾確認
+    {% else %}配合確認{% endif %}
+  </div>
 
-    <!-- 予想結果 -->
-    <div class="haigou-result-preview">
-        <div class="action-subtitle">NEW MONSTER 予想</div>
-        <div class="haigou-mons-card result-preview">
-            <div class="haigou-img"><img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif"></div>
-            <div class="haigou-name">{{ my_new_mons }}</div>
-        </div>
-        {% if hint_flag %}
-        <div class="hai_msg hint-msg">不思議な気配を感じる…</div>
-        {% endif %}
-    </div>
+  <div class="card__desc">
+    {% if mode=="omiai_req" %}お見合いを申し込みますか？
+    {% elif mode=="omiai_ans" %}お見合いを受けますか？
+    {% else %}モンスターを配合しますか？{% endif %}
+  </div>
 
-    <!-- アクションボタン -->
-    <div class="haigou-actions">
-        <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
-            {% if mode=="omiai_req" %}
-                <button type="submit" class="submit-btn">申請する</button>
-                <input type="hidden" name="mode" value="omiai_request_ok">
-                <input type="hidden" name="target" value="{{ target }}">
-            {% elif mode=="omiai_ans" %}
-                <button type="submit" class="submit-btn">お見合い OK!</button>
-                <input type="hidden" name="mode" value="omiai_answer_result">
-                <input type="hidden" name="target" value="{{ target }}">
-            {% else %}
-                <button type="submit" class="submit-btn">配合 OK!</button>
-                <input type="hidden" name="mode" value="haigou_hensin">
-            {% endif %}
-            <input type="hidden" name="token" value="{{ token }}">
-        </form>
-
-        <form action="{{ Conf.cgi_url }}" method="post" class="flex-form">
-            <input type="hidden" name="mode" value="{% if mode=='haigou' %}my_page{% else %}omiai_room{% endif %}">
-            <input type="hidden" name="token" value="{{ token }}">
-            <button type="submit" class="submit-btn slim-btn">キャンセル</button>
-        </form>
+  <!-- 配合ペア -->
+  <div class="fusion-pair">
+    <div class="fusion-mon">
+      <div class="fusion-mon__label">ベース</div>
+      <div class="fusion-mon__img">
+        <img src="{{ Conf.imgpath }}/{{ nameA }}.gif" alt="{{ nameA }}">
+      </div>
+      <div class="fusion-mon__name">{{ nameA }}</div>
     </div>
+    <div class="fusion-plus">＋</div>
+    <div class="fusion-mon">
+      <div class="fusion-mon__label">相手</div>
+      <div class="fusion-mon__img">
+        <img src="{{ Conf.imgpath }}/{{ nameB }}.gif" alt="{{ nameB }}">
+      </div>
+      <div class="fusion-mon__name">{{ nameB }}</div>
+    </div>
+  </div>
+
+  <!-- 結果プレビュー -->
+  <div class="fusion-preview">
+    <div class="section-label">NEW MONSTER 予想</div>
+    <div class="fusion-mon" style="max-width:240px; margin:0 auto;">
+      <div class="fusion-mon__img">
+        <img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif" alt="{{ my_new_mons }}">
+      </div>
+      <div class="fusion-mon__name">{{ my_new_mons }}</div>
+    </div>
+    {% if hint_flag %}
+    <div class="hint-note">不思議な気配を感じる…</div>
+    {% endif %}
+  </div>
+
+  <!-- アクションボタン -->
+  <div class="card__footer">
+    <form action="{{ Conf.cgi_url }}" method="post">
+      {% if mode=="omiai_req" %}
+      <button type="submit" class="btn">申請する</button>
+      <input type="hidden" name="mode" value="omiai_request_ok">
+      <input type="hidden" name="target" value="{{ target }}">
+      {% elif mode=="omiai_ans" %}
+      <button type="submit" class="btn">お見合い OK!</button>
+      <input type="hidden" name="mode" value="omiai_answer_result">
+      <input type="hidden" name="target" value="{{ target }}">
+      {% else %}
+      <button type="submit" class="btn">配合 OK!</button>
+      <input type="hidden" name="mode" value="haigou_hensin">
+      {% endif %}
+      <input type="hidden" name="token" value="{{ token }}">
+    </form>
+    <form action="{{ Conf.cgi_url }}" method="post">
+      <input type="hidden" name="mode" value="{% if mode=='haigou' %}my_page{% else %}omiai_room{% endif %}">
+      <input type="hidden" name="token" value="{{ token }}">
+      <button type="submit" class="btn btn--sm">キャンセル</button>
+    </form>
+  </div>
+
 </div>
+
 {% endblock %}

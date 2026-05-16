@@ -76,11 +76,21 @@ class BattleStarter:
             if any(r_key.get("get", 0) == 0 for r_key in self.room_key.values()):
                 special_enemies.append("スライム")
 
-            if in_floor >= 1001 + 500 * (self.user.get("isekai_limit", 0) / 10):
-                # ↑500階おきに次のエリアに進めるようになる
-                if self.user.get("isekai_limit", 0) < self.user.get("isekai_key", 0):
-                    if self.user.get("isekai_limit", 0) != Conf.get("isekai_max_limit"):
-                        special_enemies.append("vipsg")
+            max_limit = int(Conf.get("isekai_max_limit", 0))
+            current_limit = int(self.user.get("isekai_limit", 0))
+
+            # limit異常修正
+            if current_limit > max_limit:
+                current_limit = max_limit
+                self.user["isekai_limit"] = max_limit
+                self.user["isekai_key"] = max_limit
+
+            if (  # 500階おきに次のエリアに進めるようになる
+                in_floor >= 1001 + 500 * (current_limit // 10)
+                and current_limit < self.user.get("isekai_key", 0)
+                and current_limit < max_limit
+            ):
+                special_enemies.append("vipsg")
 
         return special_enemies or [0]
 
@@ -92,6 +102,9 @@ class BattleStarter:
         kaisou = floor
         while kaisou > 500:
             kaisou -= 500
+
+        # 旧補正
+        # base_hosei = floor * (floor / 500 if floor > 500 else 1)
 
         base_hosei = floor * (floor / 500 if floor > 500 else 1)
         user_key = (
@@ -274,4 +287,9 @@ def battle_type2(FORM):
     in_isekai = int(FORM.get("in_isekai", 0))
 
     starter.validate(in_isekai=in_isekai)
-    starter.process_battle("異世界", "last_floor_isekai", in_isekai)
+    starter.process_battle(
+        "異世界",
+        "last_floor_isekai",
+        in_isekai,
+        room_value="異世界",
+    )

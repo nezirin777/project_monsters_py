@@ -1,0 +1,637 @@
+@charset "UTF-8";
+
+/* ====================================== */
+/* html.css                               */
+/* htmlフォルダ内の静的HTML用スタイル      */
+/* ====================================== */
+/*
+  対象:
+    event.html / event_base.html
+    haigou_list.html / haigou_list2.html
+    manual.html
+    mokuteki.html / news.html
+    tournament_result.html
+
+  readme.html / PLAYMANUAL copy.html は旧配布物として対象外。
+*/
+
+/* ====================================== */
+/* 0. Foundation                          */
+/* ====================================== */
+
+:root {
+  --sky-blue: #64b5f6;
+  --blue: #2422c9;
+  --red: #d32a2a;
+  --yellow: #fbc02d;
+  --black: #333333;
+  --white: #fafafa;
+  --gray: #e0e0e0;
+  --bg-tan: #deb887;
+  --bg-manual: #99ffff;
+  --panel-cream: #f9e3b7;
+  --panel-blue: #ccccff;
+  --line: #222222;
+
+  --space-xs: 2px;
+  --space-s: 5px;
+  --space-m: 10px;
+  --space-l: 20px;
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 14px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg-tan);
+  color: var(--black);
+  font-family: "MS PGothic", "MS UI Gothic", system-ui, sans-serif;
+  line-height: 1.65;
+  text-align: center;
+  -webkit-text-size-adjust: 100%;
+}
+
+a:link,
+a:visited {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+a:hover {
+  color: crimson;
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin: var(--space-xs);
+  padding: var(--space-xs) var(--space-m);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-s);
+  background-color: #eef3f8;
+  color: #263a52;
+  font-weight: bold;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--line);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
+}
+
+button:hover {
+  background-color: #e2ebf4;
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--line);
+}
+
+button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  min-height: 100vh;
+  padding-block: var(--space-m);
+}
+
+.red {
+  color: var(--red);
+  font-weight: bold;
+}
+
+/* ====================================== */
+/* 1. Floating Page Menu                  */
+/* ====================================== */
+
+#haigou_rightmenu {
+  position: fixed;
+  top: 50%;
+  right: var(--space-s);
+  z-index: 50;
+  max-width: 190px;
+  max-height: 90vh;
+  padding: var(--space-m);
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: var(--radius-l);
+  background-color: rgba(255, 255, 255, 0.78);
+  color: var(--black);
+  font-size: 100%;
+  font-weight: bold;
+  line-height: 1.9;
+  text-align: left;
+  transform: translateY(-50%);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+#haigou_rightmenu form {
+  margin-top: var(--space-s);
+  text-align: center;
+}
+
+/* ====================================== */
+/* 2. Footer                              */
+/* ====================================== */
+
+#footer {
+  flex-shrink: 0;
+  width: min(1100px, 95%);
+  margin: var(--space-l) auto 0;
+  text-align: right;
+}
+
+#f_box {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  font-weight: bold;
+}
+
+#f_t {
+  color: var(--red);
+}
+
+#f_box span {
+  display: inline-flex;
+  width: 120px;
+  color: var(--black);
+}
+
+/* ====================================== */
+/* 3. Haigou List                         */
+/* ====================================== */
+
+.haigou_title {
+  width: min(960px, 95%);
+  margin-inline: auto;
+  padding: var(--space-m);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-m);
+  background-color: rgba(255, 255, 255, 0.78);
+  color: var(--red);
+  font-size: 120%;
+  font-weight: bold;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.haigou_menu {
+  width: min(960px, 95%);
+  margin-inline: auto;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background-color: var(--white);
+}
+
+.haigou_box {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+}
+
+.menu_title_1,
+.menu_title_2,
+.menu_title_3,
+.menu_title_4,
+.menu_title_5,
+.haigou_menu_1,
+.haigou_menu_2,
+.haigou_menu_3,
+.haigou_menu_4,
+.haigou_menu_5 {
+  border: 1px solid var(--line);
+  padding: var(--space-xs) var(--space-s);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.menu_title_1,
+.menu_title_2,
+.menu_title_3,
+.menu_title_4,
+.menu_title_5 {
+  background-color: #fce562;
+  color: var(--black);
+  font-weight: bold;
+}
+
+.menu_title_2 {
+  color: var(--red);
+}
+
+.haigou_menu_1 {
+  background-color: #999999;
+}
+
+.haigou_menu_2,
+.haigou_menu_5 {
+  background-color: var(--white);
+}
+
+.haigou_menu_3,
+.haigou_menu_4 {
+  background-color: #87ceeb;
+}
+
+.haigou_menu_3B,
+.haigou_menu_4B {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin: -3px -6px;
+  padding: var(--space-xs);
+  border: 1px solid var(--line);
+  color: var(--black);
+}
+
+/* ====================================== */
+/* 4. Haigou List 2 / Sortable            */
+/* ====================================== */
+
+.haigou_txt {
+  width: min(920px, 95%);
+  margin-inline: auto;
+  padding: var(--space-m);
+  border-radius: var(--radius-m);
+  background-color: rgba(255, 255, 255, 0.62);
+  text-align: center;
+}
+
+.haigou_txt ul {
+  display: inline-block;
+  margin: var(--space-s) auto 0;
+  padding-left: 1.25em;
+  text-align: left;
+}
+
+.sortBtn {
+  min-width: 150px;
+  margin-top: var(--space-s);
+}
+
+.sortBtn.active-sort {
+  border-color: #e65100;
+  background-color: #ff9800;
+  color: var(--white);
+  box-shadow: 0 2px 0 #a63a00;
+}
+
+.list2 {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-s);
+  width: min(1220px, 96%);
+  margin-inline: auto;
+  overflow-x: auto;
+  padding-bottom: var(--space-s);
+}
+
+.list2_group_header {
+  width: 100%;
+  min-width: 980px;
+  margin: var(--space-m) auto var(--space-xs);
+  padding: var(--space-xs) var(--space-m);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-s);
+  background-color: #eaf4ff;
+  color: var(--black);
+  font-size: 110%;
+  font-weight: bold;
+  text-align: center;
+}
+
+.list2_monster_table {
+  width: 1200px;
+  min-width: 980px;
+  margin: 0 auto;
+  border: 2px solid var(--blue);
+  border-collapse: collapse;
+  table-layout: fixed;
+  background-color: var(--white);
+  color: var(--black);
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.list2_monster_table td {
+  border: 1px solid var(--line);
+  padding: var(--space-xs) var(--space-s);
+  text-align: center;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+.list2_image_cell {
+  width: 220px;
+  height: 150px;
+  background-color: #f8fbff;
+}
+
+.list2_image_cell img {
+  max-height: 130px;
+  object-fit: contain;
+}
+
+.list2_image_cell div {
+  margin-top: var(--space-xs);
+  color: var(--blue);
+}
+
+.right-cell {
+  color: var(--black);
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.right-cell span {
+  color: var(--red);
+}
+
+.right-cell.floor,
+.right-cell.location {
+  width: 147px;
+  background-color: #f7fbff;
+}
+
+.right-cell.description-a,
+.right-cell.description-b {
+  width: 343px;
+  background-color: #fffdf4;
+}
+
+.right-cell.description-a.expand {
+  width: 686px;
+}
+
+.kinsoku {
+  color: var(--white);
+  font-size: 60%;
+  font-weight: bold;
+}
+
+/* ====================================== */
+/* 5. Manual / Event Pages                */
+/* ====================================== */
+
+#manual_body {
+  background-color: var(--bg-manual);
+}
+
+.manual_frame {
+  width: min(880px, 95%);
+  margin-inline: auto;
+  padding: var(--space-m);
+  background-color: var(--panel-cream);
+  text-align: left;
+}
+
+.manual_inframe {
+  width: 100%;
+  margin: 0;
+}
+
+.manual_title {
+  margin-block: var(--space-s) var(--space-m);
+  color: var(--black);
+  text-align: center;
+}
+
+.manual_h {
+  display: inline-block;
+  width: 80%;
+  margin-top: var(--space-s);
+  padding: var(--space-xs) var(--space-s);
+  background-color: #666666;
+  color: var(--white);
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.manual_syousai {
+  width: 80%;
+  padding: var(--space-s) var(--space-m);
+  background-color: var(--panel-blue);
+}
+
+.manual_table,
+.manual_table2 {
+  margin-block: var(--space-s);
+  border: 1px solid var(--line);
+  border-collapse: collapse;
+  background-color: #cdefff;
+}
+
+.manual_table {
+  width: 220px;
+}
+
+.manual_table2 {
+  width: 100%;
+}
+
+.manual_table th,
+.manual_table td,
+.manual_table2 th,
+.manual_table2 td {
+  border: 1px solid var(--line);
+  padding: var(--space-xs) var(--space-s);
+  text-align: center;
+}
+
+.manual_big_red {
+  color: var(--red);
+  font-size: 130%;
+  font-weight: bold;
+}
+
+.manual_big_blue {
+  color: var(--blue);
+  font-size: 130%;
+  font-weight: bold;
+}
+
+.manual_big_black {
+  color: var(--black);
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.manual_red {
+  color: var(--red);
+  font-weight: bold;
+}
+
+.manual_blue {
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.manual_form {
+  text-align: center;
+}
+
+/* ====================================== */
+/* 6. News / Small Static Pages           */
+/* ====================================== */
+
+.html-news-page {
+  padding: var(--space-m);
+  background-color: #d9ff99;
+  text-align: center;
+}
+
+#news {
+  color: var(--red);
+  font-size: 100%;
+  font-weight: bold;
+  text-align: center;
+}
+
+.html-news-page #news {
+  width: min(760px, 95%);
+  margin-inline: auto;
+  line-height: 1.8;
+}
+
+/* ====================================== */
+/* 7. Tournament Result                   */
+/* ====================================== */
+
+.my_page_topmenu {
+  width: min(560px, 95%);
+  margin: 0 auto var(--space-m);
+  padding: var(--space-s) var(--space-m);
+  border: 3px solid #ff00ff;
+  background-color: #660066;
+  color: var(--white);
+  font-size: 100%;
+  font-weight: bold;
+}
+
+.my_page_topmenu a:link,
+.my_page_topmenu a:visited {
+  color: var(--white);
+}
+
+.tournament_result_box {
+  width: min(900px, 95%);
+  margin-inline: auto;
+  padding: var(--space-m);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-m);
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+.medal_battle_title {
+  color: var(--blue);
+  font-size: 150%;
+  font-weight: bold;
+}
+
+.medal_battle_data {
+  margin: var(--space-m) auto 0;
+  color: var(--red);
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.medal_battle_sub {
+  color: var(--black);
+  font-size: 110%;
+  font-weight: bold;
+}
+
+.medal_battle_result {
+  color: var(--black);
+  font-size: 100%;
+  font-weight: bold;
+}
+
+/* ====================================== */
+/* 8. Responsive                          */
+/* ====================================== */
+
+@media screen and (max-width: 768px) {
+  .wrapper {
+    padding-block: var(--space-s);
+  }
+
+  #haigou_rightmenu {
+    position: static;
+    width: min(95%, 520px);
+    max-width: none;
+    max-height: none;
+    margin-inline: auto;
+    transform: none;
+    text-align: center;
+  }
+
+  .haigou_title,
+  .haigou_txt,
+  .haigou_menu,
+  .manual_frame,
+  .tournament_result_box {
+    width: 95%;
+  }
+
+  .manual_frame {
+    padding: var(--space-s);
+  }
+
+  .manual_h,
+  .manual_syousai {
+    width: 100%;
+  }
+
+  .manual_table,
+  .manual_table2 {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .list2 {
+    width: 95%;
+  }
+
+  .sortBtn {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  #footer {
+    text-align: center;
+  }
+}

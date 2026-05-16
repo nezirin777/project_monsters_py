@@ -67,8 +67,8 @@ def handle_post(form, session):
 
     # モダンなクラス構造でログを生成
     newlog = (
-        f'<div class="bbs-line">'
-        f'<span style="color: {color}; font-weight: bold;">{safe_name}</span> &gt; '
+        f'<div class="bbs-line" style="color: {color};">'
+        f'<span style="font-weight: bold;">{safe_name}</span> &gt; '
         f'{txt} <span class="bbs-time">--{timestamp}</span>'
         f"</div>\n"
     )

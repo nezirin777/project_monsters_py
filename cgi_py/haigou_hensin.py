@@ -65,7 +65,6 @@ def haigou_hensin(FORM):
     progress = register_monster_progress(
         waza_target=waza_target,
         zukan_target=new_mob_name,
-        user_name=user_name,
         all_data=all_data,
     )
 

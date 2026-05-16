@@ -1,93 +1,104 @@
 <!-- templates/my_page_battleselect_tmp.html -->
 
-<div class="action-card card" id="battle-section">
-  <!-- ヘッダーと説明文 -->
-  <div class="action-card-header">戦 闘</div>
-  <div class="action-card-desc">
+<div class="card" id="battle-section">
+  <div class="card__header">戦 闘</div>
+  <div class="card__desc">
     KEYやモンスターが入手出来ます。<br>
     <small>KEYは一番深い階層を選択した時にしか出現しません。</small>
   </div>
+  <div class="card__body">
+    <div class="layout-grid layout-grid--2col" style="gap: var(--space-m);">
 
-  <!-- 戦闘選択フォームのグリッド -->
-  <div class="battle-options-grid">
-
-    <!-- 最深階 -->
-    <div class="battle-option-box">
-      <div class="battle-option-title">【 最 深 階 】</div>
-      <form action="{{ Conf.cgi_url }}" method="post" class="battle-form battle_go">
-        <div class="battle-inputs">
-          <select name="in_room" class="battle-select">
-            <option value="通常">通常の部屋</option>
-            {% for room in room_key_display %}
+      <!-- 最深階 -->
+      <div class="battle-option">
+        <div class="battle-option__title">【 最 深 階 】</div>
+        <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+          <div class="layout-cluster">
+            <select name="in_room" class="form-control monster-select">
+              <option value="通常">通常の部屋</option>
+              {% for room in room_key_display %}
               {% if room.has_key %}
-                <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
+              <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
               {% endif %}
-            {% endfor %}
-          </select>
-          <span class="battle-text">の地下</span>
-          <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ user.key }}" class="battle-number">
-          <span class="battle-text">Fに</span>
-        </div>
-        <button type="submit" class="submit-btn battle-btn" data-original-text="戦闘に行く！" disabled>戦闘に行く！</button>
-        <input type="hidden" name="mode" value="battle_type">
-        <input type="hidden" name="token" value="{{ token }}">
-      </form>
-    </div>
+              {% endfor %}
+            </select>
+            <span class="battle-text">の地下</span>
+            <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ user.key }}"
+              class="form-control" style="width: 100px;">
+            <span class="battle-text">Fに</span>
+          </div>
+          <button type="submit" class="btn btn--block battle-btn" data-original-text="戦闘に行く！" disabled>
+            戦闘に行く！
+          </button>
+          <input type="hidden" name="mode" value="battle_type">
+          <input type="hidden" name="token" value="{{ token }}">
+        </form>
+      </div>
 
-    <!-- 前対戦階 -->
-    <div class="battle-option-box">
-      <div class="battle-option-title">【 前対戦階 】</div>
-      <form action="{{ Conf.cgi_url }}" method="post" class="battle-form battle_go">
-        <div class="battle-inputs">
-          <select name="in_room" class="battle-select">
-            <option value="通常">通常の部屋</option>
-            {% for room in room_key_display %}
+      <!-- 前対戦階 -->
+      <div class="battle-option">
+        <div class="battle-option__title">【 前対戦階 】</div>
+        <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+          <div class="layout-cluster">
+            <select name="in_room" class="form-control monster-select">
+              <option value="通常">通常の部屋</option>
+              {% for room in room_key_display %}
               {% if room.has_key %}
-                <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
+              <option value="{{ room.name }}" {% if room.selected %}selected{% endif %}>{{ room.name }}の部屋</option>
               {% endif %}
-            {% endfor %}
-          </select>
-          <span class="battle-text">の地下</span>
-          <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ last_floor }}" class="battle-number">
-          <span class="battle-text">Fに</span>
-        </div>
-        <button type="submit" class="submit-btn battle-btn" data-original-text="戦闘に行く！" disabled>戦闘に行く！</button>
-        <input type="hidden" name="mode" value="battle_type">
-        <input type="hidden" name="token" value="{{ token }}">
-      </form>
-    </div>
+              {% endfor %}
+            </select>
+            <span class="battle-text">の地下</span>
+            <input type="number" min="1" max="{{ user.key }}" name="in_floor" value="{{ last_floor }}"
+              class="form-control" style="width: 100px;">
+            <span class="battle-text">Fに</span>
+          </div>
+          <button type="submit" class="btn btn--block battle-btn" data-original-text="戦闘に行く！" disabled>
+            戦闘に行く！
+          </button>
+          <input type="hidden" name="mode" value="battle_type">
+          <input type="hidden" name="token" value="{{ token }}">
+        </form>
+      </div>
 
-    <!-- 異世界:最深階 -->
-    <div class="battle-option-box {{ isekai }} battle-option-box--isekai">
-      <div class="battle-option-title">【 異世界:最深階 】</div>
-      <form action="{{ Conf.cgi_url }}" method="post" class="battle-form battle_go">
-        <div class="battle-inputs">
-          <span class="battle-text">異世界の地下</span>
-          <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ isekai_next }}" class="battle-number">
-          <span class="battle-text">Fに</span>
-        </div>
-        <button type="submit" class="submit-btn battle-btn" data-original-text="探索に行く！" disabled>探索に行く！</button>
-        <input type="hidden" name="mode" value="battle_type2">
-        <input type="hidden" name="in_room" value="異世界">
-        <input type="hidden" name="token" value="{{ token }}">
-      </form>
-    </div>
+      <!-- 異世界:最深階 -->
+      <div class="battle-option battle-option--isekai {{ isekai }}">
+        <div class="battle-option__title">【 異世界:最深階 】</div>
+        <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+          <div class="layout-cluster">
+            <span class="battle-text">異世界の地下</span>
+            <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ isekai_next }}"
+              class="form-control" style="width: 100px;">
+            <span class="battle-text">Fに</span>
+          </div>
+          <button type="submit" class="btn btn--block battle-btn" data-original-text="探索に行く！" disabled>
+            探索に行く！
+          </button>
+          <input type="hidden" name="mode" value="battle_type2">
+          <input type="hidden" name="in_room" value="異世界">
+          <input type="hidden" name="token" value="{{ token }}">
+        </form>
+      </div>
 
-    <!-- 異世界:前探索階 -->
-    <div class="battle-option-box {{ isekai }} battle-option-box--isekai">
-      <div class="battle-option-title">【 異世界:前探索階 】</div>
-      <form action="{{ Conf.cgi_url }}" method="post" class="battle-form battle_go">
-        <div class="battle-inputs">
-          <span class="battle-text">異世界の地下</span>
-          <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ last_floor_isekai }}" class="battle-number">
-          <span class="battle-text">Fに</span>
-        </div>
-        <button type="submit" class="submit-btn battle-btn" data-original-text="探索に行く！" disabled>探索に行く！</button>
-        <input type="hidden" name="mode" value="battle_type2">
-        <input type="hidden" name="in_room" value="異世界">
-        <input type="hidden" name="token" value="{{ token }}">
-      </form>
-    </div>
+      <!-- 異世界:前探索階 -->
+      <div class="battle-option battle-option--isekai {{ isekai }}">
+        <div class="battle-option__title">【 異世界:前探索階 】</div>
+        <form action="{{ Conf.cgi_url }}" method="post" class="form battle_go">
+          <div class="layout-cluster">
+            <span class="battle-text">異世界の地下</span>
+            <input type="number" min="1" max="{{ isekai_next }}" name="in_isekai" value="{{ last_floor_isekai }}"
+              class="form-control" style="width: 100px;">
+            <span class="battle-text">Fに</span>
+          </div>
+          <button type="submit" class="btn btn--block battle-btn" data-original-text="探索に行く！" disabled>
+            探索に行く！
+          </button>
+          <input type="hidden" name="mode" value="battle_type2">
+          <input type="hidden" name="in_room" value="異世界">
+          <input type="hidden" name="token" value="{{ token }}">
+        </form>
+      </div>
 
+    </div>
   </div>
 </div>
