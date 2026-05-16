@@ -35,20 +35,24 @@
 
               <div class="cmd-card__row">
                 <div class="cmd-card__row-label">行動選択</div>
+
                 <select name="hit{{ pt.no }}" class="form-control">
-                  <option value="攻撃">攻撃</option>
-                  {% if not special_flag %}
-                  <option value="防御">防御する</option>
-                  <option value="回復">回復魔法使用</option>
-                  {% endif %}
+                  {% for item in pt.hit_options %}
+                  <option value="{{ item.value }}" {% if item.selected %}selected{% endif %}>
+                    {{ item.label }}
+                  </option>
+                  {% endfor %}
                 </select>
               </div>
+
 
               <div class="cmd-card__row">
                 <div class="cmd-card__row-label">攻撃相手</div>
                 <select name="target{{ pt.no }}" class="form-control">
-                  {% for enemy in valid_enemies %}
-                  <option value="{{ enemy.index }}">{{ enemy.name2 }}</option>
+                  {% for enemy in pt.target_options %}
+                  <option value="{{ enemy.value }}" {% if enemy.selected %}selected{% endif %}>
+                    {{ enemy.label }}
+                  </option>
                   {% endfor %}
                 </select>
               </div>
@@ -56,9 +60,12 @@
               <div class="cmd-card__row">
                 <div class="cmd-card__row-label">特技</div>
                 <select name="toku{{ pt.no }}" class="form-control">
-                  {% for skill in attack_skills %}
+                  {% for skill in pt.attack_skills %}
                   <option value="{{ skill.name }}" {% if skill.selected %}selected{% endif %}>
-                    {{ skill.name }} {% if not special_flag %}({{ skill.mp }} MP){% endif %}
+                    {{ skill.name }}
+                    {% if not special_flag %}
+                    ({{ skill.mp }} MP)
+                    {% endif %}
                   </option>
                   {% endfor %}
                 </select>
@@ -68,8 +75,10 @@
               <div class="cmd-card__row">
                 <div class="cmd-card__row-label">回復相手</div>
                 <select name="nakama{{ pt.no }}" class="form-control">
-                  {% for member in valid_party %}
-                  <option value="{{ member.index }}">{{ member.name }}</option>
+                  {% for member in pt.nakama_options %}
+                  <option value="{{ member.value }}" {% if member.selected %}selected{% endif %}>
+                    {{ member.label }}
+                  </option>
                   {% endfor %}
                 </select>
               </div>
@@ -77,9 +86,13 @@
               <div class="cmd-card__row">
                 <div class="cmd-card__row-label">回復魔法</div>
                 <select name="ktoku{{ pt.no }}" class="form-control">
-                  <option value="0">使用しない</option>
-                  {% for skill in heal_skills %}
-                  <option value="{{ skill.name }}">{{ skill.name }} ({{ skill.mp }} MP)</option>
+                  {% for skill in pt.heal_skills %}
+                  <option value="{{ skill.name }}" {% if skill.selected %}selected{% endif %}>
+                    {{ skill.label }}
+                    {% if skill.name != "0" %}
+                      ({{ skill.mp }} MP)
+                    {% endif %}
+                  </option>
                   {% endfor %}
                 </select>
               </div>
