@@ -19,17 +19,29 @@
 
     <div class="log-card__actors">
 
-      <!-- 攻撃側 -->
-      <div class="log-card__actor log-card__actor--attacker">
+      {% if log.text.is_enemy %}
+        {% set ally = log.target %}
+        {% set enemy = log.actor %}
+      {% else %}
+        {% set ally = log.actor %}
+        {% set enemy = log.target %}
+      {% endif %}
+
+      <!-- 左：味方固定 -->
+      {% if ally %}
+      <div class="log-card__actor log-card__actor--ally">
         <div class="log-card__actor-img">
-          <img src="{{ Conf.imgpath }}/{{ log.actor.name }}.gif" alt="{{ log.actor.name }}">
+          <img src="{{ Conf.imgpath }}/{{ ally.name }}.gif" alt="{{ ally.name }}">
         </div>
         <div class="log-card__actor-stats">
-          <div class="log-card__name log-card__name--ally">{{ log.actor.name }}</div>
-          <div class="log-card__hpmp">HP: {{ log.actor.hp }}/{{ log.actor.mhp }}</div>
-          <div class="log-card__hpmp">MP: {{ log.actor.mp }}/{{ log.actor.mmp }}</div>
+          <div class="log-card__name log-card__name--ally">{{ ally.name }}</div>
+          <div class="log-card__hpmp">HP: {{ ally.hp }}/{{ ally.mhp }}</div>
+          <div class="log-card__hpmp">MP: {{ ally.mp }}/{{ ally.mmp }}</div>
         </div>
       </div>
+      {% else %}
+      <div class="log-card__actor log-card__actor--empty"></div>
+      {% endif %}
 
       <!-- ターン数バッジ -->
       <div class="log-card__turn">
@@ -37,16 +49,16 @@
         <span class="log-card__turn-unit">R</span>
       </div>
 
-      <!-- 防御側 -->
-      {% if log.target %}
-      <div class="log-card__actor log-card__actor--defender">
+      <!-- 右：敵固定 -->
+      {% if enemy %}
+      <div class="log-card__actor log-card__actor--enemy">
         <div class="log-card__actor-img">
-          <img src="{{ Conf.imgpath }}/{{ log.target.name }}.gif" alt="{{ log.target.name }}">
+          <img src="{{ Conf.imgpath }}/{{ enemy.name }}.gif" alt="{{ enemy.name }}">
         </div>
         <div class="log-card__actor-stats">
-          <div class="log-card__name log-card__name--enemy">{{ log.target.name }}</div>
-          <div class="log-card__hpmp">HP: {{ log.target.hp }}/{{ log.target.mhp }}</div>
-          <div class="log-card__hpmp">MP: {{ log.target.mp }}/{{ log.target.mmp }}</div>
+          <div class="log-card__name log-card__name--enemy">{{ enemy.name }}</div>
+          <div class="log-card__hpmp">HP: {{ enemy.hp }}/{{ enemy.mhp }}</div>
+          <div class="log-card__hpmp">MP: {{ enemy.mp }}/{{ enemy.mmp }}</div>
         </div>
       </div>
       {% else %}
