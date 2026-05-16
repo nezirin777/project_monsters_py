@@ -22,14 +22,29 @@ Conf = conf.Conf
 
 
 def prepare_battle_commands(FORM, party):
+
     for i, pt in enumerate(party, 1):
+
+        selected_hit = FORM.get(f"hit{i}", "攻撃")
+        selected_target = int(FORM.get(f"target{i}", 0) or 0)
+        selected_toku = FORM.get(f"toku{i}", "通常攻撃")
+        selected_nakama = int(FORM.get(f"nakama{i}", 0) or 0)
+        selected_ktoku = FORM.get(f"ktoku{i}", "0")
+
         pt["bt"] = {
-            "hit": FORM.get(f"hit{i}", 0),
-            "target": int(FORM.get(f"target{i}", 0) or 0),
-            "toku": FORM.get(f"toku{i}", 0),
-            "nakama": int(FORM.get(f"nakama{i}", 0) or 0),
-            "ktoku": FORM.get(f"ktoku{i}", 0),
+            "hit": selected_hit,
+            "target": selected_target,
+            "toku": selected_toku,
+            "nakama": selected_nakama,
+            "ktoku": selected_ktoku,
         }
+
+        # 次ターン用記憶
+        pt["last_hit"] = selected_hit
+        pt["last_target"] = selected_target
+        pt["last_toku"] = selected_toku
+        pt["last_nakama"] = selected_nakama
+        pt["last_ktoku"] = selected_ktoku
 
 
 def execute_battle_actions(bm):

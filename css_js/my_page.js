@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (oldValue === newValue) return;
 
         // クラスの順番に依存する前方一致を辞め、確実な汎用クラスを指定
-        const currentItem = sel.closest('.modern-party-card');
+        const currentItem = sel.closest('.party-card');
         if (!currentItem) return;
 
         let targetItem = null;

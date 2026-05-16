@@ -21,9 +21,13 @@ def battle_menu(FORM, special):
 
     battle = open_battle(user_name)
     all_data = open_user_all(user_name)
+
     waza = all_data.get("waza", {})
 
-    # 敵リストの構築
+    # =====================================================
+    # 敵リスト
+    # =====================================================
+
     if special_flag:
         valid_enemies = [{"index": 1, "name2": battle["teki"][1].get("name2", "不明")}]
     else:
@@ -33,34 +37,149 @@ def battle_menu(FORM, special):
             if str(mon.get("hp", 0)) != "0"
         ]
 
-    # スキルと仲間リストの構築
-    attack_skills = []
-    heal_skills = []
-    valid_party = []
+    # =====================================================
+    # 仲間リスト
+    # =====================================================
+    valid_party = [
+        {"index": i, "name": pt.get("name", "不明")}
+        for i, pt in enumerate(battle.get("party", []))
+    ]
 
-    if special_flag:
-        attack_skills.append({"name": "通常攻撃", "mp": 0, "selected": True})
-    else:
-        Tokugi_dat = open_tokugi_dat()
+    # =====================================================
+    # 特技構築
+    # =====================================================
 
-        for name, toku in Tokugi_dat.items():
-            if waza.get(name, {}).get("get"):
-                if toku.get("type") == 1:
-                    attack_skills.append({"name": name, "mp": toku.get("mp", 0)})
-                else:
-                    heal_skills.append({"name": name, "mp": toku.get("mp", 0)})
+    Tokugi_dat = open_tokugi_dat()
 
-        valid_party = [
-            {"index": i, "name": pt.get("name", "不明")}
-            for i, pt in enumerate(battle.get("party", []))
+    for pt in battle.get("party", []):
+
+        last_hit = pt.get("last_hit", "攻撃")
+        last_target = pt.get("last_target", 1)
+        last_toku = pt.get("last_toku", "通常攻撃")
+        last_nakama = pt.get("last_nakama", 0)
+        last_ktoku = pt.get("last_ktoku", "0")
+
+        # -------------------------
+        # 行動
+        # -------------------------
+
+        pt["hit_options"] = [
+            {
+                "value": "攻撃",
+                "label": "攻撃",
+                "selected": last_hit == "攻撃",
+            }
         ]
 
+        if not special_flag:
+            pt["hit_options"].append(
+                {
+                    "value": "防御",
+                    "label": "防御する",
+                    "selected": last_hit == "防御",
+                }
+            )
+            pt["hit_options"].append(
+                {
+                    "value": "回復",
+                    "label": "回復魔法使用",
+                    "selected": last_hit == "回復",
+                }
+            )
+
+        # -------------------------
+        # 敵ターゲット
+        # -------------------------
+        pt["target_options"] = []
+        for enemy in valid_enemies:
+            pt["target_options"].append(
+                {
+                    "value": enemy["index"],
+                    "label": enemy["name2"],
+                    "selected": enemy["index"] == last_target,
+                }
+            )
+
+        # -------------------------
+        # 攻撃特技
+        # -------------------------
+        pt["attack_skills"] = []
+
+        # 特殊戦闘
+        if special_flag:
+            pt["attack_skills"].append(
+                {
+                    "name": "通常攻撃",
+                    "mp": 0,
+                    "selected": True,
+                }
+            )
+
+        else:
+            for name, toku in Tokugi_dat.items():
+                if not waza.get(name, {}).get("get"):
+                    continue
+                if toku.get("type") != 1:
+                    continue
+
+                skill_mp = toku.get("mp", 0)
+
+                # MP不足なら選択解除
+                is_selected = name == last_toku and pt.get("mp", 0) >= skill_mp
+
+                pt["attack_skills"].append(
+                    {
+                        "name": name,
+                        "mp": skill_mp,
+                        "selected": is_selected,
+                    }
+                )
+
+        # -------------------------
+        # 回復対象
+        # -------------------------
+        pt["nakama_options"] = []
+        for member in valid_party:
+            pt["nakama_options"].append(
+                {
+                    "value": member["index"],
+                    "label": member["name"],
+                    "selected": member["index"] == last_nakama,
+                }
+            )
+
+        # -------------------------
+        # 回復特技
+        # -------------------------
+        pt["heal_skills"] = [
+            {
+                "name": "0",
+                "label": "使用しない",
+                "mp": 0,
+                "selected": last_ktoku == "0",
+            }
+        ]
+
+        for name, toku in Tokugi_dat.items():
+            if not waza.get(name, {}).get("get"):
+                continue
+            if toku.get("type") == 1:
+                continue
+            pt["heal_skills"].append(
+                {
+                    "name": name,
+                    "label": name,
+                    "mp": toku.get("mp", 0),
+                    "selected": name == last_ktoku,
+                }
+            )
+
+    # 数値整形
+    party_data = battle.get("party", [])
+    slim_number_with_cookie(party_data)
+
     return {
-        "party": slim_number_with_cookie(battle.get("party", [])),
-        "valid_enemies": valid_enemies,
-        "attack_skills": attack_skills,
-        "heal_skills": heal_skills,
-        "valid_party": valid_party,
+        "party": party_data,
         "special_flag": special_flag,
         "token": token,
     }
