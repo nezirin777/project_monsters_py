@@ -211,7 +211,7 @@
   }
 
   /* 防御側のorder打ち消し */
-  .log-card__actor--defender {
+  .log-card__actor--enemy {
     & .log-card__actor-img {
       order: unset;
       margin-left: 0;
