@@ -277,6 +277,12 @@ def haisen(bm):
         txt = f"終焉の鍵-{get}"
 
     bm.user["key"] -= get
+
+    # 全滅時は先頭のみHP1で復活
+    if bm.battle["party"]:
+        bm.battle["party"][0]["hp"] = 1
+        bm.party[0]["hp"] = 1
+
     bm.log_custom({"type": "haisen", "item_name": txt})
 
 

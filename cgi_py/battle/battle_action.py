@@ -84,6 +84,7 @@ def teki_action(actor, bm):
         "target_name": target.get("name"),
         "damage": slim_number_with_cookie(dmg),
         "is_miss": dmg == 0,
+        "is_dead": target.get("hp", 0) == 0,
     }
 
     # bm.log_action の第3引数にそのまま辞書を渡す

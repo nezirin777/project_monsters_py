@@ -78,9 +78,6 @@ class BattleManager:
             if i < len(self.party):
                 self.party[i] = pt
 
-        if self.party and self.party[0].get("hp", 0) == 0:
-            self.party[0]["hp"] = 1
-
         self.all_data["user"] = self.user
         self.all_data["party"] = self.party
 
