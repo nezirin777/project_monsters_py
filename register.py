@@ -41,7 +41,12 @@ from sub_def.validation import RegisterForm
 def log_registration(in_name):
     """新規登録をBBSログに追加"""
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    newlog = f"""<hr><span style="color: red;">{html.escape(in_name)}</span>さんが参加しました！。 <span style="font-size: 0.8em;">--{time}</span>\n"""
+    newlog = (
+        f'<div class="bbs-line">'
+        f'<span style="color: red; font-weight: bold;">{html.escape(in_name)}</span>さんが参加しました！。 &gt; '
+        f'<span class="bbs-time">--{time}</span>'
+        f"</div>\n"
+    )
     append_log(newlog)
 
 
