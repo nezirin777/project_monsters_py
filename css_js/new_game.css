@@ -1174,8 +1174,8 @@ img {
   .log-card              — 1ターン分カード（.cardと併用）
   .log-card__actors      — VS表示エリア
   .log-card__actor       — キャラクター表示
-  .log-card__actor--attacker — 攻撃側（左寄せ）
-  .log-card__actor--defender — 防御側（右寄せ）
+  .log-card__actor--ally — 味方（左寄せ）
+  .log-card__actor--enemy — 敵（右寄せ）
   .log-card__actor--empty    — ターゲットなし（空枠）
   .log-card__actor-img   — キャラクター画像
   .log-card__actor-stats — ステータス
@@ -1402,11 +1402,11 @@ img {
   width: 40%;
 }
 
-.log-card__actor--attacker {
+.log-card__actor--ally {
   justify-content: flex-start;
 }
 
-.log-card__actor--defender {
+.log-card__actor--enemy {
   justify-content: flex-end;
   text-align: right;
 
