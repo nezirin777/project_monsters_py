@@ -176,7 +176,11 @@ def battle_menu(FORM, special):
 
     # 数値整形
     party_data = battle.get("party", [])
-    slim_number_with_cookie(party_data)
+    for pt in party_data:
+        pt["hp"] = slim_number_with_cookie(pt.get("hp", 0))
+        pt["mhp"] = slim_number_with_cookie(pt.get("mhp", 0))
+        pt["mp"] = slim_number_with_cookie(pt.get("mp", 0))
+        pt["mmp"] = slim_number_with_cookie(pt.get("mmp", 0))
 
     return {
         "party": party_data,
