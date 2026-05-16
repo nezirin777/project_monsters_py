@@ -2,7 +2,8 @@
 
 from sub_def.file_ops import open_user_all, open_monster_dat
 from sub_def.utils import print_html, error
-from sub_def.crypto import get_cookie
+from sub_def.crypto import get_cookie, get_session
+
 
 import conf
 
@@ -17,6 +18,8 @@ def zukan(FORM):
 
     m_type = FORM.get("type", "スライム系")
     fol = FORM.get("fol", "")
+
+    session = get_session()
 
     user_all = open_user_all(user_name)
 
@@ -102,7 +105,7 @@ def zukan(FORM):
         "categories": categories,
         "ref": ref,
         "fol": fol,
-        "token": FORM.get("s", {}).get("token", ""),
+        "token": session.get("token", ""),
     }
 
     print_html("zukan_tmp.html", content)

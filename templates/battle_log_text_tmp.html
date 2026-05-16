@@ -6,6 +6,7 @@
         <span class="sky_blue">{{ event.target_name }}</span>は<span class="red">{{ event.actor_name }}</span>の攻撃をかわした！
     {% else %}
         <span class="red">{{ event.actor_name }}</span>は<span class="sky_blue">{{ event.target_name }}</span>に<span class="red dmg-text">{{ event.damage }}</span>ポイントのダメージを与えた！
+        {% if event.is_dead %}<br><span class="sky_blue">{{ event.target_name }}</span>は倒れた{% endif %}
     {% endif %}
 
 {% else %}

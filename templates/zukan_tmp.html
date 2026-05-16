@@ -4,7 +4,7 @@
 
 {% block head %}
 {% if ref %}
-<script src="./css_js/zukan_tooltip.js"></script>
+<script src="./css_js/zukan_tooltip.js?202605164"></script>
 {% endif %}
 {% endblock %}
 
@@ -54,7 +54,7 @@
 <div class="layout-cluster" style="margin: var(--space-l) auto;">
   <form action="{{ Conf.cgi_url }}" method="get">
     <input type="hidden" name="mode" value="my_page2">
-    <input type="hidden" name="name" value="{{ user_name }}">
+    <input type="hidden" name="target_user" value="{{ user_name }}">
     <button type="submit" class="btn btn--sm">ユーザーページへ</button>
   </form>
   <form action="{{ Conf.top_url }}" method="post">

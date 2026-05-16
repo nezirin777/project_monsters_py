@@ -160,9 +160,42 @@ input:invalid {
 
 /* === UI周り（トースト・モーダル・スピナー） === */
 #toast-container {
-  position: fixed; inset: 0; z-index: 10000;
-  display: flex; align-items: center; justify-content: center;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
   pointer-events: none;
+  padding: 20px;
+}
+
+/* 中央 */
+#toast-container.toast-center {
+  justify-content: center;
+  align-items: center;
+}
+
+/* 上中央 */
+#toast-container.toast-top-center {
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* 下中央 */
+#toast-container.toast-bottom-center {
+  justify-content: center;
+  align-items: flex-end;
+}
+
+/* 左下 */
+#toast-container.toast-bottom-left {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+/* 右下 */
+#toast-container.toast-bottom-right {
+  justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .toast {
