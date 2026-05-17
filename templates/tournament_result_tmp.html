@@ -5,55 +5,61 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title> MONSTER'S 改 {{ Conf.ver }}</title>
+  <link rel="stylesheet" href="../css_js/common.css">
+  <link rel="stylesheet" href="../css_js/new_game.css">
+  <link rel="stylesheet" href="../css_js/mobile.css">
   <link rel="stylesheet" href="../css_js/html.css">
 </head>
 
 <body>
+  <div class="wrapper">
 
-  <div class="my_page_topmenu">
-    [ <a href="../monster.py">TOPへ</a> ]
-  </div>
-
-  <div class="tournament_result_box">
-
-    <div class="medal_battle_title">{{ log_data.title }}</div>
-
-    {% if log_data.status == "cancel" %}
-    <div>規定人数未満につき中止になりました。</div>
-    {% else %}
-
-    {% for round in log_data.rounds %}
-    <div>
-      <div class="medal_battle_data">{{ round.name }}</div>
-
-      {% for match in round.matches %}
-      {% if match.num %}
-      <div class="medal_battle_sub">第{{ match.num }}試合</div>
-      {% endif %}
-      <div class="medal_battle_result">
-        {{ match.fighter1 }} vs {{ match.fighter2 }} は {{ match.winner }} さんが勝利しました
-      </div>
-      {{ match.loser }} さんにメダル {{ match.medal }} 枚が与えられました<br>
-      {% endfor %}
+    <div class="tournament-nav">
+      [ <a href="../monster.py">TOPへ</a> ]
     </div>
-    {% endfor %}
 
-    {% if log_data.champion %}
-    <div class="red">優勝の {{ log_data.champion }} さんにメダル {{ log_data.champ_medal }} 枚が与えられました</div>
-    {% endif %}
+    <div class="tournament-wrap">
 
-    {% endif %}
+      <div class="tournament-title">{{ log_data.title }}</div>
+
+      {% if log_data.status == "cancel" %}
+      <div>規定人数未満につき中止になりました。</div>
+      {% else %}
+
+      {% for round in log_data.rounds %}
+      <div class="tournament-round">
+        <div class="tournament-round-name">{{ round.name }}</div>
+
+        {% for match in round.matches %}
+        {% if match.num %}
+        <div class="tournament-match-num">第{{ match.num }}試合</div>
+        {% endif %}
+        <div class="tournament-match-result">
+          {{ match.fighter1 }} vs {{ match.fighter2 }} は {{ match.winner }} さんが勝利しました
+        </div>
+        {{ match.loser }} さんにメダル {{ match.medal }} 枚が与えられました<br>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      {% if log_data.champion %}
+      <div class="tournament-champion">優勝の {{ log_data.champion }} さんにメダル {{ log_data.champ_medal }} 枚が与えられました</div>
+      {% endif %}
+
+      {% endif %}
+
+    </div>
+
+    <br>
+    <form action="../{{ Conf.cgi_url }}" method="post" class="manual-form">
+      <button type="submit" class="btn">TOPへ戻る</button>
+    </form>
+
+    {% include "footer_tmp.html" %}
 
   </div>
-
-  <br>
-  <form action="../{{ Conf.top_url }}" method="post">
-    <button type="submit">TOPへ戻る</button>
-  </form>
-
-  {% include "footer_tmp.html" %}
-
 </body>
 
 </html>

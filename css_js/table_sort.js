@@ -3,10 +3,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ソート対象の全テーブル要素を配列として取得
-    const monsterTables = Array.from(document.querySelectorAll('.list2_monster_table'));
-    const container = document.querySelector('.list2');
-    const groupHeaders = document.querySelectorAll('.list2_group_header');
-    const sortButtons = document.querySelectorAll('.sortBtn');
+    const monsterTables = Array.from(document.querySelectorAll('.haigou-sort-item'));
+    const container = document.querySelector('.haigou-sort-list');
+    const groupHeaders = document.querySelectorAll('.haigou-sort-header');
+    const sortButtons = document.querySelectorAll('.sort-btn');
 
     // 爆速化。各テーブルのデータを最初に1回だけ解析し、オブジェクトにキャッシュ（記憶）する
     const cachedData = monsterTables.map(table => {
@@ -64,14 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 各ボタンにクリックイベントを設定
     sortButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // ★改善2: 今どのボタンが押されているかを視覚化（クラス付け替え）
-            sortButtons.forEach(btn => btn.classList.remove('active-sort'));
-            this.classList.add('active-sort');
+            // 今どのボタンが押されているかを視覚化（クラス付け替え）
+            sortButtons.forEach(btn => btn.classList.remove('sort-btn--active'));
+            this.classList.add('sort-btn--active');
 
             const rel = this.getAttribute('rel');
             const order = this.dataset.order;
 
-            // isNumeric の判定は、キャッシュ時に全て数値化(getTime等)したため不要になりました
             sortList(rel, order);
         });
     });

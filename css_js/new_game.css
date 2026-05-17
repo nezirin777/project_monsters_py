@@ -1435,6 +1435,7 @@ img {
   flex-shrink: 0;
 
   & img {
+    max-height: 180px;
     max-width: 100%;
   }
 }

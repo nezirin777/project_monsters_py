@@ -2,35 +2,39 @@
 <html lang="ja">
 
 <head>
-	<meta charset="utf-8">
-	<title>イベントについて</title>
-	<LINK REL="stylesheet" HREF="../css_js/html.css" TYPE="text/css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>イベントについて</title>
+  <link rel="stylesheet" href="../css_js/common.css">
+  <link rel="stylesheet" href="../css_js/new_game.css">
+  <link rel="stylesheet" href="../css_js/mobile.css">
+  <link rel="stylesheet" href="../css_js/html.css">
 </head>
 
 <body id="manual_body">
-	<div class="manual_frame">
+  <div class="manual-frame">
 
-		<div class="manual_inframe">
-			<h3 class="manual_title">イベントについてあれこれ</h3>
+    <div class="manual-frame">
+      <h3 class="manual-title">イベントについてあれこれ</h3>
 
-			<div>
-				<b class="manual_h">■開催期間</b>
-				<br>●イベントは不定期開催です。
-                <br>●2025/5/29～2025/06/02の間に行われたイベントの結果は<a href="http://nezirin.net/monsters_py/monster.py?mode=view&fol=ev_log1">こちら
-			</div>
+      <div>
+        <b class="manual-heading">■開催期間</b>
+        <br>●イベントは不定期開催です。
+        <br>●2025/5/29～2025/06/02の間に行われたイベントの結果は<a
+          href="http://nezirin.net/monsters_py/monster.py?mode=view&fol=ev_log1">こちら</a>
+      </div>
 
+    </div>
 
-		</div>
+    <div id="haigou_rightmenu">
+      [<a href="#top">一番上へ</a>]
+      <form action="../monster.py" method="post" class="manual-form">
+        <input type="hidden" name="mode" value="">
+        <button class="btn btn--sm">TOPへ</button>
+      </form>
+    </div>
 
-		<div id="haigou_rightmenu">
-			[<a href="#top">一番上へ</a>]
-			<form action="../monster.py" method="post" class="manual_form">
-				<input type="hidden" name="mode" value="">
-				<button>TOPへ</button>
-			</form>
-		</div>
-
-	</div>
+  </div>
 </body>
 
 </html>
