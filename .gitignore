@@ -6,6 +6,7 @@ img/
 save/
 新しいフォルダー/
 conf.py
+conf.py.bak
 sub_def/__pycache__/
 cgi_py/__pycache__/
 cgi_py/battle/__pycache__/
