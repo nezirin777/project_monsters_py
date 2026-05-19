@@ -2,74 +2,84 @@
 
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MONSTER'S 配合表</title>
-    <link rel="stylesheet" href="../css_js/common.css">
-    <link rel="stylesheet" href="../css_js/new_game.css">
-    <link rel="stylesheet" href="../css_js/mobile.css">
-    <link rel="stylesheet" href="../css_js/html.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONSTER'S 配合表</title>
+  <link rel="stylesheet" href="../css_js/common.css">
+  <link rel="stylesheet" href="../css_js/new_game.css">
+  <link rel="stylesheet" href="../css_js/mobile.css">
+  <link rel="stylesheet" href="../css_js/html.css">
 </head>
+
 <body>
-    <div class="wrapper">
+  <div class="wrapper">
 
-        <div class="site-title-block" style="width: min(960px, 95%); margin-inline: auto;" id="top">
-            MONSTER'S 改 {{ Conf.ver }}<br>
-            <span>配合表・出現階数</span>
-        </div>
-
-        <!-- 右メニュー -->
-        <div id="haigou_rightmenu">
-            [<a href="#top">一番上へ</a>]
-                {% for link in links %}
-                    <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
-                {% endfor %}
-            <br>
-            <form action="{{ Conf.top_url }}" method="post" class="manual-form">
-                <input type="hidden" name="mode" value="">
-                <button type="submit" class="btn btn--sm">TOPへ</button>
-            </form>
-        </div>
-
-        <div class="haigou-list-wrap">
-            {% for m_type, monsters in filtered_M_list.items() %}
-                <table class="haigou-list-table" id="{{ m_type }}">
-                    <thead>
-                        <tr>
-                            <th class="haigou-th-no">NO</th>
-                            <th class="haigou-th-name">{{ m_type }}</th>
-                            <th class="haigou-th-base">ベース</th>
-                            <th class="haigou-th-mate">材　料</th>
-                            <th class="haigou-th-floor">出現階数</th>
-                            <th class="haigou-th-no">戦闘入手</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for m in monsters %}
-                        <tr>
-                            <td class="haigou-td-no">{{ m.no }}</td>
-                            <td class="haigou-td-name">{{ m.name }}</td>
-                            <td class="haigou-td-base">
-                              {% for b in m.blood %}
-                              <span class="haigou-recipe-item">{{ b }}</span>
-                              {% endfor %}
-                            </td>
-                            <td class="haigou-td-mate">
-                              {% for mate in m.mate %}
-                              <span class="haigou-recipe-item">{{ mate }}</span>
-                              {% endfor %}
-                            </td>
-                            <td class="haigou-td-floor">{{ m.floor }}</td>
-                            <td class="haigou-td-no">{{ m.get_text }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endfor %}
-        </div>
-
-        {% include "footer_tmp.html" %}
+    <div class="site-title-block" style="width: min(1000px, 95%); margin-inline: auto;" id="top">
+      MONSTER'S 改 {{ Conf.ver }}<br>
+      <span>配合表・出現階数</span>
     </div>
+
+    <!-- 固定サイドナビ -->
+    <div id="haigou_rightmenu">
+      [<a href="#top">一番上へ</a>]
+      {% for link in links %}
+      <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
+      {% endfor %}
+      <br>
+      <form action="../{{ Conf.top_url }}" method="post" class="manual-form">
+        <input type="hidden" name="mode" value="">
+        <button type="submit" class="btn btn--sm">TOPへ</button>
+      </form>
+    </div>
+
+    <!-- タイプ別配合テーブル -->
+    {% for m_type, monsters in filtered_M_list.items() %}
+
+    <!-- タイプ見出し（アンカー付き） -->
+    <div class="haigou-type-header" id="{{ m_type }}">{{ m_type }}</div>
+
+    <!-- テーブルラッパー（タイプ見出しと視覚的に接続） -->
+    <div class="haigou-list-wrap">
+      <table class="haigou-list-table">
+        <thead>
+          <tr>
+            <th class="haigou-th-no">No</th>
+            <th class="haigou-th-name">モンスター名</th>
+            <th class="haigou-th-base">ベース</th>
+            <th class="haigou-th-mate">素　材</th>
+            <th class="haigou-th-floor">出現階層</th>
+            <th class="haigou-th-no">入手</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in monsters %}
+          <tr>
+            <td class="haigou-td-no">{{ m.no }}</td>
+            <td class="haigou-td-name">{{ m.name }}</td>
+            <td class="haigou-td-base">
+              {% for b in m.blood %}
+              <span class="haigou-recipe-item">{{ b }}</span>
+              {% endfor %}
+            </td>
+            <td class="haigou-td-mate">
+              {% for mate in m.mate %}
+              <span class="haigou-recipe-item">{{ mate }}</span>
+              {% endfor %}
+            </td>
+            <td class="haigou-td-floor">{{ m.floor }}</td>
+            <td class="haigou-td-no">{{ m.get_text }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% endfor %}
+
+    {% include "footer_tmp.html" %}
+  </div>
 </body>
+
 </html>

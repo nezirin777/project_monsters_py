@@ -2,16 +2,17 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ソート対象の全テーブル要素を配列として取得
-    const monsterTables = Array.from(document.querySelectorAll('.haigou-sort-item'));
+    // ソート対象: テーブル本体ではなくラッパーdivを取得
+    // （.haigou-sort-item-wrap が border-radius / shadow を持つ sortable 単位）
+    const monsterTables = Array.from(document.querySelectorAll('.haigou-sort-item-wrap'));
     const container = document.querySelector('.haigou-sort-list');
     const groupHeaders = document.querySelectorAll('.haigou-sort-header');
     const sortButtons = document.querySelectorAll('.sort-btn');
 
-    // 爆速化。各テーブルのデータを最初に1回だけ解析し、オブジェクトにキャッシュ（記憶）する
-    const cachedData = monsterTables.map(table => {
-        // テーブル内のデータが埋め込まれている span を探す
-        const dataSpan = table.querySelector('span[data-no]');
+    // 各ラッパーのデータを最初に1回だけ解析し、オブジェクトにキャッシュ（記憶）する
+    const cachedData = monsterTables.map(wrap => {
+        // ラッパー内のテーブルに埋め込まれたソートデータ span を探す
+        const dataSpan = wrap.querySelector('span[data-no]');
 
         let no = 0, upday = 0, floor = 0;
 
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         return {
-            element: table, // 元のHTML要素
+            element: wrap, // ラッパーdiv（ソート時に移動する単位）
             no: no,
             upday: upday,
             floor: floor

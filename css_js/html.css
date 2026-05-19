@@ -7,7 +7,6 @@
 /*
   依存: common.css + new_game.css + mobile.css
   本ファイルは html/ フォルダ専用の追加スタイルのみ。
-  変数・基盤・共通componentは common.css / new_game.css に準拠。
 */
 
 /* ====================================== */
@@ -45,89 +44,162 @@
 /* 2. Haigou List（配合表）               */
 /* ====================================== */
 
+/*
+  設計方針:
+  - .haigou-type-header（上角丸）+ .haigou-list-wrap（下角丸）で
+    manual-heading + manual-section と同じ接続パターン
+  - カラム色: No/入手=ダーク、名前=白、ベース=水色、素材=ティール、階層=ライトグレー
+  - レシピアイテムはネガティブマージン廃止、行ホバーあり
+*/
+
+/* タイプセクションヘッダー（テーブルの外に抽出） */
+.haigou-type-header {
+  width: min(1000px, 95%);
+  margin: var(--space-l) auto 0;
+  padding: var(--space-s) var(--space-m);
+  background: linear-gradient(to right, var(--sky-blue) 0%, #81d4fa 100%);
+  color: var(--black);
+  font-size: 110%;
+  font-weight: bold;
+  border-left: 5px solid var(--blue);
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+  box-shadow: 0 2px 6px rgba(0, 120, 180, 0.12);
+}
+
+/* テーブルラッパー（タイプヘッダーと接続） */
 .haigou-list-wrap {
-  width: min(960px, 95%);
-  margin-inline: auto;
+  width: min(1000px, 95%);
+  margin: 0 auto var(--space-m);
   overflow-x: auto;
-  border: 1px solid var(--black);
-  border-radius: var(--radius-m);
-  background-color: var(--white);
+  border: 1px solid #9ecde8;
+  border-top: none;
+  border-radius: 0 0 var(--radius-m) var(--radius-m);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .haigou-list-table {
   width: 100%;
-  min-width: 780px;
+  min-width: 620px;
   border-collapse: collapse;
+  background-color: var(--white);
 }
 
+/* カラムヘッダー */
 .haigou-th-no,
 .haigou-th-name,
 .haigou-th-base,
 .haigou-th-mate,
 .haigou-th-floor {
-  border: 1px solid var(--black);
-  padding: var(--space-xs) var(--space-s);
-  text-align: center;
-  vertical-align: middle;
-  background-color: #fce562;
+  padding: var(--space-s) var(--space-m);
+  background-color: #eaf4ff;
   color: var(--black);
+  font-size: 85%;
   font-weight: bold;
-}
-
-.haigou-th-name {
-  color: var(--red);
-}
-
-.haigou-td-no,
-.haigou-td-name,
-.haigou-td-base,
-.haigou-td-mate,
-.haigou-td-floor {
-  border: 1px solid var(--black);
-  padding: var(--space-xs) var(--space-s);
   text-align: center;
-  vertical-align: middle;
+  border-bottom: 2px solid #9ecde8;
+  border-right: 1px solid #c8e0f0;
+  white-space: nowrap;
 }
 
+/* データセル */
 .haigou-td-no {
-  background-color: #999999;
+  background-color: var(--bg-dark);
+  color: var(--white);
+  font-weight: bold;
+  text-align: center;
+  font-size: 85%;
+  width: 44px;
+  padding: var(--space-s);
+  border-right: 1px solid #455a64;
 }
 
 .haigou-td-name {
   background-color: var(--white);
+  color: var(--black);
+  font-weight: bold;
+  padding: var(--space-s) var(--space-m);
+  border-right: 1px solid #e0eaf4;
 }
 
-.haigou-td-base,
+.haigou-td-base {
+  background-color: #e3f2fd;
+  padding: 0;
+  border-right: 1px solid #b3d9f5;
+}
+
+/* ベースと素材で色を変えて区別しやすく */
 .haigou-td-mate {
-  background-color: #87ceeb;
+  background-color: #e0f7fa;
+  padding: 0;
+  border-right: 1px solid #b2ebf2;
 }
 
 .haigou-td-floor {
-  background-color: var(--white);
+  background-color: #f8fbff;
+  font-size: 88%;
+  color: #555;
+  white-space: nowrap;
+  padding: var(--space-s) var(--space-m);
+  border-right: 1px solid #e0eaf4;
+  text-align: center;
 }
 
+/* レシピアイテム（ベース・素材リスト） */
 .haigou-recipe-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  margin: -3px -6px;
-  padding: var(--space-xs);
-  border: 1px solid var(--black);
+  min-height: 28px;
+  padding: var(--space-xs) var(--space-s);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: var(--black);
+  font-size: 90%;
+}
+
+.haigou-recipe-item:last-child {
+  border-bottom: none;
+}
+
+/* モンスター間の区切り線
+   border-collapse: collapse では tr の border-bottom が td に負けるため
+   td に直接指定する */
+.haigou-list-table tbody td {
+  border-bottom: 2px solid #9ecde8;
+}
+
+.haigou-list-table tbody tr {
+  transition: filter 0.1s ease;
+}
+
+.haigou-list-table tbody tr:hover td {
+  filter: brightness(0.96);
 }
 
 /* ====================================== */
 /* 3. Haigou List 2 / Sortable（配合表2） */
 /* ====================================== */
 
+/*
+  設計方針:
+  - .haigou-sort-controls でソートボタンをフィルターバー化
+  - .haigou-sort-item-wrap を追加して border-radius + shadow を実現
+    （border-collapse と border-radius の衝突を wrapper で解決）
+  - 画像セルはグラデーション背景
+  - データセルは可読性重視
+*/
+
+/* 説明・ソートエリア */
 .haigou-desc {
-  width: min(920px, 95%);
-  margin-inline: auto;
-  padding: var(--space-m);
+  width: min(960px, 95%);
+  margin: 0 auto var(--space-m);
+  padding: var(--space-m) var(--space-l);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.88), rgba(240, 250, 255, 0.88));
+  border: 1px solid #9ecde8;
   border-radius: var(--radius-m);
-  background-color: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   text-align: center;
+  line-height: 1.8;
+  backdrop-filter: blur(2px);
 }
 
 .haigou-desc ul {
@@ -137,9 +209,37 @@
   text-align: left;
 }
 
+/* ソートボタンのフィルターバー */
+.haigou-sort-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-s) var(--space-m);
+  margin-top: var(--space-m);
+  background-color: rgba(255, 255, 255, 0.65);
+  border: 1px solid #c8e0f0;
+  border-radius: var(--radius-s);
+}
+
+/* ソートグループ（ラベル + ボタン群） */
+.haigou-sort-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.haigou-sort-group-label {
+  font-size: 82%;
+  font-weight: bold;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* ソートボタン（.btn を継承） */
 .sort-btn {
-  min-width: 150px;
-  margin-top: var(--space-s);
+  min-width: 80px;
 }
 
 .sort-btn--active {
@@ -149,36 +249,55 @@
   box-shadow: 0 2px 0 #a63a00;
 }
 
+/* ソートリストコンテナ */
 .haigou-sort-list {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--space-s);
-  width: min(1220px, 96%);
+  gap: var(--space-m);
+  width: min(1240px, 96%);
   margin-inline: auto;
   overflow-x: auto;
-  padding-bottom: var(--space-s);
+  padding-bottom: var(--space-m);
 }
 
+/* グループヘッダー */
 .haigou-sort-header {
-  width: 100%;
+  width: 1200px;
   min-width: 980px;
   margin: var(--space-m) auto var(--space-xs);
-  padding: var(--space-xs) var(--space-m);
-  border: 2px solid var(--blue);
-  border-radius: var(--radius-s);
-  background-color: #eaf4ff;
+  padding: var(--space-s) var(--space-m);
+  background: linear-gradient(to right, var(--sky-blue) 0%, #81d4fa 100%);
   color: var(--black);
   font-size: 110%;
   font-weight: bold;
-  text-align: center;
+  border-left: 5px solid var(--blue);
+  border-radius: var(--radius-s);
+  box-shadow: 0 2px 6px rgba(0, 120, 180, 0.12);
 }
 
-.haigou-sort-item {
+/* モンスター1体分のラッパー
+   border-collapse と border-radius の衝突を回避するため
+   テーブルの外側に border / radius / shadow を持たせる */
+.haigou-sort-item-wrap {
   width: 1200px;
   min-width: 980px;
   margin: 0 auto;
-  border: 2px solid var(--blue);
+  border: 1px solid #9ecde8;
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease;
+}
+
+.haigou-sort-item-wrap:hover {
+  box-shadow: 0 4px 16px rgba(0, 120, 180, 0.14);
+}
+
+/* モンスターテーブル本体 */
+.haigou-sort-item {
+  width: 100%;
+  min-height: 120px;
   border-collapse: collapse;
   table-layout: fixed;
   background-color: var(--white);
@@ -188,33 +307,38 @@
 }
 
 .haigou-sort-item td {
-  border: 1px solid var(--black);
+  border: 1px solid #ddeef8;
   padding: var(--space-xs) var(--space-s);
   text-align: center;
   vertical-align: middle;
   word-break: break-word;
 }
 
+/* 画像セル */
 .haigou-img-cell {
-  width: 220px;
-  height: 150px;
-  background-color: #f8fbff;
+  width: 210px;
+  background: linear-gradient(to bottom, #f0f8ff, #e4f1ff);
+  border-right: 2px solid #9ecde8;
 }
 
 .haigou-img-cell img {
-  max-height: 130px;
+  max-height: 120px;
   object-fit: contain;
   margin-inline: auto;
+  padding: var(--space-s);
 }
 
 .haigou-img-cell div {
   margin-top: var(--space-xs);
+  padding-bottom: var(--space-xs);
   color: var(--blue);
+  font-size: 95%;
 }
 
+/* データセル（基盤） */
 .haigou-cell {
   color: var(--black);
-  font-size: 100%;
+  font-size: 92%;
   font-weight: bold;
 }
 
@@ -222,21 +346,33 @@
   color: var(--red);
 }
 
-.haigou-cell--floor,
+/* 列幅・背景 */
+.haigou-cell--floor {
+  width: 140px;
+  background-color: #f5f9ff;
+  font-size: 88%;
+}
+
 .haigou-cell--location {
-  width: 147px;
-  background-color: #f7fbff;
+  width: 100px;
+  background-color: #f0f7ff;
+  font-size: 88%;
 }
 
 .haigou-cell--desc {
-  width: 343px;
-  background-color: #fffdf4;
+  width: 330px;
+  background-color: var(--white);
+  text-align: left;
+  padding: var(--space-s) var(--space-m);
+  font-size: 90%;
+  line-height: 1.5;
 }
 
 .haigou-cell--wide {
-  width: 686px;
+  width: 660px;
 }
 
+/* 秘匿テキスト */
 .kinsoku {
   color: var(--white);
   font-size: 60%;
@@ -247,21 +383,9 @@
 /* 4. Manual / Event Pages                */
 /* ====================================== */
 
-/*
-  設計方針:
-  - heading + section を上下の角丸で視覚的に接続
-  - sky-blue テーマで game の card__header と統一感
-  - 背景はブルーグレーグラデーション（明るいシアンから脱却）
-  - テーブルヘッダーも sky-blue で統一
-*/
-
-/* --- Body --- */
-
 #manual_body {
   background: linear-gradient(160deg, #e2f0fb 0%, #d4e8f5 60%, #cce3f2 100%);
 }
-
-/* --- ページ全体ラッパー --- */
 
 .manual-frame {
   width: min(900px, 95%);
@@ -269,8 +393,6 @@
   padding: var(--space-m) var(--space-l);
   text-align: left;
 }
-
-/* --- ページタイトル --- */
 
 .manual-title {
   margin-block: var(--space-m) var(--space-l);
@@ -281,10 +403,6 @@
   text-align: center;
   border-bottom: 3px solid var(--sky-blue);
 }
-
-/* --- セクション見出し ---
-   .manual-heading（上角丸）と .manual-section（下角丸）が
-   視覚的に1つのパネルとして見えるよう設計。 */
 
 .manual-heading {
   display: block;
@@ -302,8 +420,6 @@
   box-shadow: 0 2px 6px rgba(0, 120, 180, 0.15);
 }
 
-/* --- セクションコンテンツ --- */
-
 .manual-section {
   box-sizing: border-box;
   width: 100%;
@@ -317,7 +433,6 @@
   backdrop-filter: blur(2px);
 }
 
-/* セクション内のリンク（もくじ等） */
 .manual-section a {
   color: var(--blue);
   font-weight: bold;
@@ -331,8 +446,6 @@
   background-color: rgba(100, 181, 246, 0.2);
   color: var(--black);
 }
-
-/* --- テーブル --- */
 
 .manual-table,
 .manual-table--wide {
@@ -371,12 +484,9 @@
   background-color: #f5fbff;
 }
 
-/* ゼブラストライプ（wide テーブルのみ） */
 .manual-table--wide tr:nth-child(even) td {
   background-color: #e6f3ff;
 }
-
-/* --- テキスト装飾クラス --- */
 
 .manual-big-red {
   color: var(--red);
@@ -524,16 +634,30 @@
     text-align: center;
   }
 
+  /* haigou_list */
+  .haigou-type-header {
+    width: 95%;
+  }
+
   .haigou-list-wrap {
     width: 95%;
   }
 
-  .haigou-list-table {
-    display: block;
-    overflow-x: auto;
+  /* haigou_list2 */
+  .haigou-sort-controls {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  /* Manual */
+  .haigou-sort-list {
+    width: 95%;
+  }
+
+  .sort-btn {
+    min-width: 70px;
+  }
+
+  /* manual */
   .manual-frame {
     padding: var(--space-s) var(--space-m);
   }
@@ -548,17 +672,7 @@
     overflow-x: auto;
   }
 
-  /* Haigou List 2 */
-  .haigou-sort-list {
-    width: 95%;
-  }
-
-  .sort-btn {
-    width: 100%;
-    max-width: 320px;
-  }
-
-  /* Tournament */
+  /* tournament */
   .tournament-round-name {
     width: 90%;
   }

@@ -17,98 +17,110 @@
 <body>
   <div class="wrapper">
 
-    <div class="site-title-block" style="width: min(960px, 95%); margin-inline: auto;" id="top">
+    <div class="site-title-block" style="width: min(1000px, 95%); margin-inline: auto;" id="top">
       MONSTER'S 改 {{ Conf.ver }}
-      <br>
-      <span>特殊モンスター配合表・出現階層</span>
+      <br><span>特殊モンスター配合表・出現階層</span>
     </div>
 
-    <!-- 右メニュー -->
+    <!-- 固定サイドナビ -->
     <div id="haigou_rightmenu">
       [<a href="#top">一番上へ</a>]
       {% for link in links %}
       <br>[<a href="#{{ link.id }}">{{ link.label }}</a>]
       {% endfor %}
-
       <br>
-      <form action="{{ Conf.top_url }}" method="post" class="manual-form">
+      <form action="../{{ Conf.top_url }}" method="post" class="manual-form">
         <input type="hidden" name="mode" value="">
         <button type="submit" class="btn btn--sm">TOPへ</button>
       </form>
     </div>
 
-    <!-- 説明テキスト -->
+    <!-- 説明・フィルターバー -->
     <div class="haigou-desc">
-      <br>
-      <div class="haigou-desc">
-        配合のみ、戦闘のみ、交換のみ等入手条件が限られるものもあります。<br>
-        <span class="manual-red">赤字はお見合い限定になります。<br></span>
+      配合のみ・戦闘のみ・交換のみ等、入手条件が限られるものもあります。<br>
+      <span class="manual-red">赤字はお見合い限定です。</span><br>
+      名前が伏せてある箇所はDiscordでヒントを言うのはOKですが、
+      直接答えを言うのは<span class="manual-red">禁止</span>です。
 
-        <br>
-        モンスター名が伏せてある所はDiscord等でヒントを言うのはOKですが、<br>
-        直接○○だった！っていうのは罰則があるわけでもないけど<span class="manual-red">禁止にします。</span><br>
-        試行錯誤してもらいたいだけなんで、自分勝手ですがよろしくお願いします。<br>
-
-        <br>
-        <button class="btn btn--sm sort-btn" rel="no" data-order="asc">No順(デフォ)</button>
-
-        <br>
-        <button class="btn btn--sm sort-btn" rel="upday" data-order="asc">実装が古い順にソート</button>
-        <button class="btn btn--sm sort-btn" rel="upday" data-order="desc">実装が新しい順にソート</button>
-
-        <br>
-        <button class="btn btn--sm sort-btn" rel="floor" data-order="asc">出現階層が浅い順にソート</button>
-        <button class="btn btn--sm sort-btn" rel="floor" data-order="desc">出現階層が深い順にソート</button>
-
-        <br>
-        <ul>
-          <li>2020/01/23 DQM2モンスター実装</li>
-          <li>2021/06/03 DQMキャラバンハートモンスター実装</li>
-        </ul>
+      <!-- ソートボタン フィルターバー -->
+      <div class="haigou-sort-controls">
+        <div class="haigou-sort-group">
+          <button class="btn btn--sm sort-btn" rel="no" data-order="asc">No順（デフォ）</button>
+        </div>
+        <div class="haigou-sort-group">
+          <span class="haigou-sort-group-label">実装日:</span>
+          <button class="btn btn--sm sort-btn" rel="upday" data-order="asc">古い順</button>
+          <button class="btn btn--sm sort-btn" rel="upday" data-order="desc">新しい順</button>
+        </div>
+        <div class="haigou-sort-group">
+          <span class="haigou-sort-group-label">出現階層:</span>
+          <button class="btn btn--sm sort-btn" rel="floor" data-order="asc">浅い順</button>
+          <button class="btn btn--sm sort-btn" rel="floor" data-order="desc">深い順</button>
+        </div>
       </div>
+
+      <ul>
+        <li>2020/01/23 DQM2モンスター実装</li>
+        <li>2021/06/03 DQMキャラバンハートモンスター実装</li>
+      </ul>
     </div>
 
+    <!-- ソート可能リスト -->
     <main class="haigou-sort-list">
+
       {% for link in links %}
+
+      <!-- グループヘッダー -->
       <div class="haigou-sort-header" id="{{ link.id }}">{{ link.label }}</div>
 
       {% for monster in monsters if monster.m_type == link.id %}
-      <table class="haigou-sort-item" role="grid" aria-label="モンスター {{ monster.name }} の詳細">
-        <tbody>
-          <!-- 1行目 -->
-          <tr>
-            <td id="{{ monster.m_type }}" rowspan="4" class="haigou-img-cell">
-              <img src="../{{ Conf.imgpath }}/{{ monster.name}}.gif" alt="{{ monster.name }}の画像">
-              <div>{{ monster.name }}</div>
-            </td>
-            <td rowspan="2" class="haigou-cell haigou-cell--floor">{{ monster.floor }}</td>
-            <td rowspan="2" class="haigou-cell haigou-cell--location">{{ monster.room }}</td>
-            {% if monster.desc_b %}
-            <td rowspan="2" class="haigou-cell haigou-cell--desc">{{ monster.desc_a | safe }}</td>
-            <td rowspan="2" class="haigou-cell haigou-cell--desc">{{ monster.desc_b }}</td>
-            {% else %}
-            <td rowspan="2" colspan="2" class="haigou-cell haigou-cell--desc haigou-cell--wide">{{ monster.desc_a | safe
-              }}</td>
-            {% endif %}
-          </tr>
-          <!-- 2行目（1行目と結合されているため空） -->
-          <tr></tr>
-          <!-- 3行目 -->
-          <tr>
-            <td colspan="4" class="haigou-cell">{{ monster.stats }}</td>
-          </tr>
-          <!-- 4行目 -->
-          <tr>
-            <td colspan="4" class="haigou-cell">{{ monster.date }}
-              <span data-upday="{{ monster.date }}" data-no="{{ monster.no }}"
-                data-floor="{{ monster.floor_min }}"></span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      {% endfor %}
+
+      <!-- モンスター1体ラッパー（border-radius + shadow はここが持つ） -->
+      <div class="haigou-sort-item-wrap">
+        <table class="haigou-sort-item"
+               role="grid"
+               aria-label="モンスター {{ monster.name }} の詳細">
+          <tbody>
+            <!-- 行1: 画像 | 階層 | 場所 | 配合説明 -->
+            <tr>
+              <td id="{{ monster.m_type }}" rowspan="4" class="haigou-img-cell">
+                <img src="../{{ Conf.imgpath }}/{{ monster.name }}.gif"
+                     alt="{{ monster.name }}の画像">
+                <div>{{ monster.name }}</div>
+              </td>
+              <td rowspan="2" class="haigou-cell haigou-cell--location">{{ monster.room }}</td>
+              <td rowspan="2" class="haigou-cell haigou-cell--floor">{{ monster.floor }}</td>
+              {% if monster.desc_b %}
+              <td rowspan="2" class="haigou-cell haigou-cell--desc">{{ monster.desc_a | safe }}</td>
+              <td rowspan="2" class="haigou-cell haigou-cell--desc">{{ monster.desc_b }}</td>
+              {% else %}
+              <td rowspan="2" colspan="2" class="haigou-cell haigou-cell--desc haigou-cell--wide">{{ monster.desc_a | safe }}</td>
+              {% endif %}
+            </tr>
+            <!-- 行2（行1と結合のため空） -->
+            <tr></tr>
+            <!-- 行3: ステータス -->
+            <tr>
+              <td colspan="4" class="haigou-cell" style="font-size: 88%; color: #555; font-weight: normal;">
+                {{ monster.stats }}
+              </td>
+            </tr>
+            <!-- 行4: 実装日 + ソートデータ -->
+            <tr>
+              <td colspan="4" class="haigou-cell" style="font-size: 82%; color: #888; font-weight: normal;">
+                {{ monster.date }}
+                <span data-upday="{{ monster.date }}"
+                      data-no="{{ monster.no }}"
+                      data-floor="{{ monster.floor_min }}"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- /.haigou-sort-item-wrap -->
 
       {% endfor %}
+      {% endfor %}
+
     </main>
 
     {% include "footer_tmp.html" %}
