@@ -9,9 +9,8 @@ from sub_def.file_ops import (
     open_omiai_list,
 )
 from sub_def.utils import error, print_html, success
-from sub_def.validation import NameChangeForm, validate_form
+from sub_def.validation import name_change_check
 from sub_def.crypto import set_cookie, get_cookie, verify_password
-
 
 import conf
 
@@ -48,18 +47,15 @@ def name_change(FORM):
 def name_change_ok(FORM):
     session = FORM.get("s", {})
     user_name = session.get("in_name")
-    new_name = FORM.get("new_name", "").strip()
     in_pass = FORM.get("password", "")
-    token = session.get("token", "")
 
-    # パスワードも必須項目としてチェック
-    if not user_name or not new_name or not in_pass:
+    if not user_name or not FORM.get("new_name", "").strip() or not in_pass:
         error("必要なパラメータが不足しています。", jump="my_page")
 
     # ======================
     # 0. セキュリティ: パスワードチェック
     # ======================
-    # データ操作前にユーザーデータを読み込み、パスワードを照合する
+    # バリデーション前にパスワードを照合し、不正操作を早期遮断する
     all_data = open_user_all(user_name)
     user = all_data.get("user", {})
 
@@ -69,32 +65,23 @@ def name_change_ok(FORM):
     # ======================
     # 1. バリデーション
     # ======================
-    form = NameChangeForm(data={"new_name": new_name})
-
-    if new_name and new_name == in_pass:
-        error("新しい名前とパスワードは違うものにしてください。", jump="my_page")
-
-    validate_form(form, "top")
+    # name_change_check が NFKC 正規化・フォーマット検証・名前=パスワード一致チェックを行う
+    form = name_change_check(FORM)
+    new_name = form.new_name.data  # 正規化済みの値を以降で使用
 
     if os.path.exists(os.path.join(Conf["savedir"], new_name)):
         error("その名前は既に登録されています。", jump="my_page")
 
     u_list = open_user_list()
-    # 大文字・小文字を区別せずに重複チェック
     if any(u_name.casefold() == new_name.casefold() for u_name in u_list):
         error("その名前では登録することができません。", jump="my_page")
 
     # ======================
     # 2. 事前準備
     # ======================
-    user_list_backup = None
+    user_list_backup = u_list[user_name].copy() if user_name in u_list else None
+    old_user_name = user.get("name")
 
-    if user_name in u_list:
-        user_list_backup = u_list[user_name].copy()
-
-    old_user_name = user.get("name")  # 元の名前を保持
-
-    # 一時的に名前を変更
     user["name"] = new_name
     all_data["user"] = user
 
@@ -118,29 +105,24 @@ def name_change_ok(FORM):
         if os.path.exists(old_path):
             os.rename(old_path, new_path)
 
-        # フォルダ名変更後に新しい名前で保存
         save_user_all(all_data, new_name)
 
     except OSError as e:
-        # ROLLBACK処理（OS操作等で失敗した場合、データを元の状態に復元する）
         rollback_success = True
         error_msg = f"フォルダ名変更中にエラーが発生しました: {e}"
 
-        # --- 1. user_list を元に戻す ---
         try:
             if user_list_backup is not None and new_name in u_list:
                 u_list[user_name] = u_list.pop(new_name)
-                # 元のデータも復元
                 u_list[user_name].update(user_list_backup)
                 save_user_list(u_list)
         except Exception:
             rollback_success = False
 
-        # --- 2. user_all の名前を元に戻して保存 ---
         try:
             user["name"] = old_user_name
             all_data["user"] = user
-            save_user_all(all_data, user_name)  # 古いフォルダに保存
+            save_user_all(all_data, user_name)
         except Exception:
             rollback_success = False
 

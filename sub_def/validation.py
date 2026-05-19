@@ -294,6 +294,26 @@ def newpass_check(FORM):
     return form
 
 
+def name_change_check(FORM):
+    """
+    ユーザー名変更フォームのバリデーション。
+    - new_name のフォーマット検証（ValidUsername / 文字数）
+    - 新しい名前とパスワードの一致チェック
+    - 正規化済みの値を持つ form を返す
+    """
+    form = NameChangeForm(data=FORM)
+    validate_form(form, "my_page")
+
+    # ValidUsername により NFKC 正規化済みの値を使う
+    new_name = form.new_name.data
+    password = FORM.get("password", "")
+
+    if new_name and password and new_name == password:
+        error("新しい名前とパスワードは違うものにしてください。", jump="my_page")
+
+    return form
+
+
 def login_check(FORM):
     """ログイン処理"""
     wtform = LoginForm(data=FORM)

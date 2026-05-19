@@ -9,7 +9,13 @@ import datetime
 
 import conf
 
-from .file_ops import open_omiai_list, save_omiai_list, open_user_list, save_user_list
+from .file_ops import (
+    open_omiai_list,
+    save_omiai_list,
+    open_user_list,
+    save_user_list,
+    get_shared_lock,
+)
 from .utils import error
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -60,6 +66,10 @@ def run_daily_delete_check() -> None:
     marker_path = os.path.join(Conf["savedir"], "last_delete_check.txt")
     today = datetime.date.today().isoformat()
 
+    lock = get_shared_lock("delete_check")
+
+    if not lock.lock():
+        return  # 他プロセスが実行中なのでスキップ
     try:
         if os.path.exists(marker_path):
             with open(marker_path, encoding="utf-8") as f:
@@ -74,6 +84,8 @@ def run_daily_delete_check() -> None:
 
     except OSError as e:
         error(f"削除チェックの実行記録更新に失敗しました: {e}", 99)
+    finally:
+        lock.unlock()
 
 
 def delete_user(target: str) -> None:

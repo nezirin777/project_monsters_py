@@ -35,7 +35,7 @@ from sub_def.crypto import (
 
 from sub_def.user_ops import get_host, backup
 from sub_def.utils import error, print_html
-from sub_def.validation import RegisterForm
+from sub_def.validation import check_valid_user_name_password
 
 
 def log_registration(in_name):
@@ -187,14 +187,8 @@ def make_user_data(in_name: str = "", in_pass: str = "", crypted: str = ""):
 
 
 def sinki(FORM, kanri=False):
-    """新規ユーザー登録のメイン処理"""
-    form = RegisterForm(data=FORM)
-    if not form.validate():
-        error_msg = "; ".join(
-            f"{field}: {errors[0]}" for field, errors in form.errors.items()
-        )
-        error(f"入力情報の検証に失敗しました: {error_msg}", "top")
-
+    # 変更前
+    form = check_valid_user_name_password(FORM)
     in_name = form.new_user_name.data
     in_pass = form.new_password.data
 

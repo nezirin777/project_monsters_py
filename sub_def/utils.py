@@ -125,6 +125,9 @@ def _flash_and_jump(txt, msg_type="error", jump="top", log_level=logging.INFO):
     )
     set_session(session)
 
+    if jump not in URL_MAP:
+        logging.warning(f"未定義のjump先: {jump}, my_page へ fallback")
+
     url, base_par = URL_MAP.get(jump, URL_MAP["my_page"])
     logging.log(log_level, f"{msg_type.upper()}: {sanitized_txt}, Jump: {jump}")
 

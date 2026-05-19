@@ -112,6 +112,7 @@ def _set_cookie_common(
     except Exception as e:
         # error()の使用を避け、システムエラーとして記録
         logging.error(f"クッキー {name} の設定に失敗しました: {e}")
+        raise RuntimeError("クッキーの設定に失敗しました。")
 
 
 def set_cookie(c_data: dict) -> None:

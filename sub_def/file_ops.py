@@ -309,7 +309,7 @@ def open_dat(file_name: str) -> Dict:
             return pickle.load(f)
     except Exception as e:
         _handle_file_error("dat", file_path, e)
-        return {}
+        raise
 
 
 def _create_dat_opener(file_name: str):
@@ -353,15 +353,7 @@ def open_user_all(user: str = "") -> dict:
     except Exception as e:
         # 古いフォールバック処理は削除し、明確にエラーとして処理する
         _handle_file_error("user_all", file_path, e)
-        return {
-            "user": {},
-            "party": [],
-            "vips": {},
-            "room_key": {},
-            "waza": {},
-            "park": [],
-            "zukan": {},
-        }
+        raise
 
 
 def save_user_all(data: dict, user: str = "") -> None:
@@ -407,7 +399,7 @@ def open_battle(user: str = "") -> Any:
         return None  # バトルデータが無いのはエラーではない（非戦闘時）
     except Exception as e:
         _handle_file_error("battle", file_path, e)
-        return None
+        raise
 
 
 def save_battle(data: Any, user: str = "") -> None:
