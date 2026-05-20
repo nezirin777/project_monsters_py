@@ -61,7 +61,6 @@ def zukan(FORM):
 
             filtered_zukan[name] = merged_data
 
-    filtered_zukan = {}
     for name, m_data in M_list.items():
         if m_type == m_data.get("m_type"):
             # マスターのデータ(枠)に対して、ユーザーの取得状況(get=1など)を上書き結合

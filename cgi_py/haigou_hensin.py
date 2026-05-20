@@ -77,7 +77,7 @@ def haigou_hensin(FORM):
     # 配合後モンスターに引き継ぐステータスを上書き
     new_mob.update(
         {
-            "name": FORM["s"].get("new_mons", new_mob_name),
+            "name": new_mob_name,
             "hai": new_hai,
             "lv": 1,
             "mlv": mlv,
