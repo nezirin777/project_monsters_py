@@ -5,6 +5,7 @@
 import cgi
 import secrets
 import os
+import sys
 from itertools import islice
 
 import conf
@@ -20,6 +21,8 @@ from sub_def.user_ops import (
 from sub_def.utils import print_html, error, get_and_clear_flash
 
 Conf = conf.Conf
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 
 class UserListManager:

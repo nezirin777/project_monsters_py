@@ -10,9 +10,6 @@ import secrets
 import shutil
 import html
 
-import conf
-
-Conf = conf.Conf
 
 from sub_def.file_ops import (
     open_user_list,
@@ -24,7 +21,6 @@ from sub_def.file_ops import (
     open_tokugi_dat,
     append_log,
 )
-
 from sub_def.crypto import (
     hash_password,
     set_cookie,
@@ -32,10 +28,15 @@ from sub_def.crypto import (
     get_session,
     token_check,
 )
-
 from sub_def.user_ops import get_host, backup
 from sub_def.utils import error, print_html
 from sub_def.validation import check_valid_user_name_password
+
+import conf
+
+Conf = conf.Conf
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 
 def log_registration(in_name):

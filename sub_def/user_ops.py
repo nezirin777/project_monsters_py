@@ -4,8 +4,8 @@ import os
 import re
 import shutil
 import socket
-import sys
 import datetime
+import logging
 
 import conf
 
@@ -15,67 +15,82 @@ from .file_ops import (
     open_user_list,
     save_user_list,
     get_shared_lock,
+    log,
 )
 from .utils import error
 
-sys.stdout.reconfigure(encoding="utf-8")
+# sys.stdout.reconfigure はライブラリモジュールには不要。
+# CGI エントリポイント（login.py / monster.py 等）で設定済みのため削除。
+
 Conf = conf.Conf
 
-compiled_noip = [re.compile(ip) for ip in Conf["noip"]]
+# 存在しないキーによる KeyError を防ぐため get() で安全に取得する
+compiled_noip: list[re.Pattern] = [re.compile(ip) for ip in Conf.get("noip", [])]
 
 
 # ==============#
 # バックアップ  #
 # ==============#
 def backup() -> None:
-    """バックアップを作成する"""
-    if Conf["backup"]:
-        try:
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-            backup_path = os.path.join(Conf["backfolder"], timestamp)
+    """save ディレクトリ全体をタイムスタンプ付きフォルダにコピーする"""
+    if not Conf["backup"]:
+        return
 
-            # バックアップ先ディレクトリを作成
-            os.makedirs(backup_path, exist_ok=True)
+    try:
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+        backup_path = os.path.join(Conf["backfolder"], timestamp)
+        os.makedirs(backup_path, exist_ok=True)
+        shutil.copytree(Conf["savedir"], backup_path, dirs_exist_ok=True)
 
-            # save ディレクトリ全体を再帰的にコピー
-            shutil.copytree(Conf["savedir"], backup_path, dirs_exist_ok=True)
-
-        except FileNotFoundError as e:
-            error(f"バックアップ元ディレクトリが見つかりません: {e}")
-        except PermissionError as e:
-            error(f"バックアップ作成時の権限エラー: {e}")
-        except OSError as e:
-            error(f"バックアップ作成時のOSエラー: {e}")
+    except FileNotFoundError as e:
+        error(f"バックアップ元ディレクトリが見つかりません: {e}")
+    except PermissionError as e:
+        error(f"バックアップ作成時の権限エラー: {e}")
+    except OSError as e:
+        error(f"バックアップ作成時のOSエラー: {e}")
 
 
 # ==============#
 # 削除時間取得  #
 # ==============#
 def get_del_day(bye: str) -> int:
-    """ユーザーの削除までの残り日数を計算"""
-    return (
-        datetime.datetime.strptime(str(bye), "%Y-%m-%d") - datetime.datetime.now()
-    ).days
+    """
+    ユーザーの削除までの残り日数を返す。
+    日付フォーマットが不正な場合は 0 を返す（即削除対象にしない安全側の挙動）。
+    """
+    try:
+        return (
+            datetime.datetime.strptime(str(bye), "%Y-%m-%d") - datetime.datetime.now()
+        ).days
+    except ValueError:
+        logging.warning(f"get_del_day: 不正な日付フォーマット '{bye}'")
+        return 0
 
 
 # ================#
-# 保存期間調査   #
+# 保存期間チェック #
 # ================#
 def run_daily_delete_check() -> None:
-    """delete_check を1日1回だけ実行する"""
+    """
+    放置ユーザーの削除チェックを 1 日 1 回だけ実行する。
+    別プロセスがすでに実行中の場合はロック取得に失敗するため、
+    重複実行を避けて静かにスキップする（エラーではない）。
+    """
     marker_path = os.path.join(Conf["savedir"], "last_delete_check.txt")
     today = datetime.date.today().isoformat()
 
     lock = get_shared_lock("delete_check")
 
     if not lock.lock():
-        return  # 他プロセスが実行中なのでスキップ
+        # 別プロセスが実行中 → 重複実行を避けるため正常スキップ
+        return
+
     try:
         if os.path.exists(marker_path):
             with open(marker_path, encoding="utf-8") as f:
                 last_run = f.read().strip()
             if last_run == today:
-                return
+                return  # 本日分は実行済み
 
         delete_check()
 
@@ -90,15 +105,20 @@ def run_daily_delete_check() -> None:
 
 def delete_user(target: str) -> None:
     """
-    指定されたユーザーを削除し、お見合いリストから該当データを更新・削除。
+    指定ユーザーを削除し、お見合いリストから関連データを更新する。
+
+    Note:
+        ユーザーディレクトリが存在しない場合は警告ログを出力して続行する。
+        delete_check() のループ中に呼ばれるケースでは、1 件の欠損で
+        全体処理を止めないようにするため error() は使わない。
     """
     try:
-        # お見合い登録データから対象ユーザー削除
+        # お見合いリストから対象ユーザーを削除
         omiai_list = open_omiai_list()
         if target in omiai_list:
             del omiai_list[target]
 
-        # 対象ユーザーにお見合い申請しているユーザーのデータを更新
+        # 対象ユーザーにお見合いを申請中の相手のステータスを更新
         for name, opt in omiai_list.items():
             if opt.get("request") == target:
                 opt.update(
@@ -109,12 +129,12 @@ def delete_user(target: str) -> None:
                 )
         save_omiai_list(omiai_list)
 
-        # ユーザーディレクトリを削除
         user_dir = os.path.join(Conf["savedir"], target)
         if os.path.exists(user_dir):
             shutil.rmtree(user_dir)
         else:
-            error(f"ユーザーディレクトリが見つかりません: {user_dir}", 99)
+            # 部分削除済み等の理由でディレクトリが消えている場合は警告のみ
+            log(f"[WARN] delete_user: ディレクトリが見つかりません: {user_dir}")
 
     except OSError as e:
         error(f"ユーザーディレクトリの削除中にエラーが発生しました: {e}", 99)
@@ -122,10 +142,11 @@ def delete_user(target: str) -> None:
 
 def delete_check() -> None:
     """
-    ユーザーリストを確認し、削除対象のユーザーを削除。
+    ユーザーリストを走査し、保存期限切れのユーザーを削除する。
+    ループ中にリストを変更するため、キーのコピーに対してイテレートする。
     """
     u_list = open_user_list()
-    for key in list(u_list.keys()):  # ループ中の辞書変更対策でlist()を使用
+    for key in list(u_list.keys()):
         if get_del_day(u_list[key]["bye"]) <= 0:
             delete_user(key)
             del u_list[key]
@@ -133,18 +154,16 @@ def delete_check() -> None:
 
 
 # ============#
-# host取得   #
+# IP 関連    #
 # ============#
 def get_client_ip() -> str:
     """
-    クライアントのIPアドレスを取得します。
-    X-Forwarded-Forヘッダーを考慮して、最も信頼できるIPアドレスを返します。
+    クライアントの IP アドレスを返す。
+    リバースプロキシ経由の場合は X-Forwarded-For ヘッダーを優先する。
     """
     try:
-        # 環境変数からIPアドレスを取得
         x_forwarded_for = os.environ.get("HTTP_X_FORWARDED_FOR", "")
         remote_addr = os.environ.get("REMOTE_ADDR", "0.0.0.0")
-        # X-Forwarded-Forが存在する場合、最初のIPを使用
         return x_forwarded_for.split(",")[0].strip() if x_forwarded_for else remote_addr
     except Exception:
         return "0.0.0.0"
@@ -152,27 +171,32 @@ def get_client_ip() -> str:
 
 def get_host() -> str:
     """
-    クライアントのリモートアドレスからホスト名を取得する。
-    - X-Forwarded-For ヘッダーを優先的に確認する。
-    - ホスト名が見つからない場合はIPアドレスを返す。
+    クライアント IP から逆引きでホスト名を取得する。
+    解決できない場合は IP アドレスをそのまま返す。
+
+    Note:
+        gethostbyaddr() は DNS 逆引きを行うため、環境によって数百 ms の
+        レイテンシが発生することがある。
     """
     ip_address = get_client_ip()
     try:
-        # IPアドレスからホスト名を取得
         return socket.gethostbyaddr(ip_address)[0]
     except (socket.herror, KeyError):
-        return ip_address  # ホスト名解決失敗時はIPを返す
+        return ip_address
     except Exception:
         return ip_address
 
 
 def is_ip_banned(ip_address: str) -> bool:
     """
-    指定されたIPアドレスが禁止リストに含まれているかを確認します。
-    - conf.noipに設定されている禁止IPリストを正規表現でチェック。
+    IP アドレスが禁止リストに含まれているか判定する。
+    判定中に例外が発生した場合は安全側（True = 禁止）として扱い、
+    リクエスト全体をクラッシュさせない。
     """
     try:
         return any(pattern.match(ip_address) for pattern in compiled_noip)
     except Exception as e:
-        error(f"IP禁止チェックエラー: {e}")
-        return True  # 安全側に倒す
+        # 正規表現マッチのエラーでリクエストを止めるのは過剰なため、
+        # 警告ログだけ出して安全側（アクセス拒否）を返す
+        logging.warning(f"IP禁止チェック中に例外が発生しました: {e}")
+        return True

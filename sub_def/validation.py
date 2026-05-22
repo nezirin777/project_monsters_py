@@ -5,6 +5,7 @@ import unicodedata
 import re
 import emoji
 import hmac
+from typing import NoReturn
 from wtforms import Form, StringField, PasswordField, IntegerField, validators
 from wtforms.validators import ValidationError
 
@@ -25,10 +26,18 @@ import conf
 
 Conf = conf.Conf
 
-# Windows予約語
-NG_STR = [
+# -------------------------------------------------------
+# 禁止ユーザー名リスト
+#   - Windows ファイルシステムの予約語（デバイス名）
+#   - ゲーム固有の予約ディレクトリ名（logs, lock_fol）
+# ユーザーフォルダ名として使われるため、OS が予約している名前は
+# ディレクトリ作成に失敗したり予期しない挙動を引き起こす。
+# -------------------------------------------------------
+_NG_STR_RAW: list[str] = [
+    # ゲーム固有の予約ディレクトリ
     "logs",
     "lock_fol",
+    # Windows デバイス名予約語
     "CON",
     "PRN",
     "AUX",
@@ -53,15 +62,23 @@ NG_STR = [
     "LPT9",
 ]
 
+# 大文字小文字を問わず O(1) で照合するため frozenset に変換する
+_NG_STR_UPPER: frozenset[str] = frozenset(name.upper() for name in _NG_STR_RAW)
+
 
 # ======================#
-# カスタムバリデータ
+# カスタムバリデータ    #
 # ======================#
 class ZeroAllowedDataRequired:
-    def __init__(self, message=None):
+    """
+    0 を有効な値として扱う DataRequired 代替バリデータ。
+    WTForms 標準の DataRequired は 0 を falsy と判定して弾くため独自実装している。
+    """
+
+    def __init__(self, message: str = None):
         self.message = message or "This field is required."
 
-    def __call__(self, form, field):
+    def __call__(self, form: Form, field) -> None:
         if field.data is None or (
             isinstance(field.data, str) and not field.data.strip()
         ):
@@ -73,13 +90,15 @@ class ZeroAllowedDataRequired:
 
 
 class ValidUsername:
-    """ユーザー名の詳細な検証"""
+    """ユーザー名の詳細バリデーション（文字種・絵文字・Shift-JIS・予約語）"""
 
-    def __call__(self, form, field):
-        # 正規化した値を field.data に書き戻し、システム全体で統一された値を使うようにする
+    def __call__(self, form: Form, field) -> None:
+        # NFKC 正規化（全角英数→半角など）して field.data に書き戻す。
+        # 以降の処理はすべて正規化済みの値を使う。
         user_name = unicodedata.normalize("NFKC", field.data.strip())
         field.data = user_name
 
+        # ファイルシステムで問題になる文字・末尾スペース・ドットを禁止する
         if re.search(r'[.<>:"/\\|?*\x00-\x1F\s]|[. ]$', user_name):
             raise ValidationError(
                 "ユーザー名に無効な文字（スペース、ドット、特殊文字）が含まれています"
@@ -88,6 +107,9 @@ class ValidUsername:
         if any(emoji.is_emoji(char) for char in user_name):
             raise ValidationError("ユーザー名に絵文字は使用できません")
 
+        # Shift-JIS 表現可能チェック
+        # replace エラーハンドラで変換不能文字を '?' に置き換え→元文字列と比較する。
+        # 差異があれば Shift-JIS で扱えない文字が含まれていると判断する。
         try:
             encoded = user_name.encode("Shift-JIS", "replace")
             decoded = encoded.decode("Shift-JIS")
@@ -102,7 +124,8 @@ class ValidUsername:
                 "ユーザー名にShift-JISで表現できない文字が含まれています"
             )
 
-        if user_name.upper() in [name.upper() for name in NG_STR]:
+        # 大文字小文字を問わず禁止名と照合する（frozenset で O(1)）
+        if user_name.upper() in _NG_STR_UPPER:
             raise ValidationError(f"ユーザー名に予約語 '{user_name}' は使用できません")
 
         if any(ord(char) < 32 or ord(char) == 127 for char in user_name):
@@ -110,10 +133,10 @@ class ValidUsername:
 
 
 # ======================#
-# フォーム定義
+# フォーム定義          #
 # ======================#
 class BaseUserForm(Form):
-    """ログイン等で使用する従来のフォーム"""
+    """ログイン等で使用する基底フォーム（ユーザー名 + パスワード）"""
 
     user_name = StringField(
         "Username",
@@ -145,7 +168,7 @@ class LoginForm(BaseUserForm):
 
 
 class RegisterForm(Form):
-    """新規登録専用のフォーム（属性名を new_user_name, new_password に変更）"""
+    """新規登録専用フォーム（フィールド名を new_user_name / new_password に変更）"""
 
     new_user_name = StringField(
         "Username",
@@ -171,8 +194,8 @@ class RegisterForm(Form):
         ],
     )
 
-    # WTFormsは "validate_フィールド名" という命名規則でカスタム関数を動かすため変更
-    def validate_new_password(self, field):
+    def validate_new_password(self, field) -> None:
+        # WTForms は "validate_フィールド名" の命名規則でカスタム検証を呼び出す
         if self.new_user_name.data == field.data:
             raise ValidationError("名前とパスワードは違うものにして下さい")
 
@@ -224,7 +247,7 @@ class NewPassForm(Form):
 
 
 class NameChangeForm(Form):
-    """ユーザー名変更専用のシンプルなフォーム"""
+    """ユーザー名変更専用フォーム"""
 
     new_name = StringField(
         "新しいユーザー名",
@@ -239,32 +262,42 @@ class NameChangeForm(Form):
 
 
 # ======================#
-# バリデーション関数
+# バリデーション関数    #
 # ======================#
-def validate_form(form, error_context="top"):
-    """共通のフォームバリデーション処理"""
+def validate_form(form: Form, jump: str = "top") -> bool:
+    """
+    WTForms フォームを検証し、失敗時は error() でリダイレクトする。
+
+    Args:
+        form: 検証対象のフォームインスタンス
+        jump: 検証失敗時のリダイレクト先（error() の jump 引数と同じ）
+    """
     if not form.validate():
         error_msg = "; ".join(
             f"{field}: {errors[0]}" for field, errors in form.errors.items()
         )
-        error(f"入力情報の検証に失敗しました: {error_msg}", error_context)
+        error(f"入力情報の検証に失敗しました: {error_msg}", jump)
     return True
 
 
-def check_valid_user_name_password(FORM):
+def check_valid_user_name_password(FORM: dict) -> RegisterForm:
+    """新規登録フォームのバリデーションを行い、正規化済みフォームを返す"""
     form = RegisterForm(data=FORM)
     validate_form(form, "top")
     return form
 
 
-def admin_check(FORM):
+def admin_check(FORM: dict) -> AdminForm:
+    """
+    管理者名・パスワードを検証する。
+    タイミング攻撃対策として hmac.compare_digest による定時間比較を使う。
+    """
     form = AdminForm(data=FORM)
     validate_form(form, "kanri")
 
-    # 非ASCII文字によるTypeErrorクラッシュを防ぐため、バイト列にエンコードして比較
+    # 非 ASCII 文字による TypeError を防ぐためバイト列で比較する
     m_name_bytes = form.m_name.data.encode("utf-8")
     conf_name_bytes = Conf["master_name"].encode("utf-8")
-
     m_pass_bytes = form.m_password.data.encode("utf-8")
     conf_pass_bytes = Conf["master_password"].encode("utf-8")
 
@@ -276,30 +309,31 @@ def admin_check(FORM):
     return form
 
 
-def present_monster_check(FORM):
+def present_monster_check(FORM: dict) -> PresentMonsterForm:
     form = PresentMonsterForm(data=FORM)
     validate_form(form, "kanri")
     return form
 
 
-def present_check(FORM):
+def present_check(FORM: dict) -> PresentForm:
     form = PresentForm(data=FORM)
     validate_form(form, "kanri")
     return form
 
 
-def newpass_check(FORM):
+def newpass_check(FORM: dict) -> NewPassForm:
     form = NewPassForm(data=FORM)
     validate_form(form, "kanri")
     return form
 
 
-def name_change_check(FORM):
+def name_change_check(FORM: dict) -> NameChangeForm:
     """
-    ユーザー名変更フォームのバリデーション。
-    - new_name のフォーマット検証（ValidUsername / 文字数）
-    - 新しい名前とパスワードの一致チェック
-    - 正規化済みの値を持つ form を返す
+    ユーザー名変更フォームを検証して正規化済みフォームを返す。
+
+    処理内容:
+        - ValidUsername による NFKC 正規化・文字種検証
+        - 新しい名前とパスワードの一致チェック
     """
     form = NameChangeForm(data=FORM)
     validate_form(form, "my_page")
@@ -314,8 +348,12 @@ def name_change_check(FORM):
     return form
 
 
-def login_check(FORM):
-    """ログイン処理"""
+def login_check(FORM: dict) -> dict:
+    """
+    ログイン認証を行い、成功時はセッション初期化用の辞書を返す。
+
+    旧式パスワード（SHA-1 Base64）を検知した場合は SHA-256 形式へ自動マイグレートする。
+    """
     wtform = LoginForm(data=FORM)
     validate_form(wtform, "top")
 
@@ -326,11 +364,11 @@ def login_check(FORM):
     if not os.path.exists(user_path):
         error("あなたは未登録のようです。", "top")
 
-    # 新形式：open_user_all を使用
     all_data = open_user_all(name)
     user = all_data.get("user", {})
 
-    # 旧式パスワード → 新方式へ移行
+    # 旧式ハッシュ（コロンなし = SHA-1 Base64）を検知して新形式へ移行する。
+    # pass_encode は移行判定にのみ使用する（crypto.py 参照）。
     if ":" not in user.get("pass", ""):
         if user.get("pass") == pass_encode(password):
             user["pass"] = hash_password(password)
@@ -340,13 +378,13 @@ def login_check(FORM):
     if not verify_password(password, user.get("pass", "")):
         error("パスワードが違います", "top")
 
-    # Cookieはユーザー名だけ保持
+    # 旧クッキーのパスワードフィールドを削除してセキュリティを向上させる
     cookie = get_cookie()
     cookie.pop("in_pass", None)
     cookie["in_name"] = name
     set_cookie(cookie)
 
-    # my_page表示に必要な最小限の情報を返す
+    # my_page 表示に必要な最小限の情報を返す
     return {
         "in_name": name,
         "last_floor": user.get("last_floor", 1),

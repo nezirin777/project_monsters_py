@@ -1,0 +1,546 @@
+<style>
+  .sb-item:hover {
+    background: rgba(56, 189, 248, 0.07) !important;
+    color: #cbd5e1 !important
+  }
+
+  .step-box {
+    transition: border-color .15s
+  }
+
+  .step-box:hover {
+    border-color: rgba(255, 255, 255, 0.22) !important
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f172a
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px
+  }
+</style>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+  const { useState, createElement: h } = React;
+  const TM = {
+    entry: { label: "ENTRY", color: "#38bdf8", bg: "rgba(56,189,248,.12)" },
+    data: { label: "DATA", color: "#4ade80", bg: "rgba(74,222,128,.12)" },
+    util: { label: "UTIL", color: "#fbbf24", bg: "rgba(251,191,36,.12)" },
+    internal: { label: "LOGIC", color: "#c084fc", bg: "rgba(192,132,252,.12)" },
+    check: { label: "CHECK", color: "#f87171", bg: "rgba(248,113,113,.12)" },
+    output: { label: "OUTPUT", color: "#34d399", bg: "rgba(52,211,153,.12)" },
+  };
+  const FLOWS = [
+    {
+      id: "top", label: "トップページ", group: "表示", sections: [{
+        title: "monster.py → print_html", steps: [
+          { file: "monster.py", func: "main()", type: "entry", note: "CGIエントリポイント" },
+          { file: "user_ops.py", func: "get_client_ip()", type: "util" },
+          { file: "user_ops.py", func: "is_ip_banned(ip)", type: "check", branch: "BANなら error(99)" },
+          { file: "conf.py", func: "apply_fol(FORM)", type: "util" },
+          { file: "user_ops.py", func: "run_daily_delete_check()", type: "util", note: "1日1回のみ" },
+          { file: "file_ops.py", func: "open_user_list()", type: "data" },
+          { file: "file_ops.py", func: "get_ranked_user_list()", type: "data" },
+          { file: "crypto.py", func: "get_session()", type: "util" },
+          { file: "utils.py", func: "get_and_clear_flash(session)", type: "util" },
+          { file: "crypto.py", func: "set_session({token, ref:'top'})", type: "util" },
+          { file: "file_ops.py", func: "get_tournament_status()", type: "data" },
+          { file: "tournament.py", func: "tournament()", type: "internal", note: "開催期限超過時のみ" },
+          { file: "monster.py", func: "create_users_list()", type: "internal" },
+          { file: "utils.py", func: "print_html('top_tmp.html')", type: "output" },
+        ]
+      }]
+    },
+    {
+      id: "login", label: "ログイン・ルーティング", group: "認証", sections: [{
+        title: "login.py → dispatch_function", steps: [
+          { file: "login.py", func: "process_form()", type: "entry", note: "CGIエントリポイント" },
+          { file: "conf.py", func: "apply_fol(FORM)", type: "util" },
+          { file: "login.py", func: "メンテナンスチェック", type: "check", branch: "mente.menteがあれば error(top)" },
+          { file: "crypto.py", func: "get_session()", type: "util" },
+          { file: "login.py", func: "is_login_attempt 判定", type: "check", note: "ref==top & user_name & password" },
+          { file: "validation.py", func: "login_check(FORM)", type: "util", note: "ログイン試行時のみ" },
+          { file: "validation.py", func: "LoginForm.validate()", type: "check" },
+          { file: "file_ops.py", func: "open_user_all(name)", type: "data" },
+          { file: "crypto.py", func: "verify_password(pass, hash)", type: "check", branch: "不一致 → error(top)" },
+          { file: "crypto.py", func: "set_cookie({in_name})", type: "util" },
+          { file: "crypto.py", func: "token_check(FORM, session, login_data)", type: "util" },
+          { file: "crypto.py", func: "set_session(新トークン+ユーザーデータ)", type: "util" },
+          { file: "login.py", func: "dispatch_function(FORM)", type: "internal", note: "modeに応じて各モジュールへ" },
+        ]
+      }]
+    },
+    {
+      id: "register", label: "新規登録", group: "認証", sections: [{
+        title: "register.py → sinki()", steps: [
+          { file: "register.py", func: "main()", type: "entry" },
+          { file: "file_ops.py", func: "open_user_list()", type: "data", note: "参加人数上限チェック" },
+          { file: "crypto.py", func: "token_check()", type: "util" },
+          { file: "validation.py", func: "check_valid_user_name_password(FORM)", type: "util" },
+          { file: "register.py", func: "重複チェック / IPチェック", type: "check", branch: "重複 → error(top)" },
+          { file: "crypto.py", func: "hash_password(in_pass)", type: "util" },
+          { file: "file_ops.py", func: "open_key_dat() / open_tokugi_dat() / open_monster_dat()", type: "data" },
+          { file: "file_ops.py", func: "save_user_all(初期データ一式)", type: "data" },
+          { file: "file_ops.py", func: "save_user_list()", type: "data" },
+          { file: "file_ops.py", func: "append_log('参加しました')", type: "data" },
+          { file: "user_ops.py", func: "backup()", type: "util" },
+          { file: "crypto.py", func: "set_cookie({in_name})", type: "util" },
+          { file: "utils.py", func: "print_html('newgame_result_tmp.html')", type: "output" },
+        ]
+      }]
+    },
+    {
+      id: "my_page", label: "マイページ", group: "表示", sections: [{
+        title: "my_page.py → print_html", steps: [
+          { file: "my_page.py", func: "my_page(FORM)", type: "entry" },
+          { file: "utils.py", func: "get_and_clear_flash(session)", type: "util" },
+          { file: "file_ops.py", func: "open_omiai_list()", type: "data" },
+          { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+          { file: "my_page.py", func: "update_user_list()", type: "internal" },
+          { file: "file_ops.py", func: "open_user_list() / save_user_list()", type: "data" },
+          { file: "user_ops.py", func: "get_host()", type: "util" },
+          { file: "my_page.py", func: "calculate_costs_and_options(party)", type: "internal" },
+          { file: "utils.py", func: "slim_number_with_cookie()", type: "util" },
+          { file: "utils.py", func: "print_html('my_page_tmp.html')", type: "output" },
+        ]
+      }]
+    },
+    {
+      id: "battle_type", label: "戦闘開始", group: "戦闘", sections: [{
+        title: "battle_type.py → print_html", steps: [
+          { file: "battle_type.py", func: "battle_type(FORM) / battle_type2(FORM)", type: "entry", note: "通常 / 異世界" },
+          { file: "battle_type.py", func: "BattleStarter(FORM).__init__()", type: "internal" },
+          { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+          { file: "battle_type.py", func: "starter.validate(in_floor / in_isekai)", type: "check", branch: "不正 → error(my_page)" },
+          { file: "battle_type.py", func: "starter.determine_special_enemy()", type: "internal", note: "わたぼう/スライム/vipsg判定" },
+          { file: "battle_type.py", func: "starter.process_battle(special, ...)", type: "internal" },
+          { file: "battle_type.py", func: "_calculate_floor_and_hosei()", type: "internal" },
+          { file: "battle_type.py", func: "_get_monster_list(kaisou, room, special)", type: "internal" },
+          { file: "file_ops.py", func: "open_monster_dat() / open_monster_boss_dat()", type: "data" },
+          { file: "battle_type.py", func: "_prepare_teki_list(...)", type: "internal" },
+          { file: "monster_ops.py", func: "battle_mob_select() / battle_boss_select()", type: "util" },
+          { file: "monster_ops.py", func: "create_monster_base(mon, ...)", type: "util" },
+          { file: "file_ops.py", func: "save_battle({party, teki}, user)", type: "data" },
+          { file: "file_ops.py", func: "save_user_all(all_data, user)", type: "data" },
+          { file: "crypto.py", func: "set_session(session)", type: "util" },
+          { file: "battle_menu.py", func: "battle_menu(FORM, special)", type: "internal" },
+          { file: "file_ops.py", func: "open_battle(user) / open_tokugi_dat()", type: "data" },
+          { file: "utils.py", func: "print_html('battle_layout_tmp.html')", type: "output" },
+        ]
+      }]
+    },
+    {
+      id: "battle_fight", label: "戦闘実行", group: "戦闘", sections: [{
+        title: "battle_fight.py → print_html", steps: [
+          { file: "battle_fight.py", func: "battle_fight(FORM)", type: "entry" },
+          { file: "battle_manager.py", func: "BattleManager(FORM).__init__()", type: "internal" },
+          { file: "file_ops.py", func: "open_user_all() / open_battle()", type: "data" },
+          { file: "file_ops.py", func: "open_tokugi_dat() / open_seikaku_dat()", type: "data" },
+          { file: "battle_manager.py", func: "bm.next_turn_setup()", type: "internal" },
+          { file: "crypto.py", func: "set_session()", type: "util" },
+          { file: "battle_fight.py", func: "prepare_battle_commands(FORM, party)", type: "internal" },
+          { file: "battle_fight.py", func: "execute_battle_actions(bm)", type: "internal" },
+          { file: "battle_action.py", func: "mikata_action(actor, bm)", type: "util", note: "AGI高い順に実行" },
+          { file: "battle_action.py", func: "teki_action(actor, bm)", type: "util" },
+          { file: "battle_action.py", func: "calculate_damage() / kaifuku() / sosei()", type: "util" },
+          { file: "battle_fight.py", func: "handle_battle_end_conditions(bm)", type: "check", branch: "勝利/敗北/引き分け/継続で分岐" },
+          { file: "battle_sub.py", func: "battle_end(Fend, s, bm)", type: "util" },
+          { file: "battle_sub.py", func: "Lv_up_check() → Lv_up() / Lv_Max()", type: "util" },
+          { file: "battle_sub.py", func: "key_get() / mon_get() / haisen() など", type: "util", note: "勝敗に応じたドロップ処理" },
+          { file: "battle_manager.py", func: "bm.save_all()", type: "internal" },
+          { file: "file_ops.py", func: "save_user_all() / save_battle()", type: "data" },
+          { file: "battle_menu.py", func: "battle_menu(FORM, special)", type: "internal", note: "戦闘継続時のみ" },
+          { file: "utils.py", func: "print_html('battle_layout_tmp.html')", type: "output" },
+        ]
+      }]
+    },
+    {
+      id: "m_get", label: "モンスター入手", group: "戦闘", sections: [
+        {
+          title: "m_get.py", steps: [
+            { file: "m_get.py", func: "m_get(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "file_ops.py", func: "open_battle(user_name)", type: "data" },
+            { file: "m_get.py", func: "タイムチェック (next_t + 30秒)", type: "check", branch: "タイムオーバー → error(my_page)" },
+            { file: "monster_ops.py", func: "monster_select(get_name)", type: "util" },
+            { file: "m_get.py", func: "パーティ上限チェック (len < 10)", type: "check", branch: "満杯 → print_html('monster_bye_tmp.html')" },
+            { file: "file_ops.py", func: "save_user_all() ← party追加", type: "data" },
+            { file: "utils.py", func: "success('仲間に加わりました')", type: "output" },
+          ]
+        },
+        {
+          title: "m_bye.py — 入れ替え選択後", steps: [
+            { file: "m_bye.py", func: "m_bye(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all() / open_battle()", type: "data" },
+            { file: "m_bye.py", func: "Mno==99 判定 (仲間にしない選択)", type: "check", branch: "99 → パーティ変更なし" },
+            { file: "monster_ops.py", func: "monster_select(get_name)", type: "util", note: "入れ替え時のみ" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success()", type: "output" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "haigou", label: "配合", group: "配合", sections: [
+        {
+          title: "確認: haigou_check.py", steps: [
+            { file: "haigou_check.py", func: "haigou_check(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "haigou_check.py", func: "性別 / Lv / 所持金チェック", type: "check", branch: "各条件NG → error(my_page)" },
+            { file: "haigou_check.py", func: "haigou_sub(nameA, nameB)", type: "internal" },
+            { file: "file_ops.py", func: "open_monster_dat()", type: "data" },
+            { file: "haigou_check.py", func: "図鑑チェック → 未登録なら '？？？'", type: "check" },
+            { file: "crypto.py", func: "set_session({new_mons, haigou1/2, hint_flag})", type: "util" },
+            { file: "utils.py", func: "print_html('haigou_check_tmp.html')", type: "output" },
+          ]
+        },
+        {
+          title: "実行: haigou_hensin.py", steps: [
+            { file: "haigou_hensin.py", func: "haigou_hensin(FORM)", type: "entry" },
+            { file: "haigou_hensin.py", func: "sessionから new_mons/haigou1/2 復元", type: "internal" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "haigou_hensin.py", func: "範囲チェック / コスト計算・減算", type: "check", branch: "不正 → error(my_page)" },
+            { file: "monster_ops.py", func: "monster_select(new_m, hosei)", type: "util" },
+            { file: "file_ops.py", func: "open_monster_dat()", type: "data" },
+            { file: "monster_ops.py", func: "register_monster_progress(waza, zukan)", type: "util" },
+            { file: "haigou_hensin.py", func: "親モンスター削除 / 子モンスター追加", type: "internal" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "print_html('new_monster_tmp.html')", type: "output" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "omiai", label: "お見合い", group: "お見合い", sections: [
+        {
+          title: "部屋表示: omiai_room.py", steps: [
+            { file: "omiai_room.py", func: "omiai_room(FORM)", type: "entry" },
+            { file: "utils.py", func: "get_and_clear_flash()", type: "util" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "file_ops.py", func: "open_omiai_list()", type: "data" },
+            { file: "omiai_room.py", func: "自分の状態判定 (baby/request/registered)", type: "internal" },
+            { file: "omiai_room.py", func: "他ユーザーリスト構築 (ページング)", type: "internal" },
+            { file: "utils.py", func: "print_html('omiai_room_tmp.html')", type: "output" },
+          ]
+        },
+        {
+          title: "登録/解除: omiai_touroku.py", steps: [
+            { file: "omiai_touroku.py", func: "omiai_touroku(FORM)", type: "entry", note: "登録" },
+            { file: "file_ops.py", func: "open_user_all() / open_omiai_list()", type: "data" },
+            { file: "omiai_touroku.py", func: "1体 / Lvチェック", type: "check", branch: "NG → error(omiai_room)" },
+            { file: "file_ops.py", func: "save_user_all() ← partyから削除", type: "data" },
+            { file: "file_ops.py", func: "save_omiai_list() ← 追加", type: "data" },
+            { file: "utils.py", func: "success('登録しました')", type: "output" },
+            { file: "omiai_touroku.py", func: "omiai_touroku_cancel(FORM)", type: "entry", note: "解除" },
+            { file: "omiai_touroku.py", func: "申請中 / 申請されているチェック", type: "check", branch: "申請中 → error()" },
+            { file: "file_ops.py", func: "save_user_all() ← partyに戻す", type: "data" },
+            { file: "file_ops.py", func: "save_omiai_list() ← 削除", type: "data" },
+            { file: "utils.py", func: "success('解除しました')", type: "output" },
+          ]
+        },
+        {
+          title: "申請: omiai_request.py", steps: [
+            { file: "omiai_request.py", func: "omiai_request(FORM)", type: "entry", note: "確認画面" },
+            { file: "file_ops.py", func: "open_omiai_list()", type: "data" },
+            { file: "omiai_request.py", func: "未登録 / 既申請 / 性別チェック", type: "check", branch: "NG → error(omiai_room)" },
+            { file: "haigou_check.py", func: "haigou_sub(nameA, nameB, 1)", type: "util" },
+            { file: "file_ops.py", func: "open_user_all(user_name) ← 図鑑確認", type: "data" },
+            { file: "utils.py", func: "print_html('haigou_check_tmp.html')", type: "output" },
+            { file: "omiai_request.py", func: "omiai_request_ok(FORM)", type: "entry", note: "申請確定" },
+            { file: "file_ops.py", func: "save_omiai_list() ← request 設定", type: "data" },
+            { file: "utils.py", func: "success('申請しました')", type: "output" },
+            { file: "omiai_request.py", func: "omiai_request_cancel(FORM)", type: "entry", note: "申請取消" },
+            { file: "file_ops.py", func: "save_omiai_list() ← request 空に", type: "data" },
+            { file: "utils.py", func: "success('キャンセルしました')", type: "output" },
+          ]
+        },
+        {
+          title: "承諾/断り/結果: omiai_answer.py", steps: [
+            { file: "omiai_answer.py", func: "omiai_answer_no(FORM)", type: "entry", note: "断り" },
+            { file: "file_ops.py", func: "save_omiai_list() ← cancelメッセージ", type: "data" },
+            { file: "utils.py", func: "success('お断りしました')", type: "output" },
+            { file: "omiai_answer.py", func: "omiai_answer_ok(FORM)", type: "entry", note: "承諾確認画面" },
+            { file: "file_ops.py", func: "open_omiai_list()", type: "data" },
+            { file: "haigou_check.py", func: "haigou_sub(nameA, nameB, 1)", type: "util" },
+            { file: "utils.py", func: "print_html('haigou_check_tmp.html')", type: "output" },
+            { file: "omiai_answer.py", func: "omiai_answer_result(FORM)", type: "entry", note: "結果処理" },
+            { file: "omiai_answer.py", func: "他申請の一括キャンセル処理", type: "internal" },
+            { file: "haigou_check.py", func: "haigou_sub() × 2 (双方分)", type: "util" },
+            { file: "monster_ops.py", func: "monster_select(new_mons) × 2", type: "util" },
+            { file: "file_ops.py", func: "save_omiai_list() ← baby=1 設定", type: "data" },
+            { file: "utils.py", func: "print_html('new_monster_tmp.html')", type: "output" },
+          ]
+        },
+        {
+          title: "子受取: omiai_baby.py", steps: [
+            { file: "omiai_baby.py", func: "omiai_baby_get(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_omiai_list()", type: "data" },
+            { file: "omiai_baby.py", func: "存在 / 上限 / 所持金チェック", type: "check", branch: "NG → error(omiai_room)" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "omiai_baby.py", func: "お金減算 / パーティ追加", type: "internal" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "file_ops.py", func: "save_omiai_list() ← データ削除", type: "data" },
+            { file: "utils.py", func: "success('パーティに加えました')", type: "output" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "shops", label: "各種施設", group: "施設", sections: [
+        {
+          title: "宿屋: yadoya.py", steps: [
+            { file: "yadoya.py", func: "yadoya(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "yadoya.py", func: "宿泊料計算 / お金チェック", type: "check", branch: "不足 → error(my_page)" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success('HP/MP全回復')", type: "output" },
+          ]
+        },
+        {
+          title: "教会: kyoukai.py", steps: [
+            { file: "kyoukai.py", func: "kyoukai(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "kyoukai.py", func: "recover_monster() × パーティ分", type: "internal" },
+            { file: "kyoukai.py", func: "コスト計算 / お金チェック", type: "check", branch: "不足 → error(my_page)" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success('お祈りが届きました')", type: "output" },
+          ]
+        },
+        {
+          title: "本屋: books.py", steps: [
+            { file: "books.py", func: "books(FORM)", type: "entry", note: "表示" },
+            { file: "file_ops.py", func: "open_user_all() / open_book_dat()", type: "data" },
+            { file: "utils.py", func: "print_html('book_tmp.html')", type: "output" },
+            { file: "books.py", func: "book_read(FORM)", type: "entry", note: "読む" },
+            { file: "file_ops.py", func: "open_user_all() / open_book_dat() / open_seikaku_dat()", type: "data" },
+            { file: "books.py", func: "お金チェック / 性格パラメータ計算", type: "check", branch: "不足 → error(my_page)" },
+            { file: "books.py", func: "性格照合 (seikaku辞書)", type: "internal" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success('性格が変わった / 変わらなかった')", type: "output" },
+          ]
+        },
+        {
+          title: "パーク: park.py", steps: [
+            { file: "park.py", func: "park(FORM)", type: "entry", note: "表示" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "park.py", func: "ソート処理 (sort_v指定時)", type: "internal", note: "図鑑順はopen_monster_dat()も使用" },
+            { file: "utils.py", func: "print_html('park_tmp.html')", type: "output" },
+            { file: "park.py", func: "park_1(FORM)", type: "entry", note: "預ける" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "park.py", func: "枠 / 1体 / 範囲チェック", type: "check", branch: "NG → error(park)" },
+            { file: "file_ops.py", func: "save_user_all() ← party→park", type: "data" },
+            { file: "utils.py", func: "success('預けました')", type: "output" },
+            { file: "park.py", func: "park_2(FORM)", type: "entry", note: "連れていく" },
+            { file: "park.py", func: "上限 / 範囲チェック", type: "check", branch: "NG → error(park)" },
+            { file: "file_ops.py", func: "save_user_all() ← park→party", type: "data" },
+            { file: "utils.py", func: "success('パーティに加えました')", type: "output" },
+          ]
+        },
+        {
+          title: "交換所: shop_base.py / 各*_ok.py", steps: [
+            { file: "shop_base.py", func: "medal_shop(FORM) / v_shop(FORM) / v_shop2(FORM)", type: "entry", note: "表示 (共通)" },
+            { file: "file_ops.py", func: "open_*_shop_dat() / open_user_all()", type: "data" },
+            { file: "shop_base.py", func: "prepare_item_lists()", type: "internal" },
+            { file: "utils.py", func: "print_html('medal_shop_tmp.html')", type: "output" },
+            { file: "medal_shop.py", func: "medal_shop_ok(FORM)", type: "entry", note: "メダル交換" },
+            { file: "v_shop.py", func: "v_shop_ok(FORM)", type: "entry", note: "VIP1交換" },
+            { file: "v_shop2.py", func: "v_shop2_ok(FORM)", type: "entry", note: "VIP2交換" },
+            { file: "file_ops.py", func: "open_user_all()", type: "data" },
+            { file: "monster_ops.py", func: "monster_select() / add_monster_to_party()", type: "util", note: "モンスター交換時のみ" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success()", type: "output" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "sub_funcs", label: "補助機能", group: "施設", sections: [
+        {
+          title: "陰陽変換: seitenkan.py", steps: [
+            { file: "seitenkan.py", func: "seitenkan_ok(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "seitenkan.py", func: "コスト計算 / お金チェック", type: "check" },
+            { file: "seitenkan.py", func: "性別切り替え (sexs配列ローテ)", type: "internal" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success('変換完了')", type: "output" },
+          ]
+        },
+        {
+          title: "並び替え: change.py", steps: [
+            { file: "change.py", func: "change(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "change.py", func: "validate_c_no() ← 重複/範囲/欠損チェック", type: "check", branch: "不正 → error(my_page)" },
+            { file: "change.py", func: "new_party 構築", type: "internal" },
+            { file: "change.py", func: "先頭HP チェック (HP > 0必須)", type: "check" },
+            { file: "file_ops.py", func: "save_user_all()", type: "data" },
+            { file: "utils.py", func: "success('並べ替え完了')", type: "output" },
+          ]
+        },
+        {
+          title: "コメント: comment.py", steps: [
+            { file: "comment.py", func: "comment(FORM)", type: "entry" },
+            { file: "comment.py", func: "validate_input() / sanitize_message()", type: "internal" },
+            { file: "file_ops.py", func: "open_user_all() / open_user_list()", type: "data" },
+            { file: "comment.py", func: "ユーザー存在チェック", type: "check" },
+            { file: "file_ops.py", func: "save_user_all() / save_user_list()", type: "data" },
+            { file: "utils.py", func: "success('メッセージ更新')", type: "output" },
+          ]
+        },
+        {
+          title: "ユーザー名変更: name_change.py", steps: [
+            { file: "name_change.py", func: "name_change(FORM)", type: "entry", note: "表示" },
+            { file: "file_ops.py", func: "open_omiai_list() ← お見合い中チェック", type: "data", branch: "お見合い中 → error(my_page)" },
+            { file: "utils.py", func: "print_html('name_change_tmp.html')", type: "output" },
+            { file: "name_change.py", func: "name_change_ok(FORM)", type: "entry", note: "変更実行" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "crypto.py", func: "verify_password()", type: "check", branch: "不一致 → error(top)" },
+            { file: "validation.py", func: "name_change_check(FORM)", type: "util" },
+            { file: "file_ops.py", func: "open_user_list() → 重複チェック", type: "check", branch: "重複 → error(my_page)" },
+            { file: "file_ops.py", func: "save_user_list() ← キー名更新", type: "data" },
+            { file: "name_change.py", func: "os.rename(old_path, new_path)", type: "internal", branch: "OSError → ロールバック" },
+            { file: "file_ops.py", func: "save_user_all(all_data, new_name)", type: "data" },
+            { file: "crypto.py", func: "set_cookie({in_name: new_name})", type: "util" },
+            { file: "utils.py", func: "success('変更完了')", type: "output" },
+          ]
+        },
+        {
+          title: "魔物図鑑: zukan.py", steps: [
+            { file: "zukan.py", func: "zukan(FORM)", type: "entry", note: "GETアクセス可" },
+            { file: "crypto.py", func: "get_session() / get_cookie()", type: "util" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "file_ops.py", func: "open_monster_dat()", type: "data" },
+            { file: "zukan.py", func: "filtered_zukan 構築 (マスタ+ユーザーデータ)", type: "internal" },
+            { file: "zukan.py", func: "レシピ/表示名/ツールチップフラグ付与", type: "internal" },
+            { file: "utils.py", func: "print_html('zukan_tmp.html')", type: "output" },
+          ]
+        },
+        {
+          title: "部屋の鍵: roomkey_get.py / 数値設定: number_unit.py", steps: [
+            { file: "roomkey_get.py", func: "roomkey_get(FORM)", type: "entry" },
+            { file: "file_ops.py", func: "open_user_all(user_name)", type: "data" },
+            { file: "roomkey_get.py", func: "get_key 存在チェック (なければ自動作成)", type: "check" },
+            { file: "file_ops.py", func: "save_user_all() ← get=1 設定", type: "data" },
+            { file: "utils.py", func: "success('鍵を入手')", type: "output" },
+            { file: "number_unit.py", func: "number_unit(FORM)", type: "entry" },
+            { file: "crypto.py", func: "get_cookie() / set_cookie({unit_type})", type: "util", note: "クッキーのみ更新" },
+            { file: "utils.py", func: "success('表記変更')", type: "output" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "kanri", label: "管理操作", group: "管理", sections: [
+        {
+          title: "エントリ・認証: kanri.py", steps: [
+            { file: "kanri.py", func: "main()", type: "entry", note: "CGIエントリポイント" },
+            { file: "kanri.py", func: "token_check() (kanri版)", type: "util" },
+            { file: "validation.py", func: "admin_check() ← master_name/password", type: "check", branch: "不一致 → error(kanri)" },
+            { file: "kanri.py", func: "FUNCTION_MAP[mode]()", type: "internal", note: "以下のいずれかへ分岐" },
+          ]
+        },
+        {
+          title: "各管理モード", steps: [
+            { file: "kanri.py", func: "KANRI() → print_html('kanri_tmp.html')", type: "output", note: "メニュー表示" },
+            { file: "kanri.py", func: "MENTE() → mente.mente 作成/削除", type: "internal", note: "メンテ切り替え" },
+            { file: "kanri.py", func: "event_boost() → update_conf_value()", type: "internal", note: "ブースト切り替え" },
+            { file: "kanri.py", func: "NEWPASS() → hash_password → save_user_all+list", type: "internal" },
+            { file: "kanri.py", func: "DEL() → delete_user() → save_user_list", type: "internal" },
+            { file: "kanri.py", func: "PRESENT() → process_batch(全員) → save_user_all×N", type: "internal" },
+            { file: "kanri.py", func: "MON_PRESENT() → kanri_mon_present_tmp.html", type: "output" },
+            { file: "kanri.py", func: "MON_PRESENT_OK() → monster_select → save_user_all", type: "internal" },
+            { file: "kanri.py", func: "dat_update() → csv_to_pickle(MASTER) → 全ユーザー更新", type: "internal" },
+            { file: "kanri.py", func: "RESTART() → process_batch → 全データ初期化", type: "internal", note: "⚠ 危険操作" },
+            { file: "kanri.py", func: "save_editer / save_edit_save → 直接データ編集", type: "internal" },
+            { file: "kanri.py", func: "FUKUGEN() → フォルダ走査 → save_user_list 再構築", type: "internal" },
+            { file: "csv_to_pickle.py", func: "csv_to() / pickle_to()", type: "internal", note: "CSV変換系" },
+          ]
+        },
+      ]
+    },
+  ];
+
+  const GROUPS = ["表示", "認証", "戦闘", "配合", "お見合い", "施設", "管理"];
+
+  function StepNode({ step, isLast }) {
+    const m = TM[step.type] || TM.internal;
+    return h('div', { style: { display: 'flex' } },
+      h('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', width: 44, flexShrink: 0 } },
+        h('div', { style: { width: 18, height: 18, borderRadius: '50%', background: m.color, flexShrink: 0, marginTop: 28, boxShadow: `0 0 9px ${m.color}88` } }),
+        !isLast && h('div', { style: { width: 3, flex: 1, minHeight: 24, background: '#334155' } })
+      ),
+      h('div', { style: { flex: 1, paddingBottom: isLast ? 0 : 16, paddingLeft: 6 } },
+        h('div', { className: 'step-box', style: { background: m.bg, border: `1px solid ${m.color}44`, borderRadius: 10, padding: '14px 18px', marginBottom: step.branch ? 7 : 0 } },
+          h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 } },
+            h('div', { style: { minWidth: 0 } },
+              h('div', { style: { fontSize: 17, color: m.color, fontWeight: 'bold', marginBottom: 4, letterSpacing: '0.02em' } }, step.file),
+              h('div', { style: { fontSize: 20, color: '#e2e8f0', fontFamily: 'monospace', lineHeight: 1.5 } }, step.func),
+              step.note && h('div', { style: { fontSize: 16, color: '#64748b', marginTop: 5, fontStyle: 'italic' } }, step.note)
+            ),
+            h('div', { style: { fontSize: 13, fontWeight: 'bold', color: m.color, background: `${m.color}22`, padding: '4px 9px', borderRadius: 5, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 2 } }, m.label)
+          )
+        ),
+        step.branch && h('div', { style: { marginLeft: 14, marginTop: 4, padding: '7px 13px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.22)', borderRadius: 6, fontSize: 16, color: '#f87171', display: 'flex', gap: 7, alignItems: 'center' } },
+          h('span', null, '⚠'), h('span', null, step.branch)
+        )
+      )
+    );
+  }
+
+  function App() {
+    const [sel, setSel] = useState('top');
+    const flow = FLOWS.find(f => f.id === sel);
+    return h('div', { style: { display: 'flex', height: '100%', overflow: 'hidden', fontFamily: 'system-ui,sans-serif', background: '#0f172a', color: '#e2e8f0', borderRadius: 10 } },
+      h('div', { style: { width: 290, height: '100%', flexShrink: 0, background: '#1e293b', borderRight: '1px solid #334155', overflowY: 'auto' } },
+        GROUPS.map(g => {
+          const gf = FLOWS.filter(f => f.group === g);
+          if (!gf.length) return null;
+          return h('div', { key: g },
+            h('div', { style: { padding: '8px 8px 3px', fontSize: 14, fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em' } }, g),
+            gf.map(f => h('div', { key: f.id, className: 'sb-item', onClick: () => setSel(f.id), style: { padding: '12px 14px 12px 22px', cursor: 'pointer', fontSize: 17, color: sel === f.id ? '#38bdf8' : '#94a3b8', background: sel === f.id ? 'rgba(56,189,248,0.08)' : 'transparent', borderLeft: sel === f.id ? '4px solid #38bdf8' : '4px solid transparent', transition: 'all 0.1s', lineHeight: 1.4 } }, f.label))
+          );
+        })
+      ),
+      h('div', { style: { flex: 1, overflowY: 'auto', padding: '30px 24px' } },
+        flow && h('div', null,
+          h('div', { style: { marginBottom: 28, paddingBottom: 18, borderBottom: '1px solid #334155' } },
+            h('div', { style: { fontSize: 14, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 } }, flow.group),
+            h('div', { style: { fontSize: 26, color: '#38bdf8', fontWeight: 600 } }, flow.label)
+          ),
+          flow.sections.map((sec, si) => h('div', { key: si, style: { marginBottom: 40 } },
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 } },
+              h('div', { style: { flex: 1, height: 1, background: '#334155' } }),
+              h('div', { style: { fontSize: 15, color: '#64748b', padding: '5px 16px', border: '1px solid #334155', borderRadius: 16, whiteSpace: 'nowrap' } }, sec.title),
+              h('div', { style: { flex: 1, height: 1, background: '#334155' } })
+            ),
+            sec.steps.map((s, i) => h(StepNode, { key: i, step: s, isLast: i === sec.steps.length - 1 }))
+          ))
+        )
+      ),
+      h('div', { style: { width: 200, flexShrink: 0, background: '#1e293b', borderLeft: '1px solid #334155', padding: '24px 16px' } },
+        h('div', { style: { fontSize: 13, fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 } }, '凡例'),
+        Object.entries(TM).map(([t, m]) => h('div', { key: t, style: { display: 'flex', alignItems: 'center', gap: 11, marginBottom: 16 } },
+          h('div', { style: { width: 14, height: 14, borderRadius: '50%', background: m.color, flexShrink: 0, boxShadow: `0 0 6px ${m.color}88` } }),
+          h('div', { style: { fontSize: 15, color: m.color, fontWeight: 'bold' } }, m.label)
+        )),
+        h('div', { style: { marginTop: 22, paddingTop: 18, borderTop: '1px solid #334155' } },
+          h('div', { style: { fontSize: 13, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 } }, '共通経路'),
+          h('div', { style: { fontSize: 15, color: '#64748b', lineHeight: 1.9 } }, '全モードは', h('br'), 'login.py →', h('br'), 'dispatch', h('br'), 'を経由する')
+        ),
+        h('div', { style: { marginTop: 18, paddingTop: 16, borderTop: '1px solid #334155' } },
+          h('div', { style: { fontSize: 15, color: '#64748b', lineHeight: 1.9 } },
+            h('span', { style: { color: '#f87171' } }, '⚠'), ' = 条件分岐', h('br'), 'NG時のパス'
+          )
+        )
+      )
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>

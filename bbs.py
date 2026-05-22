@@ -5,6 +5,8 @@
 import sys, cgi, datetime, html, json
 import conf
 
+sys.stdout.reconfigure(encoding="utf-8")
+
 # フォームを辞書化
 form = cgi.FieldStorage()
 FORM = {key: form.getvalue(key) for key in form.keys()}

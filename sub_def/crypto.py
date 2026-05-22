@@ -15,13 +15,20 @@ import conf
 
 Conf = conf.Conf
 
-_cookie_cache = None
-_session_cache = None
+# CGI は1リクエスト1プロセスで動作するため、このキャッシュはリクエスト内の
+# 二重読み込みを防ぐためだけに存在する（プロセス間共有は行われない）
+_cookie_cache: dict | None = None
+_session_cache: dict | None = None
+
+# AES-GCM の構造: nonce(16) + ciphertext(可変) + tag(16)
+_GCM_NONCE_SIZE = 16
+_GCM_TAG_SIZE = 16
+_GCM_MIN_SIZE = _GCM_NONCE_SIZE + _GCM_TAG_SIZE  # コンテンツなしの最小サイズ
 
 
 # ------------------- ヘルパー関数 -------------------
 def _encrypt_cookie_value(data: str, secret_key: str) -> str:
-    """クッキー暗号化"""
+    """クッキー値を AES-GCM で暗号化して Base64 URL-safe 文字列を返す"""
     key = hashlib.sha256(secret_key.encode("utf-8")).digest()
     cipher = AES.new(key, AES.MODE_GCM)
     ciphertext, tag = cipher.encrypt_and_digest(data.encode("utf-8"))
@@ -30,12 +37,17 @@ def _encrypt_cookie_value(data: str, secret_key: str) -> str:
 
 
 def _decrypt_cookie_value(encrypted_b64: str, secret_key: str) -> str:
-    """クッキー復号"""
+    """Base64 URL-safe 文字列を AES-GCM で復号して元の文字列を返す"""
     key = hashlib.sha256(secret_key.encode("utf-8")).digest()
     data = base64.urlsafe_b64decode(encrypted_b64)
-    nonce = data[:16]
-    ciphertext = data[16:-16]
-    tag = data[-16:]
+
+    # データが最低限の長さを満たしているかチェック（不正クッキー対策）
+    if len(data) < _GCM_MIN_SIZE:
+        raise ValueError(f"暗号化データが短すぎます: {len(data)} bytes")
+
+    nonce = data[:_GCM_NONCE_SIZE]
+    ciphertext = data[_GCM_NONCE_SIZE:-_GCM_TAG_SIZE]
+    tag = data[-_GCM_TAG_SIZE:]
     cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
     plaintext = cipher.decrypt_and_verify(ciphertext, tag)
     return plaintext.decode("utf-8")
@@ -45,23 +57,27 @@ def _decrypt_cookie_value(encrypted_b64: str, secret_key: str) -> str:
 # 暗号化     #
 # ===========#
 def pass_encode(p: str) -> str:
+    """
+    【旧式パスワードハッシュ】移行処理専用。新規利用禁止。
+    login_check() でのマイグレーション判定にのみ使用する。
+    新規パスワードは hash_password() を使うこと。
+    """
     return base64.b64encode(hashlib.sha1(str(p).encode("utf-8")).digest()).decode()
 
 
 def hash_password(password: str) -> str:
-    """パスワードをSHA-256でハッシュ化（ソルト付き）"""
+    """パスワードをランダムソルト付き SHA-256 でハッシュ化する。保存形式: 'salt_hex:hash_hex'"""
     try:
         salt = os.urandom(8)
         hashed = hashlib.sha256(salt + password.encode("utf-8")).hexdigest()
         return f"{salt.hex()}:{hashed}"
     except Exception as e:
-        # 無限ループ回避のため、error()ではなく例外をスロー
         logging.error(f"パスワードハッシュ化エラー: {e}")
         raise RuntimeError("パスワードの処理に失敗しました。")
 
 
 def verify_password(password: str, stored_hash: str) -> bool:
-    """入力パスワードが保存されたハッシュと一致するか検証"""
+    """入力パスワードが保存済みハッシュと一致するか検証する"""
     try:
         salt_hex, hashed = stored_hash.split(":", 1)
         salt = bytes.fromhex(salt_hex)
@@ -75,7 +91,7 @@ def verify_password(password: str, stored_hash: str) -> bool:
 # クッキーSET  #
 # =============#
 def _is_secure_request() -> bool:
-    """現在のリクエストがHTTPSかどうかを判定"""
+    """現在のリクエストが HTTPS かどうかを判定する"""
     if os.environ.get("HTTPS", "").lower() in {"on", "1", "true"}:
         return True
     if os.environ.get("REQUEST_SCHEME", "").lower() == "https":
@@ -91,8 +107,14 @@ def _set_cookie_common(
     expires_delta: datetime.timedelta,
     path: str = "/",
 ) -> None:
+    """
+    指定した辞書データを暗号化してクッキーとして出力する。
+
+    データのエンコード形式: "key:value,key:value,..."
+    値にカンマやコロンを含む場合も split(":", 1) と split(",") の組み合わせで
+    正しく分離できるが、キー名にはコロン・カンマを使わないこと。
+    """
     try:
-        # dictの値をすべて文字列化して結合
         cook = ",".join([f"{k}:{str(v)}" for k, v in data.items()])
         encrypted_cook = _encrypt_cookie_value(cook, Conf["secret_key"])
 
@@ -110,12 +132,12 @@ def _set_cookie_common(
 
         print(cookie)
     except Exception as e:
-        # error()の使用を避け、システムエラーとして記録
         logging.error(f"クッキー {name} の設定に失敗しました: {e}")
         raise RuntimeError("クッキーの設定に失敗しました。")
 
 
 def set_cookie(c_data: dict) -> None:
+    """ユーザー識別情報を永続クッキー（60日）として保存する"""
     global _cookie_cache
     c_data = dict(c_data)
     c_data["expires_at"] = (
@@ -126,6 +148,7 @@ def set_cookie(c_data: dict) -> None:
 
 
 def set_session(data: dict = None) -> None:
+    """セッション情報をセッションクッキー（30分）として保存する"""
     global _session_cache
     data = dict(data or {})
     data["expires_at"] = (
@@ -143,7 +166,7 @@ def _get_raw_cookies() -> str:
 
 
 def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str]:
-    """指定されたクッキーをパースして辞書を返す"""
+    """指定名のクッキーを復号して辞書に変換する。失敗時は空辞書を返す"""
     result = {}
     if not raw_cookies:
         return result
@@ -163,6 +186,7 @@ def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str]:
             pair = pair.strip()
             if ":" in pair:
                 try:
+                    # split(":", 1) で値側のコロン（ISO日時など）を保護する
                     key, value = pair.split(":", 1)
                     result[key.strip()] = value.strip()
                 except Exception:
@@ -176,7 +200,7 @@ def _parse_cookie(raw_cookies: str, name: str) -> Dict[str, str]:
 
 
 def _is_expired(data: dict) -> bool:
-    """データ内の expires_at が現在時刻を過ぎているか判定"""
+    """data 内の expires_at が現在時刻を過ぎているか判定する"""
     if "expires_at" not in data:
         return True
     try:
@@ -187,13 +211,13 @@ def _is_expired(data: dict) -> bool:
 
 
 def get_cookie() -> Dict[str, str]:
+    """ユーザー識別クッキーを取得する。期限切れ・不正な場合は空辞書を返す"""
     global _cookie_cache
     if _cookie_cache is not None:
         return _cookie_cache
 
     cookie = _parse_cookie(_get_raw_cookies(), "MONSTERS2")
 
-    # クッキー側の有効期限も厳密にチェックする
     if not cookie or _is_expired(cookie):
         _cookie_cache = {}
         return _cookie_cache
@@ -203,13 +227,13 @@ def get_cookie() -> Dict[str, str]:
 
 
 def get_session() -> Dict[str, str]:
+    """セッションクッキーを取得する。期限切れ・不正な場合は空辞書を返す"""
     global _session_cache
     if _session_cache is not None:
         return _session_cache
 
     session = _parse_cookie(_get_raw_cookies(), "session")
 
-    # 期限チェックロジックを共通関数に切り出してスッキリ
     if not session or _is_expired(session):
         _session_cache = {}
         return _session_cache
@@ -222,6 +246,7 @@ def get_session() -> Dict[str, str]:
 # CSRFトークン #
 # =============#
 def generate_csrf_token(session: dict) -> str:
+    """新しい CSRF トークンを生成してセッションに保存し、トークン文字列を返す"""
     token = secrets.token_hex(16)
     session["csrf_token"] = token
     set_session(session)
@@ -229,18 +254,25 @@ def generate_csrf_token(session: dict) -> str:
 
 
 def verify_csrf_token(submitted_token: str, session: dict) -> bool:
+    """フォームから送られたトークンとセッションのトークンをタイミング安全比較する"""
     return secrets.compare_digest(submitted_token or "", session.get("csrf_token", ""))
 
 
 def token_check(FORM: dict, session: dict, login_data: dict = None) -> dict:
+    """
+    CSRF トークンを検証してセッションを更新する。
+    検証失敗時は error() を呼んでリダイレクトする。
+
+    Note: utils.error の循環インポートを避けるため、関数内でインポートしている。
+          crypto → utils の依存を避けるための意図的な構造。
+    """
     form_token = FORM.get("token", "").strip()
     session_token = session.get("token", "").strip()
 
     if not form_token or not secrets.compare_digest(session_token, form_token):
-        # ここは直接的なユーザー入力チェックなので error(flash_and_jump) で問題なし
         from .utils import error
 
-        error("無効なセッションです。再度お試しください", "top")
+        error("無効なセッションです。再度お試しください", "")
 
     session.update(
         {

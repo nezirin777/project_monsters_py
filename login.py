@@ -14,6 +14,8 @@ from sub_def.crypto import get_session, token_check
 from sub_def.utils import error
 from sub_def.validation import login_check
 
+sys.stdout.reconfigure(encoding="utf-8")
+
 # ====================================================================================#
 # ルーティングマップ
 # "mode名": ("モジュールパス", "関数名")
