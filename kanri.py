@@ -11,7 +11,9 @@ import secrets
 import json
 import random
 import copy
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, NoReturn
 
 from cgi_py import csv_to_pickle, pickle_to_csv, haigou_list_make
 from sub_def.crypto import hash_password, get_session, set_session
@@ -43,25 +45,36 @@ import conf
 Conf = conf.Conf
 datadir = Conf["savedir"]
 progress_file = os.path.join(datadir, "progress.json")
-lock = exLock.exLock(os.path.join(datadir, "lock_fol"))
 
-sys.stdout.reconfigure(encoding="utf-8")
+# エントリポイントとして UTF-8 出力を強制する
 # 自動でutf-8にエンコードされて出力される
-
-CSV_DEFS_MASTER = Conf.get("csv_defs_master", {})
-CSV_DEFS_GLOBAL = Conf.get("csv_defs_global", {})
-CSV_DEFS_USER = Conf.get("csv_defs_user", {})
+sys.stdout.reconfigure(encoding="utf-8")
 
 
 # ==============#
 # 	進捗状況表示 #
 # ==============#
-def process_batch(users, process_func, result_collector=None, batch_size=10):
-    # 進捗バッチ処理（全員への配布やデータ更新など、重い処理でサーバーがフリーズしないよう並列化する）
+def process_batch(
+    users: list,
+    process_func: Callable[[Any], Any],
+    result_collector: dict | None = None,
+    batch_size: int = 10,
+) -> list[str]:
+    """
+    ユーザー群をマルチスレッドで並列処理し、進捗を JSON ファイルに記録する。
+
+    Args:
+        users           : 処理対象のユーザーリスト（文字列または辞書のリスト）
+        process_func    : ユーザー1件を処理する関数。戻り値が result_collector に格納される
+        result_collector: 処理結果を蓄積する辞書（None の場合は結果を収集しない）
+        batch_size      : 進捗ファイルを更新する間隔（件数）
+    Returns:
+        エラーメッセージの一覧（正常終了した場合は空リスト）
+    """
     total_users = len(users)
     progress = {"total": total_users, "completed": 0, "status": "running"}
     last_written = 0  # 最後に進捗を書き込んだ完了数
-    errors = []
+    errors: list[str] = []
 
     # CPUコア数に合わせてスレッドを展開（負荷分散）
     with ThreadPoolExecutor(max_workers=min(6, os.cpu_count() or 4)) as executor:
@@ -116,8 +129,8 @@ def process_batch(users, process_func, result_collector=None, batch_size=10):
 # ==================#
 # confオーバーライド #
 # ==================#
-def update_conf_value(key, value):
-    # 設定ファイル(JSON)を動的に書き換える処理（イベントブースト等で使用）
+def update_conf_value(key: str, value: Any) -> None:
+    """設定ファイル(JSON)を動的に書き換える処理（イベントブースト等で使用）"""
     path = Conf["override_file"]
 
     if os.path.exists(path):
@@ -135,18 +148,18 @@ def update_conf_value(key, value):
 
     os.replace(tmp, path)
 
-    # ファイルだけでなく、現在動いているメモリ上の「Conf」も即座に同期させる！
+    # ファイルだけでなく、現在動いているメモリ上の「Conf」も即座に同期させる
     Conf[key] = value
 
 
 # ==============#
 # 	管理モード	#
 # ==============#
-def OPEN_K():
+def OPEN_K() -> NoReturn:
     print_html("kanri_login_tmp.html", {"Conf": Conf, "token": FORM["s"]["token"]})
 
 
-def KANRI():
+def KANRI() -> NoReturn:
     token = FORM["s"]["token"]
     u_list = open_user_list()
 
@@ -171,7 +184,10 @@ def KANRI():
 # ====================#
 # メンテナンスモード   #
 # ====================#
-def MENTE():
+def MENTE() -> NoReturn:
+    # MAINTENANCE_MODE はこの関数から書き込まれるが、
+    # 実際のメンテ判定は各ページで os.path.exists("mente.mente") を直接見ているため
+    # 参照側での利用はない。将来の拡張用として保持する。
     global MAINTENANCE_MODE
 
     mente_path = "mente.mente"
@@ -197,7 +213,7 @@ def MENTE():
 # ========================#
 # イベントブーストモード   #
 # ========================#
-def event_boost():
+def event_boost() -> NoReturn:
     if FORM["event_boost"] == "start":
         val = 1
         txt = "イベントブーストモードに入りました。"
@@ -212,14 +228,14 @@ def event_boost():
 # =========#
 # 強制登録 #
 # =========#
-def NEW():
+def NEW() -> NoReturn:
     register.sinki(FORM, True)
 
 
 # ================#
 # パスワード変更  #
 # ================#
-def NEWPASS():
+def NEWPASS() -> NoReturn:
     target_name = FORM.get("target_name")
 
     # 未選択時のクラッシュ防止
@@ -253,7 +269,7 @@ def NEWPASS():
 # =============#
 # ユーザー削除 #
 # =============#
-def DEL():
+def DEL() -> NoReturn:
     target_name = FORM.get("target_name")
 
     if FORM.get("Del_ck") != "on":
@@ -274,7 +290,7 @@ def DEL():
 # =================#
 # saveフォルダ削除 #
 # =================#
-def data_del():
+def data_del() -> None:
     # 削除前に念のためバックアップを実行
     backup()
 
@@ -291,7 +307,7 @@ def data_del():
 # ===========#
 # リスタート #
 # ===========#
-def RESTART():
+def RESTART() -> NoReturn:
     if FORM.get("Reset_ck") != "on":
         error("確認チェックがONになっていません。", "kanri")
 
@@ -312,7 +328,7 @@ def RESTART():
         "トーテムキラー",
     ]
 
-    # デフォルトの空データを生成
+    # デフォルトの空データを生成（全ユーザーで共通のベースを1回だけ作り、各ユーザーでコピーして使う）
     default_key_base = {k: {"no": v["no"], "get": 0} for k, v in open_key_dat().items()}
     default_waza_base = {
         name: {"no": v["no"], "type": v["type"], "get": 0}
@@ -325,7 +341,8 @@ def RESTART():
         for k, v in open_monster_dat().items()
     }
 
-    def re_start_sub(user_info):
+    def re_start_sub(user_info: dict) -> dict | None:
+        """1ユーザーのデータをリセットして user_list 用の辞書を返す"""
         try:
             user_name = user_info["user_name"]
             crypted = user_info.get("crypted", "")
@@ -408,7 +425,7 @@ def RESTART():
     ]
 
     # 並列処理で全ユーザーデータを再生成
-    new_userlist = {}
+    new_userlist: dict = {}
     errors = process_batch(users, re_start_sub, result_collector=new_userlist)
 
     save_user_list(new_userlist)
@@ -424,7 +441,7 @@ def RESTART():
 # =======#
 # 初期化 #
 # =======#
-def ALLDEL():
+def ALLDEL() -> NoReturn:
     if FORM["Reset_ck"] != "on":
         error("確認チェックがONになっていません。", "kanri")
 
@@ -436,7 +453,7 @@ def ALLDEL():
 # ユーザーデータ再構築 #
 # user_list.pickle    #
 # ====================#
-def FUKUGEN():
+def FUKUGEN() -> NoReturn:
     # 各ユーザーのフォルダからデータを読み込み、全体のリスト(user_list.pickle)を作り直す
     files = os.listdir(datadir)
     exclude_dirs = {"locks", "logs"}
@@ -450,16 +467,17 @@ def FUKUGEN():
         datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     ).strftime("%Y-%m-%d")
 
-    new_userlist = {}
+    new_userlist: dict = {}
 
-    def process_user_wrapper(in_name):
+    def process_user_wrapper(in_name: str) -> dict | None:
+        """1ユーザーのフォルダから user_list エントリ用辞書を生成して返す"""
         try:
             all_data = open_user_all(in_name)
             user = all_data.get("user", {})
             pt = all_data.get("party", [])
 
             # リストの範囲外アクセスや、キーが存在しない場合（データ破損時）のKeyErrorを防ぐ安全な取得関数
-            def get_pt_val(index, key, default=""):
+            def get_pt_val(index: int, key: str, default: Any = "") -> Any:
                 if len(pt) > index and isinstance(pt[index], dict):
                     return pt[index].get(key, default)
                 return default
@@ -502,7 +520,7 @@ def FUKUGEN():
 # ====================#
 # モンスター配布      #
 # ====================#
-def MON_PRESENT():
+def MON_PRESENT() -> NoReturn:
     target_name = FORM.get("target_name", "")
 
     if target_name == "":
@@ -527,7 +545,7 @@ def MON_PRESENT():
 # ====================#
 # モンスター配布 処理 #
 # ====================#
-def MON_PRESENT_OK():
+def MON_PRESENT_OK() -> NoReturn:
     target_name = FORM["target_name"]
     mons_name = FORM.get("mons_name")
     sex = FORM.get("sex")
@@ -564,7 +582,7 @@ def MON_PRESENT_OK():
 # ====================#
 # プレゼント          #
 # ====================#
-def PRESENT():
+def PRESENT() -> NoReturn:
     target_name = FORM.get("target_name", "")
 
     present_check(FORM)
@@ -573,8 +591,8 @@ def PRESENT():
     medal = int(FORM.get("medal", 0))
     key = int(FORM.get("key", 0))
 
-    # 配布用のヘルパー関数
-    def haifu(name):
+    def haifu(name: str) -> None:
+        """1ユーザーへお金・メダル・鍵を加算して保存する"""
         all_data = open_user_all(name)
         user = all_data.get("user", {})
         user["money"] = user.get("money", 0) + money
@@ -602,7 +620,7 @@ def PRESENT():
 # ====================#
 # csv → pickle       #
 # ====================#
-def csv_to():
+def csv_to() -> NoReturn:
     target_name = FORM.get("target_name")
 
     if not target_name:
@@ -615,7 +633,7 @@ def csv_to():
 # ====================#
 # pickle → csv       #
 # ====================#
-def pickle_to():
+def pickle_to() -> NoReturn:
     target_name = FORM.get("target_name")
 
     if not target_name:
@@ -629,7 +647,8 @@ def pickle_to():
 # ================#
 # save_edit      #
 # ================#
-def make_table(save_data, txt):
+def make_table(save_data: list | dict, txt: str) -> NoReturn:
+    """セーブデータをテーブル形式で編集画面に表示する"""
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
 
@@ -665,7 +684,7 @@ def make_table(save_data, txt):
     print_html("kanri_saveedit_table_tmp.html", context)
 
 
-def save_editer():
+def save_editer() -> NoReturn:
     target_name = FORM.get("target_name")
     target_data = FORM.get("target_data")
 
@@ -733,7 +752,7 @@ def save_editer():
         make_table([save_data], txt)
 
 
-def save_edit_select():
+def save_edit_select() -> NoReturn:
     target_name = FORM.get("target_name")
     if not target_name:
         error("対象が選択されていません。", "kanri")
@@ -746,11 +765,11 @@ def save_edit_select():
         print_html("kanri_saveedit_select_tmp.html", context)
 
 
-def save_edit_save():
+def save_edit_save() -> NoReturn:
     target_name = FORM["target_name"]
     target_data = FORM["target_data"]
 
-    def get_typed_val(form_val, old_val):
+    def get_typed_val(form_val: Any, old_val: Any) -> Any:
         """
         元のデータの型(intかstrか)に合わせて安全にキャストするヘルパー関数。
         すべてを盲目的にint()にキャストしてしまうと、パスワードや文字列のユーザー名が
@@ -779,7 +798,8 @@ def save_edit_save():
                 }
         save_user_list(updated)
         success(txt, jump="kanri")
-        return
+        # success() は NoReturn のためここには到達しない（型チェッカー向け）
+        raise RuntimeError("unreachable")
 
     if target_name == "omiai_list":
         txt = "お見合いリストを更新しました。"
@@ -794,7 +814,8 @@ def save_edit_save():
                 }
         save_omiai_list(updated)
         success(txt, jump="kanri")
-        return
+        # success() は NoReturn のためここには到達しない（型チェッカー向け）
+        raise RuntimeError("unreachable")
 
     all_data = open_user_all(target_name)
 
@@ -884,7 +905,7 @@ def save_edit_save():
 # ================#
 # dat_update     #
 # ================#
-def update_isekai_limit(M_list):
+def update_isekai_limit(M_list: dict) -> None:
     """異世界最深部設定を更新"""
     # マスターデータから一番深い階層を調べ、confオーバーライドファイルに保存する
     isekai_max_limit = max(
@@ -894,7 +915,7 @@ def update_isekai_limit(M_list):
     update_conf_value("isekai_max_limit", isekai_max_limit)
 
 
-def dat_update_check(in_name, M_list, Tokugi_dat):
+def dat_update_check(in_name: str, M_list: dict, Tokugi_dat: dict) -> None:
     """ユーザーの図鑑と技データをマスターデータに沿って更新（枠の追加など）"""
     all_data = open_user_all(in_name)
     user = all_data.get("user", {})
@@ -934,10 +955,10 @@ def dat_update_check(in_name, M_list, Tokugi_dat):
     save_user_all(all_data, in_name)
 
 
-def dat_update():
+def dat_update() -> NoReturn:
     """データファイルを更新し、全ユーザー情報へ反映"""
     # CSVからpickleへマスターデータを変換
-    for target_key in CSV_DEFS_MASTER.keys():
+    for target_key in Conf.get("csv_defs_master", {}).keys():
         csv_to_pickle.convert_csv_to_pickle(target_key)
 
     # 配合リスト2種を作り直す
@@ -949,7 +970,7 @@ def dat_update():
     # 異世界最深部設定の更新
     update_isekai_limit(M_list)
 
-    def process_user(name):
+    def process_user(name: str) -> None:
         dat_update_check(name, M_list, Tokugi_dat)
 
     u_list = open_user_list()
@@ -966,15 +987,18 @@ def dat_update():
 # ================#
 # cgi_python     #
 # ================#
-def make_haigou_list():
-    # 手動で配合リスト2種を作り直す
+def make_haigou_list() -> NoReturn:
+    """手動で配合リスト2種を作り直す"""
     haigou_list_make.haigou_list_make()
     success("配合リストHTMLを作成しました。", jump="kanri")
 
 
 # ============================================================#
-def token_check():
-    # CSRF攻撃や二重送信を防ぐためのワンタイムトークン照合処理
+def token_check() -> dict:
+    """
+    CSRF攻撃や二重送信を防ぐためのワンタイムトークン照合処理。
+    検証に失敗した場合は error() (NoReturn) を呼んで処理を中断する。
+    """
     session = get_session()
     form_token = FORM.get("token", "")
     session_token = session.get("token", "")
@@ -996,7 +1020,9 @@ def token_check():
     return session
 
 
-FUNCTION_MAP = {
+# FUNCTION_MAP: mode 文字列 → ハンドラ関数の対応表。
+# 各関数はグローバル FORM を参照するため引数なしで呼び出す。
+FUNCTION_MAP: dict[str, Callable[[], Any]] = {
     "OPEN_K": OPEN_K,
     "KANRI": KANRI,
     "MENTE": MENTE,
@@ -1030,6 +1056,7 @@ if __name__ == "__main__":
         FORM["s"] = {"token": secrets.token_hex(16)}
         set_session(FORM["s"])
         OPEN_K()
+        # OPEN_K() は NoReturn（print_html 経由で sys.exit()）のため到達しない
 
     # 直接URLを叩かれた場合のブロック
     if os.environ["REQUEST_METHOD"] != "POST":
@@ -1044,4 +1071,6 @@ if __name__ == "__main__":
     admin_check(FORM["s"])
     func()
 
+    # func() は FUNCTION_MAP の全関数が NoReturn のため通常到達しない。
+    # 万が一の素通りに備えた安全網。
     error("あっれれ～？おっかしぃぞぉ～by管理モード")

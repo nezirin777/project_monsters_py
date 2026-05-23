@@ -9,6 +9,7 @@ import random
 import secrets
 import shutil
 import html
+from typing import NoReturn
 
 
 from sub_def.file_ops import (
@@ -36,10 +37,11 @@ import conf
 
 Conf = conf.Conf
 
+# エントリポイントとして UTF-8 出力を強制する
 sys.stdout.reconfigure(encoding="utf-8")
 
 
-def log_registration(in_name):
+def log_registration(in_name: str) -> None:
     """新規登録をBBSログに追加"""
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     newlog = (
@@ -69,7 +71,7 @@ def make_user_all_data(in_name: str, crypted: str, m_name: str) -> dict:
         {
             "no": 1,
             "name": m_name,
-            "lv": 1,  # ★初期レベルは1
+            "lv": 1,
             "mlv": 10,
             "hai": 0,
             "hp": 5,
@@ -115,8 +117,8 @@ def make_user_all_data(in_name: str, crypted: str, m_name: str) -> dict:
     }
 
 
-def create_new_user(in_name: str, crypted: str, m_name: str):
-    """新規ユーザーの user_all.pickle を作成"""
+def create_new_user(in_name: str, crypted: str, m_name: str) -> None:
+    """新規ユーザーの user_all.pickle を作成する。失敗時はディレクトリを削除して例外を再送出する"""
     user_dir = os.path.join(Conf["savedir"], in_name)
     pickle_dir = os.path.join(user_dir, "pickle")
 
@@ -124,14 +126,14 @@ def create_new_user(in_name: str, crypted: str, m_name: str):
         os.makedirs(pickle_dir, exist_ok=True)
         all_data = make_user_all_data(in_name, crypted, m_name)
         save_user_all(all_data, in_name)
-        return user_dir
     except Exception as e:
+        # 途中まで作成されたディレクトリを確実に削除してから例外を上位に伝播させる
         if os.path.exists(user_dir):
             shutil.rmtree(user_dir, ignore_errors=True)
         raise RuntimeError(f"ユーザー作成に失敗: {e}")
 
 
-def update_user_list(in_name: str, crypted: str, m_name: str):
+def update_user_list(in_name: str, crypted: str, m_name: str) -> None:
     """ユーザー一覧（グローバル）を更新"""
     try:
         u_list = open_user_list()
@@ -160,7 +162,7 @@ def update_user_list(in_name: str, crypted: str, m_name: str):
         raise RuntimeError(f"ユーザー一覧更新に失敗: {e}")
 
 
-def make_user_data(in_name: str = "", in_pass: str = "", crypted: str = ""):
+def make_user_data(in_name: str = "", in_pass: str = "", crypted: str = "") -> None:
     """新規ユーザー全データ作成のメイン"""
     crypted = crypted or hash_password(in_pass)
 
@@ -182,13 +184,19 @@ def make_user_data(in_name: str = "", in_pass: str = "", crypted: str = ""):
         update_user_list(in_name, crypted, m_name)
         log_registration(in_name)
     except Exception:
+        # create_new_user / update_user_list が失敗した場合はディレクトリを削除して再送出
+        # ※ create_new_user 内でもディレクトリ削除を試みるが、
+        #   update_user_list 失敗時のロールバックもここで担保する
         user_dir = os.path.join(Conf["savedir"], in_name)
         shutil.rmtree(user_dir, ignore_errors=True)
         raise
 
 
-def sinki(FORM, kanri=False):
-    # 変更前
+def sinki(FORM: dict, kanri: bool = False) -> NoReturn:
+    """
+    新規登録処理の本体。
+    全コードパスが error() または print_html() で終わる（どちらも NoReturn）。
+    """
     form = check_valid_user_name_password(FORM)
     in_name = form.new_user_name.data
     in_pass = form.new_password.data
@@ -227,24 +235,24 @@ def sinki(FORM, kanri=False):
         "monster": party[0],
         "kanri": kanri,
     }
-    # 完了画面のテンプレートを呼び出し
+    # 完了画面のテンプレートを呼び出し（NoReturn）
     print_html("newgame_result_tmp.html", context)
 
 
 # ====================================================================================#
-def main():
+def main() -> None:
     if os.path.exists("mente.mente"):
-        return error(
+        error(
             "現在メンテナンスモードに入ってます。<br>終了までお待ちくださいませ。",
             "top",
         )
 
     form = cgi.FieldStorage()
 
-    FORM = {key: form.getfirst(key) for key in form.keys()}
+    FORM = {key: form.getfirst(key) for key in form}
 
     if len(open_user_list()) >= Conf["sankaMAX"]:
-        return error("参加人数上限を超えています。申し訳ありません。", "top")
+        error("参加人数上限を超えています。申し訳ありません。", "top")
 
     if "mode" not in FORM:
         new_session = {"token": secrets.token_hex(16)}
@@ -255,9 +263,15 @@ def main():
         FORM["s"] = token_check(FORM, get_session())
         sinki(FORM)
 
+    else:
+        # 未知の mode は不正アクセスとみなしてトップへ戻す
+        error(f"無効なモードです: {FORM.get('mode')}", "top")
+
 
 # ====================================================================================#
 
 if __name__ == "__main__":
     main()
+    # main() は内部で print_html / error / sinki のいずれかを経由して sys.exit() するが、
+    # 万が一の素通り（予期しない return）に備えた安全網として明示的に終了する
     sys.exit()

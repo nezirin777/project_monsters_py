@@ -6,7 +6,9 @@ import sys
 import cgi
 import os
 import importlib
-import traceback  # ★追加: 内部エラーログ出力用
+import traceback
+import types
+from typing import NoReturn
 
 import conf
 
@@ -14,13 +16,19 @@ from sub_def.crypto import get_session, token_check
 from sub_def.utils import error
 from sub_def.validation import login_check
 
+# エントリポイントとして UTF-8 出力を強制する。
+# ※ utils.py が dispatch_function をインポートする際にも実行されるが実害はない。
 sys.stdout.reconfigure(encoding="utf-8")
 
 # ====================================================================================#
 # ルーティングマップ
 # "mode名": ("モジュールパス", "関数名")
+#
+# 遅延インポート方式を採用: 起動時に全モジュールをロードせず、
+# リクエストに対応する 1 モジュールだけを importlib で動的ロードすることで
+# 起動コストとメモリ使用量を抑える。
 # ====================================================================================#
-FUNCTION_MAP = {
+FUNCTION_MAP: dict[str, tuple[str, str]] = {
     "my_page": ("cgi_py.my_page", "my_page"),
     "my_page2": ("cgi_py.my_page2", "my_page2"),
     "change": ("cgi_py.change", "change"),
@@ -63,13 +71,22 @@ FUNCTION_MAP = {
     "number_unit": ("cgi_py.number_unit", "number_unit"),
 }
 
+# GET リクエストを許可する例外モード。
+# frozenset で O(1) 検索 + イミュータブルであることを型で明示する。
+_ALLOWED_GET_MODES: frozenset[str] = frozenset({"my_page2", "zukan"})
+
 
 # ====================================================================================#
-def load_module(module_path: str):
+def load_module(module_path: str) -> types.ModuleType:
+    """モジュールパスを受け取り、動的インポートして返す"""
     return importlib.import_module(module_path)
 
 
-def dispatch_function(form: dict):
+def dispatch_function(form: dict) -> None:
+    """
+    FUNCTION_MAP を参照して対応する CGI ハンドラ関数を呼び出す。
+    各ハンドラは内部で print_html / error / success のいずれかを呼び sys.exit() する。
+    """
     mode = form.get("mode")
     if mode not in FUNCTION_MAP:
         error(f"無効なモードです: {mode}", "top")
@@ -85,7 +102,7 @@ def dispatch_function(form: dict):
         func(form)
 
     except (ImportError, AttributeError) as e:
-        # サーバーログにのみ詳細を書き出す
+        # 情報漏洩防止のためスタックトレースはサーバーログ(stderr)にのみ書き出す
         print(
             f"[Routing Error] モジュール/関数の読み込み失敗 '{mode}': {e}",
             file=sys.stderr,
@@ -93,16 +110,17 @@ def dispatch_function(form: dict):
         error("システムエラー: 要求された機能が見つかりません。", "top")
 
     except Exception as e:
-        #  情報漏洩防止。スタックトレースはサーバーログ(stderr)に流し、ユーザーには安全なメッセージだけを見せる
+        # 情報漏洩防止のためスタックトレースはサーバーログ(stderr)に流し、
+        # ユーザーには安全なメッセージだけを見せる
         traceback.print_exc(file=sys.stderr)
         error("システム処理中に予期せぬエラーが発生しました。", "top")
 
 
-def process_form():
-    """フォームデータを処理し、認証と関数ディスパッチを実行"""
+def process_form() -> None:
+    """フォームデータを処理し、認証と関数ディスパッチを実行する"""
     form = cgi.FieldStorage()
 
-    #  複数パラメータ送信によるリスト化（型エラー）を防ぐため getfirst を使用
+    # 複数パラメータ送信によるリスト化（型エラー）を防ぐため getfirst を使用
     FORM = {key: form.getfirst(key) for key in form}
 
     # パラメーターによるセーブデータフォルダ分岐処理
@@ -115,12 +133,11 @@ def process_form():
     mode = FORM.get("mode", "")
     request_method = os.environ.get("REQUEST_METHOD", "GET")
 
-    # GETリクエストを許可する例外モード
-    allowed_get_modes = {"my_page2", "zukan"}
-
     if request_method != "POST":
-        if mode in allowed_get_modes:
+        if mode in _ALLOWED_GET_MODES:
             dispatch_function(FORM)
+            # dispatch_function は内部で sys.exit() を呼ぶが、
+            # 万が一ハンドラが正常返した場合に備えた安全網として明示的に終了する
             sys.exit()
 
         error("無効なリクエストです (POST通信が必要です)", "top")
@@ -155,8 +172,6 @@ def process_form():
 
 if __name__ == "__main__":
     try:
-        # WindowsのCGI環境でHTML出力時のUnicodeEncodeErrorを防ぐための強制UTF-8設定
-        sys.stdout.reconfigure(encoding="utf-8")
         process_form()
     except Exception as e:
         # ルーティング前に落ちた場合の最終安全網

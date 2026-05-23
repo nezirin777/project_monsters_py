@@ -2,9 +2,16 @@
 
 # bbs.py - 1行掲示板
 
-import sys, cgi, datetime, html, json
+import sys
+import cgi
+import datetime
+import html
+import json
+from typing import NoReturn
+
 import conf
 
+# エントリポイントとして UTF-8 出力を強制する
 sys.stdout.reconfigure(encoding="utf-8")
 
 # フォームを辞書化
@@ -12,6 +19,8 @@ form = cgi.FieldStorage()
 FORM = {key: form.getvalue(key) for key in form.keys()}
 
 # パラメーターによるセーブデータフォルダ分岐処理
+# ※ sub_def 系のインポートより先に apply_fol を実行する必要があるため
+#   ここでフォーム解析と conf 初期化をまとめて行っている
 conf.apply_fol(FORM)
 Conf = conf.Conf
 
@@ -19,25 +28,30 @@ from sub_def.utils import error, print_html
 from sub_def.file_ops import ensure_logfile, read_log, append_log
 from sub_def.crypto import verify_csrf_token, generate_csrf_token, get_session
 
-sys.stdout.reconfigure(encoding="utf-8")
-
 MESSAGE_COLORS = Conf["message_colors"]
 
 
-def handle_refresh(form, session):
+def handle_refresh(form: dict, session: dict) -> NoReturn:
+    """ログ更新リクエストを処理し、JSON レスポンスを返して終了する"""
     submitted_token = form.get("csrf_token")
     if not verify_csrf_token(submitted_token, session):
         error(
             "不正なリクエストです",
         )
 
-    # 修正: 余分な改行を防ぐ
+    # CGI では print() が末尾に改行を付加するため、ヘッダー文字列に "\n" を含めることで
+    # 「ヘッダー行 + 空行」の2つの改行を確保し、HTTP 仕様に沿った応答を生成する
     print("Content-Type: application/json\n")
     print(json.dumps({"log": read_log(), "csrf_token": session["csrf_token"]}))
     sys.exit()
 
 
-def handle_post(form, session):
+def handle_post(form: dict, session: dict) -> str:
+    """
+    発言投稿リクエストを処理する。
+    AJAX リクエストの場合は JSON を返して sys.exit()、
+    通常リクエストの場合は次の render_page() で使う csrf_token を返す。
+    """
     submitted_token = form.get("csrf_token")
     raw_txt = form.get("bbs_txt", "")
 
@@ -80,6 +94,7 @@ def handle_post(form, session):
 
     if form.get("ajax") == "true":
         response = {"log": read_log(), "csrf_token": csrf_token}
+        # handle_refresh と同様、ヘッダー + 空行を確保するために "\n" を付加する
         print("Content-Type: application/json\n")
         print(json.dumps(response))
         sys.exit()
@@ -87,7 +102,8 @@ def handle_post(form, session):
     return csrf_token
 
 
-def render_page(form, csrf_token):
+def render_page(form: dict, csrf_token: str) -> NoReturn:
+    """通常の掲示板画面をレンダリングして終了する"""
     selected_color = form.get("color", "#000000")
 
     if selected_color not in MESSAGE_COLORS:
@@ -104,7 +120,8 @@ def render_page(form, csrf_token):
     print_html("bbs_tmp.html", content)
 
 
-def render_view_mode():
+def render_view_mode() -> NoReturn:
+    """閲覧専用モード（ログのみ表示）をレンダリングして終了する"""
     content = {
         "log": read_log(),
         "Conf": Conf,

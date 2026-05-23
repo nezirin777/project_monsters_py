@@ -7,6 +7,7 @@ import secrets
 import os
 import sys
 from itertools import islice
+from typing import Generator, Iterator
 
 import conf
 from cgi_py.tournament import tournament
@@ -27,13 +28,14 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 class UserListManager:
 
-    def __init__(self):
+    def __init__(self) -> None:
         ulist = open_user_list()
         # ランキング順にユーザーデータを整形
-        self.u_list = get_ranked_user_list(ulist)
-        self.u_count = len(self.u_list)
+        self.u_list: dict = get_ranked_user_list(ulist)
+        self.u_count: int = len(self.u_list)
 
-    def user_mlist(self, user_data):
+    def user_mlist(self, user_data: dict) -> Iterator[dict]:
+        """パーティの先頭3体をモンスター情報辞書として順に返すジェネレーター"""
         for i in range(1, 4):
             name = user_data.get(f"m{i}_name")
             if not name:
@@ -44,7 +46,8 @@ class UserListManager:
                 "hai": user_data.get(f"m{i}_hai", 0),
             }
 
-    def create_users_list(self, start, end):
+    def create_users_list(self, start: int, end: int) -> list[dict]:
+        """ランキングリストの指定範囲をテンプレート用辞書リストに変換して返す"""
         return [
             {
                 "user_name": name,
@@ -63,7 +66,7 @@ class UserListManager:
 class TopPageRenderer:
     MAINTENANCE_MODE = os.path.exists("mente.mente")
 
-    def __init__(self):
+    def __init__(self) -> None:
         # キャッシュ事故を防ぐため、Cookieからの in_name の強制埋め込みを廃止
         session = get_session()
         self.flash_msg, self.flash_type = get_and_clear_flash(session)
@@ -72,10 +75,10 @@ class TopPageRenderer:
         set_session({"token": self.token, "ref": "top"})
 
         status = get_tournament_status()
-        self.t_time = status["t_time"]
-        self.t_count = status["t_count"]
+        self.t_time: str = status["t_time"]
+        self.t_count: int = status["t_count"]
 
-    def check_tournament(self):
+    def check_tournament(self) -> None:
         """トーナメント開催を確認（日時超過で実行）"""
         if self.t_count >= 0:
             return
@@ -84,7 +87,8 @@ class TopPageRenderer:
         except Exception as e:
             error(f"トーナメント処理中にエラーが発生しました: {str(e)}", "top")
 
-    def render(self, page, user_list_manager):
+    def render(self, page: int, user_list_manager: UserListManager) -> None:
+        """トップページをレンダリングして出力する"""
         self.check_tournament()
 
         # 開始・終了インデックスを動的に決定
@@ -112,7 +116,7 @@ class TopPageRenderer:
             "flash_type": self.flash_type,
         }
 
-        # URLのパラメータ(GET)で view モードが指定された場合はログ画面を出す
+        # URLのパラメータ(GET)で view モードが指定された場合はイベントログ画面を出す
         if FORM.get("mode", "") == "view":
             print_html("top_eventlog_tmp.html", content)
         else:
@@ -122,7 +126,7 @@ class TopPageRenderer:
 if __name__ == "__main__":
     client_ip = get_client_ip()  # クライアントIPを取得
 
-    # IPアドレスが禁止リストに含まれている場合、エラーメッセージを表示
+    # IPアドレスが禁止リストに含まれている場合はアクセスを拒否
     if is_ip_banned(client_ip):
         error("あなたのIPは禁止されています", 99)
 
@@ -138,9 +142,9 @@ if __name__ == "__main__":
         if page not in (1, 2):
             raise ValueError
     except ValueError:
-        error(f"無効なメニューです: {FORM.get('page', '1')}", "top")
+        error(f"無効なページ番号です: {FORM.get('page', '1')}", "top")
 
-    # 放置ユーザーチェック1日1回だけ
+    # 放置ユーザーの削除チェック（1日1回のみ実行。ロック取得失敗時は正常スキップ）
     run_daily_delete_check()
 
     user_list_manager = UserListManager()
