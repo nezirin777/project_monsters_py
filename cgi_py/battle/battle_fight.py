@@ -100,8 +100,13 @@ def handle_battle_end_conditions(bm):
     elif bm.pt_num == len([1 for pt in party if str(pt.get("hp", 0)) == "0"]):
         is_end = True
         battle_end("負けた", 0, bm)
-        if bm.special in (0, "異世界"):
+
+        if bm.special in ("0", 0, "異世界"):
             haisen(bm)
+
+        # 全滅時は先頭のみHP1で復活
+        if bm.battle["party"]:
+            bm.battle["party"][0]["hp"] = 1
 
     # 引き分け（規定ターン）
     elif bm.turn >= Conf.get("maxround", 20):
