@@ -1,6 +1,5 @@
 # battle_menu.py 戦闘メニュー作成
 
-
 from sub_def.file_ops import open_battle, open_user_all, open_tokugi_dat
 from sub_def.utils import slim_number_with_cookie, error
 
@@ -9,7 +8,13 @@ import conf
 Conf = conf.Conf
 
 
-def battle_menu(FORM, special):
+def battle_menu(FORM: dict, special: str) -> dict:
+    """
+    戦闘コマンド選択メニューのデータを構築して返す。
+
+    各パーティモンスターに hit_options / target_options / attack_skills /
+    nakama_options / heal_skills を付与し、テンプレートへ渡す形式に整える。
+    """
     session = FORM.get("s", {})
     user_name = session.get("in_name")
     token = session.get("token")
@@ -17,7 +22,9 @@ def battle_menu(FORM, special):
     if not user_name:
         error("ユーザー名が取得できませんでした。", "top")
 
-    special_flag = special in ("わたぼう", "スライム")
+    # わたぼう・スライム戦は特殊モード。
+    # 攻撃のみ・通常攻撃固定でコマンドが制限され、防御・回復は選択できない
+    special_flag: bool = special in ("わたぼう", "スライム")
 
     battle = open_battle(user_name)
     all_data = open_user_all(user_name)
@@ -29,8 +36,11 @@ def battle_menu(FORM, special):
     # =====================================================
 
     if special_flag:
+        # 特殊戦闘では敵は常に teki[1] の 1 体のみ
         valid_enemies = [{"index": 1, "name2": battle["teki"][1].get("name2", "不明")}]
     else:
+        # teki[0] は集計用センチネルのため [1:] から取得する。
+        # hp は int / 文字列 "0" が混在し得るため str 変換で統一して生存チェックする
         valid_enemies = [
             {"index": i, "name2": mon.get("name2", "不明")}
             for i, mon in enumerate(battle["teki"][1:], 1)
@@ -40,6 +50,8 @@ def battle_menu(FORM, special):
     # =====================================================
     # 仲間リスト
     # =====================================================
+
+    # 回復対象選択用。0 始まりの index をそのままフォーム値として使う
     valid_party = [
         {"index": i, "name": pt.get("name", "不明")}
         for i, pt in enumerate(battle.get("party", []))
@@ -52,7 +64,6 @@ def battle_menu(FORM, special):
     Tokugi_dat = open_tokugi_dat()
 
     for pt in battle.get("party", []):
-
         last_hit = pt.get("last_hit", "攻撃")
         last_target = pt.get("last_target", 1)
         last_toku = pt.get("last_toku", "通常攻撃")
@@ -105,8 +116,8 @@ def battle_menu(FORM, special):
         # -------------------------
         pt["attack_skills"] = []
 
-        # 特殊戦闘
         if special_flag:
+            # わたぼう・スライム戦は通常攻撃のみ使用可能
             pt["attack_skills"].append(
                 {
                     "name": "通常攻撃",
@@ -124,7 +135,7 @@ def battle_menu(FORM, special):
 
                 skill_mp = toku.get("mp", 0)
 
-                # MP不足なら選択解除
+                # 前回選択していた特技でも現在の MP が不足している場合は選択を解除する
                 is_selected = name == last_toku and pt.get("mp", 0) >= skill_mp
 
                 pt["attack_skills"].append(
@@ -174,7 +185,8 @@ def battle_menu(FORM, special):
                 }
             )
 
-    # 数値整形
+    # 数値整形。pt の hp / mhp / mp / mmp を表示用文字列に変換する。
+    # battle["party"] の各 dict を直接書き換えるため、呼び出し後は数値として参照しないこと
     party_data = battle.get("party", [])
     for pt in party_data:
         pt["hp"] = slim_number_with_cookie(pt.get("hp", 0))

@@ -2,6 +2,8 @@
 
 import time
 import random
+from typing import NoReturn
+
 from cgi_py.battle.battle_menu import battle_menu
 from sub_def.file_ops import (
     open_user_all,
@@ -21,7 +23,7 @@ Conf = conf.Conf
 class BattleStarter:
     """戦闘開始前のバリデーションと敵選出、セットアップを全て管理するクラス"""
 
-    def __init__(self, FORM):
+    def __init__(self, FORM: dict) -> None:
         self.FORM = FORM
         self.session = FORM.get("s", {})
         self.user_name = self.session.get("in_name")
@@ -36,7 +38,9 @@ class BattleStarter:
         self.vips = self.all_data.get("vips", {})
         self.room_key = self.all_data.get("room_key", {})
 
-    def validate(self, in_floor=None, in_isekai=None):
+    def validate(
+        self, in_floor: int | None = None, in_isekai: int | None = None
+    ) -> None:
         """ユーザーとパーティの状態をチェック"""
         if in_floor is not None:
             if not (0 < in_floor <= self.user.get("key", 1)):
@@ -57,22 +61,27 @@ class BattleStarter:
                 jump="my_page",
             )
 
-    def determine_special_enemy(self, in_floor):
-        """特殊敵（わたぼう等）を判定する"""
+    def determine_special_enemy(self, in_floor: int) -> list:
+        """
+        特殊敵（わたぼう等）を判定して返す。
+        通常敵の場合は [0] を返す。
+
+        ブースト状態に応じて出現確率の分母を変える。数値が小さいほど出やすい。
+        """
         vip_boost = self.vips.get("boost")
         event_boost = Conf.get("event_boost")
 
-        randam = 0
         if event_boost and vip_boost:
-            randam = 15
+            rand_threshold = 15
         elif event_boost or vip_boost:
-            randam = 20
+            rand_threshold = 20
         else:
-            randam = 25
+            rand_threshold = 25
 
-        special_enemies = ["わたぼう"] if random.randint(1, randam) == 1 else []
+        special_enemies = ["わたぼう"] if random.randint(1, rand_threshold) == 1 else []
 
         if "わたぼう" in special_enemies:
+            # 未取得の部屋鍵がある場合はスライムも出現候補に加える
             if any(r_key.get("get", 0) == 0 for r_key in self.room_key.values()):
                 special_enemies.append("スライム")
 
@@ -92,26 +101,32 @@ class BattleStarter:
             ):
                 special_enemies.append("vipsg")
 
-        return special_enemies or [0]
+        return special_enemies or ["normal"]
 
     # ==========================================
-    # ここから旧 battle_encount.py の統合ロジック
+    # エンカウント生成ロジック（battle_encount.py から統合）
     # ==========================================
-    def _calculate_floor_and_hosei(self, floor, special_monster):
-        # 階層と補正値を計算
+
+    def _calculate_floor_and_hosei(
+        self, floor: int, special_monster: str | int
+    ) -> tuple[int, float, int]:
+        """
+        実際の出現階層（kaisou）、ステータス補正値（hosei）、
+        ユーザーの最深鍵階層（user_key）を計算して返す。
+
+        kaisou は 500 階ごとに折り返す（出現テーブルの上限対策）。
+        hosei は特殊モンスター種別ごとに異なる計算式を使う。
+        """
         kaisou = floor
         while kaisou > 500:
             kaisou -= 500
-
-        # 旧補正
-        # base_hosei = floor * (floor / 500 if floor > 500 else 1)
 
         base_hosei = floor * (floor / 500 if floor > 500 else 1)
         user_key = (
             self.user.get("key", 0) if special_monster in ("vipsg", "異世界") else 0
         )
 
-        # 特殊モンスターによる補正計算を定義
+        # 特殊モンスター種別ごとの補正計算
         if special_monster in ("わたぼう", "スライム"):
             hosei = (floor + 30) * ((floor / 500) * 1.3 if floor > 500 else 1)
         elif special_monster == "vipsg":
@@ -123,8 +138,10 @@ class BattleStarter:
 
         return kaisou, hosei, user_key
 
-    # モンスターリストのフィルタリング
-    def _get_monster_list(self, floor, room_type, special_monster):
+    def _get_monster_list(
+        self, floor: int, room_type: str, special_monster: str | int
+    ) -> list:
+        """出現可能なモンスター名のリストを返す"""
         monsters = (
             open_monster_boss_dat()
             if special_monster == "vipsg"
@@ -158,11 +175,24 @@ class BattleStarter:
 
         if not aite:
             error("対戦相手モンスターを選択できませんでした。", jump="my_page")
+
         return aite
 
     def _prepare_teki_list(
-        self, monster_names, hosei, floor, special_monster, user_key
-    ):
+        self,
+        monster_names: list,
+        hosei: float,
+        floor: int,
+        special_monster: str | int,
+        user_key: int,
+    ) -> list:
+        """
+        エンカウントする敵リストを生成して返す。
+
+        teki[0] は戦闘結果の集計用センチネル要素。
+        exp / money / down を累積し、倒した敵の name と sex を上書きで保持する。
+        実際の敵キャラクターは teki[1] 以降に格納される。
+        """
         teki = [{"name": "", "exp": 0, "money": 0, "down": 1}]
 
         if special_monster in ("わたぼう", "スライム"):
@@ -188,14 +218,15 @@ class BattleStarter:
             )
             return teki
 
+        # "normal"（通常戦闘）は明示的な分岐を持たず、以降の通常処理にフォールスルーする
         teki_kazu = random.choices([1, 2, 3], k=1, weights=[3, 2, 1])[0]
         selected_monsters = random.choices(monster_names, k=teki_kazu)
         teki.extend(
             [battle_mob_select(name, hosei, floor) for name in selected_monsters]
         )
 
-        # 重複名の調整（A, B, C...）
-        name_counts = {}
+        # 同名モンスターが複数出現した場合は A, B, C... で識別名を区別する
+        name_counts: dict[str, int] = {}
         for entry in teki[1:]:
             name = entry.get("name")
             if not name:
@@ -212,7 +243,13 @@ class BattleStarter:
     # ==========================================
     # メイン処理
     # ==========================================
-    def process_battle(self, special, floor_key, floor_value, room_value=None):
+    def process_battle(
+        self,
+        special: str | int,
+        floor_key: str,
+        floor_value: int,
+        room_value: str | None = None,
+    ) -> NoReturn:
         """バトルの初期化と保存を処理し、画面を出力する"""
 
         # 1. セッションおよびユーザーデータの更新
@@ -229,7 +266,7 @@ class BattleStarter:
         self.session["turn"] = 1
         self.user["next_t"] = next_t
 
-        # 2. エンカウント生成（旧battle_encount）
+        # 2. エンカウント生成
         in_room = room_value or "通常"
         kaisou, hosei, user_key = self._calculate_floor_and_hosei(floor_value, special)
         monster_names = self._get_monster_list(kaisou, in_room, special)
@@ -261,6 +298,8 @@ class BattleStarter:
                 "menu_data": menu_data,
             },
         )
+        # print_html は NoReturn のためここには到達しない（型チェッカー向け）
+        raise RuntimeError("unreachable")
 
 
 # ==========================================
@@ -268,7 +307,7 @@ class BattleStarter:
 # ==========================================
 
 
-def battle_type(FORM):
+def battle_type(FORM: dict) -> NoReturn:
     """通常のバトルエントリーポイント"""
     starter = BattleStarter(FORM)
     in_floor = int(FORM.get("in_floor", 1))
@@ -279,9 +318,11 @@ def battle_type(FORM):
     selected_enemy = random.choice(special_enemies)
 
     starter.process_battle(selected_enemy, "last_floor", in_floor, room_value=in_room)
+    # process_battle は NoReturn のためここには到達しない（型チェッカー向け）
+    raise RuntimeError("unreachable")
 
 
-def battle_type2(FORM):
+def battle_type2(FORM: dict) -> NoReturn:
     """異世界のバトルエントリーポイント"""
     starter = BattleStarter(FORM)
     in_isekai = int(FORM.get("in_isekai", 0))
@@ -293,3 +334,5 @@ def battle_type2(FORM):
         in_isekai,
         room_value="異世界",
     )
+    # process_battle は NoReturn のためここには到達しない（型チェッカー向け）
+    raise RuntimeError("unreachable")
