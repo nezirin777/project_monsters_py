@@ -7,10 +7,7 @@ save/
 新しいフォルダー/
 conf.py
 conf.py.bak
-sub_def/__pycache__/
-cgi_py/__pycache__/
-cgi_py/battle/__pycache__/
-cgi_py/omiai/__pycache__/
+__pycache__
 めも2.txt
 めも.txt
 Arcadia_toolbar_next.js
