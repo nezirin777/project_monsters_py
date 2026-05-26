@@ -1,21 +1,20 @@
 # omiai_touroku.py お見合い所への登録処理
 
+from typing import NoReturn
 
+import conf
 from sub_def.file_ops import (
     open_omiai_list,
     save_omiai_list,
     open_user_all,
     save_user_all,
-    log,
 )
 from sub_def.utils import error, success
-
-import conf
 
 Conf = conf.Conf
 
 
-def omiai_touroku(FORM):
+def omiai_touroku(FORM: dict) -> NoReturn:
     """お見合い所に自分のモンスターを登録する処理"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
@@ -26,7 +25,6 @@ def omiai_touroku(FORM):
     omiai = FORM.get("omiai")
     mes = FORM.get("mes", "")
 
-    log(f"omiai:{omiai}")
     if not omiai:
         error("モンスター番号が指定されていません", jump="omiai_room")
 
@@ -37,7 +35,6 @@ def omiai_touroku(FORM):
     except ValueError:
         error("無効なモンスター番号が指定されました", jump="omiai_room")
 
-    # 新方式: user_allでの取得
     all_data = open_user_all(user_name)
     party = all_data.get("party", [])
     omiai_list = open_omiai_list()
@@ -55,7 +52,7 @@ def omiai_touroku(FORM):
     if party[no].get("lv", 0) < Conf["haigoulevel"]:
         error("お見合い可能Lvに達していないため登録できません。", jump="omiai_room")
 
-    # モンスター情報の移動とフィールド追加
+    # モンスター情報の移動とお見合い用フィールドの追加
     omiai_list[user_name] = party[no].copy()
     omiai_list[user_name].update({"mes": mes, "cancel": "", "request": "", "baby": ""})
 
@@ -71,20 +68,21 @@ def omiai_touroku(FORM):
     save_user_all(all_data, user_name)
     save_omiai_list(omiai_list)
 
-    # マイページへフラッシュメッセージ付きで遷移
     success(txt, jump="omiai_room")
 
 
-def omiai_touroku_cancel(FORM):
+def omiai_touroku_cancel(FORM: dict) -> NoReturn:
     """お見合い所に登録したモンスターを取り下げる処理"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
+
+    # target はテンプレート側で item.target = user_name（自分自身）として送信される。
+    # 「自分への申請があるか」チェックのキーとして使う。
     target = FORM.get("target")
 
     if not user_name or not target:
         error("必要な情報が指定されていません。", jump="omiai_room")
 
-    # 新方式: user_allでの取得
     all_data = open_user_all(user_name)
     party = all_data.get("party", [])
     omiai_list = open_omiai_list()
@@ -93,14 +91,14 @@ def omiai_touroku_cancel(FORM):
     if not omiai:
         error("指定されたお見合い情報が存在しません", jump="omiai_room")
 
-    # 申請中のチェック
+    # 自分が他ユーザーへ申請中の場合はキャンセル不可
     if omiai.get("request"):
         error(
             "他のユーザーに申請を出している場合、登録をキャンセルできません。<br>まずは申請を取り下げてください。",
             jump="omiai_room",
         )
 
-    # 申請されている場合のチェック
+    # 他ユーザーから自分への申請がある場合もキャンセル不可
     for v in omiai_list.values():
         if v.get("request") == target:
             error(
@@ -113,7 +111,7 @@ def omiai_touroku_cancel(FORM):
             "パーティがいっぱいで連れていくことができませんでした。", jump="omiai_room"
         )
 
-    # 不要なフィールドを削除してパーティに戻す
+    # お見合い専用フィールドを削除してパーティに戻す
     for field in ["mes", "cancel", "request", "baby"]:
         omiai.pop(field, None)
 
@@ -132,5 +130,4 @@ def omiai_touroku_cancel(FORM):
     save_user_all(all_data, user_name)
     save_omiai_list(omiai_list)
 
-    # マイページへフラッシュメッセージ付きで遷移
     success(txt, jump="omiai_room")

@@ -1,5 +1,7 @@
 # omiai_room.py お見合い部屋表示処理
 
+from typing import NoReturn
+
 import conf
 from sub_def.file_ops import open_user_all, open_omiai_list
 from sub_def.utils import print_html, slim_number_with_cookie, get_and_clear_flash
@@ -7,7 +9,7 @@ from sub_def.utils import print_html, slim_number_with_cookie, get_and_clear_fla
 Conf = conf.Conf
 
 
-def create_omiai_item(omiai_data, target):
+def create_omiai_item(omiai_data: dict, target: str) -> dict:
     """テンプレートのループ等で使いやすいように辞書化する"""
     return {
         "omiai": omiai_data,
@@ -16,7 +18,7 @@ def create_omiai_item(omiai_data, target):
     }
 
 
-def omiai_room(FORM):
+def omiai_room(FORM: dict) -> NoReturn:
     session = FORM.get("s", {})
     user_name = session.get("in_name")
 
@@ -30,8 +32,9 @@ def omiai_room(FORM):
     party = all_data.get("party", [])
     omiai_list = open_omiai_list()
 
+    # ページング: 1ページ10件。p1/p2はスライス用の0始まりインデックスに変換して使う
     p2 = page * 10
-    p1 = p2 - 9
+    p1 = p2 - 10  # list[p1:p2] = (page-1)*10 ～ page*10-1 の10件
 
     # テンプレートに渡すデータ群
     my_registered = None
@@ -40,6 +43,8 @@ def omiai_room(FORM):
     requests_to_me = []
     other_monsters = []
 
+    # request_user は if ブロック外で初期化する。
+    # 自分がomiai_listに未登録でも other_monsters のフィルタ条件で参照するため。
     request_user = ""
     cancel = ""
     mes = ""
@@ -67,8 +72,8 @@ def omiai_room(FORM):
                 omiai_list[request_user], request_user
             )
 
-    # 登録されている他のモンスターを表示（ページング区画のみ）
-    for name, v in list(omiai_list.items())[p1 - 1 : p2]:
+    # 登録されている他のモンスターを表示（現在ページの区画のみ）
+    for name, v in list(omiai_list.items())[p1:p2]:
         if (
             name not in (user_name, request_user)
             and v.get("request") != user_name
@@ -83,7 +88,7 @@ def omiai_room(FORM):
     if p2 < len(omiai_list):
         tex_p.append({"page": page + 1, "label": "次の区画"})
 
-    # 登録可能モンスター
+    # 登録可能モンスター（haigoulevel に達しているものだけ表示）
     selectable_monsters = [
         {
             "index": i,
@@ -93,7 +98,7 @@ def omiai_room(FORM):
             "lv": pt.get("lv", 1),
             "hai": pt.get("hai", 0),
         }
-        for i, pt in enumerate(party, 0)
+        for i, pt in enumerate(party)
         if pt.get("lv", 0) >= Conf["haigoulevel"]
     ]
 

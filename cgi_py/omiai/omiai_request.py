@@ -1,22 +1,22 @@
 # omiai_request.py お見合い申請処理
 
+from typing import NoReturn
+
+import conf
 from cgi_py.haigou_check import haigou_sub
 from sub_def.file_ops import open_omiai_list, save_omiai_list, open_user_all
 from sub_def.utils import print_html, error, success
 
-import conf
-
 Conf = conf.Conf
 
 
-def omiai_request(FORM):
+def omiai_request(FORM: dict) -> NoReturn:
     """お見合いを申し込む前の確認画面を表示する"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
     target = FORM.get("target")
     token = session.get("token")
 
-    # お見合いリストからデータを取得
     omiai_list = open_omiai_list()
     my_data = omiai_list.get(user_name)
     target_data = omiai_list.get(target)
@@ -47,18 +47,16 @@ def omiai_request(FORM):
     if my_data.get("sex") == target_data.get("sex"):
         error("性別が同じ為お見合いができません。", jump="omiai_room")
 
-    # モンスターの名前を取得し、配合結果をチェック
     nameA = my_data["name"]
     nameB = target_data["name"]
 
-    # haigou_subはタプル(モンスター名, ヒントフラグ)を返す
+    # haigou_sub はタプル(モンスター名, ヒントフラグ)を返す
     my_new_mons, hint_flag = haigou_sub(nameA, nameB, 1)
 
-    # 新方式：user_allから図鑑データを取得して判明しているかチェック
+    # 図鑑に登録済みであれば名前を表示、未登録なら「？？？」に伏せる
     user_all = open_user_all(user_name)
     zukan = user_all.get("zukan", {})
 
-    # 図鑑未登録の場合は「？？？」を表示
     if my_new_mons not in zukan or not zukan[my_new_mons].get("get"):
         my_new_mons = "？？？"
     else:
@@ -78,7 +76,7 @@ def omiai_request(FORM):
     print_html("haigou_check_tmp.html", content)
 
 
-def omiai_request_ok(FORM):
+def omiai_request_ok(FORM: dict) -> NoReturn:
     """お見合い申請を確定させる処理"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
@@ -86,7 +84,7 @@ def omiai_request_ok(FORM):
 
     omiai_list = open_omiai_list()
 
-    # 安全対策：自身や相手のデータが消失していないかチェック
+    # 自身や相手のデータが消失していないかチェック（None の場合も not in で弾く）
     if user_name not in omiai_list or target not in omiai_list:
         error("お見合いデータが見つかりません。", jump="omiai_room")
 
@@ -96,24 +94,26 @@ def omiai_request_ok(FORM):
 
     save_omiai_list(omiai_list)
 
-    # フラッシュメッセージを出してマイページへ戻る
     success(
         f"{target}さんの{request_monster}にお見合いを申請しました。", jump="omiai_room"
     )
 
 
-def omiai_request_cancel(FORM):
+def omiai_request_cancel(FORM: dict) -> NoReturn:
     """お見合い申請をキャンセルする処理"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
     target = FORM.get("target")
 
+    if not user_name or not target:
+        error("必要な情報が指定されていません。", jump="omiai_room")
+
     omiai_list = open_omiai_list()
 
-    # 自分の申請状態を空にする
+    # すでにキャンセル済み（omiai_list に未登録）の場合はスキップして成功扱いにする。
+    # 二重送信などで状態が変わっていても冪等に動作させるための意図的な設計。
     if user_name in omiai_list:
         omiai_list[user_name]["request"] = ""
         save_omiai_list(omiai_list)
 
-    # フラッシュメッセージを出してマイページへ戻る
     success(f"{target}さんへの申請を取り消しました。", jump="omiai_room")
