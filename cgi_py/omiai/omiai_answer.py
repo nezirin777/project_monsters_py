@@ -61,6 +61,7 @@ def omiai_answer_ok(FORM: dict) -> NoReturn:
     nameB = omiai_list[target]["name"]
 
     # haigou_sub はタプル(モンスター名, ヒントフラグ)を返す
+    # (フラグ=1: お見合い限定モンスターも許可)
     my_new_mons, hint_flag = haigou_sub(nameA, nameB, 1)
 
     # 図鑑に登録済みであれば名前を表示、未登録なら「？？？」に伏せる
