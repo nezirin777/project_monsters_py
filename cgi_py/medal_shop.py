@@ -1,4 +1,6 @@
-# medal_shop.py -モンスター交換処理
+# medal_shop.py - モンスター交換処理
+
+from typing import NoReturn
 
 from sub_def.file_ops import open_medal_shop_dat, open_user_all, save_user_all
 from sub_def.monster_ops import monster_select
@@ -9,7 +11,7 @@ import conf
 Conf = conf.Conf
 
 
-def medal_shop_ok(FORM):
+def medal_shop_ok(FORM: dict) -> NoReturn:
     """メダル交換の処理を行う"""
     m_name = FORM.get("m_name")
 

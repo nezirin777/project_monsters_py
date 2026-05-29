@@ -1,10 +1,10 @@
 # haigou_list_make.py - 配合モンスターリストの生成
 
+from typing import Any
+
 from jinja2 import Environment, FileSystemLoader
 
-from sub_def.monster_ops import (
-    open_monster_dat,
-)
+from sub_def.file_ops import open_monster_dat
 import conf
 
 Conf = conf.Conf
@@ -13,7 +13,7 @@ Conf = conf.Conf
 env = Environment(loader=FileSystemLoader("templates"))
 
 
-def build_monster_view(name, data):
+def build_monster_view(name: str, data: dict) -> dict:
     """list1用のモンスターデータ整形"""
     return {
         "name": name,
@@ -26,7 +26,7 @@ def build_monster_view(name, data):
     }
 
 
-def build_floor(a, b):
+def build_floor(a: Any, b: Any) -> str:
     """階層のテキストフォーマット作成"""
     if not a:
         return ""
@@ -35,7 +35,7 @@ def build_floor(a, b):
     return f"{a}階～"
 
 
-def normalize_monster(m):
+def normalize_monster(m: dict) -> dict:
     """list2用のテンプレート渡し用データ整形"""
     return {
         "name": m["name"],
@@ -51,9 +51,9 @@ def normalize_monster(m):
     }
 
 
-def build_list2(M_list):
+def build_list2(M_list: dict) -> list[dict]:
     """list2用（特殊モンスター）のデータ抽出"""
-    result = []
+    result: list[dict] = []
 
     for name, data in M_list.items():
         if int(data.get("list_type") or 0) == 2:
@@ -92,7 +92,7 @@ def build_list2(M_list):
     return result
 
 
-def haigou_list_make():
+def haigou_list_make() -> None:
     """配合リストのHTMLファイルを2種類生成するメイン関数"""
     M_list = open_monster_dat()
 
@@ -100,7 +100,7 @@ def haigou_list_make():
     # list1（通常モンスター）の生成
     # =========================
 
-    filtered_M_list = {}
+    filtered_M_list: dict[str, list[dict]] = {}
 
     for name, dat in M_list.items():
         # list_type が 2 (特殊モンスター) の場合は除外
@@ -121,6 +121,7 @@ def haigou_list_make():
             filtered_M_list[m_type], key=lambda x: int(x.get("no", 0) or 0)
         )
 
+    # 系統の表示順序を定義（マスターデータの順序に依存しない）
     M_types = [
         "スライム系",
         "ドラゴン系",
@@ -164,8 +165,8 @@ def haigou_list_make():
     # こちらも no 順にソートしておく
     monsters = sorted(monsters, key=lambda x: int(x.get("no", 0) or 0))
 
-    seen = set()
-    links2 = []
+    seen: set[str] = set()
+    links2: list[dict] = []
 
     for m in monsters:
         t = m["m_type"]

@@ -1,11 +1,13 @@
 # kyoukai.py - 教会でのお祈り処理
 
+from typing import NoReturn
+
 from sub_def.file_ops import open_user_all, save_user_all
 from sub_def.utils import error, success
 
 
-def recover_monster(monster):
-    """モンスターのHP・MPを回復し、回復コストを計算"""
+def recover_monster(monster: dict) -> int:
+    """モンスターのHP・MPを回復し、回復コストを計算して返す。生存中は 0 を返す"""
 
     # 古い仕様による文字列の "0" などを考慮し、安全に数値化して判定
     if int(monster.get("hp", 0)) == 0:
@@ -24,14 +26,10 @@ def recover_monster(monster):
     return 0
 
 
-def kyoukai(FORM):
+def kyoukai(FORM: dict) -> NoReturn:
     """お祈りによりパーティのHP・MPを回復し、費用を更新（user_all対応）"""
-
-    # セッション切れ等でのクラッシュ対策
-    try:
-        user_name = FORM["s"]["in_name"]
-    except KeyError:
-        error("セッション情報が不正です", jump="top")
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     # user_all で全データを一括取得
     all_data = open_user_all(user_name)

@@ -1,5 +1,7 @@
 # change.py パーティの並び替えを保存する関数
 
+from typing import Any, NoReturn
+
 from sub_def.utils import error, success
 from sub_def.file_ops import (
     open_user_all,
@@ -10,8 +12,8 @@ import conf
 Conf = conf.Conf
 
 
-def validate_c_no(c_no, party):
-    """並び替えの重複・欠損・範囲チェック"""
+def validate_c_no(c_no: list[int], party: list) -> None:
+    """並び替えの重複・欠損・範囲チェック。検証失敗時は error() (NoReturn) で終了する"""
     expected = set(range(1, len(party) + 1))
 
     # フォームからの送信データ数と実際のパーティ数が一致しているか
@@ -26,12 +28,13 @@ def validate_c_no(c_no, party):
     if len(c_no) != len(set(c_no)):
         error("並び替えの数値が重複しています", jump="my_page")
 
-    # 1〜パーティ数までの数値が過不足なく全て揃っているか
+    # 上の3チェックが通れば論理的にこの条件も必ず満たされるが、
+    # 最終的な整合性保証として残している安全網
     if set(c_no) != expected:
         error("並び替えの数値が不足しています", jump="my_page")
 
 
-def safe_int(val):
+def safe_int(val: Any) -> int:
     """安全な数値変換（空文字やNoneが来た場合もクラッシュさせない）"""
     try:
         return int(val)
@@ -39,9 +42,10 @@ def safe_int(val):
         return 0
 
 
-def change(FORM):
-    """パーティの並び替えを保存する関数（user_all対応版）"""
-    user_name = FORM["s"]["in_name"]
+def change(FORM: dict) -> NoReturn:
+    """パーティの並び替えを保存する関数（user_all 完全対応版）"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     # 新形式で全データを取得
     all_data = open_user_all(user_name)
@@ -53,7 +57,7 @@ def change(FORM):
 
     # 1. フォームから送られてきた並び替え情報を取得
     # （例: c_no1=3, c_no2=1, c_no3=2 といった値を取り出してリスト化する）
-    c_no = []
+    c_no: list[int] = []
     for i in range(1, len(party) + 1):
         val = FORM.get(f"c_no{i}")
         c_no.append(safe_int(val))
@@ -62,9 +66,11 @@ def change(FORM):
     validate_c_no(c_no, party)
 
     # 3. 新しい並び順のパーティを作成
-    new_party = [None] * len(party)
+    new_party: list = [None] * len(party)
 
-    # 指定された順番通りに新しい配列へモンスターを格納していく
+    # 指定された順番通りに新しい配列へモンスターを格納していく。
+    # validate_c_no 通過後は idx が必ず 0〜len(party)-1 の範囲に収まるため
+    # `if 0 <= idx < len(party)` は到達しない条件だが、防衛的に残す
     for position, original_index in enumerate(c_no, 1):
         idx = original_index - 1
         if 0 <= idx < len(party):

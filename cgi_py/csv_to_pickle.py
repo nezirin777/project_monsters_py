@@ -1,12 +1,13 @@
 # csv_to_pickle.py - CSVからPickleへの変換とデータクレンジング処理
 
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pickle
 import os
 import json
 import sys
 import pandas as pd
-from typing import Dict, List, Any
+from typing import Any
 
 from sub_def.utils import error
 from sub_def.file_ops import (
@@ -27,12 +28,12 @@ CSV_DEFS_GLOBAL = Conf.get("csv_defs_global", {})
 CSV_DEFS_USER = Conf.get("csv_defs_user", {})
 
 
-def log(msg):
+def log(msg: str) -> None:
     """エラーログや実行ログを標準エラー出力に流す"""
     print(msg, file=sys.stderr)
 
 
-def get_csv_conf(target_key: str):
+def get_csv_conf(target_key: str) -> dict | None:
     """CSV定義を統一取得"""
     if target_key in CSV_DEFS_MASTER:
         return CSV_DEFS_MASTER[target_key]
@@ -43,7 +44,7 @@ def get_csv_conf(target_key: str):
     return None
 
 
-def clean_dataframe(df, index_col=None):
+def clean_dataframe(df: pd.DataFrame, index_col: str | None = None) -> pd.DataFrame:
     """データフレームの型を整理し、安全にソートと欠損値処理を行う（自動修復機能）"""
     if df.empty:
         return df
@@ -76,7 +77,7 @@ def clean_dataframe(df, index_col=None):
     return df
 
 
-def open_csv_dict(target_key: str, name: str = "") -> Dict:
+def open_csv_dict(target_key: str, name: str = "") -> dict:
     """CSVをindex付きdictとして読み込む"""
     conf_def = get_csv_conf(target_key)
 
@@ -92,7 +93,6 @@ def open_csv_dict(target_key: str, name: str = "") -> Dict:
     )
 
     try:
-        # na_filterを外し、標準の型推論に任せる
         df = pd.read_csv(
             file_path,
             encoding="utf-8_sig",
@@ -104,10 +104,11 @@ def open_csv_dict(target_key: str, name: str = "") -> Dict:
 
     except Exception as e:
         _handle_file_error("CSV", file_path, e)
-        return {}
+        # _handle_file_error は NoReturn のためここには到達しない（型チェッカー向け）
+        raise RuntimeError("unreachable")
 
 
-def open_csv_list(target_key: str, name: str = "", single: bool = False) -> List | Dict:
+def open_csv_list(target_key: str, name: str = "", single: bool = False) -> list | dict:
     """CSVをレコード配列として読み込む。single=Trueなら先頭1件のみ返す"""
     csv_file_name = f"{target_key}.csv"
     file_path = get_file_path(csv_file_name, name)
@@ -124,10 +125,11 @@ def open_csv_list(target_key: str, name: str = "", single: bool = False) -> List
 
     except Exception as e:
         _handle_file_error("CSV", file_path, e)
-        return [{}] if single else []
+        # _handle_file_error は NoReturn のためここには到達しない（型チェッカー向け）
+        raise RuntimeError("unreachable")
 
 
-def restore_empty_strings(obj):
+def restore_empty_strings(obj: Any) -> Any:
     """NaN等によって発生したNoneを空文字('')に再帰的にもどす処理"""
     if isinstance(obj, dict):
         return {
@@ -150,7 +152,7 @@ def restore_empty_strings(obj):
     return obj
 
 
-def pickle_dump(obj, path):
+def pickle_dump(obj: Any, path: str) -> None:
     """高速かつ安全なPickle保存処理"""
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -160,7 +162,7 @@ def pickle_dump(obj, path):
         raise RuntimeError(f"Pickle保存失敗: {path}: {e}")
 
 
-def safe_remove(path):
+def safe_remove(path: str) -> None:
     """ファイルが存在する場合のみエラーを出さずに削除する"""
     try:
         if os.path.isfile(path):
@@ -169,7 +171,7 @@ def safe_remove(path):
         log(f"[WARN] ファイル削除失敗: {path}: {e}")
 
 
-def filter_data(data, conf_def):
+def filter_data(data: Any, conf_def: dict) -> Any:
     """インデックスキーが空欄、ハイフン、0などの無効なレコードを弾く"""
     key = conf_def.get("index", "name")
     if isinstance(data, list):
@@ -186,7 +188,7 @@ def filter_data(data, conf_def):
 # =============================
 # コア処理
 # =============================
-def convert_csv_to_pickle(target_key, user_name=None):
+def convert_csv_to_pickle(target_key: str, user_name: str | None = None) -> None:
     """CSV → pickle変換"""
     # 1. データのカテゴリ判定
     if target_key in CSV_DEFS_GLOBAL:
@@ -204,8 +206,8 @@ def convert_csv_to_pickle(target_key, user_name=None):
 
     data_type = conf_def.get("type", "list")
 
-    # ==================== GLOBAL & MASTER 処理 ====================
-    # ※修正点: GLOBALだけでなくMASTERデータも変換対象に含める
+    # GLOBAL と MASTER の両カテゴリを同じブロックで処理する。
+    # GLOBAL は変換後にCSVを削除するが、MASTER はCSVを原本として保持する（後述）。
     if category in ("GLOBAL", "MASTER"):
         csv_name = f"{target_key}.csv"
         pickle_name = f"{target_key}.pickle"
@@ -234,7 +236,7 @@ def convert_csv_to_pickle(target_key, user_name=None):
         try:
             pickle_dump(data, pickle_path)
             log(f"[DONE] {category} | {csv_name} → {pickle_name}")
-            # 【修正】マスターデータはCSVを残す
+            # GLOBAL は変換後にCSVを削除。MASTER はCSVを原本として保持する
             if category == "GLOBAL":
                 safe_remove(csv_path)
                 log(f"[DELETE] GLOBAL CSV削除: {csv_name}")
@@ -252,7 +254,7 @@ def convert_csv_to_pickle(target_key, user_name=None):
     log(f"[SKIP] 未対応: {target_key}")
 
 
-def convert_user_to_user_all(user_name: str):
+def convert_user_to_user_all(user_name: str) -> None:
     """ユーザー個別CSV → user_all.pickle にまとめる処理"""
     log(f"[START] USER_ALL | {user_name} → user_all.pickle")
 
@@ -297,7 +299,7 @@ def convert_user_to_user_all(user_name: str):
         pickle_dump(all_data, user_all_path)
         log(f"[DONE] USER_ALL | {user_name} → user_all.pickle")
 
-        # --- 変換成功後に古い個別CSVファイルを削除する処理 ---
+        # 変換成功後に古い個別CSVファイルを削除する
         keys_to_delete = ["user", "party", "vips", "room_key", "waza", "zukan", "park"]
         for k in keys_to_delete:
             safe_remove(get_file_path(f"{k}.csv", user_name))
@@ -306,7 +308,7 @@ def convert_user_to_user_all(user_name: str):
         log(f"[ERROR] user_all保存失敗: {user_name} | {e}")
 
 
-def user_dat(user_name):
+def user_dat(user_name: str) -> None:
     """マルチスレッド処理用のラッパー関数"""
     convert_user_to_user_all(user_name)
 
@@ -314,12 +316,14 @@ def user_dat(user_name):
 # =============================
 # 並列処理
 # =============================
-def process_batch(users, process_func, batch_size=10):
+def process_batch(
+    users: list, process_func: Callable, batch_size: int = 10
+) -> list[str]:
     """ユーザー群をマルチスレッドで並列処理し、進捗を記録する"""
     total = len(users)
     progress = {"total": total, "completed": 0, "status": "running"}
     last_written = 0
-    errors = []
+    errors: list[str] = []
 
     # サーバーのCPUコア数に応じた最適なスレッド数を設定（最大32）
     max_workers = min(32, (os.cpu_count() or 1))
@@ -366,7 +370,7 @@ def process_batch(users, process_func, batch_size=10):
 # =============================
 # 全体処理
 # =============================
-def handle_all_users():
+def handle_all_users() -> None:
     """全ユーザーのデータを一括変換する"""
     u_list = open_user_list()
     users = list(u_list.keys())
@@ -379,7 +383,7 @@ def handle_all_users():
 # =============================
 # エントリーポイント
 # =============================
-def csv_to_pickle(target_name):
+def csv_to_pickle(target_name: str) -> None:
     """メイン関数：指定された対象（GLOBAL/MASTERキー、またはユーザー名）の変換を実行"""
     if target_name in CSV_DEFS_GLOBAL or target_name in CSV_DEFS_MASTER:
         convert_csv_to_pickle(target_name)

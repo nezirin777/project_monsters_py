@@ -1,5 +1,7 @@
 # name_change.py - ユーザー名変更処理
+
 import os
+from typing import NoReturn
 
 from sub_def.file_ops import (
     open_user_all,
@@ -20,7 +22,7 @@ Conf = conf.Conf
 # ======================#
 # 名前変更ページ表示
 # ======================#
-def name_change(FORM):
+def name_change(FORM: dict) -> NoReturn:
     """名前変更フォーム表示"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
@@ -44,7 +46,12 @@ def name_change(FORM):
 # ======================#
 # 名前変更実行
 # ======================#
-def name_change_ok(FORM):
+def name_change_ok(FORM: dict) -> NoReturn:
+    """
+    ユーザー名変更の実行処理。
+    パスワード照合 → バリデーション → user_list 更新 → フォルダ名変更 の順に処理し、
+    フォルダ名変更失敗時はロールバックを試みる。
+    """
     session = FORM.get("s", {})
     user_name = session.get("in_name")
     in_pass = FORM.get("password", "")
@@ -134,8 +141,10 @@ def name_change_ok(FORM):
     # ======================
     # 5. 成功時のみセッション・クッキー更新
     # ======================
+    # 永続クッキーのユーザー名を新しい名前に更新する。
+    # キーは他のファイル（register.py, validation.py 等）と統一して "in_name" を使用する。
     current_cookie = get_cookie()
-    current_cookie["user_name"] = new_name
+    current_cookie["in_name"] = new_name
     set_cookie(current_cookie)
 
     success(

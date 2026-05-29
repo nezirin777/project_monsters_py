@@ -1,6 +1,7 @@
 # my_page.py - マイページ表示処理,ログイン後の基本画面。
 
 import datetime
+from typing import NoReturn
 
 from sub_def.file_ops import (
     open_omiai_list,
@@ -9,7 +10,12 @@ from sub_def.file_ops import (
     open_user_all,
     save_user_all,
 )
-from sub_def.utils import print_html, slim_number_with_cookie, get_and_clear_flash
+from sub_def.utils import (
+    error,
+    print_html,
+    slim_number_with_cookie,
+    get_and_clear_flash,
+)
 from sub_def.user_ops import get_host
 
 import conf
@@ -17,12 +23,14 @@ import conf
 Conf = conf.Conf
 
 
-def calculate_costs_and_options(party):
+def calculate_costs_and_options(
+    party: list,
+) -> tuple[int, int, list[dict], list[dict]]:
     """宿屋・教会のコスト計算および配合・転換オプションを生成"""
     yadoya_cost = 0
     kyoukai_cost = 0
-    haigou_options = []
-    tenkan_options = []
+    haigou_options: list[dict] = []
+    tenkan_options: list[dict] = []
 
     for i, pt in enumerate(party, 0):
         # 文字列の "0" などを考慮し、全て安全に数値化して扱う
@@ -64,13 +72,14 @@ def calculate_costs_and_options(party):
     return yadoya_cost, kyoukai_cost, haigou_options, tenkan_options
 
 
-def update_user_list(user_name, user, party):
+def update_user_list(user_name: str, user: dict, party: list) -> None:
     """ユーザー一覧（グローバル）を更新"""
     u_list = open_user_list()
     bye = datetime.datetime.now() + datetime.timedelta(days=Conf["goodbye"])
     s = 3
 
-    # party を最大3体までに整形
+    # party を最大3体までに整形。3体未満の場合は空辞書でパディングして
+    # m1_name 〜 m3_name の全キーを確実に埋める
     display_party = party[:s] + [{} for _ in range(s - len(party))]
 
     # ユーザーがまだリストに存在しない場合の KeyError 対策
@@ -92,7 +101,7 @@ def update_user_list(user_name, user, party):
     save_user_list(u_list)
 
 
-def my_page(FORM):
+def my_page(FORM: dict) -> NoReturn:
     """マイページ表示処理（user_all 完全対応版）"""
     session = FORM.get("s", {})
 
@@ -102,8 +111,6 @@ def my_page(FORM):
         user_name = FORM.get("name")
     if not user_name:
         # 念のためエラー処理（通常はここには来ないはず）
-        from sub_def.utils import error
-
         error("ユーザー名が取得できませんでした。", jump="top")
 
     token = session.get("token")
@@ -161,6 +168,7 @@ def my_page(FORM):
     # 追加情報生成 (ここも古いデータの空文字を考慮して int 化)
     isekai_limit = int(user.get("isekai_limit") or 0)
     isekai_key = int(user.get("isekai_key") or 0)
+    # 異世界機能が未解放の場合は UI を非表示にする（isekai="hidden"）
     isekai, isekai_next = (
         ("hidden", "") if not isekai_limit else ("", min(isekai_key, isekai_limit))
     )
@@ -236,6 +244,10 @@ def my_page(FORM):
         "tenkan_options": tenkan_options,
         "flash_msg": flash_msg,
         "flash_type": flash_type,
+        # my_page_myparty_tmp.html 内の図鑑リンクで {{ fol }} を参照するため明示的に渡す。
+        # 自分のページは常に自分のフォルダを参照するため空文字固定。
+        # （my_page2.py では FORM.get("fol", "") を渡している）
+        "fol": "",
     }
 
     print_html("my_page_tmp.html", content)

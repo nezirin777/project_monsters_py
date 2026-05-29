@@ -1,5 +1,7 @@
 # books.py 本屋(性格変更)処理
 
+from typing import NoReturn
+
 from sub_def.utils import error, success, print_html, get_and_clear_flash
 from sub_def.file_ops import (
     open_user_all,
@@ -15,13 +17,14 @@ SEIKAKU_MAX = 3  # 性格のパラメータ最大値
 SEIKAKU_MIN = 1  # 性格のパラメータ最小値
 
 
-def books(FORM):
+def books(FORM: dict) -> NoReturn:
     """本屋（性格変更）画面表示"""
-    user_name = FORM["s"]["in_name"]
-    token = FORM["s"]["token"]
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
+    token = session.get("token")
 
     # Flashメッセージの取得とクリア（一番最初に呼ぶ）
-    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
+    flash_msg, flash_type = get_and_clear_flash(session)
 
     # 新形式でパーティを取得
     all_data = open_user_all(user_name)
@@ -65,15 +68,17 @@ def books(FORM):
     print_html("book_tmp.html", content)
 
 
-def book_read(FORM):
+def book_read(FORM: dict) -> NoReturn:
     """本を読み、性格を変更する処理"""
+    # int 変換失敗（ValueError）とキー未送信（KeyError）を同時に捕捉する
     try:
         Mno = int(FORM["Mno"])
         Bname = FORM["Bname"]
     except (ValueError, KeyError):
         error("モンスターまたは本が選択されていません", jump="books")
 
-    user_name = FORM["s"]["in_name"]
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     all_data = open_user_all(user_name)
     user = all_data.get("user", {})
@@ -82,7 +87,7 @@ def book_read(FORM):
     Book_dat = open_book_dat()
     seikaku = open_seikaku_dat()
 
-    # ★安全対策: 念のため送られてきたインデックスが範囲内かチェック
+    # 念のため送られてきたインデックスが範囲内かチェック
     if not (0 <= Mno < len(party)):
         error("不正なモンスターが選択されました", jump="books")
 
@@ -95,7 +100,7 @@ def book_read(FORM):
     Msei = party[Mno]["sei"]
     Newsei = Msei  # 性格が変わらない場合の初期値
 
-    # 新しい性格パラメータを計算
+    # 現在の性格の各パラメータに本の効果を加算し、上下限でクランプする
     new_traits = {
         "勇気": min(
             SEIKAKU_MAX,
@@ -111,7 +116,7 @@ def book_read(FORM):
         ),
     }
 
-    # 既存の性格データと一致するものを探す
+    # 計算後のパラメータと一致する性格名をマスターデータから逆引きする
     for name, traits in seikaku.items():
         if all(traits[key] == new_traits[key] for key in new_traits):
             Newsei = name

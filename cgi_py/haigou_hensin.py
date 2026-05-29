@@ -1,5 +1,7 @@
 # haigou_hensin.py - 配合による新モンスター生成と表示
 
+from typing import NoReturn
+
 from sub_def.utils import print_html, error
 from sub_def.file_ops import open_user_all, save_user_all, open_monster_dat
 from sub_def.monster_ops import monster_select, register_monster_progress
@@ -9,21 +11,24 @@ import conf
 Conf = conf.Conf
 
 
-def haigou_hensin(FORM):
+def haigou_hensin(FORM: dict) -> NoReturn:
     """配合による新モンスター生成と表示"""
+    session = FORM.get("s", {})
+
     # セッションからの引き継ぎデータ取得
-    new_m = FORM["s"].get("new_mons", "").replace("フィッシュル(制服)", "フィッシュル")
-    user_name = FORM["s"].get("in_name")
+    new_m = session.get("new_mons", "").replace("フィッシュル(制服)", "フィッシュル")
+    user_name = session.get("in_name")
+    token = session.get("token")
 
     try:
         # haigou_check.py で保存された配列インデックス(0始まり)をそのまま使用
-        haigou1 = int(FORM["s"].get("haigou1", -1))
-        haigou2 = int(FORM["s"].get("haigou2", -1))
+        haigou1 = int(session.get("haigou1", -1))
+        haigou2 = int(session.get("haigou2", -1))
     except ValueError:
         error("配合データが不正です。最初からやり直してください。", jump="my_page")
 
     # セッションの真偽値は文字列化されている場合とそのままの場合があるため安全に判定
-    hint_flag_val = FORM["s"].get("hint_flag")
+    hint_flag_val = session.get("hint_flag")
     hint_flag = hint_flag_val in (True, "True", "true", 1, "1")
 
     # user_all で全データを一括取得
@@ -55,7 +60,7 @@ def haigou_hensin(FORM):
     # 新モンスターデータの生成
     new_mob = monster_select(new_m, hosei)
 
-    # 技の判定が必要になったら、その場でマスターデータを引く
+    # 特技判定と図鑑登録のためにマスターデータを取得する
     Mons = open_monster_dat()
     new_mob_name = new_mob["name"]
     mon_master = Mons.get(new_mob_name, {})
@@ -103,7 +108,7 @@ def haigou_hensin(FORM):
     content = {
         "Conf": Conf,
         "my_data": new_mob,
-        "token": FORM["s"]["token"],
+        "token": token,
         "mode": "haigou",
         "is_waza": is_waza,
         "is_new": is_new,

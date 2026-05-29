@@ -1,6 +1,7 @@
 # m_get.py - モンスターを仲間にする処理
 
 import datetime
+from typing import NoReturn
 
 from sub_def.file_ops import open_user_all, save_user_all, open_battle
 from sub_def.monster_ops import monster_select
@@ -10,8 +11,12 @@ import conf
 Conf = conf.Conf
 
 
-def m_get(FORM):
-
+def m_get(FORM: dict) -> NoReturn:
+    """
+    戦闘後のモンスター仲間加入処理。
+    パーティに空きがあれば即加入、満杯なら入れ替え画面へ遷移する。
+    タイムアウト（30秒）を過ぎた場合はモンスターが去っていく。
+    """
     # セッション情報の安全な取得
     session = FORM.get("s", {})
     token = session.get("token", "")
@@ -22,7 +27,7 @@ def m_get(FORM):
     user = all_data.get("user", {})
     party = all_data.get("party", [])
 
-    # attleデータを開く際に user_name を引数として渡す
+    # battleデータを開く際に user_name を引数として渡す
     battle = open_battle(user_name)
 
     # バトルデータが破損・消失している場合のフェイルセーフ
@@ -40,11 +45,10 @@ def m_get(FORM):
     if not get_name:
         error("仲間にするモンスターの情報がありません。", jump="my_page")
 
-    # タイムチェック
-    # エポック秒に変換してからでないと比較できない
+    # タイムチェック（エポック秒に変換してからでないと比較できない）
     try:
         # セッション または ユーザーデータから next_t を安全に取得
-        next_t_val = FORM.get("s", {}).get("next_t") or user.get("next_t", 0)
+        next_t_val = session.get("next_t") or user.get("next_t", 0)
         next_t = float(next_t_val)
     except (ValueError, TypeError):
         next_t = 0.0

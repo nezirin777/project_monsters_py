@@ -1,5 +1,7 @@
 # haigou_check.py - 配合チェック
 
+from typing import NoReturn
+
 from sub_def.utils import error, print_html
 from sub_def.file_ops import open_monster_dat, open_user_all
 from sub_def.crypto import set_session, get_session
@@ -8,9 +10,20 @@ import conf
 Conf = conf.Conf
 
 
-def haigou_sub(base, aite, flg=0):
-    # base 及び aite はモンスター名
-    # 特殊名の変換
+def haigou_sub(base: str, aite: str, flg: int = 0) -> tuple[str, bool]:
+    """
+    配合結果のモンスター名とヒントフラグを返す。
+
+    優先順位:
+        1. 個体×個体 — base と aite が血統・相手に完全一致（即返す）
+        2. 系統×個体 — どちらか一方が系統一致
+        3. 系統×系統 — 両方とも系統一致
+
+    いずれにも該当しない場合は base モンスターをそのまま引き継ぐ。
+    flg=1 の場合はお見合い限定モンスターも対象に含める。
+    hint_flag は異世界モンスターのレシピと部分一致したときに True になる。
+    """
+    # 特殊名の変換（フィッシュル(制服) は通常名に揃える）
     base, aite = [
         name if name != "フィッシュル(制服)" else "フィッシュル"
         for name in (base, aite)
@@ -22,9 +35,9 @@ def haigou_sub(base, aite, flg=0):
     base_type = M_list.get(base, {}).get("m_type", "")
     aite_type = M_list.get(aite, {}).get("m_type", "")
 
-    best = None
+    best: str | None = None
     best_rank = 999  # 小さいほど優先度高い
-    hint_flag = False  # 特殊条件のヒント獲得フラグ
+    hint_flag = False  # 異世界モンスターのレシピと部分一致したときに True
 
     # 条件を満たす新モンスターを検索
     for name, mon in M_list.items():
@@ -64,11 +77,11 @@ def haigou_sub(base, aite, flg=0):
     return (best if best else base), hint_flag
 
 
-def haigou_check(FORM):
+def haigou_check(FORM: dict) -> NoReturn:
     """配合チェック処理"""
-
-    user_name = FORM["s"]["in_name"]
-    token = FORM["s"]["token"]
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
+    token = session.get("token")
 
     # 入力値の取得とエラーハンドリング（不正な値でのクラッシュを防ぐ）
     val1 = FORM.get("haigou1", "")
@@ -79,7 +92,7 @@ def haigou_check(FORM):
         error("モンスターが正しく選択されていません", jump="my_page")
 
     try:
-        # books.pyに合わせて、フォームから直接配列インデックス(0始まり)を受け取る
+        # books.py に合わせて、フォームから直接配列インデックス(0始まり)を受け取る
         haigou1 = int(val1)
         haigou2 = int(val2)
     except ValueError:

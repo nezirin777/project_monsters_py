@@ -1,7 +1,8 @@
-# coment.py 1行コメント更新
+# comment.py 1行コメント更新
 
 import html
 import re
+from typing import NoReturn
 
 from sub_def.utils import error, success
 from sub_def.file_ops import (
@@ -11,13 +12,9 @@ from sub_def.file_ops import (
     save_user_list,
 )
 
-import conf
 
-Conf = conf.Conf
-
-
-def validate_input(user_name, mes):
-    """入力検証: 名前とメッセージのバリデーション"""
+def validate_input(user_name: str | None, mes: str) -> None:
+    """入力検証: 名前とメッセージのバリデーション。失敗時は error() (NoReturn) で終了する"""
     if not user_name or not user_name.strip():
         error("名前を入力してください。")
 
@@ -26,17 +23,18 @@ def validate_input(user_name, mes):
         error("メッセージは2文字以上、50文字以下で入力してください。")
 
 
-def sanitize_message(mes):
+def sanitize_message(mes: str) -> str:
     """メッセージのフィルタリングとエスケープ処理"""
     mes = re.sub(r"[\r\n]", " ", mes)  # 改行コードをスペースに置換
-    mes = mes.strip()  # 前後の余分な空白を削除しておく
+    mes = mes.strip()  # 前後の余分な空白を削除
     mes = html.escape(mes)
     return mes
 
 
-def comment(FORM):
+def comment(FORM: dict) -> NoReturn:
     """メッセージ（自己紹介文）更新処理（user_all対応版）"""
-    user_name = FORM["s"].get("in_name")
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
     mes = FORM.get("message", "")
 
     # 入力検証
@@ -60,10 +58,10 @@ def comment(FORM):
     # メッセージのサニタイズと更新
     safe_mes = sanitize_message(mes)
 
-    # user_all内のuserデータ更新
+    # user_all 内の user データ更新
     user["mes"] = safe_mes
 
-    # ユーザーリスト側のmesも更新（表示用）
+    # ユーザーリスト側の mes も更新（表示用）
     # ※上部で not in u_list の場合は弾いているため、存在は確定している
     u_list[user_name]["mes"] = safe_mes
 
@@ -72,4 +70,4 @@ def comment(FORM):
     save_user_all(all_data, user_name)
     save_user_list(u_list)
 
-    success("メッセージが更新されました。", "my_page")
+    success("メッセージが更新されました。", jump="my_page")

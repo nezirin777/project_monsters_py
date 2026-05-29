@@ -1,11 +1,19 @@
 # m_bye.py - パーティからモンスターを削除し、新しいモンスターを追加する関数
 
+from typing import NoReturn
+
 from sub_def.file_ops import open_user_all, save_user_all, open_battle
 from sub_def.monster_ops import monster_select
 from sub_def.utils import error, success
 
 
-def m_bye(FORM):
+def m_bye(FORM: dict) -> NoReturn:
+    """
+    パーティ満杯時の入れ替え処理。
+    Mno==99 は「仲間にしない」選択。それ以外は指定モンスターと入れ替える。
+    """
+    session = FORM.get("s", {})
+
     # フォームの入力値を安全に取得（空文字や未送信による ValueError を防ぐ）
     try:
         # 仲間にしない場合はHTML側から "99" などが送られてくる想定
@@ -13,7 +21,7 @@ def m_bye(FORM):
     except ValueError:
         error("モンスターの選択が不正です", jump="my_page")
 
-    user_name = FORM["s"].get("in_name")
+    user_name = session.get("in_name")
 
     # user_all で全データを一括取得
     all_data = open_user_all(user_name)

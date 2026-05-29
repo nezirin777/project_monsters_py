@@ -1,9 +1,11 @@
-# pickle_to_csv.py -user_all.pickle から個別のCSVファイルに変換して保存するスクリプト
+# pickle_to_csv.py - user_all.pickle から個別のCSVファイルに変換して保存するスクリプト
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import json
+import sys
 import pandas as pd
+from typing import Any
 
 from sub_def.file_ops import (
     open_user_all,
@@ -20,15 +22,16 @@ datadir = Conf["savedir"]
 progress_file = os.path.join(datadir, "progress.json")
 
 
-def delete_progress_file():
+def delete_progress_file() -> None:
+    """進捗ファイルが存在する場合のみ削除する"""
     try:
         if os.path.exists(progress_file):
             os.remove(progress_file)
     except Exception as e:
-        print(f"[WARN] 進捗ファイル削除失敗: {e}", file=os.sys.stderr)
+        print(f"[WARN] 進捗ファイル削除失敗: {e}", file=sys.stderr)
 
 
-def save_csv(data, target_key: str, name: str = "", label: str = "name"):
+def save_csv(data: Any, target_key: str, name: str = "", label: str = "name") -> None:
     """データをCSVとして保存"""
     # ベース名（キー）に .csv をくっつけてパスを取得
     csv_file_name = (
@@ -76,11 +79,11 @@ def save_csv(data, target_key: str, name: str = "", label: str = "name"):
         log(f"[CSV出力] {csv_file_name} (user={name or 'GLOBAL'}) → {len(df)} 件")
 
     except Exception as e:
-        # スレッド内で sys.exit させないよう例外を投げる
+        # スレッド内で sys.exit させないよう例外を投げて呼び出し元に回収させる
         raise RuntimeError(f"CSV書き込みエラー: {target_key} | {e}")
 
 
-def save_user_data(in_name: str):
+def save_user_data(in_name: str) -> None:
     """user_all から個別CSVを生成"""
     try:
         all_data = open_user_all(in_name)
@@ -130,11 +133,12 @@ def save_user_data(in_name: str):
         log(f"[完了] {in_name}")
 
     except Exception as e:
-        # スレッド内で error() を呼ばず、例外を投げて batch 側に回収させる
+        # スレッド内で error() を呼ばず、例外を投げてバッチ側に回収させる
         raise RuntimeError(f"{in_name} のCSV出力失敗: {e}")
 
 
-def handle_all_users():
+def handle_all_users() -> None:
+    """全ユーザーの user_all.pickle を個別CSVに並列変換する"""
     u_list = open_user_list()
     total_users = len(u_list)
 
@@ -159,7 +163,7 @@ def handle_all_users():
             try:
                 future.result()  # エラーがあればここで例外としてキャッチされる
             except Exception as e:
-                print(f"[ERROR] {name} CSV出力失敗: {e}", file=os.sys.stderr)
+                print(f"[ERROR] {name} CSV出力失敗: {e}", file=sys.stderr)
 
             completed += 1
             if completed % batch_size == 0 or completed == total_users:
@@ -170,12 +174,12 @@ def handle_all_users():
                         json.dump(progress, f)
                     os.replace(temp_file, progress_file)
                 except Exception as e:
-                    print(f"[WARN] 進捗書き込み失敗: {e}", file=os.sys.stderr)
+                    print(f"[WARN] 進捗書き込み失敗: {e}", file=sys.stderr)
 
     delete_progress_file()
 
 
-def pickle_to_csv(target_name: str):
+def pickle_to_csv(target_name: str) -> None:
     """メインエントリポイント"""
     try:
         if target_name == "user_list":
@@ -191,6 +195,7 @@ def pickle_to_csv(target_name: str):
 
         else:
             save_user_data(target_name)
+
     except Exception as e:
-        # メインスレッドならCGIのerrorを呼んでも問題なし
+        # メインスレッドならCGIの error() を呼んでも問題なし
         error(f"CSV変換中にエラーが発生しました: {e}", jump="top")
