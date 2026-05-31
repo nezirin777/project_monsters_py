@@ -34,6 +34,18 @@
           <div class="stat-box__value">{{ user.getm }}</div>
         </div>
       </div>
+
+      <div class="stat-box">
+        <form action="{{ Conf.cgi_url }}" method="post" class="party-comment-form">
+          <span class="party-comment-form__label">コメント</span>
+          <input type="text" name="message" value="{{ user.mes | escape }}" class="form-control party-comment-form__input" placeholder="ひとことコメント">
+          <button type="submit" class="btn btn--sm">変更</button>
+          <input type="hidden" name="mode" value="comment">
+          <input type="hidden" name="token" value="{{ token }}">
+        </form>
+      </div>
+
+
     </div>
   </div>
 

@@ -3,9 +3,9 @@
 {% extends "base_tmp.html" %}
 
 {% block head %}
-<script src="./css_js/my_page.js?202605172"></script>
-<script src="./css_js/loadbbs.js?202605172"></script>
-<script src="./css_js/CountDown.js?202605172"></script>
+<script src="./css_js/my_page.js?20260531"></script>
+<script src="./css_js/loadbbs.js?20260531"></script>
+<script src="./css_js/CountDown.js?20260531"></script>
 {% endblock %}
 
 {% block content %}
@@ -79,19 +79,6 @@
   <div class="card__header">BBS</div>
   <div class="card__body">
     <div id="bbs"></div>
-  </div>
-</section>
-
-<section class="card content-sm" style="margin-top: var(--space-m);">
-  <div class="card__header">COMMENT</div>
-  <div class="card__body">
-    <form action="{{ Conf.cgi_url }}" method="post" class="form form--inline">
-      <input type="text" name="message" value="{{ user.mes | escape }}"
-             class="form-control" placeholder="ひとことコメント">
-      <input type="hidden" name="mode" value="comment">
-      <input type="hidden" name="token" value="{{ token }}">
-      <button type="submit" class="btn btn--sm">コメント変更</button>
-    </form>
   </div>
 </section>
 

@@ -941,6 +941,22 @@ img {
   }
 }
 
+.party-comment-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.party-comment-form__label {
+  flex-shrink: 0;
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.party-comment-form__input {
+  flex: 1;
+  min-width: 40;
+}
 /* --- パーティグリッド --- */
 
 /* JS依存のためclass名維持。スタイルのみ移行 */
