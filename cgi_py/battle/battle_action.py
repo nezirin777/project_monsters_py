@@ -82,16 +82,17 @@ def teki_action(actor: dict, bm: BattleManager) -> None:
     elif len(party) > 2 and party[2].get("hp", 0) > 0:
         lan = [2]
 
-    if bm.in_floor > 500 or bm.special == "異世界":
-        # 深層・異世界では先頭を重点的に狙う重み付き抽選に切り替える。
-        # 同じインデックスを複数詰めることで確率を操作する（先頭:6, 2番手:3, 3番手:1）
-        lan = []
-        if party[0].get("hp", 0) > 0:
-            lan += [0] * 6
-        if len(party) > 1 and party[1].get("hp", 0) > 0:
-            lan += [1] * 3
-        if len(party) > 2 and party[2].get("hp", 0) > 0:
-            lan += [2]
+    # 大不評なので一旦除外。
+    # if bm.in_floor > 500 or bm.special == "異世界":
+    #    # 深層・異世界では先頭を重点的に狙う重み付き抽選に切り替える。
+    #    # 同じインデックスを複数詰めることで確率を操作する（先頭:6, 2番手:3, 3番手:1）
+    #    lan = []
+    #    if party[0].get("hp", 0) > 0:
+    #        lan += [0] * 6
+    #    if len(party) > 1 and party[1].get("hp", 0) > 0:
+    #        lan += [1] * 3
+    #    if len(party) > 2 and party[2].get("hp", 0) > 0:
+    #        lan += [2]
 
     # 全員HP0（全滅済み）なら行動しない
     if not lan:
