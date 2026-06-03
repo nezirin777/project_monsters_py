@@ -4,7 +4,7 @@
 
 {% block head %}
 {% if ref %}
-<script src="./css_js/zukan_tooltip.js?20260531"></script>
+<script src="./css_js/zukan_tooltip.js?20260604"></script>
 {% endif %}
 {% endblock %}
 
@@ -36,7 +36,7 @@
     <div class="zukan-card__no">No.{{ li.no }}</div>
     <!-- JS依存: zukan_tooltip.js が .zukan-card__img をセレクタに使用 -->
     <div class="zukan-card__img {{ li.display_class }}" tabindex="0" {% if li.show_tooltip
-      %}data-tooltip="{% for recipe in li.recipes %}<p>{{ recipe }}</p>{% endfor %}" {% endif %}>
+      %}data-tooltip="{% for recipe in li.recipes %}{{ recipe }}{% if not loop.last %}||{% endif %}{% endfor %}" {% endif %}>
       <img src="{{ Conf.imgpath }}/{{ li.display_name }}.gif" alt="{{ li.display_name }}">
     </div>
     <div class="zukan-card__name">{{ li.display_name }}</div>

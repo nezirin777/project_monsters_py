@@ -2,6 +2,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // グローバル汚染を防ぐため、変数と関数をすべてこの中に閉じ込める（カプセル化）
+
+    // bbs.py 側が文字列 "true" と比較するため、boolean ではなく文字列で定義する
     const IS_AJAX = 'true';
     let csrfToken = '';
     let currentFol = ''; // URLから取得したフォルダ名を保持
@@ -14,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             credentials: 'same-origin'
         });
         if (!response.ok) throw new Error('リクエスト失敗');
+        // try ブロック内の return await にすることで、json() の失敗を呼び出し元の catch で捕捉できる
         return await response.json();
     }
 
@@ -24,7 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 更新処理
-    async function refreshLog() {
+    // bbsDiv を引数で受け取ることで、document.querySelector への依存をなくす
+    async function refreshLog(bbsDiv) {
         const formData = new FormData();
         formData.append('mode', 'refresh');
         if (currentFol) formData.append('fol', currentFol);
@@ -35,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.error) {
                 showError(data.error);
             } else {
-                document.querySelector('#log-area').innerHTML = data.log;
+                bbsDiv.querySelector('#log-area').innerHTML = data.log;
                 csrfToken = data.csrf_token;
             }
         } catch (error) {
@@ -59,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `./bbs.py?mode=view${currentFol ? '&fol=' + encodeURIComponent(currentFol) : ''}`
                 : './bbs.py';
 
-            // ★改良1: モードに関わらず「HTMLを取得して入れる」処理を共通化
+            // モードに関わらず「HTMLを取得して入れる」処理を共通化
             const response = await fetch(fetchUrl);
             if (!response.ok) throw new Error('データ読み込み失敗');
             bbsDiv.innerHTML = await response.text();
@@ -68,11 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const tokenInput = bbsDiv.querySelector('input[name="csrf_token"]');
             if (tokenInput) csrfToken = tokenInput.value;
 
-            // ★改良3: HTMLのonclickに頼らず、JS側から「更新」ボタンを探してイベントを付与
+            // HTMLのonclickに頼らず、JS側から「更新」ボタンを探してイベントを付与
             // (type="button" を持つボタンを更新ボタンとして扱う)
             const refreshButton = bbsDiv.querySelector('button[type="button"]');
             if (refreshButton) {
-                refreshButton.addEventListener('click', refreshLog);
+                // bbsDiv を引数で渡すことで refreshLog が外部の DOM に依存しないようにする
+                refreshButton.addEventListener('click', () => refreshLog(bbsDiv));
             }
 
             // 投稿フォーム（Postモード）がある場合の処理
@@ -94,14 +99,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             showError(data.error);
                         } else {
                             bbsDiv.querySelector('#log-area').innerHTML = data.log;
-                            form.querySelector('input[name="csrf_token"]').value = data.csrf_token;
+
+                            // 投稿後に DOM が差し替わっている可能性があるため null チェックを行う
+                            const csrfInput = form.querySelector('input[name="csrf_token"]');
+                            if (csrfInput) csrfInput.value = data.csrf_token;
                             csrfToken = data.csrf_token;
-                            form.querySelector('input[name="bbs_txt"]').value = '';
+
+                            const txtInput = form.querySelector('input[name="bbs_txt"]');
+                            if (txtInput) txtInput.value = '';
                         }
                     } catch (error) {
                         console.error('投稿エラー:', error);
                         showError('通信エラーが発生しました');
                     } finally {
+                        // 成功・失敗にかかわらずボタンを再度有効化する
                         if (submitButton) submitButton.disabled = false;
                     }
                 });
@@ -109,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('データ読み込みエラー:', error);
-            bbsDiv.innerHTML = '<p style="color:red;">データの読み込みに失敗しました</p>';
+            bbsDiv.innerHTML = '<p class="red">データの読み込みに失敗しました</p>';
         }
     }
 

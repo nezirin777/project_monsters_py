@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 表示/非表示をトグル
+            // style.display で開閉を制御する。
+            // CSS の初期値は display:none のため、未設定('')は「閉じている」と判断する
             if (target.style.display === 'block') {
                 target.style.display = 'none';
             } else {
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
     // ==========================================
     // 3. パーティ編成（ドラッグ＆ドロップ ＆ セレクト変更）
     // ==========================================
@@ -49,24 +51,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!partyContainer) return;
 
     let dragSrc = null;
+
+    // 未保存の変更があるかどうかのフラグ。
+    // true のとき beforeunload で離脱警告を出す
     let changed = false;
+
+    // ==========================================
+    // 離脱警告
+    // ==========================================
+
+    // 並び替え未保存のまま離脱しようとした場合に確認ダイアログを出す。
+    // Chrome 等の主要ブラウザは returnValue の文字列を無視して固定メッセージを表示する。
+    // フォーム送信による正常な遷移では changed を false にリセットするためダイアログは出ない
+    function handleBeforeUnload(e) {
+        if (!changed) return;
+        e.preventDefault();
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     function getCharaItems() {
         return Array.from(partyContainer.children);
     }
 
-    // クラス更新
+    // クラスの更新
     function updateCharaClasses() {
         const items = getCharaItems();
         items.forEach((item, index) => {
-            // クラスを綺麗にお掃除（古いクラスが残るのを防ぐ）
+            // 古いクラスを除去してから新しい順位のクラスを付与する
             item.className = item.className.replace(/my_page_chara_\d+/g, '').trim();
-            // 新しい順位のクラスを付与
             item.classList.add(`my_page_chara_${index + 1}`);
         });
     }
 
-    // 表示用セレクト値更新
+    // 表示用セレクト値の更新（送信値ではなく表示順番号を同期する）
     function syncSelectValues() {
         const items = getCharaItems();
         items.forEach((item, index) => {
@@ -76,11 +94,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const newNo = String(index + 1);
             select.name = `c_no${newNo}`;
             select.value = newNo;
-            select.dataset.prev = newNo;
+            // dataset.prev はここでは更新しない。
+            // handleSelectChange が変更前後の値を比較するために使うため、
+            // ここで上書きすると変更検知が常にスキップされてしまう
         });
     }
 
-    // 保存時に送る正しい値を準備（送信直前に発火）
+    // 送信直前に「元のモンスター固有番号」を送信値としてセットする
     function prepareForSubmit() {
         const items = getCharaItems();
         items.forEach((item, index) => {
@@ -88,38 +108,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!select) return;
 
             select.name = `c_no${index + 1}`;
-            // サーバーに送る時は、移動先の番号ではなく「元の要素が持っていた固有ID」を送る
+
+            if (!select.dataset.originalNo) {
+                // 通常ここには来ない。initPartySystem で必ず設定される
+                console.warn(`originalNo が未設定です: index=${index}`);
+            }
+
+            // サーバーに送る値は「現在の表示位置番号」ではなく「元の固有番号」
             select.value = select.dataset.originalNo || select.value;
         });
     }
 
-    // 変更フラグ（ボタンの色変更）
+    // 変更フラグとボタンの状態を更新する
     function markChanged() {
         changed = true;
-        // ★修正: 新しいHTML構造に合わせて保存ボタンの取得先を変更
         const btn = document.querySelector(".party-action-footer .btn");
         if (btn) {
             btn.classList.add("active");
-            // ついでに変更があったことが分かりやすいようにテキストも変更
             btn.textContent = "並び替えOK (未保存)";
         }
     }
 
-    // 要素交換処理のコア
+    // 要素の位置を入れ替える
     function swapItems(itemA, itemB) {
         if (itemA === itemB) return;
 
-        const parent = partyContainer;
+        // nextSibling を事前に保存することで、隣接する要素の入れ替えも正しく処理できる。
+        // nextA === itemB のケース（AとBが隣接）でも DOM 仕様上ノーオペレーションになるため安全
         const nextA = itemA.nextSibling;
         const nextB = itemB.nextSibling;
 
-        // 一旦外して入れ替える
         itemA.remove();
-        if (nextB) parent.insertBefore(itemA, nextB);
-        else parent.appendChild(itemA);
+        if (nextB) partyContainer.insertBefore(itemA, nextB);
+        else partyContainer.appendChild(itemA);
 
-        if (nextA) parent.insertBefore(itemB, nextA);
-        else parent.appendChild(itemB);
+        if (nextA) partyContainer.insertBefore(itemB, nextA);
+        else partyContainer.appendChild(itemB);
 
         updateCharaClasses();
         syncSelectValues();
@@ -137,10 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 dragSrc = item;
                 item.classList.add("dragging");
                 item.style.opacity = '0.5';
-
                 partyContainer.classList.add('is-dragging');
 
-                // CSSに頼らず、JS側でドラッグ中は全セレクトボックスをロックする
+                // ドラッグ中はセレクトボックスをロックして誤操作を防ぐ
                 getCharaItems().forEach(i => {
                     const s = i.querySelector("select");
                     if (s) s.style.pointerEvents = "none";
@@ -151,10 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.classList.remove("dragging");
                 item.style.opacity = '1';
                 getCharaItems().forEach(i => i.classList.remove("drag-over"));
-
                 partyContainer.classList.remove('is-dragging');
 
-                // ドラッグ完了後にセレクトボックスのロックを解除
+                // ドラッグ完了後にセレクトボックスのロックを解除する
                 getCharaItems().forEach(i => {
                     const s = i.querySelector("select");
                     if (s) s.style.pointerEvents = "auto";
@@ -172,17 +194,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             item.addEventListener("dragover", e => {
+                // preventDefault しないとドロップが受け付けられない（DOM 仕様）
                 e.preventDefault();
-                if (item !== dragSrc && !item.classList.contains("drag-over")) {
-                    item.classList.add("drag-over");
-                }
+                // drag-over クラスの追加は dragenter で行う
             });
 
             item.addEventListener("drop", e => {
                 e.preventDefault();
                 item.classList.remove("drag-over");
                 if (!dragSrc || dragSrc === item) return;
-
                 swapItems(dragSrc, item);
             });
         });
@@ -196,21 +216,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (oldValue === newValue) return;
 
-        // クラスの順番に依存する前方一致を辞め、確実な汎用クラスを指定
         const currentItem = sel.closest('.party-card');
         if (!currentItem) return;
 
         let targetItem = null;
         getCharaItems().forEach(item => {
             const s = item.querySelector("select");
-            // 自分以外で、新しい値と同じ値を持っている要素（入れ替え相手）を探す
+            // 自分以外で新しい値と同じ値を持つ要素（入れ替え相手）を探す
             if (s && s !== sel && s.value === newValue) {
                 targetItem = item;
             }
         });
 
         if (targetItem) {
+            // 変更を受け付けた後に prev を更新する（syncSelectValues では更新しない）
+            sel.dataset.prev = newValue;
             swapItems(currentItem, targetItem);
+        } else {
+            // 対応する要素が見つからない場合は選択を元に戻す
+            sel.value = oldValue;
         }
     }
 
@@ -225,9 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     sel.dataset.changeInit = "1";
                     sel.addEventListener("change", handleSelectChange);
                 }
-                // 初回の読み込み時に、要素が本来持っていた番号を記録する
+                // 初回読み込み時に元の固有番号を記録する（送信時の復元用）
                 if (!sel.dataset.originalNo) {
                     sel.dataset.originalNo = sel.value;
+                }
+                // prev の初期値も設定する（handleSelectChange の変更検知用）
+                if (!sel.dataset.prev) {
+                    sel.dataset.prev = sel.value;
                 }
             }
         });
@@ -239,11 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期化実行
     initPartySystem();
 
-    // フォーム送信時のイベント（送信用に値をすり替える）
-    // ※ 複数のフォームがある可能性があるため、最も近い親フォームを取得する
+    // フォーム送信時に表示用番号を元の固有番号に差し替える
     const partyForm = partyContainer.closest("form");
     if (partyForm) {
         partyForm.addEventListener("submit", () => {
+            changed = false;  // 送信による遷移では離脱警告を出さない
             prepareForSubmit();
         });
     }
