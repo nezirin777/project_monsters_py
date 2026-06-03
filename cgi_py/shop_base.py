@@ -1,5 +1,8 @@
 # shop_base.py - ショップ関連の共通関数と、メダルショップ・VIPショップの表示処理を定義
 
+from collections.abc import Callable
+from typing import NoReturn
+
 from sub_def.file_ops import (
     open_medal_shop_dat,
     open_vips_shop_dat,
@@ -17,17 +20,24 @@ import conf
 
 Conf = conf.Conf
 
-categories = [
+# 表示カテゴリの定義（メダル払い / G払い）
+categories: list[dict] = [
     {"name": "メダル", "val1": "メダル", "val2": "枚"},
     {"name": "G", "val1": "", "val2": "ゴールド"},
 ]
 
 
 def prepare_item_lists(
-    shop_data, categories, additional_filter=None, price_modifier=None
-):
+    shop_data: dict,
+    categories: list[dict],
+    additional_filter: Callable | None = None,
+    price_modifier: Callable | None = None,
+) -> dict:
     """
     アイテムリストをカテゴリ別に分類する共通関数。
+
+    additional_filter: (name, item) -> bool  表示対象かどうかを判定する追加フィルタ
+    price_modifier:    (name, item) -> int   価格を動的に計算する関数（購入回数加算等）
     """
     return {
         category["name"]: [
@@ -49,7 +59,8 @@ def prepare_item_lists(
     }
 
 
-def medal_shop(FORM):
+def medal_shop(FORM: dict) -> NoReturn:
+    """メダル交換所の表示処理"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
 
@@ -78,7 +89,8 @@ def medal_shop(FORM):
     print_html("medal_shop_tmp.html", content)
 
 
-def v_shop(FORM):
+def v_shop(FORM: dict) -> NoReturn:
+    """VIP交換所1の表示処理。図鑑登録済みモンスターのみ表示し、購入回数で価格が上昇する"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
 
@@ -94,10 +106,12 @@ def v_shop(FORM):
     vips = user_all.get("vips", {})
     zukan = user_all.get("zukan", {})
 
-    def additional_filter(name, item):
+    def additional_filter(name: str, item: dict) -> bool:
+        """図鑑に登録済みのモンスターのみ表示する"""
         return zukan.get(item.get("b_name", ""), {}).get("get", 0) == 1
 
-    def price_modifier(name, item):
+    def price_modifier(name: str, item: dict) -> int:
+        """購入回数に応じて価格を加算する（base + base × 購入回数）"""
         price = int(item.get("price", 0))
         return price + price * int(vips.get(name, 0))
 
@@ -119,7 +133,8 @@ def v_shop(FORM):
     print_html("medal_shop_tmp.html", content)
 
 
-def v_shop2(FORM):
+def v_shop2(FORM: dict) -> NoReturn:
+    """VIP交換所2の表示処理。パーク所持状況に応じて表示アイテムを切り替える"""
     session = FORM.get("s", {})
     user_name = session.get("in_name")
 
@@ -134,6 +149,8 @@ def v_shop2(FORM):
     user_v = slim_number_with_cookie(user_all.get("user", {}))
     vips = user_all.get("vips", {})
 
+    # パーク所持状況に応じて表示アイテムを切り替える
+    # パーク所持済み → 「モンスターパーク」を非表示、未所持 → 「パーク拡大」を非表示
     vshop_list = dict(vshop_list)
     if vips.get("パーク", 0):
         vshop_list.pop("モンスターパーク", None)

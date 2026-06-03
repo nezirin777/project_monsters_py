@@ -1,4 +1,6 @@
-# seitenkan_ok.py - 陰陽転換（性別変更）処理
+# seitenkan.py - 陰陽転換（性別変更）処理
+
+from typing import NoReturn
 
 from sub_def.file_ops import open_user_all, save_user_all
 from sub_def.utils import error, success
@@ -7,7 +9,11 @@ import conf
 Conf = conf.Conf
 
 
-def seitenkan_ok(FORM):
+def seitenkan_ok(FORM: dict) -> NoReturn:
+    """
+    モンスターの性別（陰陽）を次の性別へ循環させる処理。
+    料金は配合回数 × 100G。レベル1のモンスターのみが対象。
+    """
     # セッション切れによる KeyError を防ぐための安全な取得
     session = FORM.get("s", {})
     user_name = session.get("in_name")
@@ -27,8 +33,6 @@ def seitenkan_ok(FORM):
         error("陰陽転換するモンスターを選択してください。", jump="my_page")
 
     all_data = open_user_all(user_name)
-
-    # setdefaultも良いですが、他のファイルと統一してgetを使用（欠損時のクラッシュ防止）
     user = all_data.get("user", {})
     party = all_data.get("party", [])
 
@@ -44,10 +48,10 @@ def seitenkan_ok(FORM):
         error("お金が足りません", jump="my_page")
 
     # 性別変換処理
-    sexs = Conf.get("sex", ["陽", "陰"])  # 万が一Confに未定義だった場合の保険
+    sexs = Conf.get("sex", ["陽", "陰"])  # 万が一 Conf に未定義だった場合の保険
     current_sex = pt.get("sex")
 
-    # 現在の性別の次の性別へ（配列の最後まで行ったら最初に戻るスマートな処理）
+    # 現在の性別の次の性別へ（配列の最後まで行ったら最初に戻る循環処理）
     if current_sex in sexs:
         pt["sex"] = sexs[(sexs.index(current_sex) + 1) % len(sexs)]
     else:

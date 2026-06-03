@@ -1,5 +1,7 @@
 # park.py - モンスターパークの表示と、パーティとパークの入れ替え
 
+from typing import NoReturn
+
 from sub_def.file_ops import open_monster_dat, open_user_all, save_user_all
 from sub_def.utils import (
     get_and_clear_flash,
@@ -14,9 +16,8 @@ import conf
 Conf = conf.Conf
 
 
-# ソート処理関数（user_all対応版）
-def sort_park(all_data, sort_v, user_name):
-    """パークのソート処理を行い、user_allに反映する"""
+def sort_park(all_data: dict, sort_v: int, user_name: str) -> list:
+    """パークのソート処理を行い、user_all に反映して返す"""
     park = all_data["park"]
 
     if sort_v == 1:  # 名前順ソート
@@ -34,29 +35,29 @@ def sort_park(all_data, sort_v, user_name):
     for i, ppt in enumerate(park, 1):
         ppt["no"] = i
 
-    # user_allに反映
+    # user_all に反映
     all_data["park"] = park
     save_user_all(all_data, user_name)
 
     return park
 
 
-# モンスターパーク表示関数
-def park(FORM):
-
-    user_name = FORM["s"]["in_name"]
-    token = FORM["s"]["token"]
+def park(FORM: dict) -> NoReturn:
+    """モンスターパーク表示処理"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
+    token = session.get("token")
 
     page = int(FORM.get("page", 1))
     sort_v = int(FORM.get("sort_v", 0))
 
     # Flashメッセージの取得とクリア（一番最初に呼ぶ）
-    flash_msg, flash_type = get_and_clear_flash(FORM["s"])
+    flash_msg, flash_type = get_and_clear_flash(session)
 
     # user_all で一括取得
     all_data = open_user_all(user_name)
     party = all_data.get("party", [])
-    park = all_data.get("park", [])
+    park_data = all_data.get("park", [])
     vips = all_data.get("vips", {})
 
     if not vips.get("パーク", 0):
@@ -64,21 +65,21 @@ def park(FORM):
 
     # パーク容量と預かり状況
     waku = int(vips["パーク"] * 5)
-    azukari = len(park)
+    azukari = len(park_data)
 
     # ソート処理
     if sort_v in (1, 2):
-        park = sort_park(all_data, sort_v, user_name)
+        park_data = sort_park(all_data, sort_v, user_name)
     else:
         # 番号振り直しだけ行う（念のため）
-        for i, ppt in enumerate(park, 1):
+        for i, ppt in enumerate(park_data, 1):
             ppt["no"] = i
 
-    park_v = slim_number_with_cookie(park)
+    park_v = slim_number_with_cookie(park_data)
 
     p1 = (page - 1) * 10
     p2 = min(page * 10, waku)
-    jump_count = -(-len(park) // 10)
+    jump_count = -(-len(park_data) // 10)
 
     content = {
         "Conf": Conf,
@@ -101,8 +102,10 @@ def park(FORM):
 # ====================#
 # 手持ちを預ける
 # ====================#
-def park_1(FORM):
-    user_name = FORM["s"]["in_name"]
+def park_1(FORM: dict) -> NoReturn:
+    """パーティからモンスターをパークへ預ける処理"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     try:
         # HTML側から配列のインデックスを直接受け取る
@@ -115,12 +118,12 @@ def park_1(FORM):
 
     all_data = open_user_all(user_name)
     party = all_data.get("party", [])
-    park = all_data.get("park", [])
+    park_data = all_data.get("park", [])
     vips = all_data.get("vips", {})
 
     waku = vips.get("パーク", 0) * 5
 
-    if len(park) >= waku:
+    if len(park_data) >= waku:
         error("パークがいっぱいで預けることができませんでした。", jump="park")
 
     if len(party) == 1:
@@ -133,21 +136,21 @@ def park_1(FORM):
     if Mno < 0 or Mno >= len(party):
         error("無効なモンスターが指定されました", jump="park")
 
-    # 先に文字列作っておかないと、預ける処理でpartyから消えてしまうため
-    mes = f"""【{party[Mno].get("name", "不明")}】を預けました。"""
+    # 先に文字列を作っておかないと、預ける処理で party から消えてしまうため
+    mes = f'【{party[Mno].get("name", "不明")}】を預けました。'
 
     # 預ける処理
-    park.append(party.pop(Mno))
+    park_data.append(party.pop(Mno))
 
     # 番号振り直し
     for i, pt in enumerate(party, 1):
         pt["no"] = i
-    for i, ppt in enumerate(park, 1):
+    for i, ppt in enumerate(park_data, 1):
         ppt["no"] = i
 
-    # 保存（user_allにまとめて1回）
+    # 保存（user_all にまとめて1回）
     all_data["party"] = party
-    all_data["park"] = park
+    all_data["park"] = park_data
     save_user_all(all_data, user_name)
 
     success(mes, jump="park")
@@ -156,9 +159,10 @@ def park_1(FORM):
 # ====================#
 # パークから連れていく
 # ====================#
-def park_2(FORM):
-
-    user_name = FORM["s"]["in_name"]
+def park_2(FORM: dict) -> NoReturn:
+    """パークからモンスターをパーティへ連れていく処理"""
+    session = FORM.get("s", {})
+    user_name = session.get("in_name")
 
     try:
         # HTML側から配列の絶対インデックスを直接受け取る
@@ -168,31 +172,31 @@ def park_2(FORM):
 
     all_data = open_user_all(user_name)
     party = all_data.get("party", [])
-    park = all_data.get("park", [])
+    park_data = all_data.get("park", [])
 
     # パーティーが満杯かどうか確認
     if len(party) >= 10:
         error("パーティがいっぱいで連れていくことができませんでした。", jump="park")
 
     # 不正なインデックスが指定された場合のクラッシュ防止
-    if Mno < 0 or Mno >= len(park):
+    if Mno < 0 or Mno >= len(park_data):
         error("無効なモンスターが指定されました", jump="park")
 
-    # 先に文字列作っておかないと、連れていく処理でparkから消えてしまうため
-    mes = f"""【{park[Mno].get("name", "不明")}】をパーティに加えました。"""
+    # 先に文字列を作っておかないと、連れていく処理で park から消えてしまうため
+    mes = f'【{park_data[Mno].get("name", "不明")}】をパーティに加えました。'
 
     # 連れていく処理
-    party.append(park.pop(Mno))
+    party.append(park_data.pop(Mno))
 
     # 番号振り直し
     for i, pt in enumerate(party, 1):
         pt["no"] = i
-    for i, ppt in enumerate(park, 1):
+    for i, ppt in enumerate(park_data, 1):
         ppt["no"] = i
 
     # 保存
     all_data["party"] = party
-    all_data["park"] = park
+    all_data["park"] = park_data
     save_user_all(all_data, user_name)
 
     success(mes, jump="park")
