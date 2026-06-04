@@ -158,6 +158,27 @@
     document.addEventListener("submit", async (e) => {
 
         const form = e.target;
+
+        // 並び替えが未保存のまま離脱しようとした場合に確認を挟む。
+        // my_page.js の markChanged() が window.partyUnsaved を true にセットする。
+        // partyForm 自身の送信は submit リスナー内で false にリセット済みのため二重確認にならない。
+        // キャンセル時は handleUILock に到達しないため UIロックは発生しない
+        if (window.partyUnsaved) {
+            e.preventDefault();
+            const ok = await showConfirm("並び替えが未保存です。このまま移動しますか？");
+            if (!ok) return;
+            window.partyUnsaved = false;
+            // 確認 OK 後に改めて送信する。dataset.confirm は空のまま通過させる
+            handleUILock(e);
+            try {
+                form.submit();
+            } catch (err) {
+                setUILock(false);
+                throw err;
+            }
+            return;
+        }
+
         const confirmMsg = form.dataset.confirm;
 
         if (!confirmMsg) {
@@ -270,6 +291,13 @@
         if (uiLockTimeout) {
             clearTimeout(uiLockTimeout);
         }
+
+        // ページ遷移がキャンセルされた（「留まる」を選んだ）場合に UIロックを解放する。
+        // beforeunload 後に window が focus を受け取ることで遷移キャンセルを検知する。
+        // { once: true } により一度だけ実行されて自動解除される
+        window.addEventListener("focus", function releaseOnStay() {
+            setUILock(false);
+        }, { once: true });
     });
 
     document.addEventListener("keydown", (e) => {

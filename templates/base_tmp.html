@@ -8,12 +8,12 @@
     <title> MONSTER'S 改 {{ Conf.ver }}</title>
 
     {% block stylesheets %}
-      <link rel="stylesheet" href="./css_js/common.css?20260604">
-      <link rel="stylesheet" href="./css_js/game.css?20260604">
-      <link rel="stylesheet" href="./css_js/mobile.css?20260604">
+      <link rel="stylesheet" href="./css_js/common.css?{{ asset_ver('css_js/common.css') }}">
+      <link rel="stylesheet" href="./css_js/game.css?{{ asset_ver('css_js/game.css') }}">
+      <link rel="stylesheet" href="./css_js/mobile.css?{{ asset_ver('css_js/mobile.css') }}">
     {% endblock %}
 
-    <script src="./css_js/main.js?20260604"></script>
+    <script src="./css_js/main.js?{{ asset_ver('css_js/main.js') }}"></script>
 
     {% if flash_msg  %}
       <script>

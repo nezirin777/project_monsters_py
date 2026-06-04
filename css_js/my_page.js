@@ -53,22 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let dragSrc = null;
 
     // 未保存の変更があるかどうかのフラグ。
-    // true のとき beforeunload で離脱警告を出す
-    let changed = false;
-
-    // ==========================================
-    // 離脱警告
-    // ==========================================
-
-    // 並び替え未保存のまま離脱しようとした場合に確認ダイアログを出す。
-    // Chrome 等の主要ブラウザは returnValue の文字列を無視して固定メッセージを表示する。
-    // フォーム送信による正常な遷移では changed を false にリセットするためダイアログは出ない
-    function handleBeforeUnload(e) {
-        if (!changed) return;
-        e.preventDefault();
-    }
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    // window.partyUnsaved として公開し、main.js の submit ハンドラから参照する。
+    // フォーム送信・postNavigate いずれも submit イベントを発火するため全遷移を捕捉できる
+    window.partyUnsaved = false;
 
     function getCharaItems() {
         return Array.from(partyContainer.children);
@@ -121,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 変更フラグとボタンの状態を更新する
     function markChanged() {
-        changed = true;
+        window.partyUnsaved = true;
         const btn = document.querySelector(".party-action-footer .btn");
         if (btn) {
             btn.classList.add("active");
@@ -267,11 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期化実行
     initPartySystem();
 
-    // フォーム送信時に表示用番号を元の固有番号に差し替える
+    // フォーム送信時に表示用番号を元の固有番号に差し替える。
+    // 保存操作なので window.partyUnsaved を false にリセットして確認が出ないようにする
     const partyForm = partyContainer.closest("form");
     if (partyForm) {
         partyForm.addEventListener("submit", () => {
-            changed = false;  // 送信による遷移では離脱警告を出さない
+            window.partyUnsaved = false;
             prepareForSubmit();
         });
     }

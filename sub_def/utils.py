@@ -22,6 +22,7 @@ env = Environment(
     loader=FileSystemLoader("templates"), auto_reload=False, cache_size=100
 )
 
+
 # 遷移先 URL とデフォルトパラメータのマッピング。
 # "99" はテキスト緊急表示モード（ループ回避用）のため意図的に含めない。
 URL_MAP: dict[str, tuple[str, dict]] = {
@@ -43,6 +44,26 @@ URL_MAP: dict[str, tuple[str, dict]] = {
 # CGI は 1 リクエスト 1 プロセスなので、フラグはリクエスト内でのみ有効。
 # -------------------------------------------------------
 _IN_FLASH_AND_JUMP: bool = False
+
+
+# ========================#
+# キャッシュバスター生成用  #
+# ========================#
+def get_asset_ver(filepath: str, base_dir: str = ".") -> str:
+    """
+    ファイルの最終更新時刻をキャッシュバスターとして返す。
+    ファイルが見つからない場合はフォールバック値を返す。
+    """
+    try:
+        full_path = os.path.join(base_dir, filepath)
+        mtime = int(os.path.getmtime(full_path))
+        return str(mtime)
+    except OSError:
+        return "0"
+
+
+# テンプレートからファイルのタイムスタンプを取得できるようにする
+env.globals["asset_ver"] = get_asset_ver
 
 
 # ==========#
