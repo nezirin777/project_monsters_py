@@ -6,6 +6,7 @@ from typing import NoReturn
 
 from cgi_py.battle.battle_menu import battle_menu
 from sub_def.file_ops import (
+    log,
     open_user_all,
     save_user_all,
     save_battle,
@@ -78,6 +79,8 @@ class BattleStarter:
         else:
             rand_threshold = 25
 
+        rand_threshold = 1
+
         special_enemies = ["わたぼう"] if random.randint(1, rand_threshold) == 1 else []
 
         if "わたぼう" in special_enemies:
@@ -99,7 +102,7 @@ class BattleStarter:
             if (
                 isekai_clear >= current_limit
                 and current_limit < max_limit
-                and in_floor >= 1001 + 500 * (current_limit // 10)
+                and in_floor >= 1001 + 500 * ((current_limit // 10) - 1)
             ):
                 special_enemies.append("vipsg")
 
