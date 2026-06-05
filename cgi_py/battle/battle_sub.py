@@ -233,10 +233,16 @@ def battle_isekai_limit_get(bm: BattleManager) -> None:
     初回は 10 に設定し、以降は +10 ずつ拡張する。
     """
     if bm.user.get("isekai_limit", 0):
-        bm.user["isekai_limit"] += 10
+        bm.user["isekai_limit"] = min(
+            bm.user["isekai_limit"] + 10,
+            Conf["isekai_max_limit"],
+        )
+        bm.user["isekai_key"] += 1
         isekai_limit_next = True  # 既存リミットをさらに拡張した
+
     else:
         bm.user["isekai_limit"] = 10
+        bm.user["isekai_key"] = 1
         isekai_limit_next = False  # 初めてリミットが解放された
 
     bm.log_custom({"type": "isekai_limit", "isekai_limit_next": isekai_limit_next})
@@ -247,13 +253,26 @@ def battle_isekai_key_get(bm: BattleManager) -> None:
     異世界戦闘勝利時の探索鍵更新処理。
     現在の探索フロアが鍵の最深部と一致した場合にのみ次の階層へ進める。
     """
+
+    # クリア済み最大階層を記録
+    bm.user["isekai_clear"] = max(
+        bm.user.get("isekai_clear", 0),
+        bm.in_floor,
+    )
+
     if bm.in_floor == bm.user.get("isekai_key", 0):
         # 探索リミットに達している場合はキーを進めない
         is_limit = bm.user.get("isekai_limit", 0) == bm.user.get("isekai_key", 0)
 
         if not is_limit:
             bm.user["isekai_key"] += 1
-        bm.log_custom({"type": "isekai_key", "is_limit": is_limit})
+
+        bm.log_custom(
+            {
+                "type": "isekai_key",
+                "is_limit": is_limit,
+            }
+        )
 
 
 # 勝利時モンスター獲得処理---------------------------------------------------------------------------

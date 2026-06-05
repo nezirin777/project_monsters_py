@@ -47,7 +47,7 @@ class BattleStarter:
                 error("階層指定がおかしいです", jump="my_page")
 
         if in_isekai is not None:
-            if not (0 <= in_isekai <= self.user.get("isekai_key", 0)):
+            if not (1 <= in_isekai <= self.user.get("isekai_key", 0)):
                 error("異世界は1Fづつしか進めません。", jump="my_page")
             if in_isekai > self.user.get("isekai_limit", 0):
                 error("探索限界に達しています", jump="my_page")
@@ -87,6 +87,7 @@ class BattleStarter:
 
             max_limit = int(Conf.get("isekai_max_limit", 0))
             current_limit = int(self.user.get("isekai_limit", 0))
+            isekai_clear = int(self.user.get("isekai_clear", 0))
 
             # limit異常修正
             if current_limit > max_limit:
@@ -94,10 +95,11 @@ class BattleStarter:
                 self.user["isekai_limit"] = max_limit
                 self.user["isekai_key"] = max_limit
 
-            if (  # 500階おきに次のエリアに進めるようになる
-                in_floor >= 1001 + 500 * (current_limit // 10)
-                and current_limit < self.user.get("isekai_key", 0)
+            # 500階おきに次のエリアに進めるようになる
+            if (
+                isekai_clear >= current_limit
                 and current_limit < max_limit
+                and in_floor >= 1001 + 500 * (current_limit // 10)
             ):
                 special_enemies.append("vipsg")
 

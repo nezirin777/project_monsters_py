@@ -132,7 +132,6 @@ def my_page(FORM: dict) -> NoReturn:
 
     omiai_list = open_omiai_list()
 
-    # === 新形式：user_all で一括取得 ===
     all_data = open_user_all(user_name)
 
     user = all_data.get("user", {})
@@ -168,6 +167,12 @@ def my_page(FORM: dict) -> NoReturn:
     # 追加情報生成 (ここも古いデータの空文字を考慮して int 化)
     isekai_limit = int(user.get("isekai_limit") or 0)
     isekai_key = int(user.get("isekai_key") or 0)
+
+    if "isekai_clear" not in user:
+        user["isekai_clear"] = max(0, isekai_key - 1)
+        all_data["user"] = user
+        save_user_all(all_data, user_name)
+
     # 異世界機能が未解放の場合は UI を非表示にする（isekai="hidden"）
     isekai, isekai_next = (
         ("hidden", "") if not isekai_limit else ("", min(isekai_key, isekai_limit))

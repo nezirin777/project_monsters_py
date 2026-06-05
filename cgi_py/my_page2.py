@@ -28,6 +28,11 @@ def my_page2(FORM: dict) -> NoReturn:
 
     # 古いデータでは空文字が入る場合があるため `or 0` で安全に数値化する（my_page.py と統一）
     isekai_limit = int(user.get("isekai_limit") or 0)
+    isekai_key = int(user.get("isekai_key") or 0)
+
+    if "isekai_clear" not in user:
+        user["isekai_clear"] = max(0, user.get("isekai_key", 0) - 1)
+
     # 異世界機能が未解放の場合は UI を非表示にする（isekai="hidden"）
     isekai = "hidden" if not isekai_limit else ""
 

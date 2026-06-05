@@ -20,7 +20,7 @@
         <div class="stat-box {{ isekai }}">
           <div class="stat-box__label">異世界探索度</div>
           <div class="stat-box__value">
-            {{ user.get("isekai_key",0)-1 }}/{{ user.get("isekai_limit",0) }}/{{ Conf.isekai_max_limit }}
+            {{ user.get("isekai_clear",0) }}/{{ user.get("isekai_limit",0) }}/{{ Conf.isekai_max_limit }}
           </div>
         </div>
         <div class="stat-box">
