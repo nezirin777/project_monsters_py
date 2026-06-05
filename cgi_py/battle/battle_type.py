@@ -79,8 +79,6 @@ class BattleStarter:
         else:
             rand_threshold = 25
 
-        rand_threshold = 1
-
         special_enemies = ["わたぼう"] if random.randint(1, rand_threshold) == 1 else []
 
         if "わたぼう" in special_enemies:
