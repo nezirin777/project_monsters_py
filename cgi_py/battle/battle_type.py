@@ -82,10 +82,6 @@ class BattleStarter:
         special_enemies = ["わたぼう"] if random.randint(1, rand_threshold) == 1 else []
 
         if "わたぼう" in special_enemies:
-            # 未取得の部屋鍵がある場合はスライムも出現候補に加える
-            if any(r_key.get("get", 0) == 0 for r_key in self.room_key.values()):
-                special_enemies.append("スライム")
-
             max_limit = int(Conf.get("isekai_max_limit", 0))
             current_limit = int(self.user.get("isekai_limit", 0))
             isekai_clear = int(self.user.get("isekai_clear", 0))
@@ -96,11 +92,19 @@ class BattleStarter:
                 self.user["isekai_limit"] = max_limit
                 self.user["isekai_key"] = max_limit
 
-            # 500階おきに次のエリアに進めるようになる
-            if (
+            has_room_key = any(
+                r_key.get("get", 0) == 0 for r_key in self.room_key.values()
+            )
+
+            # 未取得の部屋鍵がある場合はスライムを優先
+            if has_room_key:
+                special_enemies.append("スライム")
+
+            # 全ての部屋鍵取得後にVIPSG判定
+            elif (
                 isekai_clear >= current_limit
                 and current_limit < max_limit
-                and in_floor >= 1001 + 500 * ((current_limit // 10) - 1)
+                and in_floor >= 1001 + 500 * (current_limit // 10)
             ):
                 special_enemies.append("vipsg")
 
