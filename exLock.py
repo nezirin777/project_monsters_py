@@ -19,7 +19,7 @@ class exLock:
         self,
         lockDir,
         stale_seconds=60,
-        retry_count=30,
+        retry_count=5,
         retry_interval=1.0,
     ):
         self.lockDir = lockDir
