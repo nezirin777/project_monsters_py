@@ -1,6 +1,6 @@
 # 排他ロッククラス
 #
-# exLock.py Version 1.01 written by fuku@rouge.gr.jp
+# exLock.py
 
 """使い方
 import exLock
