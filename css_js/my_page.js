@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     const linkMsg = document.getElementById('link_msg');
     if (linkMsg) {
-        document.querySelectorAll('.my_page_menu4 span').forEach(span => {
+        document.querySelectorAll('.shop-grid span').forEach(span => {
             span.addEventListener('mouseover', () => {
                 linkMsg.textContent = span.dataset.msg || '説明がここに。';
             });
