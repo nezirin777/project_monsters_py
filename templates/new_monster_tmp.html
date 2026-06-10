@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">NEW MONSTER!</div>
 
   <div class="card__body">
@@ -14,7 +14,8 @@
     {% endif %}
 
     {% if is_rare and is_new %}
-    <div class="rare-badge" style="margin-bottom: var(--space-m);">特別なモンスターが誕生した！</div>
+    <!-- styleを排除。余白はCSSの .rare-badge 側で制御 -->
+    <div class="rare-badge">特別なモンスターが誕生した！</div>
     {% endif %}
 
     <div class="born-card__display">
@@ -27,7 +28,8 @@
       </div>
     </div>
 
-    <div class="born-card__stats" style="margin-top: var(--space-m);">
+    <!-- styleを排除。余白はCSSの .born-card__stats 側で制御 -->
+    <div class="born-card__stats">
       <div class="stat-row">
         <div class="stat-row__label">Level</div>
         <div class="stat-row__value">1<span>/{{ my_data.mlv }}</span></div>
@@ -63,7 +65,8 @@
     </div>
 
     {% if is_new %}
-    <div class="result-msg result-msg--item" style="margin-top: var(--space-m);">図鑑に登録されました！</div>
+    <!-- styleを排除。余白はCSSの .result-msg 側で制御 -->
+    <div class="result-msg result-msg--item">図鑑に登録されました！</div>
     {% endif %}
     {% if is_waza %}
     <div class="result-msg result-msg--item">新たな特技が使えるようになった！</div>
@@ -73,7 +76,8 @@
 </div>
 
 {% if mode=="omiai" %}
-<div class="layout-cluster" style="margin: var(--space-m) auto;">
+<!-- styleを排除し、Modifierクラス .content-sm--spaced で余白を担保 -->
+<div class="layout-cluster content-sm--spaced">
   <form action="{{ Conf.cgi_url }}" method="post">
     <input type="hidden" name="mode" value="omiai_room">
     <input type="hidden" name="token" value="{{ token }}">

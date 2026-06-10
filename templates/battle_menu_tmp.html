@@ -6,7 +6,8 @@
   <div class="card__body">
     <form action="{{ Conf.cgi_url }}" method="post" class="form">
 
-      <div class="layout-grid" style="--grid-min: 280px; width:100%;">
+      <!-- styleを排除し、Modifierクラス .layout-grid--cmd を適用 -->
+      <div class="layout-grid layout-grid--cmd">
         {% for pt in party %}
           {% if pt.hp != 0 and pt.hp != "0" %}
           <div class="cmd-card">
@@ -104,7 +105,8 @@
         {% endfor %}
       </div>
 
-      <div class="layout-cluster" style="margin-top: var(--space-m);">
+      <!-- styleを排除。余白はformとボタン自体の構造で保証 -->
+      <div class="layout-cluster">
         <button type="submit" name="monok" value="決定"
                 class="btn btn--block battle-btn">決　定</button>
         <input type="hidden" name="mode" value="battle_fight">

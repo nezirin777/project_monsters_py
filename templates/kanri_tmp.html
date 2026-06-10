@@ -92,15 +92,17 @@
 
 <!-- ユーザーセレクト用マクロ -->
 {% macro user_options(users_dict) %}
-  {% for key in users_dict.keys() %}
-  <option value="{{ key }}">{{ key }}</option>
-  {% endfor %}
+{% for key in users_dict.keys() %}
+<option value="{{ key }}">{{ key }}</option>
+{% endfor %}
 {% endmacro %}
 
-<!-- プログレスバー -->
-<div id="progressPopup" style="display: none;">
+<!-- プログレスバー (styleを排除。CSS側で初期状態display: noneを管理) -->
+<div id="progressPopup">
   <div id="popupContent">
-    <div id="progressContainer"><div id="progressBar"></div></div>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
     <div id="progressText">準備中...</div>
   </div>
 </div>
@@ -112,7 +114,8 @@
   <div class="admin-card">
     <div class="admin-card__title">メンテナンスモード</div>
     <div class="admin-card__body">
-      <div style="display:flex; gap:var(--space-s);">
+      <!-- styleを排除。ボタン用フレックスは既存の共通クラス .layout-cluster--start に委譲 -->
+      <div class="layout-cluster layout-cluster--start">
         <form action="{{ Conf.kanri_url }}" method="post">
           <input type="hidden" name="mode" value="MENTE">
           <input type="hidden" name="mente" value="start">
@@ -133,7 +136,8 @@
   <div class="admin-card">
     <div class="admin-card__title">イベントモード</div>
     <div class="admin-card__body">
-      <div style="display:flex; gap:var(--space-s);">
+      <!-- styleを排除。既存の共通クラス .layout-cluster--start に委譲 -->
+      <div class="layout-cluster layout-cluster--start">
         <form action="{{ Conf.kanri_url }}" method="post">
           <input type="hidden" name="mode" value="event_boost">
           <input type="hidden" name="event_boost" value="start">
@@ -155,8 +159,7 @@
     <div class="admin-card__title">datファイル更新</div>
     <div class="admin-card__body">
       モンスターデータ等を更新します。
-      <form action="{{ Conf.kanri_url }}" method="post"
-            onsubmit="fetchProgress(); return true;">
+      <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
         <input type="hidden" name="mode" value="dat_update">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit" class="admin-btn admin-btn--block">実行</button>
@@ -196,8 +199,7 @@
   <div class="admin-card">
     <div class="admin-card__title">お金やメダルを贈る</div>
     <div class="admin-card__body">
-      <form action="{{ Conf.kanri_url }}" method="post" class="form"
-            onsubmit="fetchProgress(); return true;">
+      <form action="{{ Conf.kanri_url }}" method="post" class="form" onsubmit="fetchProgress(); return true;">
         <select name="target_name" class="ss-user-select admin-select">
           <option value="" hidden>対象の人を選択</option>
           <option value="全員">全員</option>
@@ -244,8 +246,7 @@
   <div class="admin-card">
     <div class="admin-card__title">pickleセーブデータ → CSV出力</div>
     <div class="admin-card__body">
-      <form action="{{ Conf.kanri_url }}" method="post" class="form"
-            onsubmit="fetchProgress(); return true;">
+      <form action="{{ Conf.kanri_url }}" method="post" class="form" onsubmit="fetchProgress(); return true;">
         <select name="target_name" class="ss-user-select admin-select">
           <option value="" hidden>対象を選択</option>
           <option value="user_list">user_list</option>
@@ -264,8 +265,7 @@
   <div class="admin-card">
     <div class="admin-card__title">CSV → pickle変換</div>
     <div class="admin-card__body">
-      <form action="{{ Conf.kanri_url }}" method="post" class="form"
-            onsubmit="fetchProgress(); return true;">
+      <form action="{{ Conf.kanri_url }}" method="post" class="form" onsubmit="fetchProgress(); return true;">
         <select name="target_name" class="ss-user-select admin-select">
           <option value="" hidden>対象を選択</option>
           <option value="user_list">user_list</option>
@@ -285,8 +285,7 @@
     <div class="admin-card__title">ユーザー登録データ再構築</div>
     <div class="admin-card__body">
       user_list.pickle をフォルダから再構築します。
-      <form action="{{ Conf.kanri_url }}" method="post"
-            onsubmit="fetchProgress(); return true;">
+      <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
         <input type="hidden" name="mode" value="FUKUGEN">
         <input type="hidden" name="token" value="{{ token }}">
         <button type="submit" class="admin-btn admin-btn--block">復元する</button>
@@ -340,8 +339,7 @@
     <div class="admin-card__title">再スタート</div>
     <div class="admin-card__body">
       全ユーザーのデータをリセットして再スタートします。
-      <form action="{{ Conf.kanri_url }}" method="post"
-            onsubmit="fetchProgress(); return true;">
+      <form action="{{ Conf.kanri_url }}" method="post" onsubmit="fetchProgress(); return true;">
         <label class="admin-check">
           <input type="checkbox" name="Reset_ck" value="on" required>
           実行することを確認した

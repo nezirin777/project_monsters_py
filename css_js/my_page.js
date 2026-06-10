@@ -264,4 +264,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
+    // 4. トーストメッセージ表示位置変更機能（ボタン選択式）
+    // ==========================================
+    const STORAGE_KEY_TOAST = 'toast-position';
+    const DEFAULT_POSITION = 'toast-top-center';
+    const toastContainer = document.getElementById('toast-container');
+    const toastSelector = document.querySelector('.toast-position-selector');
+
+    if (toastSelector) {
+        // 保存された値、またはデフォルト値を取得
+        const savedPosition = localStorage.getItem(STORAGE_KEY_TOAST) || DEFAULT_POSITION;
+
+        // 初期状態で保存された位置のボタンを active に設定
+        const targetBtn = toastSelector.querySelector(`[data-position="${savedPosition}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
+
+        // 初期状態でトーストコンテナのクラスリストに位置を同期する
+        if (toastContainer) {
+            // 既存の「toast-」から始まる位置用クラスをすべてクリアしてから追加
+            Array.from(toastContainer.classList).forEach(cls => {
+                if (cls.startsWith('toast-')) {
+                    toastContainer.classList.remove(cls);
+                }
+            });
+            toastContainer.classList.add(savedPosition);
+        }
+
+        // ボタンクリック時の同期・反映処理（イベント委譲）
+        toastSelector.addEventListener('click', (e) => {
+            const btn = e.target.closest('.toast-position-btn');
+            if (!btn) return;
+
+            const position = btn.dataset.position;
+
+            // ローカルストレージに位置情報を保存
+            localStorage.setItem(STORAGE_KEY_TOAST, position);
+
+            // セレクター内ボタンの active クラスを付け替える
+            toastSelector.querySelectorAll('.toast-position-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // 画面上のトーストコンテナに対して即座にクラスを反映
+            if (toastContainer) {
+                Array.from(toastContainer.classList).forEach(cls => {
+                    if (cls.startsWith('toast-')) {
+                        toastContainer.classList.remove(cls);
+                    }
+                });
+                toastContainer.classList.add(position);
+            }
+        });
+    }
+
 });

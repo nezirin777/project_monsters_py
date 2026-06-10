@@ -5,7 +5,7 @@
 {% block content %}
 
 <!-- ヘッダー・預け入れフォーム -->
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">モンスターパーク</div>
   <div class="card__desc">
     モンスターを預けたりパーティに加えたりできます<br>
@@ -33,15 +33,16 @@
 
 {% include "my_page_button_tmp.html" %}
 
-<hr class="section-divider" style="width:95%; max-width:900px; margin: var(--space-m) auto;">
+<!-- styleを排除。幅やマージンは .section-divider 自体の拡張CSSに委ねる -->
+<hr class="section-divider">
 
 {% if not park_v %}
-<div class="banner banner--info content-sm" style="margin: var(--space-m) auto;">
+<div class="banner banner--info content-sm">
   パーク内に預けているモンスターはいません。
 </div>
 {% else %}
 
-<div class="layout-stack content-md" style="margin: var(--space-m) auto;">
+<div class="layout-stack content-md">
 
   <div class="section-label">パーク内のモンスター ({{ page }}区画目)</div>
 
@@ -78,7 +79,8 @@
   </div>
 
   <!-- モンスター一覧 -->
-  <div class="layout-grid" style="--grid-min: 280px;">
+  <!-- styleを排除し、新設Modifierクラス .layout-grid--list-card を適用 -->
+  <div class="layout-grid layout-grid--list-card">
     {% for ppt in park_v[p1:p2] %}
     <div class="card list-card">
 

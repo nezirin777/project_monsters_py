@@ -2,45 +2,67 @@
 
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> MONSTER'S 改 {{ Conf.ver }}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> MONSTER'S 改 {{ Conf.ver }}</title>
 
-    {% block stylesheets %}
-      <link rel="stylesheet" href="./css_js/common.css?{{ asset_ver('css_js/common.css') }}">
-      <link rel="stylesheet" href="./css_js/game.css?{{ asset_ver('css_js/game.css') }}">
-      <link rel="stylesheet" href="./css_js/mobile.css?{{ asset_ver('css_js/mobile.css') }}">
-    {% endblock %}
+  {% block stylesheets %}
+  <link rel="stylesheet" href="./css_js/common.css?{{ asset_ver('css_js/common.css') }}">
+  <link rel="stylesheet" href="./css_js/game.css?{{ asset_ver('css_js/game.css') }}">
+  <link rel="stylesheet" href="./css_js/mobile.css?{{ asset_ver('css_js/mobile.css') }}">
+  <!-- テーマ差分CSS: game.css の後に読み込み、body[data-monsters-theme] で上書きする -->
+  <link rel="stylesheet" href="./css_js/game_themes.css?{{ asset_ver('css_js/game_themes.css') }}">
+  {% endblock %}
 
-    <script src="./css_js/main.js?{{ asset_ver('css_js/main.js') }}"></script>
+  <script src="./css_js/main.js?{{ asset_ver('css_js/main.js') }}"></script>
+  <!--
+      テーマ切り替えJS: FOUC（未スタイル状態の一瞬の表示）を防ぐため
+      main.js と同じく <head> 内で早期に読み込む。
+      localStorage から前回のテーマを復元し、即座に body 属性を適用する。
+    -->
+  <script src="./css_js/game_theme.js?{{ asset_ver('css_js/game_theme.js') }}"></script>
 
-    {% if flash_msg  %}
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-          showToast({{ flash_msg | tojson }}, "{{ flash_type or 'error' }}");
+  {% if flash_msg %}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      showToast({{ flash_msg | tojson }}, "{{ flash_type or 'error' }}");
               });
-      </script>
-    {% endif %}
+  </script>
+  {% endif %}
 
-    {% block head %}{% endblock %}
+  {% block head %}{% endblock %}
 
 </head>
+
 <body>
 
-    {% include "ui_extra_tmp.html" %}
+  {% include "ui_extra_tmp.html" %}
 
-    <div class="wrapper">
-        {% block content %}{% endblock %}
+  <!-- 全ページ共通のフローティングテーマセレクター -->
+  <div class="monsters-theme-floater">
+    <button type="button" class="monsters-theme-trigger" aria-label="テーマ変更" title="テーマ変更">🎨</button>
+    <div class="monsters-theme-floater__menu">
+      <button type="button" class="monsters-theme-btn" data-theme="default">デフォルト</button>
+      <button type="button" class="monsters-theme-btn" data-theme="retro">Retro</button>
+      <button type="button" class="monsters-theme-btn" data-theme="cyber">Cyber</button>
+      <button type="button" class="monsters-theme-btn" data-theme="oldweb">OldWeb</button>
     </div>
+  </div>
 
-    {% if battle_txt %}
-      {{ battle_txt }}
-    {% endif %}
+  <div class="wrapper">
+    {% block content %}{% endblock %}
+  </div>
+
+  {% if battle_txt %}
+  {{ battle_txt }}
+  {% endif %}
 
 
-    {% include "footer_tmp.html" %}
+  {% include "footer_tmp.html" %}
 
 
 </body>
+
 </html>

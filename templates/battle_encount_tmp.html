@@ -18,8 +18,8 @@
     {% endif %}
   </div>
 
-  <div class="layout-grid"
-    style="--grid-min: 180px; background-color: #fce4e4; padding: var(--space-m); gap: var(--space-m);">
+  <!-- styleから背景色・内側余白等を排除し、新設した .encount-grid クラスを適用 -->
+  <div class="layout-grid encount-grid">
     {% for teki in tekis %}
     <div class="enemy-card">
       <div class="enemy-card__img">

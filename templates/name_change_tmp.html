@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">ユーザー名変更</div>
   <div class="card__desc">
     使用可能な文字は半角/全角英数字及び日本語です<br>
@@ -16,8 +16,7 @@
 
       <div class="form-group">
         <label class="form-label">現在の名前</label>
-        <input type="text" class="form-control" value="{{ current_name }}" disabled
-          style="background-color:#eee; cursor:not-allowed;">
+        <input type="text" class="form-control" value="{{ current_name }}" disabled>
       </div>
 
       <div class="form-group">

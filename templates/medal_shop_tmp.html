@@ -4,12 +4,12 @@
 
 {% block content %}
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">交換所</div>
   <div class="card__desc">{{ mes }}</div>
 </div>
 
-<div class="layout-cluster content-sm" style="margin: var(--space-m) auto;">
+<div class="layout-cluster content-sm">
   <div class="status-badge">
     <span class="status-badge__label">所持金</span>
     <span class="status-badge__value">{{ user_v.money }}G</span>
@@ -20,7 +20,7 @@
   </div>
 </div>
 
-<form action="{{ Conf.cgi_url }}" id="form_check" method="post" style="width:95%; max-width:900px; margin-inline:auto;">
+<form action="{{ Conf.cgi_url }}" id="form_check" method="post">
   {% for category, items in item_lists.items() %}
   <div class="item-select-grid">
     {% for item in items %}
@@ -39,7 +39,7 @@
   </div>
   {% endfor %}
 
-  <div class="layout-cluster" style="margin: var(--space-l) auto;">
+  <div class="layout-cluster content-sm--spaced">
     <button type="submit" class="btn">交換する</button>
     <input type="hidden" name="mode" value="{{ mode }}">
     <input type="hidden" name="token" value="{{ token }}">

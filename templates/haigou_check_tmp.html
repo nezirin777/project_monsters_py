@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
 
   <div class="card__header">
     {% if mode=="omiai_req" %}お見合い申請確認
@@ -40,7 +40,8 @@
   <!-- 結果プレビュー -->
   <div class="fusion-preview">
     <div class="section-label">NEW MONSTER 予想</div>
-    <div class="fusion-mon" style="max-width:240px; margin:0 auto;">
+    <!-- styleを排除し、Modifierクラス .fusion-mon--preview を適用 -->
+    <div class="fusion-mon fusion-mon--preview">
       <div class="fusion-mon__img">
         <img src="{{ Conf.imgpath }}/{{ my_new_mons }}.gif" alt="{{ my_new_mons }}">
       </div>

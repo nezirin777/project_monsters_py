@@ -20,11 +20,11 @@
     <div class="log-card__actors">
 
       {% if log.text.is_enemy %}
-        {% set ally = log.target %}
-        {% set enemy = log.actor %}
+      {% set ally = log.target %}
+      {% set enemy = log.actor %}
       {% else %}
-        {% set ally = log.actor %}
-        {% set enemy = log.target %}
+      {% set ally = log.actor %}
+      {% set enemy = log.target %}
       {% endif %}
 
       <!-- 左：味方固定 -->
@@ -188,7 +188,8 @@
 
 <!-- 5. 終了ボタン -->
 {% if is_end %}
-<div class="layout-cluster content-sm" style="margin: var(--space-m) auto;">
+<!-- styleを排除。マージンは .content-sm で自動保証 -->
+<div class="layout-cluster content-sm">
   <form action="{{ Conf.cgi_url }}" method="post">
     <input type="hidden" name="mode" value="my_page">
     <input type="hidden" name="token" value="{{ token }}">

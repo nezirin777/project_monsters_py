@@ -5,16 +5,16 @@
 {% block head %}
 {% if ref %}
 <script src="./css_js/zukan_tooltip.js?{{ asset_ver('css_js/zukan_tooltip.js') }}"></script>
-
 {% endif %}
 {% endblock %}
 
 {% block content %}
 
 <!-- タイトルカード -->
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">{{ user_name }}の魔物図鑑</div>
-  <div class="card__body" style="text-align:center;">
+  <!-- styleを排除し、新設クラス .zukan-summary を適用 -->
+  <div class="card__body zukan-summary">
     入手したモンスターは <strong>{{ user.getm }}</strong>
   </div>
 </div>
@@ -37,7 +37,8 @@
     <div class="zukan-card__no">No.{{ li.no }}</div>
     <!-- JS依存: zukan_tooltip.js が .zukan-card__img をセレクタに使用 -->
     <div class="zukan-card__img {{ li.display_class }}" tabindex="0" {% if li.show_tooltip
-      %}data-tooltip="{% for recipe in li.recipes %}{{ recipe }}{% if not loop.last %}||{% endif %}{% endfor %}" {% endif %}>
+      %}data-tooltip="{% for recipe in li.recipes %}{{ recipe }}{% if not loop.last %}||{% endif %}{% endfor %}" {%
+      endif %}>
       <img src="{{ Conf.imgpath }}/{{ li.display_name }}.gif" alt="{{ li.display_name }}">
     </div>
     <div class="zukan-card__name">{{ li.display_name }}</div>
@@ -46,13 +47,14 @@
 </div>
 
 {% if ref %}
-<!-- 共有ツールチップ -->
-<div class="tooltip" id="shared-tooltip" aria-hidden="true" style="display: none;"></div>
+<!-- 共有ツールチップ (style非表示指定はCSSの #shared-tooltip 側へ統合) -->
+<div class="tooltip" id="shared-tooltip" aria-hidden="true"></div>
 {% include "my_page_button_tmp.html" %}
 {% endif %}
 
 {% if not ref %}
-<div class="layout-cluster" style="margin: var(--space-l) auto;">
+<!-- styleを排除。マージンは .content-sm がデフォルトで担保 -->
+<div class="layout-cluster content-sm">
   <form action="{{ Conf.cgi_url }}" method="get">
     <input type="hidden" name="mode" value="my_page2">
     <input type="hidden" name="target_user" value="{{ user_name }}">

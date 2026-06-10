@@ -11,8 +11,8 @@
     <div class="section-label">【 配合可能のみ表示 】</div>
     <form action="{{ Conf.cgi_url }}" id="img_change" method="post" class="form">
 
-      <div class="layout-stack" style="width:100%; gap: var(--space-s);">
-        <!-- JS依存: monster-select は main.js が画像切り替えに使用 -->
+      <!-- styleを排除。小ギャップ用の既存クラス .layout-stack--sm を適用 -->
+      <div class="layout-stack layout-stack--sm">
         <select name="haigou1" class="form-control monster-select" data-target="img1">
           <option value="99" data-name="0" hidden>選 択 -ベース-</option>
           {% for haigou in haigou_options %}
@@ -57,9 +57,8 @@
   </div>
   <div class="card__body">
     <div class="section-label">【 変換可能のみ表示 】</div>
-    <form action="{{ Conf.cgi_url }}" method="post" class="form"
-          data-confirm="選択したモンスターの陰陽変換を実行します。よろしいですか？"
-          data-loading="変換中...">
+    <form action="{{ Conf.cgi_url }}" method="post" class="form" data-confirm="選択したモンスターの陰陽変換を実行します。よろしいですか？"
+      data-loading="変換中...">
       <select name="no" class="form-control">
         <option value="99" hidden>選 択</option>
         {% for tenkan in tenkan_options %}
@@ -103,12 +102,12 @@
     トーストメッセージの表示位置を変更します。<br>選択するだけで即座に反映されます。
   </div>
   <div class="card__body">
-    <select id="toast-position-select" class="form-control">
-      <option value="toast-top-center">中央上</option>
-      <option value="toast-center">中央</option>
-      <option value="toast-bottom-center">中央下</option>
-      <option value="toast-bottom-left">左下</option>
-      <option value="toast-bottom-right">右下</option>
-    </select>
+    <div class="toast-position-selector">
+      <button type="button" class="toast-position-btn" data-position="toast-top-center">中央上</button>
+      <button type="button" class="toast-position-btn" data-position="toast-center">中央</button>
+      <button type="button" class="toast-position-btn" data-position="toast-bottom-center">中央下</button>
+      <button type="button" class="toast-position-btn" data-position="toast-bottom-left">左下</button>
+      <button type="button" class="toast-position-btn" data-position="toast-bottom-right">右下</button>
+    </div>
   </div>
 </div>

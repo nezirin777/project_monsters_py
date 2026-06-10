@@ -379,6 +379,18 @@
   font-weight: bold;
 }
 
+/* 配合表2の各セル用フォントサイズ・色の調整 */
+.haigou-cell--stats {
+  font-size: 88%;
+  color: #555;
+  font-weight: normal;
+}
+
+.haigou-cell--date {
+  font-size: 82%;
+  color: #888;
+  font-weight: normal;
+}
 /* ====================================== */
 /* 4. Manual / Event Pages                */
 /* ====================================== */

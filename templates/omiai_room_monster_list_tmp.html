@@ -1,11 +1,13 @@
 <!-- templates/omiai_room_monster_list_tmp.html -->
 
-<div class="layout-grid" style="--grid-min: 280px;">
+<!-- styleを排除。リストカードの最小幅はCSSの .layout-grid--list-card 側に設定済み -->
+<div class="layout-grid layout-grid--list-card">
   {% for item in items %}
   <div class="card list-card">
 
     <div class="list-card__header">
-      <div style="display:flex; align-items:center; gap:var(--space-s); min-width:0;">
+      <!-- styleを排除し、新設したElementクラス .list-card__user-wrap を適用 -->
+      <div class="list-card__user-wrap">
         <span class="list-card__label">ユーザー</span>
         <span class="list-card__username">{{ item.target }}</span>
       </div>

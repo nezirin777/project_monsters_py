@@ -12,13 +12,14 @@
 
 <nav class="floating-nav">
   <a href="#party-section" class="floating-nav__btn">PARTY</a>
-  <a href="#bbs-section"   class="floating-nav__btn">BBS</a>
+  <a href="#bbs-section" class="floating-nav__btn">BBS</a>
   <a href="#battle-section" class="floating-nav__btn">BATTLE</a>
-  <a href="#shop-section"  class="floating-nav__btn">SHOP</a>
+  <a href="#shop-section" class="floating-nav__btn">SHOP</a>
   <a href="#haigou-section" class="floating-nav__btn">配合</a>
 </nav>
 
-<nav class="layout-cluster" style="margin: var(--space-m);">
+<!-- styleを排除。CSSの .my-page-nav 側で制御 -->
+<nav class="layout-cluster my-page-nav">
   <a href="{{ Conf.top_url }}" class="btn btn--menu">TOPへ</a>
   <a href="./html/manual.html" target="_blank" rel="noopener" class="btn btn--menu">ぷれいまにゅある</a>
   <a href="./html/haigou_list.html" target="_blank" rel="noopener" class="btn btn--menu">配合表</a>
@@ -43,14 +44,16 @@
 
 {% if my_page_flg %}
 
-<section class="layout-stack content-sm" style="margin-top: var(--space-m);">
+<!-- styleを排除。上下余白は .content-sm 自体がデフォルトで持つマージンで自然に成立 -->
+<section class="layout-stack content-sm">
 
   <div class="card">
     <button class="btn btn--block toggle-trigger" data-target="key-list">
       ▼ 取得系統の鍵一覧 ▼
     </button>
     <div id="key-list" class="toggle-content">
-      <div class="layout-cluster" style="padding: var(--space-m);">
+      <!-- styleを排除。余白はCSSの .toggle-content .layout-cluster 側で制御 -->
+      <div class="layout-cluster">
         {%- for item in room_key_display -%}
         <span class="badge badge--key">
           {{ item.name | escape if item.has_key else "-" }}の鍵
@@ -65,7 +68,8 @@
       ▼ 取得特技一覧 ▼
     </button>
     <div id="skill-list" class="toggle-content">
-      <div class="layout-cluster" style="padding: var(--space-m);">
+      <!-- styleを排除。余白はCSSの .toggle-content .layout-cluster 側で制御 -->
+      <div class="layout-cluster">
         {%- for item in waza_display -%}
         <span class="badge badge--skill">{{ item.name | escape }}</span>
         {%- endfor -%}
@@ -75,7 +79,8 @@
 
 </section>
 
-<section class="card content-sm" id="bbs-section" style="height: 280px; overflow-y: auto; margin-top: var(--space-m);">
+<!-- styleを排除。スクロール及びマージンはCSSの #bbs-section で統合管理 -->
+<section class="card content-sm content-sm--spaced" id="bbs-section">
   <div class="card__header">BBS</div>
   <div class="card__body">
     <div id="bbs"></div>
@@ -84,20 +89,23 @@
 
 <div id="b_count_txt" hidden>{{ next_t | escape }}</div>
 
-<section class="layout-stack content-sm" id="action-section" style="margin-top: var(--space-m);">
+<!-- styleを排除。マージンは .content-sm のデフォルト余白で担保 -->
+<section class="layout-stack content-sm" id="action-section">
   {% include "my_page_battleselect_tmp.html" %}
   {% include "my_page_shoplist_tmp.html" %}
   {% include "my_page_exlist_tmp.html" %}
 </section>
 
-<div class="layout-cluster" style="margin: var(--space-l) auto; max-width: 400px;">
+<!-- styleを排除。ボタン用コンテナ .my-page-footer を適用 -->
+<div class="my-page-footer">
   {% include "my_page_button_tmp.html" %}
 </div>
 
 {% endif %}
 
 {% if not my_page_flg %}
-<div class="layout-cluster" style="margin: var(--space-l) auto;">
+<!-- styleを排除。上下余白は .content-sm 自体がデフォルトで持つマージンで成立 -->
+<div class="layout-cluster content-sm">
   <a href="{{ Conf.top_url }}" class="btn">TOPへ</a>
 </div>
 {% endif %}

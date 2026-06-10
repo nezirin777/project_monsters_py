@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">お見合い所</div>
   <div class="card__desc">
     お見合い所にモンスターを登録することができます<br>
@@ -25,8 +25,7 @@
       <div class="monster-preview">
         <img name="img1" src="{{ Conf.imgpath }}/0.gif" alt="">
       </div>
-      <input type="text" name="mes" class="form-control"
-             value="" placeholder="希望相手モンスター記入 例：スライム系 など">
+      <input type="text" name="mes" class="form-control" value="" placeholder="希望相手モンスター記入 例：スライム系 など">
       <button type="submit" class="btn btn--block">この内容で登録する</button>
       <input type="hidden" name="mode" value="omiai_touroku">
       <input type="hidden" name="token" value="{{ token }}">
@@ -35,12 +34,13 @@
   {% endif %}
 </div>
 
-<div class="layout-stack content-md" style="margin: var(--space-m) auto;">
+<!-- styleを排除。幅と余白はCSS設計の .layout-stack .content-md クラスで共通保証 -->
+<div class="layout-stack content-md">
 
   {% if my_registered %}
   <div class="section-label">あなたが登録しているモンスター</div>
   {% with items=[my_registered], btn_mode="omiai_touroku_cancel", btn_label="登録解除" %}
-    {% include "omiai_room_monster_list_tmp.html" %}
+  {% include "omiai_room_monster_list_tmp.html" %}
   {% endwith %}
   {% endif %}
 
@@ -49,21 +49,22 @@
     {{ mes }}<br>受け取るには配合回数×5000Gが必要です
   </div>
   {% with items=[baby_ready], btn_mode="omiai_baby_get", btn_label="受け取る" %}
-    {% include "omiai_room_monster_list_tmp.html" %}
+  {% include "omiai_room_monster_list_tmp.html" %}
   {% endwith %}
   {% endif %}
 
   {% if requests_to_me %}
   <div class="section-label">あなたにお見合いを望んでいる相手</div>
-  {% with items=requests_to_me, btn_mode="omiai_answer_ok", btn_label="受諾", btn_mode2="omiai_answer_no", btn_label2="お断り" %}
-    {% include "omiai_room_monster_list_tmp.html" %}
+  {% with items=requests_to_me, btn_mode="omiai_answer_ok", btn_label="受諾", btn_mode2="omiai_answer_no",
+  btn_label2="お断り" %}
+  {% include "omiai_room_monster_list_tmp.html" %}
   {% endwith %}
   {% endif %}
 
   {% if my_request_to_other %}
   <div class="section-label">あなたがお見合い依頼している相手</div>
   {% with items=[my_request_to_other], btn_mode="omiai_request_cancel", btn_label="申請キャンセル" %}
-    {% include "omiai_room_monster_list_tmp.html" %}
+  {% include "omiai_room_monster_list_tmp.html" %}
   {% endwith %}
   {% elif cancel %}
   <div class="result-msg result-msg--bad">{{ cancel }}</div>
@@ -86,7 +87,7 @@
   </div>
 
   {% with items=other_monsters, btn_mode="omiai_request", btn_label="申し込む" %}
-    {% include "omiai_room_monster_list_tmp.html" %}
+  {% include "omiai_room_monster_list_tmp.html" %}
   {% endwith %}
   {% endif %}
 

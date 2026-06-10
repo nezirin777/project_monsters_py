@@ -17,7 +17,8 @@
 <body>
   <div class="wrapper">
 
-    <div class="site-title-block" style="width: min(1000px, 95%); margin-inline: auto;" id="top">
+    <!-- styleを排除。幅上限と中央寄せはCSSの .site-title-block で制御 -->
+    <div class="site-title-block" id="top">
       MONSTER'S 改 {{ Conf.ver }}
       <br><span>特殊モンスター配合表・出現階層</span>
     </div>
@@ -77,15 +78,12 @@
 
       <!-- モンスター1体ラッパー（border-radius + shadow はここが持つ） -->
       <div class="haigou-sort-item-wrap">
-        <table class="haigou-sort-item"
-               role="grid"
-               aria-label="モンスター {{ monster.name }} の詳細">
+        <table class="haigou-sort-item" role="grid" aria-label="モンスター {{ monster.name }} の詳細">
           <tbody>
             <!-- 行1: 画像 | 階層 | 場所 | 配合説明 -->
             <tr>
               <td id="{{ monster.m_type }}" rowspan="4" class="haigou-img-cell">
-                <img src="../{{ Conf.imgpath }}/{{ monster.name }}.gif"
-                     alt="{{ monster.name }}の画像">
+                <img src="../{{ Conf.imgpath }}/{{ monster.name }}.gif" alt="{{ monster.name }}の画像">
                 <div>{{ monster.name }}</div>
               </td>
               <td rowspan="2" class="haigou-cell haigou-cell--location">{{ monster.room }}</td>
@@ -94,24 +92,26 @@
               <td rowspan="2" class="haigou-cell haigou-cell--desc">{{ monster.desc_a | safe }}</td>
               <td rowspan="2" class="haigou-cell haigou-cell--desc">{{ monster.desc_b }}</td>
               {% else %}
-              <td rowspan="2" colspan="2" class="haigou-cell haigou-cell--desc haigou-cell--wide">{{ monster.desc_a | safe }}</td>
+              <td rowspan="2" colspan="2" class="haigou-cell haigou-cell--desc haigou-cell--wide">{{ monster.desc_a |
+                safe }}</td>
               {% endif %}
             </tr>
             <!-- 行2（行1と結合のため空） -->
             <tr></tr>
             <!-- 行3: ステータス -->
             <tr>
-              <td colspan="4" class="haigou-cell" style="font-size: 88%; color: #555; font-weight: normal;">
+              <!-- styleを排除し、新設したCSSクラス .haigou-cell--stats を適用 -->
+              <td colspan="4" class="haigou-cell haigou-cell--stats">
                 {{ monster.stats }}
               </td>
             </tr>
             <!-- 行4: 実装日 + ソートデータ -->
             <tr>
-              <td colspan="4" class="haigou-cell" style="font-size: 82%; color: #888; font-weight: normal;">
+              <!-- styleを排除し、新設したCSSクラス .haigou-cell--date を適用 -->
+              <td colspan="4" class="haigou-cell haigou-cell--date">
                 {{ monster.date }}
-                <span data-upday="{{ monster.date }}"
-                      data-no="{{ monster.no }}"
-                      data-floor="{{ monster.floor_min }}"></span>
+                <span data-upday="{{ monster.date }}" data-no="{{ monster.no }}"
+                  data-floor="{{ monster.floor_min }}"></span>
               </td>
             </tr>
           </tbody>

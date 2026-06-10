@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__header">本　屋</div>
   <div class="card__desc">
     モンスターに本を読ませると性格が変わります。<br>
@@ -12,7 +12,7 @@
   </div>
 </div>
 
-<div class="preview-grid" style="margin: var(--space-m) auto;">
+<div class="preview-grid">
   {% for monster in monster_data %}
   <div class="preview-card">
     <div class="preview-card__no">No.{{ monster.no }}</div>
@@ -28,7 +28,7 @@
   {% endfor %}
 </div>
 
-<div class="card content-sm" style="margin: var(--space-m) auto;">
+<div class="card content-sm">
   <div class="card__body">
     <form method="post" data-loading="本を読んでいます..." data-confirm="本を読ませますか？" class="form">
 

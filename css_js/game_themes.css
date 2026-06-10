@@ -1,0 +1,3215 @@
+/* =========================================================
+   game_themes.css
+   MONSTER'S 改 — テーマ差分スタイル
+   ---------------------------------------------------------
+   デフォルト（テーマ未設定）は game.css / common.css が担う。
+   各テーマは body[data-monsters-theme="xxx"] で上書きする。
+   localStorage キー: monsters_theme（トップページとは独立）
+
+   セクション対応表（game.css に準拠）:
+     §3  Card Core
+     §4  Button Core
+     §5  Form Core
+     §6  Badge / Label Core
+     §7  Banner Core
+     §9  Top Page
+     §10 Ranking
+     §11 My Page（stat-box / party / floating-nav）
+     §12 Battle
+     §13 Shop
+     §14 BBS
+     §16 Zukan
+     §17 Book
+     §18 Medal Shop
+     §19 Park & Omiai
+     §20 Monster Events
+     §21 Newgame
+   ========================================================= */
+
+
+/* =========================================================
+   RETRO THEME
+   暖色・木質感・落ち着いたレトロUI
+   ========================================================= */
+
+body[data-monsters-theme="retro"] {
+  --border-retro: rgba(255, 209, 117, 0.28);
+  --gold: rgba(255, 209, 117, 0.80);
+  --gold-dim: rgba(255, 209, 117, 0.24);
+  --gold-text: rgba(255, 232, 190, 0.96);
+  --retro-text: #f4ecd8;
+  --retro-text-m: rgba(244, 236, 216, 0.80);
+  /* muted */
+  --retro-surf: rgba(54, 38, 29, 0.95);
+  /* カード面 */
+  --retro-deep: rgba(30, 18, 10, 0.90);
+  /* 暗面 */
+  --retro-mid: rgba(40, 26, 16, 0.85);
+  /* 中間面 */
+  --retro-head: rgba(80, 50, 28, 0.92);
+  /* ヘッダー面 */
+
+  /*
+   * common.css のカラー変数を暗背景向けに上書きする。
+   * --blue / --red は暗背景上でテキスト色・背景色 両方に使われるため
+   * 彩度を保ちつつ明度を上げて視認性を確保する。
+   * --black / --white / --bg-light / --bg-dark / --gray は
+   * 明暗が反転する必要があるため大幅に調整する。
+   */
+  --sky-blue: #90caf9;
+  /* やや明るめの水色（リンク・ヘッダー背景） */
+  --blue: #7ea8e8;
+  /* 暗背景でも読める明るい青（ラベル・テキスト用） */
+  --red: #ef6c6c;
+  /* 暗背景でも読める明るい赤（ダメージ・強調） */
+  --yellow: #ffd54f;
+  /* 彩度を少し落とした黄（ランク・強調） */
+  --black: #f4ecd8;
+  /* 反転: 暗背景上の「前景色」はテキスト色に */
+  --white: rgba(42, 28, 18, 0.90);
+  /* 反転: 「白背景」は暗いカード面色に */
+  --gray: rgba(255, 209, 117, 0.20);
+  /* ボーダー・区切り線用のゴールド調グレー */
+  --bg-light: rgba(36, 22, 12, 0.80);
+  /* 反転: 明背景 → 暗カード面 */
+  --bg-dark: rgba(255, 232, 190, 0.12);
+  /* 反転: 暗背景 → 薄い暖色オーバーレイ */
+  --main: #ffb74d;
+  /* 暖色系アクセント */
+  --main-dark: #f57c00;
+  --retro-mon-bg: rgba(28, 16, 8, 0.95);
+  --retro-mon-bg: url("../img/retro_tex.png");
+  /* テクスチャ画像を使う場合は url("../img/retro_tex.png") に変更 */
+
+  background-color: #1b120f;
+  background-image:
+    radial-gradient(900px 520px at 18% 10%, rgba(255, 210, 120, 0.05), transparent 60%),
+    linear-gradient(180deg, #2a1d17 0%, #221712 52%, #1b120f 100%);
+  background-attachment: fixed;
+  color: #f4ecd8;
+}
+
+/* 薄い木目テクスチャ */
+body[data-monsters-theme="retro"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.07;
+  background:
+    repeating-linear-gradient(0deg,
+      rgba(255, 240, 220, 0.018) 0px,
+      rgba(255, 240, 220, 0.018) 1px,
+      transparent 2px, transparent 5px),
+    repeating-linear-gradient(90deg,
+      rgba(70, 38, 18, 0.025) 0px,
+      rgba(70, 38, 18, 0.025) 1px,
+      transparent 4px, transparent 9px);
+}
+
+body[data-monsters-theme="retro"] .wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- リンク --- */
+body[data-monsters-theme="retro"] a:link,
+body[data-monsters-theme="retro"] a:visited {
+  color: rgba(255, 209, 117, 0.85);
+}
+
+body[data-monsters-theme="retro"] a:hover {
+  color: #fff8e8;
+}
+
+/* ========================= §3 Card Core ========================= */
+
+body[data-monsters-theme="retro"] .card {
+  background: linear-gradient(180deg, var(--retro-surf), rgba(34, 24, 19, 0.98));
+  border-color: var(--border-retro);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.40), inset 0 0 0 1px rgba(255, 240, 220, 0.04);
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .card__header {
+  background: linear-gradient(90deg, var(--retro-head), rgba(60, 38, 22, 0.95));
+  border-bottom: 1px solid var(--border-retro);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .card__desc {
+  background: var(--retro-mid);
+  border-bottom-color: var(--border-retro);
+  color: rgba(244, 236, 216, 0.88);
+}
+
+body[data-monsters-theme="retro"] .card__body {
+  /* transparent だと内部の白背景コンポーネントが浮くため実色を指定 */
+  background: rgba(42, 28, 18, 0.80);
+}
+
+body[data-monsters-theme="retro"] .card__footer {
+  background: var(--retro-deep);
+  border-top-color: var(--border-retro);
+}
+
+/* ========================= §4 Button Core ========================= */
+
+body[data-monsters-theme="retro"] .btn {
+  background: linear-gradient(180deg, rgba(255, 235, 190, 0.10), rgba(0, 0, 0, 0.22));
+  color: var(--gold-text);
+  border-color: var(--border-retro);
+  box-shadow: 0 3px 0 rgba(120, 70, 20, 0.60);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+body[data-monsters-theme="retro"] .btn:link,
+body[data-monsters-theme="retro"] .btn:visited {
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .btn:hover {
+  background: linear-gradient(180deg, rgba(255, 240, 200, 0.16), rgba(0, 0, 0, 0.24));
+  color: #fff8e8;
+  border-color: var(--gold);
+  box-shadow: 0 1px 0 rgba(120, 70, 20, 0.50);
+}
+
+body[data-monsters-theme="retro"] .btn--menu {
+  background: linear-gradient(180deg, rgba(40, 26, 16, 0.92), rgba(28, 18, 10, 0.96));
+  color: rgba(255, 232, 190, 0.90);
+  border-color: var(--border-retro);
+  box-shadow: 0 3px 0 rgba(80, 50, 20, 0.55);
+}
+
+body[data-monsters-theme="retro"] .btn--menu:link,
+body[data-monsters-theme="retro"] .btn--menu:visited {
+  color: rgba(255, 232, 190, 0.90);
+}
+
+body[data-monsters-theme="retro"] .btn--accent {
+  background: linear-gradient(180deg, rgba(180, 80, 30, 0.85), rgba(140, 55, 20, 0.90));
+  color: #fff0e0;
+  border-color: rgba(200, 100, 40, 0.70);
+  box-shadow: 0 3px 0 rgba(100, 40, 10, 0.60);
+}
+
+body[data-monsters-theme="retro"] .btn--accent:link,
+body[data-monsters-theme="retro"] .btn--accent:visited {
+  color: #fff0e0;
+}
+
+/* ========================= §5 Form Core ========================= */
+
+body[data-monsters-theme="retro"] .form-control {
+  background: rgba(25, 15, 8, 0.90);
+  border-color: var(--border-retro);
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .form-control:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(255, 209, 117, 0.18);
+}
+
+body[data-monsters-theme="retro"] .form-label {
+  color: rgba(255, 209, 117, 0.85);
+}
+
+/* ========================= §6 Badge / Label Core ========================= */
+
+body[data-monsters-theme="retro"] .badge--key {
+  background: rgba(20, 40, 70, 0.70);
+  border-color: rgba(100, 150, 210, 0.40);
+  color: rgba(180, 215, 255, 0.92);
+}
+
+body[data-monsters-theme="retro"] .badge--skill {
+  background: rgba(60, 35, 10, 0.70);
+  border-color: rgba(180, 120, 50, 0.45);
+  color: rgba(255, 200, 140, 0.92);
+}
+
+body[data-monsters-theme="retro"] .section-label {
+  color: var(--gold);
+  border-bottom-color: var(--gold-dim);
+}
+
+/* ========================= §7 Banner Core ========================= */
+
+body[data-monsters-theme="retro"] .banner--event {
+  background: rgba(70, 44, 8, 0.85);
+  color: rgba(255, 220, 130, 0.97);
+  border-color: rgba(200, 150, 40, 0.45);
+}
+
+body[data-monsters-theme="retro"] .banner--warning {
+  background: rgba(70, 18, 8, 0.85);
+  color: rgba(255, 160, 140, 0.97);
+  border-color: rgba(200, 80, 60, 0.50);
+}
+
+body[data-monsters-theme="retro"] .banner--info {
+  background: rgba(16, 34, 54, 0.85);
+  color: rgba(180, 220, 255, 0.96);
+  border-color: rgba(100, 160, 220, 0.40);
+}
+
+/* ========================= §9 Top Page ========================= */
+
+body[data-monsters-theme="retro"] .site-title-block {
+  background: linear-gradient(180deg, var(--retro-surf), rgba(34, 24, 19, 0.98));
+  border-color: var(--border-retro);
+  color: var(--gold-text);
+}
+
+/* ========================= §10 Ranking ========================= */
+
+body[data-monsters-theme="retro"] .rank-title {
+  background: linear-gradient(180deg, var(--retro-surf), rgba(34, 24, 19, 0.98));
+  border-color: var(--border-retro);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .rank-card__header {
+  background: linear-gradient(90deg, rgba(80, 50, 28, 0.92), rgba(60, 38, 22, 0.92));
+}
+
+body[data-monsters-theme="retro"] .rank-card__rank {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .rank-card__username a {
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .rank-card__body {
+  background: rgba(28, 16, 8, 0.70);
+}
+
+body[data-monsters-theme="retro"] .rank-card__info {
+  color: rgba(244, 236, 216, 0.88);
+  border-right-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .rank-card__expiry {
+  color: rgba(244, 236, 216, 0.55);
+}
+
+body[data-monsters-theme="retro"] .rank-card__comment {
+  background: rgba(22, 12, 6, 0.80);
+  border-top-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .rank-card__comment-label {
+  background: var(--retro-head);
+}
+
+body[data-monsters-theme="retro"] .rank-card__comment-body {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .monster-item__name {
+  color: rgba(255, 209, 117, 0.80);
+}
+
+body[data-monsters-theme="retro"] .monster-item__stats {
+  color: var(--retro-text-m);
+}
+
+/* ========================= §11 My Page ========================= */
+
+/* stat-box */
+body[data-monsters-theme="retro"] .stat-box {
+  background: rgba(36, 22, 12, 0.80);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .stat-box__label {
+  color: rgba(255, 209, 117, 0.80);
+}
+
+body[data-monsters-theme="retro"] .stat-box__value {
+  color: var(--retro-text);
+}
+
+/* stat-row */
+body[data-monsters-theme="retro"] .stat-row {
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .stat-row__label {
+  background: var(--retro-head);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .stat-row__value {
+  background: rgba(28, 16, 8, 0.80);
+  color: var(--retro-text);
+}
+
+/* zukan-link */
+body[data-monsters-theme="retro"] .zukan-link {
+  background: linear-gradient(180deg, rgba(255, 235, 190, 0.08), rgba(0, 0, 0, 0.18));
+  border-color: var(--gold-dim);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .zukan-link:link,
+body[data-monsters-theme="retro"] .zukan-link:visited {
+  color: var(--gold-text);
+}
+
+/* party-comment-form */
+body[data-monsters-theme="retro"] .party-comment-form__label {
+  color: var(--gold);
+}
+
+/* floating-nav */
+body[data-monsters-theme="retro"] .floating-nav {
+  background: linear-gradient(180deg, rgba(54, 38, 29, 0.95), rgba(34, 24, 19, 0.97));
+  border-color: var(--border-retro);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.50);
+}
+
+body[data-monsters-theme="retro"] .floating-nav__btn {
+  background: linear-gradient(180deg, rgba(255, 235, 190, 0.06), rgba(0, 0, 0, 0.18));
+  border-color: var(--gold-dim);
+  color: rgba(255, 232, 190, 0.90);
+}
+
+body[data-monsters-theme="retro"] .floating-nav__btn:link,
+body[data-monsters-theme="retro"] .floating-nav__btn:visited {
+  color: rgba(255, 232, 190, 0.90);
+}
+
+body[data-monsters-theme="retro"] .floating-nav__btn:hover {
+  background: linear-gradient(180deg, rgba(255, 235, 190, 0.12), rgba(0, 0, 0, 0.22));
+  color: #fff8e8;
+  border-color: var(--gold);
+}
+
+/* party-grid / party-card */
+body[data-monsters-theme="retro"] .party-card .card-header {
+  background: rgba(38, 24, 14, 0.90);
+  border-bottom-color: var(--gold-dim);
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .party-card__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .party-card__tags {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .party-card .card-body {
+  background: rgba(34, 20, 12, 0.70);
+}
+
+/* 出撃メンバー強調 */
+body[data-monsters-theme="retro"] .my_page_chara_1,
+body[data-monsters-theme="retro"] .my_page_chara_2,
+body[data-monsters-theme="retro"] .my_page_chara_3 {
+  border-color: rgba(255, 180, 60, 0.65);
+  box-shadow: 0 0 12px rgba(255, 180, 60, 0.22);
+}
+
+body[data-monsters-theme="retro"] .my_page_chara_1 .card-header,
+body[data-monsters-theme="retro"] .my_page_chara_2 .card-header,
+body[data-monsters-theme="retro"] .my_page_chara_3 .card-header {
+  background: rgba(80, 50, 10, 0.80);
+}
+
+/* party-action-footer */
+body[data-monsters-theme="retro"] .party-action-footer {
+  background: rgba(0, 0, 0, 0.70);
+}
+
+body[data-monsters-theme="retro"] .reorder-note {
+  color: var(--retro-text-m);
+}
+
+/* monster-preview */
+body[data-monsters-theme="retro"] .monster-preview {
+  background: rgba(28, 16, 8, 0.50);
+}
+
+body[data-monsters-theme="retro"] .monster-preview__plus {
+  color: var(--gold);
+}
+
+/* ========================= モンスター画像背景（retro共通） ========================= */
+
+/*
+ * モンスター画像を表示するすべてのコンテナに共通のretro背景を適用する。
+ * ビネット＋斜めハッチング細線が前面、--retro-mon-bg が最背面。
+ * テクスチャ使用時は変数を url("../img/retro_tex.png") に変更する。
+ */
+body[data-monsters-theme="retro"] .zukan-card__img,
+body[data-monsters-theme="retro"] .monster-item__img,
+body[data-monsters-theme="retro"] .enemy-card__img,
+body[data-monsters-theme="retro"] .party-card__img,
+body[data-monsters-theme="retro"] .list-card__img,
+body[data-monsters-theme="retro"] .preview-card__img,
+body[data-monsters-theme="retro"] .cmd-card__img,
+body[data-monsters-theme="retro"] .fusion-mon__img,
+body[data-monsters-theme="retro"] .monster-preview,
+body[data-monsters-theme="retro"] .born-card__img {
+  position: relative;
+  /*
+   * 最背面に CSS 変数 --retro-mon-bg を置く。
+   * 変数未設定時は rgba() フォールバックが使われ画像なし環境でも崩れない。
+   * テクスチャ使用時はテーマ変数を url("../img/retro_tex.png") に変更する。
+   */
+  background:
+    radial-gradient(ellipse at center, rgba(200, 140, 60, 0.06) 0%, rgba(20, 10, 4, 0.72) 100%),
+    repeating-linear-gradient(45deg, rgba(255, 209, 117, 0.08) 0px, rgba(255, 209, 117, 0.08) 1px, transparent 1px, transparent 8px),
+    repeating-linear-gradient(-45deg, rgba(255, 180, 80, 0.06) 0px, rgba(255, 180, 80, 0.06) 1px, transparent 1px, transparent 12px),
+    var(--retro-mon-bg, rgba(28, 16, 8, 0.95));
+  background-size: auto, 8px 8px, 12px 12px, cover;
+  background-position: center, 0 0, 0 0, center;
+  background-repeat: no-repeat, repeat, repeat, no-repeat;
+  border-color: var(--gold-dim);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 209, 117, 0.14),
+    inset 0 0 24px rgba(0, 0, 0, 0.50);
+}
+
+/* toggle-content */
+body[data-monsters-theme="retro"] .toggle-trigger {
+  /* .btn で継承済み */
+}
+
+/* ========================= §12 Battle ========================= */
+
+/* 戦闘選択 */
+body[data-monsters-theme="retro"] .battle-option {
+  background: rgba(36, 22, 12, 0.80);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .battle-option__title {
+  color: var(--gold);
+  border-bottom-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .battle-option--isekai {
+  background: rgba(28, 18, 36, 0.80);
+  border-color: rgba(180, 140, 220, 0.28);
+}
+
+body[data-monsters-theme="retro"] .battle-option--isekai .battle-option__title {
+  color: rgba(200, 170, 240, 0.90);
+  border-bottom-color: rgba(180, 140, 220, 0.24);
+}
+
+body[data-monsters-theme="retro"] .battle-text {
+  color: var(--retro-text-m);
+}
+
+/* エンカウント */
+body[data-monsters-theme="retro"] .encount-card {
+  border-color: rgba(200, 80, 60, 0.50);
+}
+
+body[data-monsters-theme="retro"] .encount-card__header {
+  background: rgba(36, 22, 12, 0.85);
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .enemy-card {
+  background: rgba(40, 24, 14, 0.80);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .enemy-card__name {
+  color: rgba(255, 140, 120, 0.95);
+}
+
+body[data-monsters-theme="retro"] .enemy-card__meta {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .enemy-card__hp-label {
+  background: rgba(160, 50, 30, 0.80);
+}
+
+body[data-monsters-theme="retro"] .enemy-card__hp-value {
+  background: rgba(28, 16, 8, 0.80);
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .enemy-card__hp {
+  border-color: var(--gold-dim);
+}
+
+/* 戦闘ログ */
+body[data-monsters-theme="retro"] .log-card {
+  /* .card で継承済み */
+}
+
+body[data-monsters-theme="retro"] .log-card__actors {
+  background: rgba(36, 22, 12, 0.85);
+  border-bottom-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .log-card__name--ally {
+  color: rgba(180, 215, 255, 0.92);
+}
+
+body[data-monsters-theme="retro"] .log-card__name--enemy {
+  color: rgba(255, 140, 120, 0.95);
+}
+
+body[data-monsters-theme="retro"] .log-card__hpmp {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .log-card__turn {
+  background: rgba(28, 16, 8, 0.85);
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .log-card__text {
+  background: rgba(34, 20, 12, 0.75);
+  color: var(--retro-text);
+}
+
+/* リザルト */
+body[data-monsters-theme="retro"] .result-log__header {
+  background: linear-gradient(90deg, var(--retro-head), rgba(60, 38, 22, 0.95));
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .result-msg {
+  border-top-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .result-msg--result {
+  background: rgba(36, 22, 12, 0.75);
+}
+
+body[data-monsters-theme="retro"] .result-msg--lvup {
+  background: rgba(40, 28, 8, 0.75);
+}
+
+body[data-monsters-theme="retro"] .result-msg--item {
+  background: rgba(24, 36, 18, 0.75);
+}
+
+body[data-monsters-theme="retro"] .result-msg--bad {
+  background: rgba(50, 14, 8, 0.75);
+}
+
+body[data-monsters-theme="retro"] .result-msg--action {
+  background: rgba(30, 20, 40, 0.75);
+}
+
+/* コマンドカード */
+body[data-monsters-theme="retro"] .cmd-card {
+  background: rgba(36, 22, 12, 0.88);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .cmd-card__header {
+  background: rgba(50, 30, 16, 0.90);
+}
+
+body[data-monsters-theme="retro"] .cmd-card__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .cmd-card__stats {
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .cmd-card__stat-label {
+  background: var(--retro-head);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .cmd-card__actions {
+  background: rgba(28, 16, 8, 0.70);
+}
+
+body[data-monsters-theme="retro"] .cmd-card__row-label {
+  color: var(--gold);
+  border-bottom-color: var(--gold-dim);
+}
+
+/* ========================= §13 Shop ========================= */
+
+body[data-monsters-theme="retro"] .shop-grid {
+  background: transparent;
+}
+
+body[data-monsters-theme="retro"] .omiai-banner {
+  background: rgba(36, 22, 12, 0.60);
+}
+
+/* ========================= §14 BBS ========================= */
+
+/*
+ * bbs-log は <font color="..."> でハードコードされた色のログを含むため、
+ * 暗背景のままでは視認性が保証できない。
+ * オフホワイト固定にしてログの色指定をそのまま活かす。
+ * bbs-line の color は外して <font> タグの色を優先させる。
+ */
+body[data-monsters-theme="retro"] .bbs-log {
+  background: #f5f0e8;
+  /* 温かみのあるオフホワイト（retroの雰囲気に合わせた暖色系） */
+  border-radius: 4px;
+  padding: 4px;
+}
+
+body[data-monsters-theme="retro"] .bbs-line {
+  border-bottom-color: #d4c9b0;
+  /* color は指定しない: <font color> タグの色をそのまま使う */
+}
+
+body[data-monsters-theme="retro"] .bbs-time {
+  color: #888880;
+}
+
+body[data-monsters-theme="retro"] .bbs-log hr {
+  border-top-color: #d4c9b0;
+}
+
+/* ========================= §16 Zukan ========================= */
+
+body[data-monsters-theme="retro"] .category-nav {
+  background: rgba(36, 22, 12, 0.80);
+}
+
+body[data-monsters-theme="retro"] .category-nav__btn {
+  background: rgba(80, 50, 28, 0.80);
+  border-color: var(--gold-dim);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .category-nav__btn:link,
+body[data-monsters-theme="retro"] .category-nav__btn:visited {
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .category-nav__btn:hover {
+  background: rgba(100, 64, 36, 0.90);
+  color: #fff8e8;
+}
+
+body[data-monsters-theme="retro"] .zukan-current {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .zukan-card {
+  background: var(--retro-head);
+}
+
+body[data-monsters-theme="retro"] .zukan-card__no {
+  background: var(--retro-head);
+  color: var(--gold-text);
+}
+
+/* zukan-card__img の background/border は「モンスター画像背景（retro共通）」セクションで定義済み */
+body[data-monsters-theme="retro"] .zukan-card__name {
+  background: var(--retro-head);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .tooltip {
+  background: rgba(54, 38, 29, 0.98);
+  border-color: var(--gold-dim);
+  color: var(--retro-text);
+}
+
+/* ========================= §17 Book ========================= */
+
+body[data-monsters-theme="retro"] .preview-card {
+  background: rgba(36, 22, 12, 0.90);
+  border-color: var(--border-retro);
+}
+
+body[data-monsters-theme="retro"] .preview-card__no {
+  background: rgba(50, 30, 16, 0.90);
+  border-bottom-color: var(--gold-dim);
+  color: var(--retro-text-m);
+}
+
+/* preview-card__img の background は「モンスター画像背景（retro共通）」セクションで定義済み */
+body[data-monsters-theme="retro"] .preview-card__img {
+  border-bottom-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .preview-card__info {
+  background: rgba(36, 22, 12, 0.90);
+}
+
+body[data-monsters-theme="retro"] .preview-card__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .preview-card__meta {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .preview-card__sei {
+  background: rgba(50, 30, 16, 0.80);
+  border-color: var(--gold-dim);
+  color: var(--retro-text-m);
+}
+
+/* ========================= §18 Medal Shop ========================= */
+
+body[data-monsters-theme="retro"] .status-badge {
+  background: rgba(36, 22, 12, 0.85);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .status-badge__label {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .status-badge__value {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .item-card {
+  background: linear-gradient(180deg, rgba(50, 30, 16, 0.90), rgba(36, 22, 12, 0.95));
+  border-color: var(--gold-dim);
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .item-card:hover {
+  border-color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .item-card__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .item-card__price {
+  border-top-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .item-card__price-prefix {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .item-card__price-unit {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .item-label input[type="radio"]:checked+.item-card {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(80, 50, 18, 0.90), rgba(60, 36, 14, 0.95));
+}
+
+/* ========================= §19 Park & Omiai ========================= */
+
+body[data-monsters-theme="retro"] .list-card__header {
+  background: rgba(38, 24, 14, 0.90);
+  border-bottom-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .list-card__label {
+  background: var(--retro-head);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .list-card__username {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .list-card__body {
+  background: rgba(34, 20, 12, 0.75);
+}
+
+body[data-monsters-theme="retro"] .list-card__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .list-card__meta {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .list-card__stat {
+  background: rgba(28, 16, 8, 0.80);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .list-card__stat-label {
+  background: var(--retro-head);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] .list-card__stat-value {
+  color: var(--retro-text);
+}
+
+body[data-monsters-theme="retro"] .list-card__message {
+  background: rgba(22, 12, 6, 0.85);
+  border-top-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .list-card__message-label {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .list-card__message-body {
+  color: var(--retro-text-m);
+}
+
+/* ========================= §20 Monster Events ========================= */
+
+/* 配合確認 */
+body[data-monsters-theme="retro"] .fusion-pair {
+  background: linear-gradient(180deg, rgba(42, 26, 16, 0.90), rgba(34, 20, 12, 0.95));
+}
+
+body[data-monsters-theme="retro"] .fusion-mon {
+  background: rgba(50, 30, 16, 0.90);
+  border-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .fusion-mon__label {
+  background: rgba(70, 44, 20, 0.80);
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .fusion-mon__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .fusion-plus {
+  background: rgba(60, 38, 18, 0.80);
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .fusion-preview {
+  background: rgba(36, 22, 12, 0.80);
+  border-top-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .hint-note {
+  color: rgba(255, 200, 100, 0.85);
+}
+
+/* NEW MONSTER */
+/* born-card__img の background/box-shadow は「モンスター画像背景（retro共通）」セクションで定義済み */
+body[data-monsters-theme="retro"] .born-card__name {
+  color: var(--gold);
+}
+
+body[data-monsters-theme="retro"] .born-card__meta {
+  color: var(--retro-text-m);
+}
+
+body[data-monsters-theme="retro"] .rare-badge {
+  background: linear-gradient(to right, rgba(80, 50, 10, 0.90), rgba(120, 80, 20, 0.90), rgba(80, 50, 10, 0.90));
+  border-color: rgba(200, 150, 60, 0.60);
+  color: rgba(255, 220, 140, 0.97);
+}
+
+/* ========================= §21 Newgame ========================= */
+
+body[data-monsters-theme="retro"] .stat-box--highlight .stat-box__value {
+  color: rgba(255, 140, 120, 0.95);
+}
+
+body[data-monsters-theme="retro"] .register-result__monster {
+  background: rgba(36, 22, 12, 0.80);
+  border-top-color: var(--gold-dim);
+}
+
+body[data-monsters-theme="retro"] .register-result__monster-info {
+  color: var(--retro-text);
+}
+
+/* ========================= その他 ========================= */
+
+body[data-monsters-theme="retro"] .site-title-block {
+  background: linear-gradient(180deg, var(--retro-surf), rgba(34, 24, 19, 0.98));
+  border-color: var(--border-retro);
+  color: var(--gold-text);
+}
+
+body[data-monsters-theme="retro"] #result {
+  background-color: rgba(34, 24, 19, 0.98);
+  border: 2px solid var(--border-retro);
+}
+
+body[data-monsters-theme="retro"] #error {
+  background-color: rgba(34, 24, 19, 0.98);
+  border: 2px solid rgba(200, 80, 60, 0.55);
+}
+
+body[data-monsters-theme="retro"] .credit-title {
+  color: rgba(255, 160, 140, 0.90);
+}
+
+body[data-monsters-theme="retro"] .credit-label,
+body[data-monsters-theme="retro"] .credit-copyright {
+  color: rgba(244, 236, 216, 0.65);
+}
+
+body[data-monsters-theme="retro"] .credit-value a {
+  color: rgba(255, 209, 117, 0.75);
+}
+
+/* 管理画面（admin.css と共存する場合の最低限補正） */
+body[data-monsters-theme="retro"] .admin-header {
+  border-color: var(--gold-dim);
+}
+
+
+/* =========================================================
+   CYBER THEME
+   シアン / マゼンタ / ネオン発光
+   ========================================================= */
+
+body[data-monsters-theme="cyber"] {
+  --cyan: rgba(0, 255, 240, 0.92);
+  --cyan-dim: rgba(0, 255, 240, 0.28);
+  --cyan-soft: rgba(0, 255, 240, 0.10);
+  --magenta: rgba(255, 60, 220, 0.88);
+  --mag-dim: rgba(255, 60, 220, 0.26);
+  --c-text: rgba(245, 250, 255, 0.94);
+  --c-text-m: rgba(245, 250, 255, 0.70);
+  /* muted */
+  --c-surf: rgba(10, 0, 18, 0.94);
+  --c-deep: rgba(2, 0, 8, 0.97);
+  --c-mid: rgba(0, 20, 28, 0.88);
+  --c-head: rgba(0, 42, 54, 0.95);
+
+  /*
+   * common.css のカラー変数をサイバー背景向けに上書きする。
+   * --blue はシアン寄りの明るい色に、--red は視認性の高い明るい赤に調整。
+   * --black / --white / --bg-light は暗背景に合わせて反転・調整する。
+   */
+  --sky-blue: rgba(0, 210, 255, 0.90);
+  /* シアン寄りの水色 */
+  --blue: rgba(80, 200, 255, 0.92);
+  /* 暗背景でも読めるシアン青（ラベル・テキスト） */
+  --red: rgba(255, 90, 100, 0.95);
+  /* 暗背景でも読める明るい赤 */
+  --yellow: rgba(255, 220, 60, 0.95);
+  /* ネオン黄（ランク・強調） */
+  --black: rgba(245, 250, 255, 0.94);
+  /* 反転: 前景色はテキスト色に */
+  --white: rgba(2, 0, 8, 0.94);
+  /* 反転: 白背景は暗いサイバー面色に */
+  --gray: rgba(0, 255, 240, 0.18);
+  /* シアン調グレー（ボーダー・区切り） */
+  --bg-light: rgba(0, 12, 20, 0.85);
+  /* 反転: 明背景 → 暗いサイバー面 */
+  --bg-dark: rgba(0, 255, 240, 0.08);
+  /* 反転: 暗背景 → 薄いシアンオーバーレイ */
+  --main: rgba(0, 220, 210, 0.90);
+  /* シアン系アクセント */
+  --main-dark: rgba(0, 160, 150, 0.90);
+  --cyber-mon-bg: rgba(2, 0, 8, 0.95);
+  --cyber-mon-bg:url("../img/cyber_tex.png");
+  /* テクスチャ画像を使う場合は url("../img/cyber_tex.png") に変更 */
+
+  background-color: #05000a;
+  background-image:
+    radial-gradient(900px 520px at 18% 14%, rgba(0, 255, 240, 0.10), transparent 60%),
+    radial-gradient(900px 520px at 78% 22%, rgba(255, 60, 220, 0.08), transparent 62%),
+    radial-gradient(800px 520px at 40% 78%, rgba(170, 90, 255, 0.07), transparent 62%);
+  background-attachment: fixed;
+  color: var(--c-text);
+  text-shadow: 0 0 6px rgba(0, 255, 240, 0.10);
+}
+
+/*
+ * スキャンライン実装（2層構造）
+ *
+ * ::before — 静的な横縞＋グリッド線のテクスチャ。
+ *            wrapper(z-index:1)の下に敷くため z-index:0。
+ *
+ * ::after  — 上から下へ流れるシアンのスキャンバー（本体）。
+ *            コンテンツの上に被せるため z-index:9999 で最前面に配置する。
+ *            pointer-events:none でクリックを透過させる。
+ */
+body[data-monsters-theme="cyber"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.50;
+  background:
+    /* 細い横縞（CRTスクリーン感） */
+    repeating-linear-gradient(0deg,
+      rgba(255, 255, 255, 0.022) 0px,
+      rgba(255, 255, 255, 0.022) 1px,
+      transparent 2px, transparent 6px),
+    /* シアンのグリッド縦線 */
+    linear-gradient(90deg, rgba(0, 255, 240, 0.05) 1px, transparent 1px),
+    /* シアンのグリッド横線 */
+    linear-gradient(0deg, rgba(0, 255, 240, 0.05) 1px, transparent 1px);
+  background-size: auto, 52px 52px, 52px 52px;
+}
+
+body[data-monsters-theme="cyber"]::after {
+  content: "";
+  position: fixed;
+  /* 画面幅全体・高さは細いバー1本分 */
+  left: 0;
+  right: 0;
+  top: -4px;
+  height: 4px;
+  pointer-events: none;
+  z-index: 9999;
+  /* シアン→白→シアンのグラデで光の筋を表現 */
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(0, 255, 240, 0.12) 15%,
+      rgba(0, 255, 240, 0.85) 50%,
+      rgba(0, 255, 240, 0.12) 85%,
+      transparent 100%);
+  box-shadow:
+    0 0 8px rgba(0, 255, 240, 0.60),
+    0 0 20px rgba(0, 255, 240, 0.30);
+  animation: cyberScanLine 6s linear infinite;
+}
+
+@keyframes cyberScanLine {
+  0% {
+    top: -4px;
+    opacity: 0;
+  }
+
+  3% {
+    opacity: 1;
+  }
+
+  97% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 100vh;
+    opacity: 0;
+  }
+}
+
+body[data-monsters-theme="cyber"] .wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- リンク --- */
+body[data-monsters-theme="cyber"] a:link,
+body[data-monsters-theme="cyber"] a:visited {
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] a:hover {
+  color: #ffffff;
+}
+
+/* ========================= §3 Card Core ========================= */
+
+body[data-monsters-theme="cyber"] .card {
+  background: linear-gradient(180deg, var(--c-surf), var(--c-deep));
+  border-color: var(--cyan-dim);
+  box-shadow:
+    0 0 20px rgba(0, 255, 240, 0.07),
+    0 0 36px rgba(255, 60, 220, 0.05),
+    inset 0 0 0 1px rgba(0, 255, 240, 0.05);
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .card__header {
+  background: linear-gradient(90deg, var(--c-head), rgba(0, 20, 32, 0.97));
+  border-bottom: 1px solid var(--cyan-dim);
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(0, 255, 240, 0.35);
+  letter-spacing: 0.06em;
+}
+
+body[data-monsters-theme="cyber"] .card__desc {
+  background: var(--c-mid);
+  border-bottom-color: var(--cyan-dim);
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .card__body {
+  background: rgba(5, 0, 12, 0.75);
+}
+
+body[data-monsters-theme="cyber"] .card__footer {
+  background: rgba(0, 8, 16, 0.80);
+  border-top-color: var(--cyan-dim);
+}
+
+/* ========================= §4 Button Core ========================= */
+
+body[data-monsters-theme="cyber"] .btn {
+  background: linear-gradient(180deg, rgba(0, 255, 240, 0.07), rgba(0, 0, 0, 0.22));
+  color: var(--c-text);
+  border-color: var(--cyan-dim);
+  box-shadow: 0 3px 0 rgba(0, 140, 130, 0.50), 0 0 10px rgba(0, 255, 240, 0.07);
+  text-shadow: 0 0 6px rgba(0, 255, 240, 0.22);
+  letter-spacing: 0.04em;
+}
+
+body[data-monsters-theme="cyber"] .btn:link,
+body[data-monsters-theme="cyber"] .btn:visited {
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .btn:hover {
+  background: linear-gradient(180deg, rgba(0, 255, 240, 0.14), rgba(0, 0, 0, 0.24));
+  border-color: var(--cyan);
+  color: #ffffff;
+  box-shadow: 0 1px 0 rgba(0, 140, 130, 0.40), 0 0 20px rgba(0, 255, 240, 0.18), 0 0 12px rgba(255, 60, 220, 0.10);
+}
+
+body[data-monsters-theme="cyber"] .btn--menu {
+  background: linear-gradient(180deg, rgba(5, 0, 10, 0.94), rgba(2, 0, 6, 0.98));
+  color: rgba(0, 255, 240, 0.88);
+  border-color: var(--mag-dim);
+  box-shadow: 0 3px 0 rgba(110, 0, 90, 0.50);
+}
+
+body[data-monsters-theme="cyber"] .btn--menu:link,
+body[data-monsters-theme="cyber"] .btn--menu:visited {
+  color: rgba(0, 255, 240, 0.88);
+}
+
+body[data-monsters-theme="cyber"] .btn--accent {
+  background: linear-gradient(180deg, rgba(255, 60, 220, 0.18), rgba(180, 0, 150, 0.28));
+  color: rgba(255, 220, 245, 0.97);
+  border-color: var(--mag-dim);
+  box-shadow: 0 3px 0 rgba(140, 0, 110, 0.50), 0 0 12px rgba(255, 60, 220, 0.15);
+}
+
+body[data-monsters-theme="cyber"] .btn--accent:link,
+body[data-monsters-theme="cyber"] .btn--accent:visited {
+  color: rgba(255, 220, 245, 0.97);
+}
+
+/* ========================= §5 Form Core ========================= */
+
+body[data-monsters-theme="cyber"] .form-control {
+  background: rgba(0, 12, 20, 0.92);
+  border-color: var(--cyan-dim);
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .form-control:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(0, 255, 240, 0.18);
+}
+
+body[data-monsters-theme="cyber"] .form-label {
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0, 255, 240, 0.25);
+}
+
+/* ========================= §6 Badge / Label Core ========================= */
+
+body[data-monsters-theme="cyber"] .badge--key {
+  background: rgba(0, 30, 50, 0.80);
+  border-color: rgba(0, 180, 200, 0.40);
+  color: rgba(160, 230, 255, 0.94);
+}
+
+body[data-monsters-theme="cyber"] .badge--skill {
+  background: rgba(40, 0, 40, 0.80);
+  border-color: rgba(200, 80, 200, 0.40);
+  color: rgba(255, 200, 255, 0.92);
+}
+
+body[data-monsters-theme="cyber"] .section-label {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan-dim);
+  text-shadow: 0 0 6px rgba(0, 255, 240, 0.22);
+  letter-spacing: 0.05em;
+}
+
+/* ========================= §7 Banner Core ========================= */
+
+body[data-monsters-theme="cyber"] .banner--event {
+  background: rgba(36, 26, 0, 0.88);
+  color: rgba(255, 220, 80, 0.97);
+  border-color: rgba(200, 160, 40, 0.40);
+  text-shadow: 0 0 8px rgba(255, 200, 60, 0.28);
+}
+
+body[data-monsters-theme="cyber"] .banner--warning {
+  background: rgba(44, 0, 0, 0.88);
+  color: rgba(255, 100, 100, 0.97);
+  border-color: rgba(255, 60, 60, 0.40);
+  text-shadow: 0 0 8px rgba(255, 80, 80, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .banner--info {
+  background: rgba(0, 18, 44, 0.88);
+  color: var(--cyan);
+  border-color: var(--cyan-dim);
+  text-shadow: 0 0 8px rgba(0, 255, 240, 0.22);
+}
+
+/* ========================= §9 Top Page ========================= */
+
+body[data-monsters-theme="cyber"] .site-title-block {
+  background: linear-gradient(180deg, var(--c-surf), var(--c-deep));
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+  text-shadow: 0 0 14px rgba(0, 255, 240, 0.38);
+  letter-spacing: 0.08em;
+}
+
+/* ========================= §10 Ranking ========================= */
+
+body[data-monsters-theme="cyber"] .rank-title {
+  background: linear-gradient(180deg, var(--c-surf), var(--c-deep));
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+  text-shadow: 0 0 12px rgba(0, 255, 240, 0.32);
+  letter-spacing: 0.08em;
+}
+
+body[data-monsters-theme="cyber"] .rank-card__header {
+  background: linear-gradient(90deg, var(--c-head), rgba(0, 20, 32, 0.92));
+}
+
+body[data-monsters-theme="cyber"] .rank-card__rank {
+  color: rgba(255, 210, 60, 0.96);
+  text-shadow: 0 0 10px rgba(255, 210, 60, 0.32);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__username a {
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__body {
+  background: rgba(0, 6, 14, 0.80);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__info {
+  color: var(--c-text-m);
+  border-right-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__expiry {
+  color: rgba(245, 250, 255, 0.45);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__comment {
+  background: rgba(0, 4, 10, 0.88);
+  border-top-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__comment-label {
+  background: rgba(0, 60, 80, 0.85);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .rank-card__comment-body {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .monster-item__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.18);
+}
+
+body[data-monsters-theme="cyber"] .monster-item__stats {
+  color: var(--c-text-m);
+}
+
+/* ========================= §11 My Page ========================= */
+
+/* stat-box */
+body[data-monsters-theme="cyber"] .stat-box {
+  background: rgba(0, 12, 20, 0.82);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .stat-box__label {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .stat-box__value {
+  color: var(--c-text);
+}
+
+/* stat-row */
+body[data-monsters-theme="cyber"] .stat-row {
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .stat-row__label {
+  background: rgba(0, 50, 62, 0.85);
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.20);
+}
+
+body[data-monsters-theme="cyber"] .stat-row__value {
+  background: rgba(0, 8, 16, 0.80);
+  color: var(--c-text);
+}
+
+/* zukan-link */
+body[data-monsters-theme="cyber"] .zukan-link {
+  background: linear-gradient(180deg, rgba(0, 255, 240, 0.06), rgba(0, 0, 0, 0.20));
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .zukan-link:link,
+body[data-monsters-theme="cyber"] .zukan-link:visited {
+  color: var(--cyan);
+}
+
+/* party-comment-form */
+body[data-monsters-theme="cyber"] .party-comment-form__label {
+  color: var(--cyan);
+}
+
+/* floating-nav */
+body[data-monsters-theme="cyber"] .floating-nav {
+  background: linear-gradient(180deg, var(--c-surf), rgba(3, 0, 10, 0.97));
+  border-color: var(--cyan-dim);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.60), 0 0 20px rgba(0, 255, 240, 0.07);
+}
+
+body[data-monsters-theme="cyber"] .floating-nav__btn {
+  background: linear-gradient(180deg, rgba(0, 255, 240, 0.05), rgba(0, 0, 0, 0.20));
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.20);
+}
+
+body[data-monsters-theme="cyber"] .floating-nav__btn:link,
+body[data-monsters-theme="cyber"] .floating-nav__btn:visited {
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .floating-nav__btn:hover {
+  border-color: var(--cyan);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 255, 240, 0.18), inset 0 0 0 1px rgba(0, 255, 240, 0.07);
+}
+
+/* party-card */
+body[data-monsters-theme="cyber"] .party-card .card-header {
+  background: rgba(0, 18, 28, 0.92);
+  border-bottom-color: var(--cyan-dim);
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .party-card__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .party-card__tags {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .party-card .card-body {
+  background: rgba(3, 0, 10, 0.75);
+}
+
+/* 出撃メンバー強調 */
+body[data-monsters-theme="cyber"] .my_page_chara_1,
+body[data-monsters-theme="cyber"] .my_page_chara_2,
+body[data-monsters-theme="cyber"] .my_page_chara_3 {
+  border-color: rgba(255, 60, 220, 0.55);
+  box-shadow: 0 0 14px rgba(255, 60, 220, 0.15), 0 0 24px rgba(0, 255, 240, 0.08);
+}
+
+body[data-monsters-theme="cyber"] .my_page_chara_1 .card-header,
+body[data-monsters-theme="cyber"] .my_page_chara_2 .card-header,
+body[data-monsters-theme="cyber"] .my_page_chara_3 .card-header {
+  background: rgba(38, 0, 38, 0.80);
+}
+
+/* party-action-footer */
+body[data-monsters-theme="cyber"] .party-action-footer {
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .reorder-note {
+  color: var(--c-text-m);
+}
+
+/* monster-preview */
+body[data-monsters-theme="cyber"] .monster-preview {
+  background: rgba(0, 12, 20, 0.60);
+  border: 1px solid var(--cyan-dim);
+  border-radius: 4px;
+}
+
+body[data-monsters-theme="cyber"] .monster-preview__plus {
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 240, 0.35);
+}
+
+/* ========================= §12 Battle ========================= */
+
+/* 戦闘選択 */
+body[data-monsters-theme="cyber"] .battle-option {
+  background: rgba(0, 12, 20, 0.85);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .battle-option__title {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan-dim);
+  text-shadow: 0 0 6px rgba(0, 255, 240, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .battle-option--isekai {
+  background: rgba(14, 0, 28, 0.85);
+  border-color: var(--mag-dim);
+}
+
+body[data-monsters-theme="cyber"] .battle-option--isekai .battle-option__title {
+  color: rgba(220, 160, 255, 0.92);
+  border-bottom-color: var(--mag-dim);
+}
+
+body[data-monsters-theme="cyber"] .battle-text {
+  color: var(--c-text-m);
+}
+
+/* エンカウント */
+body[data-monsters-theme="cyber"] .encount-card {
+  border-color: rgba(255, 60, 60, 0.40);
+}
+
+body[data-monsters-theme="cyber"] .encount-card__header {
+  background: rgba(0, 18, 28, 0.92);
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 240, 0.25);
+}
+
+body[data-monsters-theme="cyber"] .enemy-card {
+  background: rgba(4, 0, 10, 0.88);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .enemy-card__name {
+  color: rgba(255, 100, 100, 0.96);
+  text-shadow: 0 0 6px rgba(255, 80, 80, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .enemy-card__meta {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .enemy-card__hp {
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .enemy-card__hp-label {
+  background: rgba(160, 0, 0, 0.80);
+  color: #ffffff;
+}
+
+body[data-monsters-theme="cyber"] .enemy-card__hp-value {
+  background: rgba(0, 10, 18, 0.85);
+  color: var(--c-text);
+}
+
+/* 戦闘ログ */
+body[data-monsters-theme="cyber"] .log-card__actors {
+  background: rgba(0, 14, 22, 0.90);
+  border-bottom-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .log-card__name--ally {
+  color: rgba(100, 220, 255, 0.94);
+  text-shadow: 0 0 6px rgba(0, 200, 240, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .log-card__name--enemy {
+  color: rgba(255, 100, 120, 0.94);
+  text-shadow: 0 0 6px rgba(255, 60, 80, 0.20);
+}
+
+body[data-monsters-theme="cyber"] .log-card__hpmp {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .log-card__turn {
+  background: rgba(0, 10, 18, 0.90);
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .log-card__text {
+  background: rgba(3, 0, 10, 0.80);
+  color: var(--c-text);
+}
+
+/* リザルト */
+body[data-monsters-theme="cyber"] .result-log__header {
+  background: linear-gradient(90deg, var(--c-head), rgba(0, 20, 32, 0.97));
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 240, 0.28);
+}
+
+body[data-monsters-theme="cyber"] .result-msg {
+  border-top-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .result-msg--result {
+  background: rgba(0, 14, 22, 0.80);
+}
+
+body[data-monsters-theme="cyber"] .result-msg--lvup {
+  background: rgba(0, 16, 8, 0.80);
+}
+
+body[data-monsters-theme="cyber"] .result-msg--item {
+  background: rgba(0, 14, 6, 0.80);
+}
+
+body[data-monsters-theme="cyber"] .result-msg--bad {
+  background: rgba(20, 0, 0, 0.80);
+}
+
+body[data-monsters-theme="cyber"] .result-msg--action {
+  background: rgba(10, 0, 20, 0.80);
+}
+
+/* コマンドカード */
+body[data-monsters-theme="cyber"] .cmd-card {
+  background: rgba(4, 0, 10, 0.92);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .cmd-card__header {
+  background: rgba(0, 18, 28, 0.94);
+}
+
+body[data-monsters-theme="cyber"] .cmd-card__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.22);
+}
+
+body[data-monsters-theme="cyber"] .cmd-card__stats {
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .cmd-card__stat-label {
+  background: rgba(0, 50, 62, 0.85);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .cmd-card__actions {
+  background: rgba(0, 8, 16, 0.75);
+}
+
+body[data-monsters-theme="cyber"] .cmd-card__row-label {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan-dim);
+}
+
+/* ========================= §13 Shop ========================= */
+
+body[data-monsters-theme="cyber"] .omiai-banner {
+  background: rgba(0, 12, 20, 0.70);
+}
+
+/* ========================= §14 BBS ========================= */
+
+/*
+ * retro と同様に <font color="..."> のログ色を活かすため
+ * オフホワイト固定にする。
+ * cyber らしさを残すため青みがかった淡いグレーを使用。
+ */
+body[data-monsters-theme="cyber"] .bbs-log {
+  background: #e8eef2;
+  /* 青みがかったオフホワイト（cyberの雰囲気に合わせた寒色系） */
+  border-radius: 4px;
+  padding: 4px;
+}
+
+body[data-monsters-theme="cyber"] .bbs-line {
+  border-bottom-color: #b8ccd8;
+  /* color は指定しない: <font color> タグの色をそのまま使う */
+}
+
+body[data-monsters-theme="cyber"] .bbs-time {
+  color: #7a8a96;
+}
+
+body[data-monsters-theme="cyber"] .bbs-log hr {
+  border-top-color: #b8ccd8;
+}
+
+/* ========================= モンスター画像背景（サイバー共通） ========================= */
+
+/*
+ * モンスター画像を表示するすべてのコンテナに共通のサイバー背景を適用する。
+ * グリッド線＋放射グロー＋コーナー飾りで「HUDのモニター」感を演出する。
+ * 各コンテナは position:relative が必要（game.css 側で確保済み）。
+ */
+body[data-monsters-theme="cyber"] .zukan-card__img,
+body[data-monsters-theme="cyber"] .monster-item__img,
+body[data-monsters-theme="cyber"] .enemy-card__img,
+body[data-monsters-theme="cyber"] .party-card__img,
+body[data-monsters-theme="cyber"] .list-card__img,
+body[data-monsters-theme="cyber"] .preview-card__img,
+body[data-monsters-theme="cyber"] .cmd-card__img,
+body[data-monsters-theme="cyber"] .fusion-mon__img,
+body[data-monsters-theme="cyber"] .monster-preview,
+body[data-monsters-theme="cyber"] .born-card__img {
+  position: relative;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 255, 240, 0.12) 0%, transparent 65%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 60, 220, 0.07) 0%, transparent 50%),
+    linear-gradient(90deg, rgba(0, 255, 240, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(0, 255, 240, 0.06) 1px, transparent 1px),
+    var(--cyber-mon-bg, rgba(2, 0, 8, 0.95));
+  background-size: auto, auto, 24px 24px, 24px 24px, cover;
+  background-position: center, center, 0 0, 0 0, center;
+  background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
+  border-color: var(--cyan-dim);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 255, 240, 0.12),
+    inset 0 0 16px rgba(0, 255, 240, 0.06);
+}
+
+/* コーナー飾り（四隅のシアンL字ライン）を ::before / ::after で表現 */
+body[data-monsters-theme="cyber"] .zukan-card__img::before,
+body[data-monsters-theme="cyber"] .monster-item__img::before,
+body[data-monsters-theme="cyber"] .enemy-card__img::before,
+body[data-monsters-theme="cyber"] .party-card__img::before,
+body[data-monsters-theme="cyber"] .preview-card__img::before,
+body[data-monsters-theme="cyber"] .cmd-card__img::before,
+body[data-monsters-theme="cyber"] .fusion-mon__img::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  pointer-events: none;
+  /* 四隅のL字コーナー飾り */
+  background:
+    /* 左上 横 */
+    linear-gradient(90deg, rgba(0, 255, 240, 0.70), transparent) top left / 18px 1px no-repeat,
+    /* 左上 縦 */
+    linear-gradient(180deg, rgba(0, 255, 240, 0.70), transparent) top left / 1px 18px no-repeat,
+    /* 右上 横 */
+    linear-gradient(270deg, rgba(0, 255, 240, 0.70), transparent) top right / 18px 1px no-repeat,
+    /* 右上 縦 */
+    linear-gradient(180deg, rgba(0, 255, 240, 0.70), transparent) top right / 1px 18px no-repeat,
+    /* 左下 横 */
+    linear-gradient(90deg, rgba(255, 60, 220, 0.55), transparent) bottom left / 18px 1px no-repeat,
+    /* 左下 縦 */
+    linear-gradient(0deg, rgba(255, 60, 220, 0.55), transparent) bottom left / 1px 18px no-repeat,
+    /* 右下 横 */
+    linear-gradient(270deg, rgba(255, 60, 220, 0.55), transparent) bottom right / 18px 1px no-repeat,
+    /* 右下 縦 */
+    linear-gradient(0deg, rgba(255, 60, 220, 0.55), transparent) bottom right / 1px 18px no-repeat;
+}
+
+/* born-card__img の背景は上のモンスター画像背景（cyber共通）で定義済み */
+
+/* ========================= §16 Zukan ========================= */
+
+body[data-monsters-theme="cyber"] .category-nav {
+  background: rgba(0, 14, 22, 0.88);
+  border: 1px solid var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .category-nav__btn {
+  background: rgba(0, 42, 54, 0.85);
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .category-nav__btn:link,
+body[data-monsters-theme="cyber"] .category-nav__btn:visited {
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .category-nav__btn:hover {
+  background: rgba(0, 60, 76, 0.90);
+  color: #ffffff;
+  border-color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .zukan-current {
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 240, 0.28);
+}
+
+body[data-monsters-theme="cyber"] .zukan-card {
+  background: rgba(0, 42, 54, 0.85);
+}
+
+body[data-monsters-theme="cyber"] .zukan-card__no {
+  background: rgba(0, 42, 54, 0.85);
+  color: var(--cyan);
+}
+
+/* zukan-card__img の background/border は「モンスター画像背景（サイバー共通）」セクションで定義済み */
+body[data-monsters-theme="cyber"] .zukan-card__name {
+  background: rgba(0, 42, 54, 0.85);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .tooltip {
+  background: rgba(4, 0, 12, 0.98);
+  border-color: var(--cyan-dim);
+  color: var(--c-text);
+  box-shadow: 0 0 12px rgba(0, 255, 240, 0.12);
+}
+
+/* ========================= §17 Book ========================= */
+
+body[data-monsters-theme="cyber"] .preview-card {
+  background: rgba(4, 0, 10, 0.94);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .preview-card__no {
+  background: rgba(0, 18, 28, 0.94);
+  border-bottom-color: var(--cyan-dim);
+  color: var(--c-text-m);
+}
+
+/* preview-card__img の background は「モンスター画像背景（サイバー共通）」セクションで定義済み */
+body[data-monsters-theme="cyber"] .preview-card__img {
+  border-bottom-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .preview-card__info {
+  background: rgba(4, 0, 10, 0.94);
+}
+
+body[data-monsters-theme="cyber"] .preview-card__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.18);
+}
+
+body[data-monsters-theme="cyber"] .preview-card__meta {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .preview-card__sei {
+  background: rgba(0, 18, 28, 0.85);
+  border-color: var(--cyan-dim);
+  color: var(--c-text-m);
+}
+
+/* ========================= §18 Medal Shop ========================= */
+
+body[data-monsters-theme="cyber"] .status-badge {
+  background: rgba(0, 14, 22, 0.88);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .status-badge__label {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .status-badge__value {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.20);
+}
+
+body[data-monsters-theme="cyber"] .item-card {
+  background: linear-gradient(180deg, rgba(0, 18, 28, 0.92), rgba(2, 0, 8, 0.97));
+  border-color: var(--cyan-dim);
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .item-card:hover {
+  border-color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .item-card__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.18);
+}
+
+body[data-monsters-theme="cyber"] .item-card__price {
+  border-top-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .item-card__price-prefix {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .item-card__price-unit {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .item-label input[type="radio"]:checked+.item-card {
+  border-color: var(--cyan);
+  background: linear-gradient(180deg, rgba(0, 50, 62, 0.92), rgba(0, 28, 40, 0.97));
+  box-shadow: 0 0 12px rgba(0, 255, 240, 0.15);
+}
+
+/* ========================= §19 Park & Omiai ========================= */
+
+body[data-monsters-theme="cyber"] .list-card__header {
+  background: rgba(0, 18, 28, 0.92);
+  border-bottom-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .list-card__label {
+  background: rgba(0, 60, 80, 0.85);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .list-card__username {
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .list-card__body {
+  background: rgba(3, 0, 10, 0.80);
+}
+
+body[data-monsters-theme="cyber"] .list-card__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.18);
+}
+
+body[data-monsters-theme="cyber"] .list-card__meta {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .list-card__stat {
+  background: rgba(0, 10, 18, 0.82);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .list-card__stat-label {
+  background: rgba(0, 60, 80, 0.85);
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .list-card__stat-value {
+  color: var(--c-text);
+}
+
+body[data-monsters-theme="cyber"] .list-card__message {
+  background: rgba(0, 6, 14, 0.88);
+  border-top-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .list-card__message-label {
+  color: var(--cyan);
+}
+
+body[data-monsters-theme="cyber"] .list-card__message-body {
+  color: var(--c-text-m);
+}
+
+/* ========================= §20 Monster Events ========================= */
+
+/* 配合確認 */
+body[data-monsters-theme="cyber"] .fusion-pair {
+  background: linear-gradient(180deg, rgba(4, 0, 12, 0.92), rgba(2, 0, 8, 0.97));
+}
+
+body[data-monsters-theme="cyber"] .fusion-mon {
+  background: rgba(0, 18, 28, 0.92);
+  border-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .fusion-mon__label {
+  background: rgba(0, 30, 42, 0.85);
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .fusion-mon__name {
+  color: var(--cyan);
+  text-shadow: 0 0 5px rgba(0, 255, 240, 0.18);
+}
+
+body[data-monsters-theme="cyber"] .fusion-plus {
+  background: rgba(0, 30, 42, 0.85);
+  color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 240, 0.12);
+}
+
+body[data-monsters-theme="cyber"] .fusion-preview {
+  background: rgba(2, 0, 8, 0.85);
+  border-top-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .hint-note {
+  color: rgba(255, 210, 100, 0.88);
+  text-shadow: 0 0 6px rgba(255, 200, 80, 0.25);
+}
+
+/* NEW MONSTER */
+/* born-card__img の background/box-shadow は「モンスター画像背景（サイバー共通）」セクションで定義済み */
+body[data-monsters-theme="cyber"] .born-card__name {
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(0, 255, 240, 0.35);
+}
+
+body[data-monsters-theme="cyber"] .born-card__meta {
+  color: var(--c-text-m);
+}
+
+body[data-monsters-theme="cyber"] .rare-badge {
+  background: linear-gradient(to right, rgba(40, 0, 40, 0.90), rgba(80, 0, 80, 0.90), rgba(40, 0, 40, 0.90));
+  border-color: rgba(220, 80, 220, 0.55);
+  color: rgba(255, 200, 255, 0.97);
+  box-shadow: 0 0 14px rgba(255, 60, 220, 0.20);
+  text-shadow: 0 0 8px rgba(255, 60, 220, 0.35);
+}
+
+/* ========================= §21 Newgame ========================= */
+
+body[data-monsters-theme="cyber"] .stat-box--highlight .stat-box__value {
+  color: rgba(255, 100, 140, 0.96);
+  text-shadow: 0 0 6px rgba(255, 80, 120, 0.25);
+}
+
+body[data-monsters-theme="cyber"] .register-result__monster {
+  background: rgba(0, 14, 22, 0.85);
+  border-top-color: var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] .register-result__monster-info {
+  color: var(--c-text);
+}
+
+/* ========================= その他 ========================= */
+
+body[data-monsters-theme="cyber"] #result {
+  background: rgba(2, 0, 8, 0.98);
+  border: 2px solid var(--cyan-dim);
+}
+
+body[data-monsters-theme="cyber"] #error {
+  background: rgba(2, 0, 8, 0.98);
+  border: 2px solid rgba(255, 60, 60, 0.42);
+}
+
+body[data-monsters-theme="cyber"] .credit-title {
+  color: var(--magenta);
+  text-shadow: 0 0 8px rgba(255, 60, 220, 0.28);
+}
+
+body[data-monsters-theme="cyber"] .credit-label,
+body[data-monsters-theme="cyber"] .credit-copyright {
+  color: rgba(245, 250, 255, 0.58);
+}
+
+body[data-monsters-theme="cyber"] .credit-value a {
+  color: var(--cyan);
+}
+
+
+/* =========================================================
+   OLDWEB THEME
+   2000年代個人サイト風 / グレー / 古いUI
+   ========================================================= */
+
+body[data-monsters-theme="oldweb"] {
+  --ow-blue: #0033cc;
+  --ow-red: #990000;
+  --ow-border: #8f8f8f;
+  --ow-hi: rgba(255, 255, 255, 0.90);
+  /* ハイライト */
+  --ow-sh: rgba(0, 0, 0, 0.10);
+  /* シャドウ */
+  --ow-text: #111111;
+  --ow-text-m: #555555;
+  /* muted */
+  --ow-surf: #f3f3f3;
+  --ow-surf2: #ebebeb;
+  --ow-head: linear-gradient(180deg, #c8ddf0, #a8c8e8);
+  /* 青ヘッダー */
+
+  /*
+   * oldweb は明背景なのでデフォルトに近いが、
+   * --blue の濃紺（#2422c9）が白背景上では問題ないものの
+   * グレー背景・青ヘッダー上では見づらいため少し明るく調整する。
+   * --black / --white はそのまま維持。
+   * --sky-blue はリンク色として使われるため視認性の高い水色に調整する。
+   */
+  --sky-blue: #1976d2;
+  /* 落ち着いた青（リンク色・ヘッダー上でも読める） */
+  --blue: #1a3faa;
+  /* 少し明るめの青（白/グレー背景でのラベル用） */
+  --red: #cc2222;
+  /* oldweb的な落ち着いた赤 */
+  --yellow: #e6a800;
+  /* グレー背景上でも読める落ち着いた黄 */
+  /* --black / --white / --gray はデフォルトのまま維持 */
+  --bg-light: #f0f4f8;
+  /* 青みがかった明背景（デフォルトの #F5F5F5 より統一感あり） */
+  --main: #0277bd;
+  /* 落ち着いた青系アクセント */
+  --main-dark: #01579b;
+  --oldweb-mon-bg: #e8f0f8;
+  --oldweb-mon-bg:url("../img/oldweb_tex.png");
+  /* テクスチャ画像を使う場合は url("../img/oldweb_tex.png") に変更 */
+
+  background-color: #d7d7d7;
+  background-image: linear-gradient(180deg, #e4e4e4 0%, #d7d7d7 100%);
+  background-attachment: fixed;
+  color: var(--ow-text);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- リンク --- */
+body[data-monsters-theme="oldweb"] a:link {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] a:visited {
+  color: #663399;
+}
+
+body[data-monsters-theme="oldweb"] a:hover {
+  color: var(--ow-red);
+  text-decoration: underline;
+}
+
+/* ========================= §3 Card Core ========================= */
+
+body[data-monsters-theme="oldweb"] .card {
+  background: linear-gradient(180deg, #fafafa, #ececec);
+  border: 1px solid var(--ow-border);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--ow-hi) inset, -1px -1px 0 var(--ow-sh) inset, 2px 2px 0 rgba(0, 0, 0, 0.08);
+  color: var(--ow-text);
+}
+
+body[data-monsters-theme="oldweb"] .card__header {
+  background: var(--ow-head);
+  border-bottom: 1px solid #7aaccc;
+  border-radius: 0;
+  color: #002266;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .card__desc {
+  background: #ddeeff;
+  border-bottom: 1px solid #aaccee;
+  border-radius: 0;
+  color: var(--ow-text);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .card__body {
+  background: #f7f7f7;
+}
+
+body[data-monsters-theme="oldweb"] .card__footer {
+  background: var(--ow-surf2);
+  border-top: 1px solid #c6c6c6;
+  border-radius: 0;
+}
+
+/* ========================= §4 Button Core ========================= */
+
+body[data-monsters-theme="oldweb"] .btn {
+  background: linear-gradient(180deg, #fbfbfb, #d9d9d9);
+  color: #222222;
+  border: 1px solid var(--ow-border);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--ow-hi) inset, -1px -1px 0 var(--ow-sh) inset;
+  text-shadow: none;
+  letter-spacing: normal;
+}
+
+body[data-monsters-theme="oldweb"] .btn:link,
+body[data-monsters-theme="oldweb"] .btn:visited {
+  color: #222222;
+}
+
+body[data-monsters-theme="oldweb"] .btn:hover {
+  background: linear-gradient(180deg, #ffffff, #e7e7e7);
+  color: #000000;
+  border-color: #707070;
+  transform: none;
+  box-shadow: 1px 1px 0 var(--ow-hi) inset, -1px -1px 0 rgba(0, 0, 0, 0.12) inset;
+}
+
+body[data-monsters-theme="oldweb"] .btn:active {
+  box-shadow: -1px -1px 0 var(--ow-hi) inset, 1px 1px 0 var(--ow-sh) inset;
+}
+
+body[data-monsters-theme="oldweb"] .btn--menu {
+  background: linear-gradient(180deg, #e0e8f8, #c8d8f0);
+  color: var(--ow-blue);
+  border-color: #7aaccc;
+  box-shadow: 1px 1px 0 rgba(255, 255, 255, 0.85) inset, -1px -1px 0 rgba(0, 0, 100, 0.08) inset;
+}
+
+body[data-monsters-theme="oldweb"] .btn--menu:link,
+body[data-monsters-theme="oldweb"] .btn--menu:visited {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .btn--accent {
+  background: linear-gradient(180deg, #ffcccc, #f0aaaa);
+  color: #880000;
+  border-color: #cc6666;
+  box-shadow: 1px 1px 0 rgba(255, 255, 255, 0.80) inset, -1px -1px 0 rgba(100, 0, 0, 0.10) inset;
+}
+
+body[data-monsters-theme="oldweb"] .btn--accent:link,
+body[data-monsters-theme="oldweb"] .btn--accent:visited {
+  color: #880000;
+}
+
+/* ========================= §5 Form Core ========================= */
+
+body[data-monsters-theme="oldweb"] .form-control {
+  background: #f7f7f7;
+  border: 1px solid #9a9a9a;
+  border-radius: 0;
+  color: var(--ow-text);
+  box-shadow: 1px 1px 0 rgba(255, 255, 255, 0.75) inset;
+}
+
+body[data-monsters-theme="oldweb"] .form-control:focus {
+  border-color: #4477cc;
+  box-shadow: 0 0 0 1px #4477cc;
+}
+
+body[data-monsters-theme="oldweb"] .form-label {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+/* ========================= §6 Badge / Label Core ========================= */
+
+body[data-monsters-theme="oldweb"] .badge--key {
+  background: #ddeeff;
+  border-color: #7aaccc;
+  color: #002266;
+}
+
+body[data-monsters-theme="oldweb"] .badge--skill {
+  background: #fff0d9;
+  border-color: #cc8844;
+  color: #663300;
+}
+
+body[data-monsters-theme="oldweb"] .section-label {
+  color: var(--ow-blue);
+  border-bottom: 1px dashed #8aacdd;
+  text-shadow: none;
+}
+
+/* ========================= §7 Banner Core ========================= */
+
+body[data-monsters-theme="oldweb"] .banner--event {
+  background: #fffacc;
+  color: #664400;
+  border: 1px solid #ccaa44;
+  border-radius: 0;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .banner--warning {
+  background: #ffeeee;
+  color: #880000;
+  border: 1px solid #cc4444;
+  border-radius: 0;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .banner--info {
+  background: #eef4ff;
+  color: #003399;
+  border: 1px solid #8aacdd;
+  border-radius: 0;
+  text-shadow: none;
+}
+
+/* ========================= §9 Top Page ========================= */
+
+body[data-monsters-theme="oldweb"] .site-title-block {
+  background: linear-gradient(180deg, #003399, #002277);
+  border: 1px solid #002255;
+  border-radius: 0;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.40);
+}
+
+/* ========================= §10 Ranking ========================= */
+
+body[data-monsters-theme="oldweb"] .rank-title {
+  background: linear-gradient(180deg, #003399, #002277);
+  border: 1px solid #002255;
+  border-radius: 0;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.40);
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__header {
+  background: var(--ow-head);
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__rank {
+  color: var(--ow-red);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__username a {
+  color: #002266;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__body {
+  background: #f0f4f8;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__info {
+  color: #222222;
+  border-right-color: #c0c8d8;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__expiry {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__comment {
+  background: #e8ecf4;
+  border-top-color: #c0c8d8;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__comment-label {
+  background: #003399;
+  color: #ffffff;
+}
+
+body[data-monsters-theme="oldweb"] .rank-card__comment-body {
+  color: #333333;
+}
+
+body[data-monsters-theme="oldweb"] .monster-item__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .monster-item__stats {
+  color: var(--ow-text-m);
+  text-shadow: none;
+}
+
+/* ========================= §11 My Page ========================= */
+
+/* stat-box */
+body[data-monsters-theme="oldweb"] .stat-box {
+  background: #f0f4f8;
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .stat-box__label {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .stat-box__value {
+  color: var(--ow-text);
+}
+
+/* stat-row */
+body[data-monsters-theme="oldweb"] .stat-row {
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .stat-row__label {
+  background: var(--ow-head);
+  color: #002266;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .stat-row__value {
+  background: #f7f7f7;
+  color: var(--ow-text);
+}
+
+/* zukan-link */
+body[data-monsters-theme="oldweb"] .zukan-link {
+  background: linear-gradient(180deg, #e0e8f8, #c8d8f0);
+  border: 1px solid #7aaccc;
+  border-radius: 0;
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .zukan-link:link,
+body[data-monsters-theme="oldweb"] .zukan-link:visited {
+  color: var(--ow-blue);
+}
+
+/* party-comment-form */
+body[data-monsters-theme="oldweb"] .party-comment-form__label {
+  color: var(--ow-blue);
+}
+
+/* floating-nav */
+body[data-monsters-theme="oldweb"] .floating-nav {
+  background: linear-gradient(180deg, #f0f4f8, #e0e8f0);
+  border: 1px solid var(--ow-border);
+  border-radius: 0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+  backdrop-filter: none;
+}
+
+body[data-monsters-theme="oldweb"] .floating-nav__btn {
+  background: linear-gradient(180deg, #fbfbfb, #d9d9d9);
+  border: 1px solid #a0a8b8;
+  border-radius: 0;
+  color: var(--ow-blue);
+  font-size: 11px;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .floating-nav__btn:link,
+body[data-monsters-theme="oldweb"] .floating-nav__btn:visited {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .floating-nav__btn:hover {
+  background: linear-gradient(180deg, #ffffff, #e7e7e7);
+  color: #000000;
+  transform: none;
+  box-shadow: 1px 1px 0 var(--ow-hi) inset;
+}
+
+/* party-card */
+body[data-monsters-theme="oldweb"] .party-card .card-header {
+  background: linear-gradient(180deg, #ddeeff, #ccddee);
+  border-bottom: 1px solid #a0b8cc;
+  color: var(--ow-text);
+}
+
+body[data-monsters-theme="oldweb"] .party-card__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .party-card__tags {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .party-card .card-body {
+  background: #f0f4f8;
+}
+
+/* 出撃メンバー強調 */
+body[data-monsters-theme="oldweb"] .my_page_chara_1,
+body[data-monsters-theme="oldweb"] .my_page_chara_2,
+body[data-monsters-theme="oldweb"] .my_page_chara_3 {
+  border: 2px solid #cc6600;
+  box-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .my_page_chara_1 .card-header,
+body[data-monsters-theme="oldweb"] .my_page_chara_2 .card-header,
+body[data-monsters-theme="oldweb"] .my_page_chara_3 .card-header {
+  background: linear-gradient(180deg, #ffe8cc, #ffd8aa);
+}
+
+/* party-action-footer */
+body[data-monsters-theme="oldweb"] .party-action-footer {
+  background: #d0d8e4;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .reorder-note {
+  color: var(--ow-text-m);
+}
+
+/* monster-preview */
+body[data-monsters-theme="oldweb"] .monster-preview {
+  background: #e8eef8;
+  border: 1px solid #a0b8cc;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .monster-preview__plus {
+  color: var(--ow-blue);
+}
+
+/* ========================= モンスター画像背景（oldweb共通） ========================= */
+
+/*
+ * 2000年代個人サイト風の薄い市松ドット背景。
+ * 市松ドット＋グラデが前面、--oldweb-mon-bg が最背面。
+ * テクスチャ使用時は変数を url("../img/oldweb_tex.png") に変更する。
+ */
+body[data-monsters-theme="oldweb"] .zukan-card__img,
+body[data-monsters-theme="oldweb"] .monster-item__img,
+body[data-monsters-theme="oldweb"] .enemy-card__img,
+body[data-monsters-theme="oldweb"] .party-card__img,
+body[data-monsters-theme="oldweb"] .list-card__img,
+body[data-monsters-theme="oldweb"] .preview-card__img,
+body[data-monsters-theme="oldweb"] .cmd-card__img,
+body[data-monsters-theme="oldweb"] .fusion-mon__img,
+body[data-monsters-theme="oldweb"] .monster-preview,
+body[data-monsters-theme="oldweb"] .born-card__img {
+  position: relative;
+  background:
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.65) 0%, transparent 68%),
+    repeating-conic-gradient(rgba(140, 168, 196, 0.22) 0% 25%, transparent 0% 50%),
+    linear-gradient(180deg, #e8f0f8, #d0e0f0),
+    var(--oldweb-mon-bg, #e8f0f8);
+  background-size: auto, 10px 10px, auto, cover;
+  background-position: center, 0 0, 0 0, center;
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+  border: 1px solid #9ab0c8;
+  border-radius: 0;
+  box-shadow:
+    1px 1px 0 rgba(255, 255, 255, 0.85) inset,
+    -1px -1px 0 rgba(0, 0, 100, 0.06) inset;
+}
+
+/* ========================= §12 Battle ========================= */
+
+/* 戦闘選択 */
+body[data-monsters-theme="oldweb"] .battle-option {
+  background: #eef4f8;
+  border: 1px solid #a0b8cc;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .battle-option__title {
+  color: var(--ow-blue);
+  border-bottom: 1px solid #a0b8cc;
+}
+
+body[data-monsters-theme="oldweb"] .battle-option--isekai {
+  background: #f0eef8;
+  border-color: #a0a0cc;
+}
+
+body[data-monsters-theme="oldweb"] .battle-option--isekai .battle-option__title {
+  color: #440088;
+  border-bottom-color: #a0a0cc;
+}
+
+body[data-monsters-theme="oldweb"] .battle-text {
+  color: var(--ow-text-m);
+}
+
+/* エンカウント */
+body[data-monsters-theme="oldweb"] .encount-card {
+  border-color: var(--ow-red);
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .encount-card__header {
+  background: #ddeeff;
+  color: #002266;
+}
+
+body[data-monsters-theme="oldweb"] .enemy-card {
+  background: #f0f4f8;
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .enemy-card__name {
+  color: var(--ow-red);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .enemy-card__meta {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .enemy-card__hp {
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .enemy-card__hp-label {
+  background: var(--ow-red);
+  color: #ffffff;
+}
+
+body[data-monsters-theme="oldweb"] .enemy-card__hp-value {
+  background: #f7f7f7;
+  color: var(--ow-text);
+}
+
+/* 戦闘ログ */
+body[data-monsters-theme="oldweb"] .log-card__actors {
+  background: #ddeeff;
+  border-bottom: 1px solid #a0b8cc;
+}
+
+body[data-monsters-theme="oldweb"] .log-card__name--ally {
+  color: #003399;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .log-card__name--enemy {
+  color: var(--ow-red);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .log-card__hpmp {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .log-card__turn {
+  background: #e0e8f0;
+  border: 1px solid #a0b8cc;
+  border-radius: 0;
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .log-card__text {
+  background: #f7f7f7;
+  color: var(--ow-text);
+}
+
+/* リザルト */
+body[data-monsters-theme="oldweb"] .result-log__header {
+  background: var(--ow-head);
+  color: #002266;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .result-msg {
+  border-top: 1px dashed #c0c8d8;
+}
+
+body[data-monsters-theme="oldweb"] .result-msg--result {
+  background: #f5f8ff;
+}
+
+body[data-monsters-theme="oldweb"] .result-msg--lvup {
+  background: #fffff5;
+}
+
+body[data-monsters-theme="oldweb"] .result-msg--item {
+  background: #f5fff5;
+}
+
+body[data-monsters-theme="oldweb"] .result-msg--bad {
+  background: #fff5f5;
+}
+
+body[data-monsters-theme="oldweb"] .result-msg--action {
+  background: #f5f5ff;
+}
+
+/* コマンドカード */
+body[data-monsters-theme="oldweb"] .cmd-card {
+  background: #f0f4f8;
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .cmd-card__header {
+  background: #ddeeff;
+}
+
+body[data-monsters-theme="oldweb"] .cmd-card__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .cmd-card__stats {
+  color: var(--ow-text);
+}
+
+body[data-monsters-theme="oldweb"] .cmd-card__stat-label {
+  background: var(--ow-head);
+  color: #002266;
+}
+
+body[data-monsters-theme="oldweb"] .cmd-card__actions {
+  background: #e8eef8;
+}
+
+body[data-monsters-theme="oldweb"] .cmd-card__row-label {
+  color: var(--ow-blue);
+  border-bottom: 1px solid #c0c8d8;
+}
+
+/* ========================= §13 Shop ========================= */
+
+body[data-monsters-theme="oldweb"] .omiai-banner {
+  background: #f0f4f8;
+}
+
+/* ========================= §14 BBS ========================= */
+
+body[data-monsters-theme="oldweb"] .bbs-log {
+  background: #f7f7f7;
+}
+
+body[data-monsters-theme="oldweb"] .bbs-line {
+  border-bottom: 1px dashed #c0c8d8;
+  color: var(--ow-text);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .bbs-time {
+  color: var(--ow-text-m);
+}
+
+/* ========================= §16 Zukan ========================= */
+
+body[data-monsters-theme="oldweb"] .category-nav {
+  background: #d8e4f0;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .category-nav__btn {
+  background: linear-gradient(180deg, #e8f0f8, #c8d8ec);
+  border: 1px solid #7aaccc;
+  border-radius: 0;
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .category-nav__btn:link,
+body[data-monsters-theme="oldweb"] .category-nav__btn:visited {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .category-nav__btn:hover {
+  background: linear-gradient(180deg, #ddeeff, #aaccee);
+  color: #001166;
+}
+
+body[data-monsters-theme="oldweb"] .zukan-current {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .zukan-card {
+  background: linear-gradient(180deg, #c8ddf0, #a8c8e8);
+}
+
+body[data-monsters-theme="oldweb"] .zukan-card__no {
+  background: linear-gradient(180deg, #c8ddf0, #a8c8e8);
+  color: #002266;
+}
+
+/* zukan-card__img の background/border は「モンスター画像背景（oldweb共通）」セクションで定義済み */
+body[data-monsters-theme="oldweb"] .zukan-card__name {
+  background: linear-gradient(180deg, #c8ddf0, #a8c8e8);
+  color: #002266;
+}
+
+body[data-monsters-theme="oldweb"] .tooltip {
+  background: #fffff0;
+  border: 1px solid #a0b0a0;
+  color: var(--ow-text);
+  border-radius: 0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================= §17 Book ========================= */
+
+body[data-monsters-theme="oldweb"] .preview-card {
+  background: linear-gradient(180deg, #fafafa, #ececec);
+  border: 1px solid var(--ow-border);
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .preview-card__no {
+  background: #e0e8f0;
+  border-bottom: 1px solid #b0b8c8;
+  color: var(--ow-text-m);
+}
+
+/* preview-card__img の background は「モンスター画像背景（oldweb共通）」セクションで定義済み */
+body[data-monsters-theme="oldweb"] .preview-card__img {
+  border-bottom: 1px solid #b0b8c8;
+}
+
+body[data-monsters-theme="oldweb"] .preview-card__info {
+  background: #f7f7f7;
+}
+
+body[data-monsters-theme="oldweb"] .preview-card__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .preview-card__meta {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .preview-card__sei {
+  background: #e8eef8;
+  border: 1px solid #a0b8cc;
+  border-radius: 0;
+  color: var(--ow-text-m);
+}
+
+/* ========================= §18 Medal Shop ========================= */
+
+body[data-monsters-theme="oldweb"] .status-badge {
+  background: linear-gradient(180deg, #f0f4f8, #e0e8f0);
+  border: 1px solid #a0b8cc;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .status-badge__label {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .status-badge__value {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .item-card {
+  background: linear-gradient(180deg, #fafafa, #ececec);
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+  color: var(--ow-text);
+}
+
+body[data-monsters-theme="oldweb"] .item-card:hover {
+  background: linear-gradient(180deg, #ffffff, #f0f0f0);
+  border-color: var(--ow-blue);
+  transform: none;
+}
+
+body[data-monsters-theme="oldweb"] .item-card__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .item-card__price {
+  border-top: 1px dashed #c0c8d8;
+}
+
+body[data-monsters-theme="oldweb"] .item-card__price-prefix {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .item-card__price-unit {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .item-label input[type="radio"]:checked+.item-card {
+  border-color: var(--ow-blue);
+  background: linear-gradient(180deg, #ddeeff, #c8d8f0);
+  box-shadow: 1px 1px 0 rgba(255, 255, 255, 0.80) inset;
+}
+
+/* ========================= §19 Park & Omiai ========================= */
+
+body[data-monsters-theme="oldweb"] .list-card__header {
+  background: linear-gradient(180deg, #ddeeff, #ccddee);
+  border-bottom: 1px solid #a0b8cc;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__label {
+  background: #003399;
+  color: #ffffff;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__username {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .list-card__body {
+  background: #f0f4f8;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__meta {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .list-card__stat {
+  background: #f0f4f8;
+  border: 1px solid #b0b8c8;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__stat-label {
+  background: var(--ow-head);
+  color: #002266;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__stat-value {
+  color: var(--ow-text);
+}
+
+body[data-monsters-theme="oldweb"] .list-card__message {
+  background: #eef4ff;
+  border-top: 1px solid #c0c8d8;
+}
+
+body[data-monsters-theme="oldweb"] .list-card__message-label {
+  color: var(--ow-blue);
+}
+
+body[data-monsters-theme="oldweb"] .list-card__message-body {
+  color: #333333;
+}
+
+/* ========================= §20 Monster Events ========================= */
+
+/* 配合確認 */
+body[data-monsters-theme="oldweb"] .fusion-pair {
+  background: linear-gradient(180deg, #e8f0f8, #dce8f4);
+}
+
+body[data-monsters-theme="oldweb"] .fusion-mon {
+  background: #f0f4f8;
+  border: 1px solid #a0b8cc;
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .fusion-mon__label {
+  background: #d8e8f4;
+  color: var(--ow-text-m);
+  border-radius: 0;
+}
+
+body[data-monsters-theme="oldweb"] .fusion-mon__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .fusion-plus {
+  background: #d0dce8;
+  color: var(--ow-blue);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--ow-hi) inset;
+}
+
+body[data-monsters-theme="oldweb"] .fusion-preview {
+  background: #f5f8ff;
+  border-top: 1px solid #c0c8d8;
+}
+
+body[data-monsters-theme="oldweb"] .hint-note {
+  color: #664400;
+}
+
+/* NEW MONSTER */
+/* born-card__img の background/box-shadow は「モンスター画像背景（oldweb共通）」セクションで定義済み */
+body[data-monsters-theme="oldweb"] .born-card__name {
+  color: var(--ow-blue);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .born-card__meta {
+  color: var(--ow-text-m);
+}
+
+body[data-monsters-theme="oldweb"] .rare-badge {
+  background: linear-gradient(to right, #fffacc, #fff5aa, #fffacc);
+  border: 1px solid #ccaa44;
+  border-radius: 0;
+  color: #664400;
+}
+
+/* ========================= §21 Newgame ========================= */
+
+body[data-monsters-theme="oldweb"] .stat-box--highlight .stat-box__value {
+  color: var(--ow-red);
+}
+
+body[data-monsters-theme="oldweb"] .register-result__monster {
+  background: #f0f4f8;
+  border-top: 1px solid #b0b8c8;
+}
+
+body[data-monsters-theme="oldweb"] .register-result__monster-info {
+  color: var(--ow-text);
+}
+
+/* ========================= その他 ========================= */
+
+body[data-monsters-theme="oldweb"] #result {
+  background: #f0f4f8;
+  border: 2px solid #7aaccc;
+}
+
+body[data-monsters-theme="oldweb"] #error {
+  background: #fff0f0;
+  border: 2px solid #cc4444;
+}
+
+body[data-monsters-theme="oldweb"] .credit-title {
+  color: var(--ow-red);
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .credit-label,
+body[data-monsters-theme="oldweb"] .credit-copyright {
+  color: #333333;
+  text-shadow: none;
+}
+
+body[data-monsters-theme="oldweb"] .credit-value a {
+  color: var(--ow-blue);
+}
+
+
+/* =========================================================
+   テーマ切り替えボタン UI（全テーマ共通およびフローティング集約）
+   ---------------------------------------------------------
+   テーマに依存するすべてのレイアウトとスタイルをここに集約。
+   ========================================================= */
+
+/* --- フローティングコンテナ本体 --- */
+.monsters-theme-floater {
+  position: fixed;
+  top: var(--space-m);
+  right: var(--space-m);
+  z-index: 9990;
+  /* トースト(10000)の下、フローティングナビ(500)の上 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-s);
+}
+
+/* 🎨 トリガーボタン（トグルスイッチ） */
+.monsters-theme-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background-color: var(--white);
+  color: var(--black);
+  border: 2px solid var(--black);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  position: relative;
+  top: 0;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background-color 0.15s ease;
+}
+
+.monsters-theme-trigger:hover {
+  background-color: #eef3f8;
+}
+
+.monsters-theme-trigger:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--black);
+}
+
+/* 展開されるメニューの枠 */
+.monsters-theme-floater__menu {
+  display: none;
+  /* 初期状態は非表示（JSで .open クラスを制御） */
+  flex-direction: column;
+  gap: var(--space-s);
+  background-color: var(--white);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-m);
+  padding: var(--space-s);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* メニュー展開時の表示 */
+.monsters-theme-floater.open .monsters-theme-floater__menu {
+  display: flex;
+}
+
+/* フローティング内ボタンの共通ベース（サイズ微縮小） */
+.monsters-theme-floater .monsters-theme-btn {
+  display: inline-block;
+  padding: var(--space-s) var(--space-s);
+  font-size: 90%;
+  width: 100px;
+  text-align: center;
+  border: 2px solid transparent;
+  border-radius: var(--radius-s);
+  box-shadow: 0 2px 0 var(--black);
+  cursor: pointer;
+  opacity: 0.65;
+  position: relative;
+  top: 0;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background-color 0.15s ease;
+}
+
+.monsters-theme-floater .monsters-theme-btn:hover {
+  background-color: #e3ebf4;
+}
+
+.monsters-theme-floater .monsters-theme-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--black);
+}
+
+/* ボタン個別のテーマ色デザイン */
+.monsters-theme-btn[data-theme="default"] {
+  background: #eef3f8;
+  color: #31465d;
+  border-color: #31465d;
+}
+
+.monsters-theme-btn[data-theme="retro"] {
+  background: linear-gradient(180deg, rgba(54, 38, 29, 0.92), rgba(34, 24, 19, 0.95));
+  color: rgba(255, 232, 190, 0.96);
+  border-color: rgba(255, 209, 117, 0.50);
+}
+
+.monsters-theme-btn[data-theme="cyber"] {
+  background: linear-gradient(180deg, rgba(10, 0, 18, 0.90), rgba(2, 0, 8, 0.95));
+  color: rgba(0, 255, 240, 0.90);
+  border-color: rgba(0, 255, 240, 0.40);
+}
+
+.monsters-theme-btn[data-theme="oldweb"] {
+  background: linear-gradient(180deg, #fbfbfb, #d9d9d9);
+  color: #222222;
+  border-color: #8f8f8f;
+}
+
+/* 各ボタンのアクティブ（現在選択中）状態 */
+.monsters-theme-floater .monsters-theme-btn.active {
+  opacity: 1;
+}
+
+.monsters-theme-btn[data-theme="default"].active {
+  border-color: #31465d;
+  box-shadow: 0 0 0 3px rgba(49, 70, 93, 0.20);
+}
+
+.monsters-theme-btn[data-theme="retro"].active {
+  border-color: rgba(255, 209, 117, 0.85);
+  box-shadow: 0 0 0 3px rgba(255, 209, 117, 0.15);
+}
+
+.monsters-theme-btn[data-theme="cyber"].active {
+  border-color: rgba(0, 255, 240, 0.90);
+  box-shadow: 0 0 8px rgba(0, 255, 240, 0.22);
+}
+
+.monsters-theme-btn[data-theme="oldweb"].active {
+  border-color: #444444;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+}
+
+/* スマートフォンでのフローターの自動縮小補正 */
+@media screen and (max-width: 768px) {
+  .monsters-theme-floater {
+    top: var(--space-s);
+    right: var(--space-s);
+  }
+
+  .monsters-theme-trigger {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   ユーティリティクラスのテーマ別上書き
+   ---------------------------------------------------------
+   common.css の .sky_blue / .blue / .red / .yellow は
+   color をハードコードしているため CSS 変数では上書きできない。
+   テーマごとに直接指定する。
+   ========================================================= */
+
+/* --- RETRO --- */
+body[data-monsters-theme="retro"] .sky_blue {
+  color: #90caf9;
+}
+
+body[data-monsters-theme="retro"] .blue {
+  color: #7ea8e8;
+}
+
+body[data-monsters-theme="retro"] .red {
+  color: #ef6c6c;
+}
+
+body[data-monsters-theme="retro"] .yellow {
+  color: #ffd54f;
+}
+
+/* --- CYBER --- */
+body[data-monsters-theme="cyber"] .sky_blue {
+  color: rgba(0, 210, 255, 0.92);
+}
+
+body[data-monsters-theme="cyber"] .blue {
+  color: rgba(80, 200, 255, 0.94);
+}
+
+body[data-monsters-theme="cyber"] .red {
+  color: rgba(255, 90, 100, 0.96);
+}
+
+body[data-monsters-theme="cyber"] .yellow {
+  color: rgba(255, 220, 60, 0.96);
+}
+
+/* --- OLDWEB --- */
+/* oldweb は明背景なのでデフォルトに近いが、
+   .blue の濃紺はグレー背景上でそのまま使えるため調整は最小限にする */
+body[data-monsters-theme="oldweb"] .sky_blue {
+  color: #1976d2;
+}
+
+body[data-monsters-theme="oldweb"] .blue {
+  color: #1a3faa;
+}
+
+body[data-monsters-theme="oldweb"] .red {
+  color: #cc2222;
+}
+
+body[data-monsters-theme="oldweb"] .yellow {
+  color: #b57800;
+}
+
+/* グレー背景上でも読める濃い黄 */
+
+/* =========================================================
+   テクスチャ画像の使い方
+   ---------------------------------------------------------
+   各テーマの変数を url() に書き換えるだけで画像が適用される。
+
+   RETRO:
+     --retro-mon-bg: url("../img/retro_tex.png");
+
+   CYBER:
+     --cyber-mon-bg: url("../img/cyber_tex.png");
+
+   OLDWEB:
+     --oldweb-mon-bg: url("../img/oldweb_tex.png");
+
+   変数はテーマ変数ブロック（ファイル冒頭付近）に定義済み。
+   ========================================================= */

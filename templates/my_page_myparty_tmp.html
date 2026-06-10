@@ -2,13 +2,14 @@
 
 <section class="party-section" id="party-section">
 
-  <!-- ユーザーステータスカード -->
-  <div class="card content-lg" style="margin-bottom: var(--space-m);">
+  <!-- styleを排除。CSSの .party-status-card 側で余白を担保 -->
+  <div class="card content-lg party-status-card">
     <div class="card__header">
       {{ user.name }}さんのパーティー
     </div>
     <div class="card__body">
-      <div class="layout-grid" style="--grid-min: 160px;">
+      <!-- styleを排除。Modifierクラス .layout-grid--stat を適用 -->
+      <div class="layout-grid layout-grid--stat">
         <div class="stat-box">
           <div class="stat-box__label">所持金</div>
           <div class="stat-box__value">{{ user_v.money }}G</div>
@@ -29,7 +30,8 @@
         </div>
         <div class="stat-box my_page_zukan">
           <div class="stat-box__label">
-            <a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type=スライム系&fol={{ fol }}" class="zukan-link">魔物図鑑</a>
+            <a href="{{ Conf.cgi_url }}?mode=zukan&user_name={{ user_name | urlencode }}&type=スライム系&fol={{ fol }}"
+              class="zukan-link">魔物図鑑</a>
           </div>
           <div class="stat-box__value">{{ user.getm }}</div>
         </div>
@@ -39,7 +41,8 @@
       <div class="stat-box">
         <form action="{{ Conf.cgi_url }}" method="post" class="party-comment-form">
           <span class="party-comment-form__label">コメント</span>
-          <input type="text" name="message" value="{{ user.mes | escape }}" class="form-control party-comment-form__input" placeholder="ひとことコメント">
+          <input type="text" name="message" value="{{ user.mes | escape }}"
+            class="form-control party-comment-form__input" placeholder="ひとことコメント">
           <button type="submit" class="btn btn--sm">変更</button>
           <input type="hidden" name="mode" value="comment">
           <input type="hidden" name="token" value="{{ token }}">
@@ -121,7 +124,7 @@
       <button type="submit" class="btn">並び替えOK</button>
       <input type="hidden" name="mode" value="change">
       <input type="hidden" name="token" value="{{ token }}">
-      <p class="reorder-note">No.1からNo.3迄のモンスターが戦闘に出撃します</p>
+      <div class="reorder-note">No.1からNo.3迄のモンスターが戦闘に出撃します</div>
     </div>
     {% endif %}
 
