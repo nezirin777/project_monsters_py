@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from sub_def.file_ops import (
     open_user_list,
+    get_ranked_user_list,
     open_tournament_time,
     timesyori,
     open_user_all,
@@ -35,7 +36,7 @@ def _update_user_medal(target: str, medal: int) -> None:
 
 class Tournament:
     def __init__(self) -> None:
-        u_list = open_user_list()
+        u_list = get_ranked_user_list(open_user_list())
         self.U_count = min(len(u_list), 64)
 
         # 万が一 key が存在しない場合に備えて .get を使用
