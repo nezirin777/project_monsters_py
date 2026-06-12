@@ -107,12 +107,12 @@ def get_recent_comments(u_list: dict, limit: int = 5) -> list[dict]:
     """
     user_list から有効なコメントを更新日時の新しい順に取得して返す。
     mes_updated_at がないエントリは最古扱い（ソート末尾）として含める。
-    空・未登録コメントはスキップする。
+    空・未登録・空白のみのコメントはスキップする。
     """
     entries = [
         {"name": name, "mes": u["mes"]}
         for name, u in u_list.items()
-        if u.get("mes", "") not in _SKIP_MES
+        if (u.get("mes") or "").strip() not in _SKIP_MES
     ]
     entries.sort(
         key=lambda x: u_list[x["name"]].get("mes_updated_at", ""),
