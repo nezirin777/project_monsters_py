@@ -683,7 +683,7 @@ body[data-monsters-theme="retro"] .color-picker__item input[type="radio"]:checke
 }
 
 /* デフォルトと同系統・暗背景向けに輝度を上げた色 */
-body[data-monsters-theme="retro"] .bbs-color-0  { color: #666666; }  /* 黒 → 中グレー */
+body[data-monsters-theme="retro"] .bbs-color-0  { color: var(--retro-text); }  /* 黒 → 中グレー */
 body[data-monsters-theme="retro"] .bbs-color-1  { color: #ff6b6b; }  /* 赤 */
 body[data-monsters-theme="retro"] .bbs-color-2  { color: #69db7c; }  /* 緑 */
 body[data-monsters-theme="retro"] .bbs-color-3  { color: #74c0fc; }  /* 紺 → 明るい青 */
@@ -691,7 +691,7 @@ body[data-monsters-theme="retro"] .bbs-color-4  { color: #4dabf7; }  /* 青 */
 body[data-monsters-theme="retro"] .bbs-color-5  { color: #cc5de8; }  /* 紫 */
 body[data-monsters-theme="retro"] .bbs-color-6  { color: #e8856a; }  /* インディアンレッド */
 
-body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-0  { background-color: #666666; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-0  { background-color: var(--retro-text);; }
 body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-1  { background-color: #ff6b6b; }
 body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-2  { background-color: #69db7c; }
 body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-3  { background-color: #74c0fc; }
