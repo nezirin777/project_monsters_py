@@ -22,6 +22,8 @@ import conf
 
 Conf = conf.Conf
 
+_SKIP_MES: frozenset[str] = frozenset({"", "未登録"})
+
 
 def calculate_costs_and_options(
     party: list,
@@ -101,6 +103,24 @@ def update_user_list(user_name: str, user: dict, party: list) -> None:
     save_user_list(u_list)
 
 
+def get_recent_comments(u_list: dict, limit: int = 5) -> list[dict]:
+    """
+    user_list から有効なコメントを更新日時の新しい順に取得して返す。
+    mes_updated_at がないエントリは最古扱い（ソート末尾）として含める。
+    空・未登録コメントはスキップする。
+    """
+    entries = [
+        {"name": name, "mes": u["mes"]}
+        for name, u in u_list.items()
+        if u.get("mes", "") not in _SKIP_MES
+    ]
+    entries.sort(
+        key=lambda x: u_list[x["name"]].get("mes_updated_at", ""),
+        reverse=True,
+    )
+    return entries[:limit]
+
+
 def my_page(FORM: dict) -> NoReturn:
     """マイページ表示処理（user_all 完全対応版）"""
     session = FORM.get("s", {})
@@ -142,6 +162,9 @@ def my_page(FORM: dict) -> NoReturn:
 
     # ユーザーリスト更新
     update_user_list(user_name, user, party)
+
+    # 横スクロール用: 最新コメント5件を取得
+    recent_comments = get_recent_comments(open_user_list(), 10)
 
     # ブーストの有効期限チェック
     now_ts = datetime.datetime.now().timestamp()
@@ -249,6 +272,7 @@ def my_page(FORM: dict) -> NoReturn:
         "tenkan_options": tenkan_options,
         "flash_msg": flash_msg,
         "flash_type": flash_type,
+        "recent_comments": recent_comments,
         # my_page_myparty_tmp.html 内の図鑑リンクで {{ fol }} を参照するため明示的に渡す。
         # 自分のページは常に自分のフォルダを参照するため空文字固定。
         # （my_page2.py では FORM.get("fol", "") を渡している）

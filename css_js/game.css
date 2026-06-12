@@ -27,7 +27,10 @@ img {
 
 .wrapper {
   margin: var(--space-s);
+  padding-bottom: 36px;
+  /* ticker の高さ分だけ余白を確保 */
 }
+
 /* ====================================== */
 /* 1. Layout Core                         */
 /* ====================================== */
@@ -616,6 +619,7 @@ img {
   text-align: center;
   width: min(1000px, 95%);
   margin-inline: auto;
+
   /* バージョン番号 */
   & span {
     color: var(--yellow);
@@ -1018,6 +1022,7 @@ img {
   flex: 1;
   min-width: 40;
 }
+
 /* --- パーティグリッド --- */
 
 /* JS依存のためclass名維持。スタイルのみ移行 */
@@ -1169,9 +1174,10 @@ img {
   padding: var(--space-m);
   border-radius: var(--radius-m);
   background-color: rgba(0, 0, 0, 0.6);
+
   & .active {
-      background: #ff9800 !important;
-      box-shadow: 0 0 8px #ff9800 !important;
+    background: #ff9800 !important;
+    box-shadow: 0 0 8px #ff9800 !important;
   }
 }
 
@@ -1242,7 +1248,7 @@ img {
 .layout-grid--stat {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   --grid-min: 160px;
-    /* ここに集約。直接 160px を適用させます */
+  /* ここに集約。直接 160px を適用させます */
 }
 
 /* BBSセクションのスクロール制御 */
@@ -1295,6 +1301,61 @@ img {
   background-color: var(--sky-blue);
   color: var(--black);
   box-shadow: 0 0 4px var(--sky-blue);
+}
+
+/* コメント横スクロール（マイページ固定）  */
+.comment-ticker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xs) var(--space-m);
+  background-color: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(4px);
+  border-top: 1px solid var(--sky-blue);
+  font-size: 88%;
+  color: var(--white);
+}
+
+.comment-ticker__label {
+  flex-shrink: 0;
+  padding: 2px var(--space-s);
+  background-color: var(--sky-blue);
+  color: var(--black);
+  font-weight: bold;
+  border-radius: var(--radius-s);
+  font-size: 80%;
+  white-space: nowrap;
+}
+
+.comment-ticker__track {
+  flex: 1;
+  overflow: hidden;
+}
+
+.comment-ticker__inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker-scroll 50s linear infinite;
+}
+
+/* ホバーで一時停止 */
+.comment-ticker:hover .comment-ticker__inner {
+  animation-play-state: paused;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* ====================================== */
@@ -1953,6 +2014,8 @@ img {
 /* ログエリア */
 .bbs-log {
   background-color: var(--white);
+  border-radius: var(--radius-s);
+  padding: 4px;
 }
 
 /* ログ1行（Python生成のためclass名維持） */
@@ -2013,6 +2076,72 @@ img {
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.15s ease;
+}
+
+/*
+ * bbs-color-{n} はカラーインデックスに対応する。
+ * .bbs-line に付与されログ文字色を制御する。
+ * .color-picker__swatch に付与されスウォッチ背景色も兼ねる。
+ * テーマ別の色は game_themes.css で上書きする。
+ */
+.bbs-color-0 {
+  color: #000000;
+}
+
+.bbs-color-1 {
+  color: #ff0000;
+}
+
+.bbs-color-2 {
+  color: #008000;
+}
+
+.bbs-color-3 {
+  color: #000080;
+}
+
+.bbs-color-4 {
+  color: #0080ff;
+}
+
+.bbs-color-5 {
+  color: #9400d3;
+}
+
+.bbs-color-6 {
+  color: #cd5c5c;
+}
+
+/*
+ * スウォッチは color プロパティをそのまま background-color に使う。
+ * bbs-color-{n} と同じ値を重複定義せず、ここで一括管理する。
+ */
+.color-picker__swatch.bbs-color-0 {
+  background-color: #000000;
+}
+
+.color-picker__swatch.bbs-color-1 {
+  background-color: #ff0000;
+}
+
+.color-picker__swatch.bbs-color-2 {
+  background-color: #008000;
+}
+
+.color-picker__swatch.bbs-color-3 {
+  background-color: #000080;
+}
+
+.color-picker__swatch.bbs-color-4 {
+  background-color: #0080ff;
+}
+
+.color-picker__swatch.bbs-color-5 {
+  background-color: #9400d3;
+}
+
+.color-picker__swatch.bbs-color-6 {
+  background-color: #cd5c5c;
 }
 
 /* ====================================== */
@@ -2166,6 +2295,7 @@ img {
     margin-top: var(--space-xs);
   }
 }
+
 /* 共有ツールチップの初期状態 */
 
 #shared-tooltip {
@@ -2659,6 +2789,7 @@ img {
   gap: var(--space-s);
   min-width: 0;
 }
+
 /* ====================================== */
 /* 20. Monster Events                     */
 /* ====================================== */
@@ -2774,6 +2905,7 @@ img {
   max-width: 240px;
   margin-inline: auto;
 }
+
 /* --- NEW MONSTER --- */
 
 /* レア誕生バナー */

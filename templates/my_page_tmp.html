@@ -110,4 +110,21 @@
 </div>
 {% endif %}
 
+{% if recent_comments %}
+<div class="comment-ticker">
+  <span class="comment-ticker__label">ひとこと</span>
+  <div class="comment-ticker__track">
+    <div class="comment-ticker__inner">
+      {% for c in recent_comments %}
+      {{ c.name }}: 「{{ c.mes }}」&emsp;
+      {% endfor %}
+      {% for c in recent_comments %}
+      {{ c.name }}: 「{{ c.mes }}」&emsp;
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
 {% endblock %}

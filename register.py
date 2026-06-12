@@ -43,11 +43,11 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 def log_registration(in_name: str) -> None:
     """新規登録をBBSログに追加"""
-    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     newlog = (
-        f'<div class="bbs-line">'
-        f'<span style="color: red; font-weight: bold;">{html.escape(in_name)}</span>さんが参加しました！。 &gt; '
-        f'<span class="bbs-time">--{time}</span>'
+        f'<div class="bbs-line bbs-color-1">'
+        f'<span style="font-weight: bold;">{html.escape(in_name)}</span>さんが参加しました！。  &gt; '
+        f'<span class="bbs-time">--{timestamp}</span>'
         f"</div>\n"
     )
     append_log(newlog)

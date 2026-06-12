@@ -28,16 +28,28 @@ from sub_def.utils import error, print_html
 from sub_def.file_ops import ensure_logfile, read_log, append_log
 from sub_def.crypto import verify_csrf_token, generate_csrf_token, get_session
 
-MESSAGE_COLORS = Conf["message_colors"]
+# BBS カラー選択肢の数。
+# CSS で bbs-color-0 ～ bbs-color-{N-1} を定義しておくこと。
+# フォームの value はインデックス文字列（"0", "1", ...）を使う。
+BBS_COLOR_COUNT = 7
+
+
+def _validate_color_index(value: str) -> int:
+    """送信されたカラーインデックスを検証して int で返す。不正な値は 0 にフォールバック"""
+    try:
+        idx = int(value)
+        if 0 <= idx < BBS_COLOR_COUNT:
+            return idx
+    except (TypeError, ValueError):
+        pass
+    return 0
 
 
 def handle_refresh(form: dict, session: dict) -> NoReturn:
     """ログ更新リクエストを処理し、JSON レスポンスを返して終了する"""
     submitted_token = form.get("csrf_token")
     if not verify_csrf_token(submitted_token, session):
-        error(
-            "不正なリクエストです",
-        )
+        error("不正なリクエストです")
 
     # CGI では print() が末尾に改行を付加するため、ヘッダー文字列に "\n" を含めることで
     # 「ヘッダー行 + 空行」の2つの改行を確保し、HTTP 仕様に沿った応答を生成する
@@ -46,11 +58,11 @@ def handle_refresh(form: dict, session: dict) -> NoReturn:
     sys.exit()
 
 
-def handle_post(form: dict, session: dict) -> str:
+def handle_post(form: dict, session: dict) -> int:
     """
     発言投稿リクエストを処理する。
     AJAX リクエストの場合は JSON を返して sys.exit()、
-    通常リクエストの場合は次の render_page() で使う csrf_token を返す。
+    通常リクエストの場合は次の render_page() で使う選択中カラーインデックスを返す。
     """
     submitted_token = form.get("csrf_token")
     raw_txt = form.get("bbs_txt", "")
@@ -70,20 +82,19 @@ def handle_post(form: dict, session: dict) -> str:
     # 発言テキストの無毒化（空白を詰めてから60文字制限）
     txt = html.escape(raw_txt.strip()[:60])
 
-    color = form.get("color", "#000000")
-    if not isinstance(color, str) or color not in MESSAGE_COLORS:
-        color = "#000000"
+    color_idx = _validate_color_index(form.get("color", "0"))
 
     if not session.get("in_name"):
         error("ユーザー名が設定されていません", jump="top")
 
     safe_name = html.escape(session["in_name"])
-
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # モダンなクラス構造でログを生成
+    # カラーコードではなく CSS クラス名をログに埋め込む。
+    # CSS 側でテーマごとに bbs-color-{n} の色を定義することで
+    # ログファイルを書き直さずにテーマ対応できる。
     newlog = (
-        f'<div class="bbs-line" style="color: {color};">'
+        f'<div class="bbs-line bbs-color-{color_idx}">'
         f'<span style="font-weight: bold;">{safe_name}</span> &gt; '
         f'{txt} <span class="bbs-time">--{timestamp}</span>'
         f"</div>\n"
@@ -99,20 +110,16 @@ def handle_post(form: dict, session: dict) -> str:
         print(json.dumps(response))
         sys.exit()
 
-    return csrf_token
+    return color_idx
 
 
-def render_page(form: dict, csrf_token: str) -> NoReturn:
+def render_page(form: dict, csrf_token: str, selected_idx: int = 0) -> NoReturn:
     """通常の掲示板画面をレンダリングして終了する"""
-    selected_color = form.get("color", "#000000")
-
-    if selected_color not in MESSAGE_COLORS:
-        selected_color = "#000000"
-
     content = {
         "log": read_log(),
-        "colors": MESSAGE_COLORS,
-        "selected_color": selected_color,
+        # range をテンプレートに渡して bbs-color-0 ～ bbs-color-N のクラス名を生成させる
+        "color_count": BBS_COLOR_COUNT,
+        "selected_idx": selected_idx,
         "csrf_token": csrf_token,
         "Conf": Conf,
     }
@@ -142,7 +149,8 @@ if __name__ == "__main__":
     elif mode == "view":
         render_view_mode()
     elif "bbs_txt" in FORM:
-        csrf_token = handle_post(FORM, session)
-        render_page(FORM, csrf_token)
+        selected_idx = handle_post(FORM, session)
+        render_page(FORM, csrf_token, selected_idx)
     else:
-        render_page(FORM, csrf_token)
+        selected_idx = _validate_color_index(FORM.get("color", "0"))
+        render_page(FORM, csrf_token, selected_idx)

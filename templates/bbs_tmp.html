@@ -20,10 +20,11 @@
     </div>
 
     <div class="color-picker">
-      {% for color in colors %}
+      {% for idx in range(color_count) %}
       <label class="color-picker__item">
-        <input type="radio" name="color" value="{{ color }}" {% if color==selected_color %}checked{% endif %}>
-        <span class="color-picker__swatch" style="background-color: {{ color }};"></span>
+        {# value はインデックス文字列。CSS クラス bbs-color-{idx} で色を制御する #}
+        <input type="radio" name="color" value="{{ idx }}" {% if idx==selected_idx %}checked{% endif %}>
+        <span class="color-picker__swatch bbs-color-{{ idx }}"></span>
       </label>
       {% endfor %}
     </div>

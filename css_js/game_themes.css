@@ -653,30 +653,62 @@ body[data-monsters-theme="retro"] .omiai-banner {
 
 /* ========================= §14 BBS ========================= */
 
-/*
- * bbs-log は <font color="..."> でハードコードされた色のログを含むため、
- * 暗背景のままでは視認性が保証できない。
- * オフホワイト固定にしてログの色指定をそのまま活かす。
- * bbs-line の color は外して <font> タグの色を優先させる。
- */
 body[data-monsters-theme="retro"] .bbs-log {
-  background: #f5f0e8;
-  /* 温かみのあるオフホワイト（retroの雰囲気に合わせた暖色系） */
-  border-radius: 4px;
+  background: rgba(36, 22, 12, 0.85);
+  border: 1px solid rgba(255, 209, 117, 0.20);
+  border-radius: var(--radius-s);
   padding: 4px;
 }
 
 body[data-monsters-theme="retro"] .bbs-line {
-  border-bottom-color: #d4c9b0;
-  /* color は指定しない: <font color> タグの色をそのまま使う */
+  border-bottom-color: rgba(255, 209, 117, 0.18);
 }
 
 body[data-monsters-theme="retro"] .bbs-time {
-  color: #888880;
+  color: rgba(244, 236, 216, 0.45);
 }
 
 body[data-monsters-theme="retro"] .bbs-log hr {
-  border-top-color: #d4c9b0;
+  border-top-color: rgba(255, 209, 117, 0.18);
+}
+
+/* カラーピッカー: ゴールド枠 */
+body[data-monsters-theme="retro"] .color-picker__swatch {
+  border-color: rgba(255, 209, 117, 0.30);
+}
+
+body[data-monsters-theme="retro"] .color-picker__item input[type="radio"]:checked + .color-picker__swatch {
+  border-color: rgba(255, 209, 117, 0.80);
+  box-shadow: 0 0 0 2px rgba(255, 209, 117, 0.25);
+}
+
+/* デフォルトと同系統・暗背景向けに輝度を上げた色 */
+body[data-monsters-theme="retro"] .bbs-color-0  { color: #666666; }  /* 黒 → 中グレー */
+body[data-monsters-theme="retro"] .bbs-color-1  { color: #ff6b6b; }  /* 赤 */
+body[data-monsters-theme="retro"] .bbs-color-2  { color: #69db7c; }  /* 緑 */
+body[data-monsters-theme="retro"] .bbs-color-3  { color: #74c0fc; }  /* 紺 → 明るい青 */
+body[data-monsters-theme="retro"] .bbs-color-4  { color: #4dabf7; }  /* 青 */
+body[data-monsters-theme="retro"] .bbs-color-5  { color: #cc5de8; }  /* 紫 */
+body[data-monsters-theme="retro"] .bbs-color-6  { color: #e8856a; }  /* インディアンレッド */
+
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-0  { background-color: #666666; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-1  { background-color: #ff6b6b; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-2  { background-color: #69db7c; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-3  { background-color: #74c0fc; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-4  { background-color: #4dabf7; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-5  { background-color: #cc5de8; }
+body[data-monsters-theme="retro"] .color-picker__swatch.bbs-color-6  { background-color: #e8856a; }
+
+/* comment-ticker */
+body[data-monsters-theme="retro"] .comment-ticker {
+  background-color: rgba(28, 16, 8, 0.92);
+  border-top-color: rgba(255, 209, 117, 0.40);
+  color: #f4ecd8; /* 暗背景に合わせて明るいテキスト色を明示 */
+}
+
+body[data-monsters-theme="retro"] .comment-ticker__label {
+  background-color: rgba(255, 209, 117, 0.70);
+  color: #1b120f;
 }
 
 /* ========================= §16 Zukan ========================= */
@@ -1627,29 +1659,62 @@ body[data-monsters-theme="cyber"] .omiai-banner {
 
 /* ========================= §14 BBS ========================= */
 
-/*
- * retro と同様に <font color="..."> のログ色を活かすため
- * オフホワイト固定にする。
- * cyber らしさを残すため青みがかった淡いグレーを使用。
- */
 body[data-monsters-theme="cyber"] .bbs-log {
-  background: #e8eef2;
-  /* 青みがかったオフホワイト（cyberの雰囲気に合わせた寒色系） */
-  border-radius: 4px;
+  background: rgba(2, 0, 8, 0.90);
+  border: 1px solid rgba(0, 255, 240, 0.18);
+  border-radius: var(--radius-s);
   padding: 4px;
 }
 
 body[data-monsters-theme="cyber"] .bbs-line {
-  border-bottom-color: #b8ccd8;
-  /* color は指定しない: <font color> タグの色をそのまま使う */
+  border-bottom-color: rgba(0, 255, 240, 0.15);
 }
 
 body[data-monsters-theme="cyber"] .bbs-time {
-  color: #7a8a96;
+  color: rgba(245, 250, 255, 0.35);
 }
 
 body[data-monsters-theme="cyber"] .bbs-log hr {
-  border-top-color: #b8ccd8;
+  border-top-color: rgba(0, 255, 240, 0.15);
+}
+
+/* カラーピッカー: シアン枠 */
+body[data-monsters-theme="cyber"] .color-picker__swatch {
+  border-color: rgba(0, 255, 240, 0.25);
+}
+
+body[data-monsters-theme="cyber"] .color-picker__item input[type="radio"]:checked + .color-picker__swatch {
+  border-color: rgba(0, 255, 240, 0.80);
+  box-shadow: 0 0 0 2px rgba(0, 255, 240, 0.20), 0 0 6px rgba(0, 255, 240, 0.30);
+}
+
+/* デフォルトと同系統・漆黒背景向けに輝度を上げた色 */
+body[data-monsters-theme="cyber"] .bbs-color-0  { color: #a0a8b0; }  /* 黒 → 薄グレー */
+body[data-monsters-theme="cyber"] .bbs-color-1  { color: #ff6b81; }  /* 赤 */
+body[data-monsters-theme="cyber"] .bbs-color-2  { color: #51cf66; }  /* 緑 */
+body[data-monsters-theme="cyber"] .bbs-color-3  { color: #74c0fc; }  /* 紺 → 明るい青 */
+body[data-monsters-theme="cyber"] .bbs-color-4  { color: #4dabf7; }  /* 青 */
+body[data-monsters-theme="cyber"] .bbs-color-5  { color: #da77f2; }  /* 紫 */
+body[data-monsters-theme="cyber"] .bbs-color-6  { color: #e8856a; }  /* インディアンレッド */
+
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-0  { background-color: #a0a8b0; }
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-1  { background-color: #ff6b81; }
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-2  { background-color: #51cf66; }
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-3  { background-color: #74c0fc; }
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-4  { background-color: #4dabf7; }
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-5  { background-color: #da77f2; }
+body[data-monsters-theme="cyber"] .color-picker__swatch.bbs-color-6  { background-color: #e8856a; }
+
+/* comment-ticker */
+body[data-monsters-theme="cyber"] .comment-ticker {
+  background-color: rgba(2, 0, 8, 0.94);
+  border-top-color: rgba(0, 255, 240, 0.35);
+  color: rgba(245, 250, 255, 0.94); /* 漆黒背景に合わせて明るいテキスト色を明示 */
+}
+
+body[data-monsters-theme="cyber"] .comment-ticker__label {
+  background-color: rgba(0, 255, 240, 0.70);
+  color: #05000a;
 }
 
 /* ========================= モンスター画像背景（サイバー共通） ========================= */
@@ -2657,6 +2722,9 @@ body[data-monsters-theme="oldweb"] .omiai-banner {
 
 body[data-monsters-theme="oldweb"] .bbs-log {
   background: #f7f7f7;
+  border: 1px solid #c0c8d8;
+  border-radius: 0;
+  padding: 4px;
 }
 
 body[data-monsters-theme="oldweb"] .bbs-line {
@@ -2667,6 +2735,52 @@ body[data-monsters-theme="oldweb"] .bbs-line {
 
 body[data-monsters-theme="oldweb"] .bbs-time {
   color: var(--ow-text-m);
+}
+
+/* カラーピッカー: クラシック風の黒枠 */
+body[data-monsters-theme="oldweb"] .color-picker__swatch {
+  border-color: #888888;
+  border-radius: 2px;
+}
+
+body[data-monsters-theme="oldweb"] .color-picker__item input[type="radio"]:checked + .color-picker__swatch {
+  border-color: #333333;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.80) inset, 0 0 0 2px #aaaaaa;
+  transform: scale(1.08);
+}
+
+/* デフォルトと同系統・明背景向けにやや濃い色 */
+body[data-monsters-theme="oldweb"] .bbs-color-0  { color: #222222; }  /* 黒 */
+body[data-monsters-theme="oldweb"] .bbs-color-1  { color: #cc0000; }  /* 赤 */
+body[data-monsters-theme="oldweb"] .bbs-color-2  { color: #006600; }  /* 緑 */
+body[data-monsters-theme="oldweb"] .bbs-color-3  { color: #000099; }  /* 紺 */
+body[data-monsters-theme="oldweb"] .bbs-color-4  { color: #0066cc; }  /* 青 */
+body[data-monsters-theme="oldweb"] .bbs-color-5  { color: #7700aa; }  /* 紫 */
+body[data-monsters-theme="oldweb"] .bbs-color-6  { color: #aa3333; }  /* インディアンレッド */
+
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-0  { background-color: #222222; }
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-1  { background-color: #cc0000; }
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-2  { background-color: #006600; }
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-3  { background-color: #000099; }
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-4  { background-color: #0066cc; }
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-5  { background-color: #7700aa; }
+body[data-monsters-theme="oldweb"] .color-picker__swatch.bbs-color-6  { background-color: #aa3333; }
+
+/* comment-ticker */
+body[data-monsters-theme="oldweb"] .comment-ticker {
+  background: linear-gradient(180deg, #ebebeb, #dadada);
+  border-top: 1px solid #8f8f8f;
+  box-shadow: none;
+  backdrop-filter: none;
+  color: #222222; /* 明背景に合わせて濃いテキスト色を明示 */
+}
+
+body[data-monsters-theme="oldweb"] .comment-ticker__label {
+  background: linear-gradient(180deg, #fbfbfb, #d9d9d9);
+  border: 1px solid #8f8f8f;
+  border-radius: 0;
+  color: #222222;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.80) inset, -1px -1px 0 rgba(0,0,0,0.10) inset;
 }
 
 /* ========================= §16 Zukan ========================= */

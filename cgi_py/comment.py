@@ -3,6 +3,7 @@
 import html
 import re
 from typing import NoReturn
+import datetime
 
 from sub_def.utils import error, success
 from sub_def.file_ops import (
@@ -64,6 +65,7 @@ def comment(FORM: dict) -> NoReturn:
     # ユーザーリスト側の mes も更新（表示用）
     # ※上部で not in u_list の場合は弾いているため、存在は確定している
     u_list[user_name]["mes"] = safe_mes
+    u_list[user_name]["mes_updated_at"] = datetime.datetime.now().isoformat()
 
     # 保存処理（user_all と user_list の両方を更新）
     all_data["user"] = user
