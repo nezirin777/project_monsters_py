@@ -112,7 +112,9 @@ def get_recent_comments(u_list: dict, limit: int = 5) -> list[dict]:
     entries = [
         {"name": name, "mes": u["mes"]}
         for name, u in u_list.items()
-        if (u.get("mes") or "").strip() not in _SKIP_MES
+        # Noneは空文字に、数値(int)などは強制的に文字列(str)にしてから strip() をかける
+        if str(u.get("mes") if u.get("mes") is not None else "").strip()
+        not in _SKIP_MES
     ]
     entries.sort(
         key=lambda x: u_list[x["name"]].get("mes_updated_at", ""),

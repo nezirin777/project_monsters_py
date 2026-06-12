@@ -1341,6 +1341,7 @@ img {
   display: inline-block;
   white-space: nowrap;
   animation: ticker-scroll 50s linear infinite;
+  transform: translateX(5%);
 }
 
 /* ホバーで一時停止 */
@@ -1350,7 +1351,7 @@ img {
 
 @keyframes ticker-scroll {
   0% {
-    transform: translateX(0);
+    transform: translateX(5%);
   }
 
   100% {
